@@ -1,0 +1,4 @@
+-- @preview-file on clear
+_ENV = Dora
+
+threadLoop ImGui.ShowDemoWindow
