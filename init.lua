@@ -25,15 +25,20 @@ threadLoop(function() -- 14
 		Vec2(240, 0), -- 18
 		"FirstUseEver" -- 18
 	) -- 18
-	ImGui.Begin( -- 19
-		"Examples", -- 19
-		windowFlags, -- 19
-		function() -- 19
-			ImGui.Text("Examples (TypeScript)") -- 20
-			ImGui.Separator() -- 21
-			ImGui.TextWrapped("Dora Example showcases code snippet-based demonstrations of features in the Dora game engine.") -- 22
-		end -- 19
-	) -- 19
-	return false -- 24
+	local stop = false -- 19
+	ImGui.Begin( -- 20
+		"Examples", -- 20
+		windowFlags, -- 20
+		function() -- 20
+			ImGui.Text("Dora Example") -- 21
+			ImGui.Separator() -- 22
+			ImGui.TextWrapped("Showcases code snippet-based demonstrations of features in the Dora SSR game engine. See more in the example tab.") -- 23
+			if ImGui.Button("Try Snake") then -- 23
+				require("Example.Snake") -- 25
+				stop = true -- 26
+			end -- 26
+		end -- 20
+	) -- 20
+	return stop -- 29
 end) -- 14
 return ____exports -- 14
