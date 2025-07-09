@@ -8,26 +8,29 @@ let current: Node.Type | null = null;
 
 function Test(name: string, jsx: React.Element) {
 	return {name, test: () => {
-		current = toNode(jsx);
+		current = toNode(
+			<node scaleX={50} scaleY={50} scaleZ={10}>
+			{jsx}
+			</node>);
 	}};
 }
 
 const tests = [
 
 	Test("Laser",
-		<effek-node scaleX={50} scaleY={50} x={-300} angleY={-90}>
-			<effek file='Particle/effek/Laser01.efk'/>
+		<effek-node angleY={-90}>
+			<effek file='Particle/effek/Laser01.efk' x={-200}/>
 		</effek-node>
 	),
 
 	Test("Simple Model UV",
-		<effek-node scaleX={50} scaleY={50} y={-200}>
+		<effek-node>
 			<effek file='Particle/effek/Simple_Model_UV.efkefc'/>
 		</effek-node>
 	),
 
 	Test("Sword Lightning",
-		<effek-node scaleX={50} scaleY={50} y={-300}>
+		<effek-node>
 			<effek file='Particle/effek/sword_lightning.efkefc'/>
 		</effek-node>
 	),

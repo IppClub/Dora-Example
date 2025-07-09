@@ -15,77 +15,77 @@ local function Test(name, jsx) -- 9
 	return { -- 10
 		name = name, -- 10
 		test = function() -- 10
-			current = toNode(jsx) -- 11
+			current = toNode(React.createElement("node", {scaleX = 50, scaleY = 50, scaleZ = 10}, jsx)) -- 11
 		end -- 10
 	} -- 10
 end -- 9
-local tests = { -- 15
-	Test( -- 17
-		"Laser", -- 17
-		React.createElement( -- 17
-			"effek-node", -- 17
-			{scaleX = 50, scaleY = 50, x = -300, angleY = -90}, -- 17
-			React.createElement("effek", {file = "Particle/effek/Laser01.efk"}) -- 17
-		) -- 17
-	), -- 17
-	Test( -- 23
-		"Simple Model UV", -- 23
-		React.createElement( -- 23
-			"effek-node", -- 23
-			{scaleX = 50, scaleY = 50, y = -200}, -- 23
-			React.createElement("effek", {file = "Particle/effek/Simple_Model_UV.efkefc"}) -- 23
-		) -- 23
-	), -- 23
-	Test( -- 29
-		"Sword Lightning", -- 29
-		React.createElement( -- 29
-			"effek-node", -- 29
-			{scaleX = 50, scaleY = 50, y = -300}, -- 29
-			React.createElement("effek", {file = "Particle/effek/sword_lightning.efkefc"}) -- 29
-		) -- 29
-	) -- 29
-} -- 29
-tests[1].test() -- 36
-local testNames = __TS__ArrayMap( -- 38
-	tests, -- 38
-	function(____, t) return t.name end -- 38
-) -- 38
-local currentTest = 1 -- 40
-local windowFlags = { -- 41
-	"NoDecoration", -- 42
-	"NoSavedSettings", -- 43
-	"NoFocusOnAppearing", -- 44
-	"NoNav", -- 45
-	"NoMove" -- 46
-} -- 46
-threadLoop(function() -- 48
-	local ____App_visualSize_0 = App.visualSize -- 49
-	local width = ____App_visualSize_0.width -- 49
-	ImGui.SetNextWindowPos( -- 50
-		Vec2(width - 10, 10), -- 50
-		"Always", -- 50
-		Vec2(1, 0) -- 50
-	) -- 50
-	ImGui.SetNextWindowSize( -- 51
-		Vec2(200, 0), -- 51
-		"Always" -- 51
-	) -- 51
-	ImGui.Begin( -- 52
-		"Effekseer", -- 52
-		windowFlags, -- 52
-		function() -- 52
-			ImGui.Text("Effekseer (TSX)") -- 53
-			ImGui.Separator() -- 54
-			local changed = false -- 55
-			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 56
-			if changed then -- 56
-				if current then -- 56
-					current:removeFromParent() -- 59
-				end -- 59
-				tests[currentTest].test() -- 61
-			end -- 61
-		end -- 52
-	) -- 52
-	return false -- 64
-end) -- 48
-return ____exports -- 48
+local tests = { -- 18
+	Test( -- 20
+		"Laser", -- 20
+		React.createElement( -- 20
+			"effek-node", -- 20
+			{angleY = -90}, -- 20
+			React.createElement("effek", {file = "Particle/effek/Laser01.efk", x = -200}) -- 20
+		) -- 20
+	), -- 20
+	Test( -- 26
+		"Simple Model UV", -- 26
+		React.createElement( -- 26
+			"effek-node", -- 26
+			nil, -- 26
+			React.createElement("effek", {file = "Particle/effek/Simple_Model_UV.efkefc"}) -- 26
+		) -- 26
+	), -- 26
+	Test( -- 32
+		"Sword Lightning", -- 32
+		React.createElement( -- 32
+			"effek-node", -- 32
+			nil, -- 32
+			React.createElement("effek", {file = "Particle/effek/sword_lightning.efkefc"}) -- 32
+		) -- 32
+	) -- 32
+} -- 32
+tests[1].test() -- 39
+local testNames = __TS__ArrayMap( -- 41
+	tests, -- 41
+	function(____, t) return t.name end -- 41
+) -- 41
+local currentTest = 1 -- 43
+local windowFlags = { -- 44
+	"NoDecoration", -- 45
+	"NoSavedSettings", -- 46
+	"NoFocusOnAppearing", -- 47
+	"NoNav", -- 48
+	"NoMove" -- 49
+} -- 49
+threadLoop(function() -- 51
+	local ____App_visualSize_0 = App.visualSize -- 52
+	local width = ____App_visualSize_0.width -- 52
+	ImGui.SetNextWindowPos( -- 53
+		Vec2(width - 10, 10), -- 53
+		"Always", -- 53
+		Vec2(1, 0) -- 53
+	) -- 53
+	ImGui.SetNextWindowSize( -- 54
+		Vec2(200, 0), -- 54
+		"Always" -- 54
+	) -- 54
+	ImGui.Begin( -- 55
+		"Effekseer", -- 55
+		windowFlags, -- 55
+		function() -- 55
+			ImGui.Text("Effekseer (TSX)") -- 56
+			ImGui.Separator() -- 57
+			local changed = false -- 58
+			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 59
+			if changed then -- 59
+				if current then -- 59
+					current:removeFromParent() -- 62
+				end -- 62
+				tests[currentTest].test() -- 64
+			end -- 64
+		end -- 55
+	) -- 55
+	return false -- 67
+end) -- 51
+return ____exports -- 51
