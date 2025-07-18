@@ -165,7 +165,10 @@ const windowsFlags = [
 	WindowFlag.NoCollapse,
 	WindowFlag.NoResize,
 	WindowFlag.NoDecoration,
-	WindowFlag.NoNav
+	WindowFlag.NoNav,
+	WindowFlag.NoSavedSettings,
+	WindowFlag.NoBringToFrontOnFocus,
+	WindowFlag.NoFocusOnAppearing,
 ];
 root.loop(() => {
 	const {width, height} = App.visualSize;
