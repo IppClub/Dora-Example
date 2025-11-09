@@ -50,7 +50,7 @@ const callLLM = (messages: Message[], url: string, apiKey: string, model: string
 	};
 	return new Promise<string>((resolve, reject) => {
 		thread(() => {
-			const [jsonStr] = json.dump(data);
+			const [jsonStr] = json.encode(data);
 			if (jsonStr !== null) {
 				const res = HttpClient.postAsync(url, [
 					`Authorization: Bearer ${apiKey}`,
@@ -103,7 +103,7 @@ class ChatNode extends Node {
 						return false;
 					}
 					for (let [item] of string.gmatch(data, 'data:%s*(%b{})')) {
-						const [res] = json.load(item);
+						const [res] = json.decode(item);
 						if (res) {
 							str += (res as any)['choices'][1]['delta']['content'] as string;
 						}

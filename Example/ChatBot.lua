@@ -66,7 +66,7 @@ local function callLLM(messages, url, apiKey, model, receiver) -- 45
 		__TS__Promise, -- 51
 		function(____, resolve, reject) -- 51
 			thread(function() -- 52
-				local jsonStr = json.dump(data) -- 53
+				local jsonStr = json.encode(data) -- 53
 				if jsonStr ~= nil then -- 53
 					local res = HttpClient:postAsync( -- 55
 						url, -- 55
@@ -144,7 +144,7 @@ function ChatNode.prototype.exec(self, messages) -- 90
 										return false -- 103
 									end -- 103
 									for item in string.gmatch(data, "data:%s*(%b{})") do -- 105
-										local res = json.load(item) -- 106
+										local res = json.decode(item) -- 106
 										if res then -- 106
 											str = str .. res.choices[1].delta.content -- 108
 										end -- 108
