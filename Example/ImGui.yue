@@ -1,4 +1,5 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 threadLoop ImGui.ShowDemoWindow

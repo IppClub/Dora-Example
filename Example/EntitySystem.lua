@@ -1,10 +1,5 @@
 -- [yue]: Example/EntitySystem.yue
-local Group = Dora.Group -- 1
-local Observer = Dora.Observer -- 1
-local Entity = Dora.Entity -- 1
-local print = _G.print -- 1
-local assert = _G.assert -- 1
-local tostring = _G.tostring -- 1
+local _ENV = Dora -- 2
 local hpGroup = Group({ -- 4
 	"hp" -- 4
 }) -- 4

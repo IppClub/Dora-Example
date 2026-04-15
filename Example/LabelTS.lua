@@ -21,7 +21,7 @@ if label then -- 8
 		local i = 1 -- 12
 		while i <= label.characterCount do -- 12
 			local char = label:getCharacter(i) -- 13
-			if char ~= nil then -- 13
+			if char then -- 13
 				char:runAction(Sequence( -- 15
 					Delay(i / 5), -- 17
 					Scale(0.2, 1, 2), -- 18

@@ -104,7 +104,7 @@ const windowFlags = [
 ];
 Observer(EntityEvent.Add, ["scene"]).watch(entity => {
 	const scene = tolua.cast(entity.scene, TypeName.Node);
-	if (scene !== null) {
+	if (scene) {
 		scene.schedule(() => {
 			const {width} = App.visualSize;
 			ImGui.SetNextWindowBgAlpha(0.35);
@@ -126,7 +126,7 @@ Observer(EntityEvent.Add, ["scene"]).watch(entity => {
 					Group(["sprite", "position"]).each(e => {
 						e.position = undefined;
 						const sprite = tolua.cast(e.sprite, TypeName.Sprite);
-						if (sprite !== null) {
+						if (sprite) {
 							sprite.runAction(
 								Sequence(
 									Scale(0.5, 0.5, 0, Ease.InBack),

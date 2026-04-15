@@ -11,7 +11,7 @@ if (label) {
 	label.text = "你好，Dora SSR！";
 	for (let i = 1; i <= label.characterCount; i++) {
 		const char = label.getCharacter(i);
-		if (char !== null) {
+		if (char) {
 			char.runAction(
 				Sequence(
 					Delay(i / 5),

@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 texture = nvg.GetDoraSSR!
 sprite = Sprite texture

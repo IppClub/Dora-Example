@@ -86,7 +86,6 @@ local SnakeGame = __TS__Class() -- 71
 SnakeGame.name = "SnakeGame" -- 71
 function SnakeGame.prototype.____constructor(self) -- 84
 	self.snake = {} -- 73
-	self.food = nil -- 74
 	self.currentDirection = "Right" -- 75
 	self.nextDirection = "Right" -- 76
 	self.score = 0 -- 77

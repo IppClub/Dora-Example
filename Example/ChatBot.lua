@@ -7,6 +7,7 @@ local __TS__ClassExtends = ____lualib.__TS__ClassExtends -- 1
 local __TS__ArraySlice = ____lualib.__TS__ArraySlice -- 1
 local __TS__AsyncAwaiter = ____lualib.__TS__AsyncAwaiter -- 1
 local __TS__Await = ____lualib.__TS__Await -- 1
+local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
 local ____exports = {} -- 1
 local ____Dora = require("Dora") -- 2
 local HttpClient = ____Dora.HttpClient -- 2
@@ -67,7 +68,7 @@ local function callLLM(messages, url, apiKey, model, receiver) -- 45
 		function(____, resolve, reject) -- 51
 			thread(function() -- 52
 				local jsonStr = json.encode(data) -- 53
-				if jsonStr ~= nil then -- 53
+				if jsonStr then -- 53
 					local res = HttpClient:postAsync( -- 55
 						url, -- 55
 						{"Authorization: Bearer " .. apiKey}, -- 55
@@ -75,7 +76,7 @@ local function callLLM(messages, url, apiKey, model, receiver) -- 45
 						10, -- 57
 						receiver -- 57
 					) -- 57
-					if res ~= nil then -- 57
+					if res then -- 57
 						resolve(nil, res) -- 59
 					else -- 59
 						reject(nil, "failed to get http response") -- 61
@@ -145,7 +146,7 @@ function ChatNode.prototype.exec(self, messages) -- 90
 									end -- 103
 									for item in string.gmatch(data, "data:%s*(%b{})") do -- 105
 										local res = json.decode(item) -- 106
-										if res then -- 106
+										if res and not __TS__ArrayIsArray(res) then -- 106
 											str = str .. res.choices[1].delta.content -- 108
 										end -- 108
 									end -- 108

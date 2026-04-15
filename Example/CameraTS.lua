@@ -15,13 +15,13 @@ local threadLoop = ____Dora.threadLoop -- 4
 local tolua = ____Dora.tolua -- 4
 local node = Node() -- 6
 local model = Model("Model/xiaoli.model") -- 8
-if model ~= nil then -- 8
+if model then -- 8
 	model.look = "happy" -- 10
 	model:play("idle", true) -- 11
 	node:addChild(model) -- 12
 end -- 12
 local sprite = Sprite("Image/logo.png") -- 15
-if sprite ~= nil then -- 15
+if sprite then -- 15
 	sprite.scaleX = 0.4 -- 17
 	sprite.scaleY = 0.4 -- 18
 	sprite.position = Vec2(200, -100) -- 19
@@ -31,7 +31,7 @@ if sprite ~= nil then -- 15
 end -- 22
 node:schedule(once(function() -- 25
 	local camera = tolua.cast(Director.currentCamera, "Camera2D") -- 26
-	if camera == nil then -- 26
+	if not camera then -- 26
 		return -- 27
 	end -- 27
 	cycle( -- 28

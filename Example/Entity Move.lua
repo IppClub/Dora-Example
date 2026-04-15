@@ -1,21 +1,5 @@
 -- [yue]: Example/Entity Move.yue
-local Group = Dora.Group -- 1
-local Observer = Dora.Observer -- 1
-local Sprite = Dora.Sprite -- 1
-local Scale = Dora.Scale -- 1
-local Ease = Dora.Ease -- 1
-local print = _G.print -- 1
-local tostring = _G.tostring -- 1
-local math = _G.math -- 1
-local Roll = Dora.Roll -- 1
-local Entity = Dora.Entity -- 1
-local Node = Dora.Node -- 1
-local Vec2 = Dora.Vec2 -- 1
-local threadLoop = Dora.threadLoop -- 1
-local App = Dora.App -- 1
-local ImGui = Dora.ImGui -- 1
-local Sequence = Dora.Sequence -- 1
-local Event = Dora.Event -- 1
+local _ENV = Dora -- 2
 local sceneGroup = Group({ -- 4
 	"scene" -- 4
 }) -- 4
@@ -31,9 +15,9 @@ do -- 7
 			local location = touch.location -- 10
 			return positionGroup:each(function(entity) -- 11
 				entity.target = location -- 12
-			end) -- 12
+			end) -- 11
 		end) -- 9
-		return false -- 12
+		return false -- 8
 	end) -- 8
 end -- 7
 do -- 14
@@ -50,7 +34,7 @@ do -- 14
 			end -- 16
 			return true -- 19
 		end) -- 15
-		return false -- 19
+		return false -- 15
 	end) -- 15
 end -- 14
 do -- 21
@@ -90,7 +74,7 @@ do -- 27
 		if newPos == target then -- 37
 			self.target = nil -- 37
 		end -- 37
-		return false -- 37
+		return false -- 28
 	end) -- 28
 end -- 27
 do -- 39
@@ -105,7 +89,7 @@ do -- 39
 		if math.abs(direction - lastDirection) > 1 then -- 43
 			sprite:runAction(Roll(0.3, lastDirection, direction)) -- 44
 		end -- 43
-		return false -- 44
+		return false -- 40
 	end) -- 40
 end -- 39
 Entity({ -- 47
@@ -163,7 +147,7 @@ return threadLoop(function() -- 72
 					end) -- 92
 				end -- 90
 				return true -- 93
-			end) -- 93
+			end) -- 88
 		end -- 87
-	end) -- 93
-end) -- 93
+	end) -- 77
+end) -- 72

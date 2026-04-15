@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 svg = SVG "Image/dora.svg"
 const size = 1133

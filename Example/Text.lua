@@ -1,71 +1,72 @@
 -- [yue]: Example/Text.yue
-local View = Dora.View -- 1
-local math = _G.math -- 1
-local App = Dora.App -- 1
-local AlignNode = Dora.AlignNode -- 1
-local tostring = _G.tostring -- 1
-local Vec2 = Dora.Vec2 -- 1
-local Size = Dora.Size -- 1
-local Label = Dora.Label -- 1
+local _ENV = Dora -- 2
 local LineRect = require("UI.View.Shape.LineRect") -- 3
 local ScrollArea = require("UI.Control.Basic.ScrollArea") -- 4
-local viewWidth, viewHeight -- 6
-do -- 6
-	local _obj_0 = View.size -- 6
-	viewWidth, viewHeight = _obj_0.width, _obj_0.height -- 6
-end -- 6
-local width, height = viewWidth - 200, viewHeight - 20 -- 8
-local fontSize = math.floor(20 * App.devicePixelRatio) -- 10
-local root = AlignNode() -- 12
-do -- 13
-	local _obj_0 = View.size -- 13
-	width, height = _obj_0.width, _obj_0.height -- 13
-end -- 13
-root:css("width: " .. tostring(width) .. "; height: " .. tostring(height)) -- 14
-root:gslot("AppChange", function(settingName) -- 15
-	if settingName == "Size" then -- 15
-		do -- 16
-			local _obj_0 = View.size -- 16
-			width, height = _obj_0.width, _obj_0.height -- 16
-		end -- 16
-		return root:css("width: " .. tostring(width) .. "; height: " .. tostring(height)) -- 17
-	end -- 15
-end) -- 15
-root:addChild((function() -- 18
-	local _with_0 = ScrollArea({ -- 19
-		width = width, -- 19
-		height = height, -- 20
-		paddingX = 0, -- 21
-		paddingY = 50, -- 22
-		viewWidth = height, -- 23
-		viewHeight = height -- 24
-	}) -- 18
-	_with_0.border = LineRect({ -- 26
-		width = width, -- 26
-		height = height, -- 26
-		color = 0xffffffff -- 26
-	}) -- 26
-	_with_0.area:addChild(_with_0.border) -- 27
-	root:onAlignLayout(function(w, h) -- 28
-		_with_0.position = Vec2(w / 2, h / 2) -- 29
-		w = w - 200 -- 30
-		h = h - 20 -- 31
-		_with_0.view.children.first.textWidth = w - fontSize -- 32
-		_with_0:adjustSizeWithAlign("Auto", 10, Size(w, h)) -- 33
-		_with_0.area:removeChild(_with_0.border) -- 34
-		_with_0.border = LineRect({ -- 35
-			x = 1, -- 35
-			y = 1, -- 35
-			width = w - 2, -- 35
-			height = h - 2, -- 35
-			color = 0xffffffff -- 35
-		}) -- 35
-		return _with_0.area:addChild(_with_0.border) -- 36
-	end) -- 28
-	_with_0.view:addChild((function() -- 37
-		local _with_1 = Label("sarasa-mono-sc-regular", fontSize) -- 37
-		_with_1.alignment = "Left" -- 38
-		_with_1.textWidth = width - fontSize -- 39
+local View <const> = View -- 5
+local math <const> = math -- 5
+local App <const> = App -- 5
+local AlignNode <const> = AlignNode -- 5
+local tostring <const> = tostring -- 5
+local Vec2 <const> = Vec2 -- 5
+local Size <const> = Size -- 5
+local Label <const> = Label -- 5
+local viewWidth, viewHeight -- 7
+do -- 7
+	local _obj_0 = View.size -- 7
+	viewWidth, viewHeight = _obj_0.width, _obj_0.height -- 7
+end -- 7
+local width, height = viewWidth - 200, viewHeight - 20 -- 9
+local fontSize = math.floor(20 * App.devicePixelRatio) -- 11
+local root = AlignNode() -- 13
+do -- 14
+	local _obj_0 = View.size -- 14
+	width, height = _obj_0.width, _obj_0.height -- 14
+end -- 14
+root:css("width: " .. tostring(width) .. "; height: " .. tostring(height)) -- 15
+root:gslot("AppChange", function(settingName) -- 16
+	if settingName == "Size" then -- 16
+		do -- 17
+			local _obj_0 = View.size -- 17
+			width, height = _obj_0.width, _obj_0.height -- 17
+		end -- 17
+		return root:css("width: " .. tostring(width) .. "; height: " .. tostring(height)) -- 18
+	end -- 16
+end) -- 16
+root:addChild((function() -- 19
+	local _with_0 = ScrollArea({ -- 20
+		width = width, -- 20
+		height = height, -- 21
+		paddingX = 0, -- 22
+		paddingY = 50, -- 23
+		viewWidth = height, -- 24
+		viewHeight = height -- 25
+	}) -- 19
+	_with_0.border = LineRect({ -- 27
+		width = width, -- 27
+		height = height, -- 27
+		color = 0xffffffff -- 27
+	}) -- 27
+	_with_0.area:addChild(_with_0.border) -- 28
+	root:onAlignLayout(function(w, h) -- 29
+		_with_0.position = Vec2(w / 2, h / 2) -- 30
+		w = w - 200 -- 31
+		h = h - 20 -- 32
+		_with_0.view.children.first.textWidth = w - fontSize -- 33
+		_with_0:adjustSizeWithAlign("Auto", 10, Size(w, h)) -- 34
+		_with_0.area:removeChild(_with_0.border) -- 35
+		_with_0.border = LineRect({ -- 36
+			x = 1, -- 36
+			y = 1, -- 36
+			width = w - 2, -- 36
+			height = h - 2, -- 36
+			color = 0xffffffff -- 36
+		}) -- 36
+		return _with_0.area:addChild(_with_0.border) -- 37
+	end) -- 29
+	_with_0.view:addChild((function() -- 38
+		local _with_1 = Label("sarasa-mono-sc-regular", fontSize) -- 38
+		_with_1.alignment = "Left" -- 39
+		_with_1.textWidth = width - fontSize -- 40
 		_with_1.text = [[# 贡献指南
 
 &emsp;&emsp;非常感谢您对Dora SSR的兴趣和支持！我们欢迎任何人为这个项目做出贡献。以下是一些建议和指南，以帮助您开始参与项目的贡献。
@@ -143,10 +144,10 @@ root:addChild((function() -- 18
 
 ------
 
-&emsp;&emsp;希望这个贡献指南能帮助您开始参与Dora SSR项目。再次感谢您的支持，期待您的贡献！]] -- 40
-		return _with_1 -- 37
-	end)()) -- 37
-	_with_0:adjustSizeWithAlign() -- 118
-	return _with_0 -- 18
-end)()) -- 18
-return root -- 12
+&emsp;&emsp;希望这个贡献指南能帮助您开始参与Dora SSR项目。再次感谢您的支持，期待您的贡献！]] -- 41
+		return _with_1 -- 38
+	end)()) -- 38
+	_with_0:adjustSizeWithAlign() -- 119
+	return _with_0 -- 19
+end)()) -- 19
+return root -- 13

@@ -271,7 +271,7 @@ Observer(EntityEvent.Add, ["x", "icon"]).watch((self, x: number, icon: string) =
 
 Observer(EntityEvent.Remove, ["body"]).watch(self => {
 	const body = tolua.cast(self.oldValues.body, TypeName.Body);
-	if (body !== null) {
+	if (body) {
 		body.removeFromParent();
 	}
 	return false;
@@ -300,7 +300,7 @@ interface ItemEntity extends Record<string, Component> {
 
 function loadExcel() {
 	const xlsx = Content.loadExcel("Data/items.xlsx", ["items"]);
-	if (xlsx !== null) {
+	if (xlsx) {
 		const its = xlsx["items"];
 		if (!its) return;
 		const names = its[1] as [keyof ItemStruct];

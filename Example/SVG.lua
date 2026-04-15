@@ -1,39 +1,40 @@
 -- [yue]: Example/SVG.yue
-local SVG = Dora.SVG -- 1
-local Node = Dora.Node -- 1
-local threadLoop = Dora.threadLoop -- 1
-local nvg = Dora.nvg -- 1
-local View = Dora.View -- 1
-local App = Dora.App -- 1
-local ImGui = Dora.ImGui -- 1
-local Vec2 = Dora.Vec2 -- 1
-local svg = SVG("Image/dora.svg") -- 4
-local size <const> = 1133 -- 5
-local node = Node() -- 7
-threadLoop(function() -- 9
-	nvg.ApplyTransform(node) -- 10
-	local scale = 0.6 * View.size.height / size -- 11
-	nvg.Scale(scale, -scale) -- 12
-	nvg.Translate(-size / 2, -size / 2) -- 13
-	return svg:render() -- 14
-end) -- 9
-local windowFlags = { -- 19
-	"NoDecoration", -- 19
-	"AlwaysAutoResize", -- 19
-	"NoSavedSettings", -- 19
-	"NoFocusOnAppearing", -- 19
-	"NoNav", -- 19
-	"NoMove" -- 19
-} -- 19
-return threadLoop(function() -- 27
-	local width -- 28
-	width = App.visualSize.width -- 28
-	ImGui.SetNextWindowBgAlpha(0.35) -- 29
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 30
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 31
-	return ImGui.Begin("SVG Render", windowFlags, function() -- 32
-		ImGui.Text("SVG Render (YueScript)") -- 33
-		ImGui.Separator() -- 34
-		return ImGui.TextWrapped("Load and render an SVG file. Only support the SVG file preprocessed by the picosvg tool.") -- 35
-	end) -- 35
-end) -- 35
+local _ENV = Dora -- 2
+local SVG <const> = SVG -- 3
+local Node <const> = Node -- 3
+local threadLoop <const> = threadLoop -- 3
+local nvg <const> = nvg -- 3
+local View <const> = View -- 3
+local App <const> = App -- 3
+local ImGui <const> = ImGui -- 3
+local Vec2 <const> = Vec2 -- 3
+local svg = SVG("Image/dora.svg") -- 5
+local size <const> = 1133 -- 6
+local node = Node() -- 8
+threadLoop(function() -- 10
+	nvg.ApplyTransform(node) -- 11
+	local scale = 0.6 * View.size.height / size -- 12
+	nvg.Scale(scale, -scale) -- 13
+	nvg.Translate(-size / 2, -size / 2) -- 14
+	return svg:render() -- 15
+end) -- 10
+local windowFlags = { -- 20
+	"NoDecoration", -- 20
+	"AlwaysAutoResize", -- 20
+	"NoSavedSettings", -- 20
+	"NoFocusOnAppearing", -- 20
+	"NoNav", -- 20
+	"NoMove" -- 20
+} -- 20
+return threadLoop(function() -- 28
+	local width -- 29
+	width = App.visualSize.width -- 29
+	ImGui.SetNextWindowBgAlpha(0.35) -- 30
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 31
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 32
+	return ImGui.Begin("SVG Render", windowFlags, function() -- 33
+		ImGui.Text("SVG Render (YueScript)") -- 34
+		ImGui.Separator() -- 35
+		return ImGui.TextWrapped("Load and render an SVG file. Only support the SVG file preprocessed by the picosvg tool.") -- 36
+	end) -- 33
+end) -- 28

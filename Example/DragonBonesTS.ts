@@ -10,7 +10,7 @@ const looks = DragonBone.getLooks(boneStr);
 p(animations, looks);
 
 const bone = DragonBone(boneStr);
-if (bone !== null) {
+if (bone) {
 	bone.look = looks[0];
 	bone.play(animations[0], true);
 	bone.onAnimationEnd((name) => {
@@ -21,9 +21,9 @@ if (bone !== null) {
 	bone.onTapBegan((touch) => {
 		const { x, y } = touch.location;
 		const name = bone.containsPoint(x, y);
-		if (name !== undefined) {
+		if (name) {
 			const label = Label("sarasa-mono-sc-regular", 30);
-			if (label !== null) {
+			if (label) {
 				label.text = name;
 				label.color = App.themeColor;
 				label.position = Vec2(x, y);

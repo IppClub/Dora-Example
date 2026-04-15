@@ -376,14 +376,14 @@ Observer("Add", {"x", "icon"}):watch(function(____self, x, icon) -- 239
 end) -- 239
 Observer("Remove", {"body"}):watch(function(____self) -- 280
 	local body = tolua.cast(____self.oldValues.body, "Body") -- 281
-	if body ~= nil then -- 281
+	if body then -- 281
 		body:removeFromParent() -- 283
 	end -- 283
 	return false -- 285
 end) -- 280
 local function loadExcel() -- 309
 	local xlsx = Content:loadExcel("Data/items.xlsx", {"items"}) -- 310
-	if xlsx ~= nil then -- 310
+	if xlsx then -- 310
 		local its = xlsx.items -- 312
 		if not its then -- 312
 			return -- 313

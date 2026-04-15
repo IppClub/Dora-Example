@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 result = DB\transaction [
 	"DROP TABLE IF EXISTS test"

@@ -71,7 +71,7 @@ function filterChild(node: Node.Type, filter: (node: Node.Type) => boolean) {
 class SnakeGame {
 	private root: Node.Type;
 	private snake: Vec2.Type[] = [];
-	private food: Vec2.Type | null = null;
+	private food: Vec2.Type | undefined;
 	private currentDirection = Direction.Right;
 	private nextDirection = Direction.Right;
 	private score = 0;

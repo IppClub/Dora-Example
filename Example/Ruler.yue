@@ -2,6 +2,7 @@
 _ENV = Dora
 import "UI.Control.Basic.Ruler"
 import "UI.Control.Basic.CircleButton"
+import global
 
 ruler = Ruler {
 	width: 600

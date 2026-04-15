@@ -37,8 +37,8 @@ do -- 27
 			ImGui.Text("Dora Xml (Xml)") -- 48
 			ImGui.Separator() -- 49
 			return ImGui.TextWrapped("View related codes in log window!") -- 50
-		end) -- 50
+		end) -- 47
 	end) -- 42
-end -- 50
+end -- 27
 return root -- 28
 end

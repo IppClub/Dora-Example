@@ -1,61 +1,61 @@
 -- [yue]: Example/Struct.yue
-local print = _G.print -- 1
-local tostring = _G.tostring -- 1
 local Struct = require("Utils").Struct -- 2
-local Unit = Struct.My.Name.Space.Unit("name", "group", "tag", "actions") -- 5
-local Action = Struct.Action("name", "id") -- 6
-local Array = Struct.Array() -- 7
-local unit = Unit({ -- 11
-	name = "abc", -- 11
-	group = 123, -- 12
-	tag = "tagX", -- 13
-	actions = Array({ -- 15
-		Action({ -- 15
-			name = "walk", -- 15
-			id = "a1" -- 15
-		}), -- 15
+local print <const> = print -- 3
+local tostring <const> = tostring -- 3
+local Unit = Struct.My.Name.Space.Unit("name", "group", "tag", "actions") -- 6
+local Action = Struct.Action("name", "id") -- 7
+local Array = Struct.Array() -- 8
+local unit = Unit({ -- 12
+	name = "abc", -- 12
+	group = 123, -- 13
+	tag = "tagX", -- 14
+	actions = Array({ -- 16
 		Action({ -- 16
-			name = "run", -- 16
-			id = "a2" -- 16
+			name = "walk", -- 16
+			id = "a1" -- 16
 		}), -- 16
 		Action({ -- 17
-			name = "sleep", -- 17
-			id = "a3" -- 17
-		}) -- 17
-	}) -- 14
-}) -- 10
-unit.__modified = function(key, value) -- 20
-	return print("Value of name \"" .. tostring(key) .. "\" changed to " .. tostring(value) .. ".") -- 20
-end -- 20
-unit.__updated = function() -- 21
-	return print("Values updated.") -- 21
+			name = "run", -- 17
+			id = "a2" -- 17
+		}), -- 17
+		Action({ -- 18
+			name = "sleep", -- 18
+			id = "a3" -- 18
+		}) -- 18
+	}) -- 15
+}) -- 11
+unit.__modified = function(key, value) -- 21
+	return print("Value of name \"" .. tostring(key) .. "\" changed to " .. tostring(value) .. ".") -- 21
 end -- 21
-do -- 24
-	local _with_0 = unit.actions -- 24
-	_with_0.__added = function(index, item) -- 25
-		return print("Add item " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 25
-	end -- 25
-	_with_0.__removed = function(index, item) -- 26
-		return print("Remove item " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 26
+unit.__updated = function() -- 22
+	return print("Values updated.") -- 22
+end -- 22
+do -- 25
+	local _with_0 = unit.actions -- 25
+	_with_0.__added = function(index, item) -- 26
+		return print("Add item " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 26
 	end -- 26
-	_with_0.__changed = function(index, item) -- 27
-		return print("Change item to " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 27
+	_with_0.__removed = function(index, item) -- 27
+		return print("Remove item " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 27
 	end -- 27
-	_with_0.__updated = function() -- 28
-		return print("Items updated.") -- 28
+	_with_0.__changed = function(index, item) -- 28
+		return print("Change item to " .. tostring(item) .. " at index " .. tostring(index) .. ".") -- 28
 	end -- 28
-end -- 24
-unit.name = "pig" -- 30
-unit.actions:insert(Action({ -- 31
-	name = "idle", -- 31
-	id = "a4" -- 31
-})) -- 31
-unit.actions:removeAt(1) -- 32
-local structStr = tostring(unit) -- 34
-print(structStr) -- 35
-local loadedUnit = Struct:load(structStr) -- 37
-for i = 1, loadedUnit.actions:count() do -- 38
-	print(loadedUnit.actions:get(i)) -- 39
+	_with_0.__updated = function() -- 29
+		return print("Items updated.") -- 29
+	end -- 29
+end -- 25
+unit.name = "pig" -- 31
+unit.actions:insert(Action({ -- 32
+	name = "idle", -- 32
+	id = "a4" -- 32
+})) -- 32
+unit.actions:removeAt(1) -- 33
+local structStr = tostring(unit) -- 35
+print(structStr) -- 36
+local loadedUnit = Struct:load(structStr) -- 38
+for i = 1, loadedUnit.actions:count() do -- 39
+	print(loadedUnit.actions:get(i)) -- 40
 end -- 39
-print(Struct) -- 41
-return Struct:clear() -- 44
+print(Struct) -- 42
+return Struct:clear() -- 45

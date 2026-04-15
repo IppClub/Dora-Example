@@ -1,86 +1,87 @@
 -- [yue]: Example/Body.yue
-local Vec2 = Dora.Vec2 -- 1
-local BodyDef = Dora.BodyDef -- 1
-local PhysicsWorld = Dora.PhysicsWorld -- 1
-local Body = Dora.Body -- 1
-local threadLoop = Dora.threadLoop -- 1
-local App = Dora.App -- 1
-local ImGui = Dora.ImGui -- 1
-local gravity <const> = Vec2(0, -10) -- 4
-local groupZero <const> = 0 -- 6
-local groupOne <const> = 1 -- 7
-local groupTwo <const> = 2 -- 8
-local terrainDef -- 10
-do -- 10
-	local _with_0 = BodyDef() -- 10
-	_with_0.type = "Static" -- 11
-	_with_0:attachPolygon(800, 10, 1, 0.8, 0.2) -- 12
-	terrainDef = _with_0 -- 10
-end -- 10
-local polygonDef -- 14
-do -- 14
-	local _with_0 = BodyDef() -- 14
-	_with_0.type = "Dynamic" -- 15
-	_with_0.linearAcceleration = gravity -- 16
-	_with_0:attachPolygon({ -- 18
-		Vec2(60, 0), -- 18
-		Vec2(30, -30), -- 19
-		Vec2(-30, -30), -- 20
-		Vec2(-60, 0), -- 21
-		Vec2(-30, 30), -- 22
-		Vec2(30, 30) -- 23
-	}, 1, 0.4, 0.4) -- 17
-	polygonDef = _with_0 -- 14
-end -- 14
-local diskDef -- 26
-do -- 26
-	local _with_0 = BodyDef() -- 26
-	_with_0.type = "Dynamic" -- 27
-	_with_0.linearAcceleration = gravity -- 28
-	_with_0:attachDisk(60, 1, 0.4, 0.4) -- 29
-	diskDef = _with_0 -- 26
-end -- 26
-do -- 31
-	local world = PhysicsWorld() -- 31
-	world.y = -200 -- 32
-	world.showDebug = true -- 33
-	world:setShouldContact(groupZero, groupOne, false) -- 35
-	world:setShouldContact(groupZero, groupTwo, true) -- 36
-	world:setShouldContact(groupOne, groupTwo, true) -- 37
-	world:addChild((function() -- 39
-		local _with_0 = Body(terrainDef, world, Vec2.zero) -- 39
-		_with_0.group = groupTwo -- 40
-		return _with_0 -- 39
-	end)()) -- 39
-	world:addChild((function() -- 42
-		local _with_0 = Body(polygonDef, world, Vec2(0, 500), 15) -- 42
-		_with_0.group = groupOne -- 43
-		return _with_0 -- 42
-	end)()) -- 42
-	world:addChild((function() -- 45
-		local _with_0 = Body(diskDef, world, Vec2(50, 800)) -- 45
-		_with_0.group = groupZero -- 46
-		_with_0.angularRate = 90 -- 47
-		return _with_0 -- 45
-	end)()) -- 45
-end -- 31
-local windowFlags = { -- 52
-	"NoDecoration", -- 52
-	"AlwaysAutoResize", -- 52
-	"NoSavedSettings", -- 52
-	"NoFocusOnAppearing", -- 52
-	"NoNav", -- 52
-	"NoMove" -- 52
-} -- 52
-return threadLoop(function() -- 60
-	local width -- 61
-	width = App.visualSize.width -- 61
-	ImGui.SetNextWindowBgAlpha(0.35) -- 62
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 63
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 64
-	return ImGui.Begin("Body", windowFlags, function() -- 65
-		ImGui.Text("Body (Yuescript)") -- 66
-		ImGui.Separator() -- 67
-		return ImGui.TextWrapped("Basic usage to create physics bodies!") -- 68
-	end) -- 68
-end) -- 68
+local _ENV = Dora -- 2
+local Vec2 <const> = Vec2 -- 3
+local BodyDef <const> = BodyDef -- 3
+local PhysicsWorld <const> = PhysicsWorld -- 3
+local Body <const> = Body -- 3
+local threadLoop <const> = threadLoop -- 3
+local App <const> = App -- 3
+local ImGui <const> = ImGui -- 3
+local gravity <const> = Vec2(0, -10) -- 5
+local groupZero <const> = 0 -- 7
+local groupOne <const> = 1 -- 8
+local groupTwo <const> = 2 -- 9
+local terrainDef -- 11
+do -- 11
+	local _with_0 = BodyDef() -- 11
+	_with_0.type = "Static" -- 12
+	_with_0:attachPolygon(800, 10, 1, 0.8, 0.2) -- 13
+	terrainDef = _with_0 -- 11
+end -- 11
+local polygonDef -- 15
+do -- 15
+	local _with_0 = BodyDef() -- 15
+	_with_0.type = "Dynamic" -- 16
+	_with_0.linearAcceleration = gravity -- 17
+	_with_0:attachPolygon({ -- 19
+		Vec2(60, 0), -- 19
+		Vec2(30, -30), -- 20
+		Vec2(-30, -30), -- 21
+		Vec2(-60, 0), -- 22
+		Vec2(-30, 30), -- 23
+		Vec2(30, 30) -- 24
+	}, 1, 0.4, 0.4) -- 18
+	polygonDef = _with_0 -- 15
+end -- 15
+local diskDef -- 27
+do -- 27
+	local _with_0 = BodyDef() -- 27
+	_with_0.type = "Dynamic" -- 28
+	_with_0.linearAcceleration = gravity -- 29
+	_with_0:attachDisk(60, 1, 0.4, 0.4) -- 30
+	diskDef = _with_0 -- 27
+end -- 27
+do -- 32
+	local world = PhysicsWorld() -- 32
+	world.y = -200 -- 33
+	world.showDebug = true -- 34
+	world:setShouldContact(groupZero, groupOne, false) -- 36
+	world:setShouldContact(groupZero, groupTwo, true) -- 37
+	world:setShouldContact(groupOne, groupTwo, true) -- 38
+	world:addChild((function() -- 40
+		local _with_0 = Body(terrainDef, world, Vec2.zero) -- 40
+		_with_0.group = groupTwo -- 41
+		return _with_0 -- 40
+	end)()) -- 40
+	world:addChild((function() -- 43
+		local _with_0 = Body(polygonDef, world, Vec2(0, 500), 15) -- 43
+		_with_0.group = groupOne -- 44
+		return _with_0 -- 43
+	end)()) -- 43
+	world:addChild((function() -- 46
+		local _with_0 = Body(diskDef, world, Vec2(50, 800)) -- 46
+		_with_0.group = groupZero -- 47
+		_with_0.angularRate = 90 -- 48
+		return _with_0 -- 46
+	end)()) -- 46
+end -- 32
+local windowFlags = { -- 53
+	"NoDecoration", -- 53
+	"AlwaysAutoResize", -- 53
+	"NoSavedSettings", -- 53
+	"NoFocusOnAppearing", -- 53
+	"NoNav", -- 53
+	"NoMove" -- 53
+} -- 53
+return threadLoop(function() -- 61
+	local width -- 62
+	width = App.visualSize.width -- 62
+	ImGui.SetNextWindowBgAlpha(0.35) -- 63
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 64
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 65
+	return ImGui.Begin("Body", windowFlags, function() -- 66
+		ImGui.Text("Body (Yuescript)") -- 67
+		ImGui.Separator() -- 68
+		return ImGui.TextWrapped("Basic usage to create physics bodies!") -- 69
+	end) -- 66
+end) -- 61

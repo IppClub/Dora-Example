@@ -1,5 +1,6 @@
--- @preiview-file on clear
+-- @preview-file on clear
 _ENV = Dora
+import global
 
 modelFile = "Model/xiaoli.model"
 

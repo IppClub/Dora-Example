@@ -101,7 +101,7 @@ local windowFlags = { -- 97
 } -- 103
 Observer("Add", {"scene"}):watch(function(entity) -- 105
 	local scene = tolua.cast(entity.scene, "Node") -- 106
-	if scene ~= nil then -- 106
+	if scene then -- 106
 		scene:schedule(function() -- 108
 			local ____App_visualSize_4 = App.visualSize -- 109
 			local width = ____App_visualSize_4.width -- 109
@@ -137,7 +137,7 @@ Observer("Add", {"scene"}):watch(function(entity) -- 105
 						Group({"sprite", "position"}):each(function(e) -- 126
 							e.position = nil -- 127
 							local sprite = tolua.cast(e.sprite, "Sprite") -- 128
-							if sprite ~= nil then -- 128
+							if sprite then -- 128
 								sprite:runAction(Sequence( -- 130
 									Scale(0.5, 0.5, 0, Ease.InBack), -- 132
 									Event("Destroy") -- 133

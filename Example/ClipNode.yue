@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 StarVertices = (radius, line = false) ->
 	a = math.rad 36

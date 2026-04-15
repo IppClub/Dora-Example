@@ -2,7 +2,7 @@
 import { React, toNode, useRef } from 'DoraX';
 import { Body, BodyMoveType, Ease, Label, Line, Scale, TypeName, Vec2, tolua, PhysicsWorld } from 'Dora';
 
-toNode(<sprite file='Image/logo.png' scaleX={0.2} scaleY={0.2}/>);
+toNode(<sprite file='Image/logo.png' scaleX={0.2} scaleY={0.2} />);
 
 interface BoxProps {
 	num: number;
@@ -15,9 +15,9 @@ const Box = (props: BoxProps) => {
 	const numText = props.num.toString();
 	return (
 		<body type={BodyMoveType.Dynamic} scaleX={0} scaleY={0} x={props.x} y={props.y} tag={numText}>
-			<rect-fixture width={100} height={100}/>
+			<rect-fixture width={100} height={100} />
 			<draw-node>
-				<rect-shape width={100} height={100} fillColor={0x8800ffff} borderWidth={1} borderColor={0xff00ffff}/>
+				<rect-shape width={100} height={100} fillColor={0x8800ffff} borderWidth={1} borderColor={0xff00ffff} />
 			</draw-node>
 			<label fontName='sarasa-mono-sc-regular' fontSize={40}>{numText}</label>
 			{props.children}
@@ -61,9 +61,9 @@ toNode(
 			}}
 		>
 			<body type={BodyMoveType.Static}>
-				<rect-fixture centerY={-200} width={2000} height={10}/>
+				<rect-fixture centerY={-200} width={2000} height={10} />
 				<draw-node>
-					<rect-shape centerY={-200} width={2000} height={10} fillColor={0xfffbc400}/>
+					<rect-shape centerY={-200} width={2000} height={10} fillColor={0xfffbc400} />
 				</draw-node>
 			</body>
 
@@ -71,8 +71,8 @@ toNode(
 				[10, 20, 30, 40, 50].map((num, i) =>
 					<Box num={num} x={200} y={-150 + i * 100}>
 						<sequence>
-							<delay time={i * 0.2}/>
-							<scale time={0.3} start={0} stop={1}/>
+							<delay time={i * 0.2} />
+							<scale time={0.3} start={0} stop={1} />
 						</sequence>
 					</Box>
 				)
@@ -88,12 +88,12 @@ toNode(
 					other.perform(Scale(0.2, 0.7, 1.0));
 				}
 			}}>
-				<disk-fixture radius={50}/>
+				<disk-fixture radius={50} />
 				<draw-node>
-					<dot-shape radius={50} color={0xffff0088}/>
+					<dot-shape radius={50} color={0xffff0088} />
 				</draw-node>
 				<label ref={score} fontName='sarasa-mono-sc-regular' fontSize={40}>0</label>
-				<scale time={0.4} start={0.3} stop={1.0} easing={Ease.OutBack}/>
+				<scale time={0.4} start={0.3} stop={1.0} easing={Ease.OutBack} />
 			</body>
 		</physics-world>
 	</align-node>

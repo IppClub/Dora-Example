@@ -4,6 +4,7 @@ import "YarnRunner"
 import "UI.View.Shape.LineRect"
 import "UI.Control.Basic.CircleButton"
 import "UI.Control.Basic.ScrollArea"
+import global
 
 fontScale = App.devicePixelRatio
 fontSize = math.floor 20 * fontScale

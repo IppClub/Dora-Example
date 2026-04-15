@@ -3,6 +3,7 @@ _ENV = Dora
 import "UI.Control.Basic.Button"
 import "UI.View.Shape.LineRect"
 import "UI.Control.Basic.ScrollArea"
+import global
 
 Panel = (width, height, viewWidth, viewHeight) ->
 	with ScrollArea {

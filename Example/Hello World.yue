@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 with Node!
 	\onEnter -> print "on enter event"

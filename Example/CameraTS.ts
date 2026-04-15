@@ -6,14 +6,14 @@ import { App, Director, Ease, Model, Node, Sprite, TypeName, Vec2, cycle, once, 
 const node = Node();
 
 const model = Model("Model/xiaoli.model");
-if (model !== null) {
+if (model) {
 	model.look = "happy";
 	model.play("idle", true);
 	node.addChild(model);
 }
 
 const sprite = Sprite("Image/logo.png");
-if (sprite !== null) {
+if (sprite) {
 	sprite.scaleX = 0.4;
 	sprite.scaleY = 0.4;
 	sprite.position = Vec2(200, -100);
@@ -24,7 +24,7 @@ if (sprite !== null) {
 
 node.schedule(once(() => {
 	const camera = tolua.cast(Director.currentCamera, TypeName.Camera2D);
-	if (camera === null) return;
+	if (!camera) return;
 	cycle(1.5, dt => {
 		camera.position = Vec2(200 * Ease.func(Ease.InOutQuad, dt), 0);
 	});

@@ -4,7 +4,7 @@ import { App, Vec2, threadLoop, Node } from 'Dora';
 import { SetCond, WindowFlag } from 'ImGui';
 import * as ImGui from 'ImGui';
 
-let current: Node.Type | null = null;
+let current: Node.Type | undefined;
 
 function Test(name: string, jsx: React.Element) {
 	return {name, test: () => {

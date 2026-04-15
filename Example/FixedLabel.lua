@@ -1,42 +1,44 @@
 -- [yue]: Example/FixedLabel.yue
-local sleep = Dora.sleep -- 1
-local Node = Dora.Node -- 1
-local LineRect = require("UI.View.Shape.LineRect") -- 3
-local FixedLabel = require("UI.Control.Basic.FixedLabel") -- 4
-local utf8 = require("utf-8") -- 5
-local createLabel -- 7
-createLabel = function(textAlign) -- 7
-	local _with_0 = FixedLabel({ -- 8
-		text = "", -- 8
-		width = 100, -- 8
-		height = 30, -- 8
-		textAlign = textAlign -- 8
-	}) -- 8
-	_with_0:addChild(LineRect({ -- 9
+local _ENV = Dora -- 2
+local require <const> = require -- 3
+local sleep <const> = sleep -- 3
+local Node <const> = Node -- 3
+local LineRect = require("UI.View.Shape.LineRect") -- 4
+local FixedLabel = require("UI.Control.Basic.FixedLabel") -- 5
+local utf8 = require("utf-8") -- 6
+local createLabel -- 8
+createLabel = function(textAlign) -- 8
+	local _with_0 = FixedLabel({ -- 9
+		text = "", -- 9
 		width = 100, -- 9
 		height = 30, -- 9
-		color = 0xffff0080 -- 9
-	})) -- 9
-	local text = "1.23456壹贰叁肆伍陆柒玐玖" -- 10
-	local textLen = utf8.len(text) -- 11
-	_with_0:once(function() -- 12
-		for i = 1, textLen do -- 13
-			_with_0.text = utf8.sub(text, 1, i) -- 14
-			sleep(0.3) -- 15
-		end -- 15
-	end) -- 12
-	return _with_0 -- 8
-end -- 7
-local _with_0 = Node() -- 17
-_with_0:addChild(createLabel("Center")) -- 18
-_with_0:addChild((function() -- 19
-	local _with_1 = createLabel("Left") -- 19
-	_with_1.y = 40 -- 20
-	return _with_1 -- 19
-end)()) -- 19
-_with_0:addChild((function() -- 21
-	local _with_1 = createLabel("Right") -- 21
-	_with_1.y = -40 -- 22
-	return _with_1 -- 21
-end)()) -- 21
-return _with_0 -- 17
+		textAlign = textAlign -- 9
+	}) -- 9
+	_with_0:addChild(LineRect({ -- 10
+		width = 100, -- 10
+		height = 30, -- 10
+		color = 0xffff0080 -- 10
+	})) -- 10
+	local text = "1.23456壹贰叁肆伍陆柒玐玖" -- 11
+	local textLen = utf8.len(text) -- 12
+	_with_0:once(function() -- 13
+		for i = 1, textLen do -- 14
+			_with_0.text = utf8.sub(text, 1, i) -- 15
+			sleep(0.3) -- 16
+		end -- 14
+	end) -- 13
+	return _with_0 -- 9
+end -- 8
+local _with_0 = Node() -- 18
+_with_0:addChild(createLabel("Center")) -- 19
+_with_0:addChild((function() -- 20
+	local _with_1 = createLabel("Left") -- 20
+	_with_1.y = 40 -- 21
+	return _with_1 -- 20
+end)()) -- 20
+_with_0:addChild((function() -- 22
+	local _with_1 = createLabel("Right") -- 22
+	_with_1.y = -40 -- 23
+	return _with_1 -- 22
+end)()) -- 22
+return _with_0 -- 18

@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 CircleVertices = (radius, verts = 20) ->
 	newV = (index, radius) ->

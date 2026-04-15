@@ -9,7 +9,7 @@ local App = ____Dora.App -- 3
 local Vec2 = ____Dora.Vec2 -- 3
 local threadLoop = ____Dora.threadLoop -- 3
 local ImGui = require("ImGui") -- 5
-local current = nil -- 7
+local current -- 7
 local function TMX(file) -- 9
 	if current then -- 9
 		current:removeFromParent() -- 11

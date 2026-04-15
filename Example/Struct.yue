@@ -1,5 +1,6 @@
 -- @preview-file on clear
 import "Utils" as :Struct
+import global
 
 -- 定义Struct
 Unit = Struct.My.Name.Space.Unit "name", "group", "tag", "actions"

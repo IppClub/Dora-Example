@@ -1,5 +1,6 @@
 -- @preview-file on clear
 _ENV = Dora
+import global
 
 sprite = with Sprite "Image/logo.png"
 	.scaleX = .scaleY = 0.5

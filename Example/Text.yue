@@ -2,6 +2,7 @@
 _ENV = Dora
 import "UI.View.Shape.LineRect"
 import "UI.Control.Basic.ScrollArea"
+import global
 
 width: viewWidth, height: viewHeight = View.size
 

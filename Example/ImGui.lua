@@ -1,4 +1,5 @@
 -- [yue]: Example/ImGui.yue
-local threadLoop = Dora.threadLoop -- 1
-local ImGui = Dora.ImGui -- 1
-return threadLoop(ImGui.ShowDemoWindow) -- 4
+local _ENV = Dora -- 2
+local threadLoop <const> = threadLoop -- 3
+local ImGui <const> = ImGui -- 3
+return threadLoop(ImGui.ShowDemoWindow) -- 5

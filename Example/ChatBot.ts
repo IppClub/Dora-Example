@@ -51,11 +51,11 @@ const callLLM = (messages: Message[], url: string, apiKey: string, model: string
 	return new Promise<string>((resolve, reject) => {
 		thread(() => {
 			const [jsonStr] = json.encode(data);
-			if (jsonStr !== null) {
+			if (jsonStr) {
 				const res = HttpClient.postAsync(url, [
 					`Authorization: Bearer ${apiKey}`,
 				], jsonStr, 10, receiver);
-				if (res !== null) {
+				if (res) {
 					resolve(res);
 				} else {
 					reject("failed to get http response");
@@ -104,8 +104,8 @@ class ChatNode extends Node {
 					}
 					for (let [item] of string.gmatch(data, 'data:%s*(%b{})')) {
 						const [res] = json.decode(item);
-						if (res) {
-							str += (res as any)['choices'][1]['delta']['content'] as string;
+						if (res && !Array.isArray(res)) {
+							str += res['choices'][1]['delta']['content'] as string;
 						}
 					}
 					root.emit('Update', `LLM: ${str}`);

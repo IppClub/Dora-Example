@@ -4,7 +4,7 @@ import { TileNode, Node, App, Vec2, threadLoop } from 'Dora';
 import { SetCond, WindowFlag } from 'ImGui';
 import * as ImGui from 'ImGui';
 
-let current: Node.Type | null = null;
+let current: Node.Type | undefined;
 
 function TMX(file: string) {
 	if (current) {

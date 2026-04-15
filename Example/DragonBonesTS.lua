@@ -19,7 +19,7 @@ local animations = DragonBone:getAnimations(boneStr) -- 7
 local looks = DragonBone:getLooks(boneStr) -- 8
 p(animations, looks) -- 10
 local bone = DragonBone(boneStr) -- 12
-if bone ~= nil then -- 12
+if bone then -- 12
 	bone.look = looks[1] -- 14
 	bone:play(animations[1], true) -- 15
 	bone:onAnimationEnd(function(name) -- 16
@@ -31,9 +31,9 @@ if bone ~= nil then -- 12
 		local x = ____touch_location_0.x -- 22
 		local y = ____touch_location_0.y -- 22
 		local name = bone:containsPoint(x, y) -- 23
-		if name ~= nil then -- 23
+		if name then -- 23
 			local label = Label("sarasa-mono-sc-regular", 30) -- 25
-			if label ~= nil then -- 25
+			if label then -- 25
 				label.text = name -- 27
 				label.color = App.themeColor -- 28
 				label.position = Vec2(x, y) -- 29
