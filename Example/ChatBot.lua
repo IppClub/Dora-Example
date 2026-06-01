@@ -156,14 +156,17 @@ function ChatNode.prototype.exec(self, messages) -- 90
 							)) -- 96
 							llmWorking = false -- 114
 						end) -- 114
-						__TS__Await(____try.catch( -- 95
-							____try, -- 95
-							function(____, e) -- 95
-								llmWorking = false -- 116
-								reject(nil, e) -- 117
+						____try = ____try.catch( -- 114
+							____try, -- 114
+							function(____, e) -- 114
+								return __TS__AsyncAwaiter(function() -- 114
+									llmWorking = false -- 116
+									reject(nil, e) -- 117
+								end) -- 117
 							end -- 117
-						)) -- 117
-					end) -- 117
+						) -- 117
+						__TS__Await(____try) -- 95
+					end) -- 95
 				end -- 91
 			) -- 91
 		) -- 91
@@ -188,14 +191,17 @@ runFlow = function() -- 133
 		local ____try = __TS__AsyncAwaiter(function() -- 134
 			__TS__Await(flow:run(chatInfo)) -- 138
 		end) -- 138
-		__TS__Await(____try.catch( -- 137
-			____try, -- 137
-			function(____, err) -- 137
-				Log("Error", err) -- 140
-				runFlow() -- 141
+		____try = ____try.catch( -- 138
+			____try, -- 138
+			function(____, err) -- 138
+				return __TS__AsyncAwaiter(function() -- 138
+					Log("Error", err) -- 140
+					runFlow() -- 141
+				end) -- 141
 			end -- 141
-		)) -- 141
-	end) -- 141
+		) -- 141
+		__TS__Await(____try) -- 137
+	end) -- 137
 end -- 133
 runFlow() -- 144
 local logs = {} -- 146
