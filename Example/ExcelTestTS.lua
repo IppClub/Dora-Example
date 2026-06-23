@@ -545,77 +545,76 @@ local windowFlags = { -- 465
 	"AlwaysAutoResize", -- 467
 	"NoSavedSettings", -- 468
 	"NoFocusOnAppearing", -- 469
-	"NoNav", -- 470
-	"NoMove" -- 471
-} -- 471
-Director.ui:schedule(function() -- 473
-	local size = App.visualSize -- 474
-	ImGui.SetNextWindowBgAlpha(0.35) -- 475
-	ImGui.SetNextWindowPos( -- 476
-		Vec2(size.width - 10, 10), -- 476
-		"Always", -- 476
-		Vec2(1, 0) -- 476
+	"NoMove" -- 470
+} -- 470
+Director.ui:schedule(function() -- 472
+	local size = App.visualSize -- 473
+	ImGui.SetNextWindowBgAlpha(0.35) -- 474
+	ImGui.SetNextWindowPos( -- 475
+		Vec2(size.width - 10, 10), -- 475
+		"Always", -- 475
+		Vec2(1, 0) -- 475
+	) -- 475
+	ImGui.SetNextWindowSize( -- 476
+		Vec2(100, 300), -- 476
+		"FirstUseEver" -- 476
 	) -- 476
-	ImGui.SetNextWindowSize( -- 477
-		Vec2(100, 300), -- 477
-		"FirstUseEver" -- 477
+	ImGui.Begin( -- 477
+		"BackPack", -- 477
+		windowFlags, -- 477
+		function() -- 477
+			if ImGui.Button("重新加载Excel") then -- 477
+				loadExcel() -- 479
+			end -- 479
+			ImGui.Separator() -- 481
+			ImGui.Dummy(Vec2(100, 10)) -- 482
+			ImGui.Text("背包 (TypeScript)") -- 483
+			ImGui.Separator() -- 484
+			ImGui.Columns(3, false) -- 485
+			pickedItemGroup:each(function(e) -- 486
+				local item = e -- 487
+				if item.num > 0 then -- 487
+					if ImGui.ImageButton( -- 487
+						"item" .. tostring(item.no), -- 489
+						item.icon, -- 489
+						Vec2(50, 50) -- 489
+					) then -- 489
+						item.num = item.num - 1 -- 490
+						local sprite = Sprite(item.icon) -- 491
+						if not sprite then -- 491
+							return false -- 492
+						end -- 492
+						sprite.scaleX = 0.5 -- 493
+						sprite.scaleY = 0.5 -- 494
+						sprite:perform(Spawn( -- 495
+							Opacity(1, 1, 0), -- 496
+							Y(1, 150, 250) -- 497
+						)) -- 497
+						local player = playerGroup:find(function() return true end) -- 499
+						if player ~= nil then -- 499
+							local unit = player.unit -- 501
+							unit:addChild(sprite) -- 502
+						end -- 502
+					end -- 502
+					if ImGui.IsItemHovered() then -- 502
+						ImGui.BeginTooltip(function() -- 506
+							ImGui.Text(item.name) -- 507
+							ImGui.TextColored(themeColor, "数量：") -- 508
+							ImGui.SameLine() -- 509
+							ImGui.Text(tostring(item.num)) -- 510
+							ImGui.TextColored(themeColor, "描述：") -- 511
+							ImGui.SameLine() -- 512
+							ImGui.Text(tostring(item.desc)) -- 513
+						end) -- 506
+					end -- 506
+					ImGui.NextColumn() -- 516
+				end -- 516
+				return false -- 518
+			end) -- 486
+		end -- 477
 	) -- 477
-	ImGui.Begin( -- 478
-		"BackPack", -- 478
-		windowFlags, -- 478
-		function() -- 478
-			if ImGui.Button("重新加载Excel") then -- 478
-				loadExcel() -- 480
-			end -- 480
-			ImGui.Separator() -- 482
-			ImGui.Dummy(Vec2(100, 10)) -- 483
-			ImGui.Text("背包 (TypeScript)") -- 484
-			ImGui.Separator() -- 485
-			ImGui.Columns(3, false) -- 486
-			pickedItemGroup:each(function(e) -- 487
-				local item = e -- 488
-				if item.num > 0 then -- 488
-					if ImGui.ImageButton( -- 488
-						"item" .. tostring(item.no), -- 490
-						item.icon, -- 490
-						Vec2(50, 50) -- 490
-					) then -- 490
-						item.num = item.num - 1 -- 491
-						local sprite = Sprite(item.icon) -- 492
-						if not sprite then -- 492
-							return false -- 493
-						end -- 493
-						sprite.scaleX = 0.5 -- 494
-						sprite.scaleY = 0.5 -- 495
-						sprite:perform(Spawn( -- 496
-							Opacity(1, 1, 0), -- 497
-							Y(1, 150, 250) -- 498
-						)) -- 498
-						local player = playerGroup:find(function() return true end) -- 500
-						if player ~= nil then -- 500
-							local unit = player.unit -- 502
-							unit:addChild(sprite) -- 503
-						end -- 503
-					end -- 503
-					if ImGui.IsItemHovered() then -- 503
-						ImGui.BeginTooltip(function() -- 507
-							ImGui.Text(item.name) -- 508
-							ImGui.TextColored(themeColor, "数量：") -- 509
-							ImGui.SameLine() -- 510
-							ImGui.Text(tostring(item.num)) -- 511
-							ImGui.TextColored(themeColor, "描述：") -- 512
-							ImGui.SameLine() -- 513
-							ImGui.Text(tostring(item.desc)) -- 514
-						end) -- 507
-					end -- 507
-					ImGui.NextColumn() -- 517
-				end -- 517
-				return false -- 519
-			end) -- 487
-		end -- 478
-	) -- 478
-	return false -- 522
-end) -- 473
-Entity({player = true}) -- 525
-loadExcel() -- 526
-return ____exports -- 526
+	return false -- 521
+end) -- 472
+Entity({player = true}) -- 524
+loadExcel() -- 525
+return ____exports -- 525

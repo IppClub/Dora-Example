@@ -36,7 +36,6 @@
 				AlwaysAutoResize
 				NoSavedSettings
 				NoFocusOnAppearing
-				NoNav
 				NoMove
 			)
 			root\schedule ->

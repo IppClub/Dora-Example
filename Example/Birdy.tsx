@@ -8,7 +8,7 @@ interface BoxProps {
 	num: number;
 	x?: number;
 	y?: number;
-	children?: any | any[];
+	children?: React.Element | React.Element[];
 }
 
 const Box = (props: BoxProps) => {

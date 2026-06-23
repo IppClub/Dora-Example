@@ -227,73 +227,72 @@ local windowsFlags = { -- 163
 	"NoCollapse", -- 165
 	"NoResize", -- 166
 	"NoDecoration", -- 167
-	"NoNav", -- 168
-	"NoSavedSettings", -- 169
-	"NoBringToFrontOnFocus", -- 170
-	"NoFocusOnAppearing" -- 171
-} -- 171
-root:loop(function() -- 173
-	local ____App_visualSize_2 = App.visualSize -- 174
-	local width = ____App_visualSize_2.width -- 174
-	local height = ____App_visualSize_2.height -- 174
-	ImGui.SetNextWindowPos(Vec2.zero, "Always", Vec2.zero) -- 175
-	ImGui.SetNextWindowSize( -- 176
-		Vec2(width, height - 40), -- 176
-		"Always" -- 176
+	"NoSavedSettings", -- 168
+	"NoBringToFrontOnFocus", -- 169
+	"NoFocusOnAppearing" -- 170
+} -- 170
+root:loop(function() -- 172
+	local ____App_visualSize_2 = App.visualSize -- 173
+	local width = ____App_visualSize_2.width -- 173
+	local height = ____App_visualSize_2.height -- 173
+	ImGui.SetNextWindowPos(Vec2.zero, "Always", Vec2.zero) -- 174
+	ImGui.SetNextWindowSize( -- 175
+		Vec2(width, height - 40), -- 175
+		"Always" -- 175
+	) -- 175
+	ImGui.Begin( -- 176
+		"LLM Chat", -- 176
+		windowsFlags, -- 176
+		function() -- 176
+			ImGui.Text("ChatBot") -- 177
+			ImGui.SameLine() -- 178
+			ImGui.Dummy(Vec2(width - 200, 0)) -- 179
+			ImGui.SameLine() -- 180
+			if ImGui.CollapsingHeader("Config") then -- 180
+				if ImGui.InputText("URL", url) then -- 180
+					config.url = url.text -- 183
+				end -- 183
+				if ImGui.InputText("API Key", apiKey, inputFlags) then -- 183
+					config.apiKey = apiKey.text -- 186
+				end -- 186
+				if ImGui.InputText("Model", model) then -- 186
+					config.model = model.text -- 189
+				end -- 189
+			end -- 189
+			ImGui.Separator() -- 192
+			ImGui.BeginChild( -- 193
+				"LogArea", -- 193
+				Vec2(0, -40), -- 193
+				function() -- 193
+					for ____, log in ipairs(logs) do -- 194
+						ImGui.TextWrapped(log) -- 195
+					end -- 195
+					if ImGui.GetScrollY() >= ImGui.GetScrollMaxY() then -- 195
+						ImGui.SetScrollHereY(1) -- 198
+					end -- 198
+				end -- 193
+			) -- 193
+			if llmWorking then -- 193
+				ImGui.BeginDisabled(function() -- 202
+					ChatButton() -- 203
+				end) -- 202
+			else -- 202
+				ChatButton() -- 206
+			end -- 206
+		end -- 176
 	) -- 176
-	ImGui.Begin( -- 177
-		"LLM Chat", -- 177
-		windowsFlags, -- 177
-		function() -- 177
-			ImGui.Text("ChatBot") -- 178
-			ImGui.SameLine() -- 179
-			ImGui.Dummy(Vec2(width - 200, 0)) -- 180
-			ImGui.SameLine() -- 181
-			if ImGui.CollapsingHeader("Config") then -- 181
-				if ImGui.InputText("URL", url) then -- 181
-					config.url = url.text -- 184
-				end -- 184
-				if ImGui.InputText("API Key", apiKey, inputFlags) then -- 184
-					config.apiKey = apiKey.text -- 187
-				end -- 187
-				if ImGui.InputText("Model", model) then -- 187
-					config.model = model.text -- 190
-				end -- 190
-			end -- 190
-			ImGui.Separator() -- 193
-			ImGui.BeginChild( -- 194
-				"LogArea", -- 194
-				Vec2(0, -40), -- 194
-				function() -- 194
-					for ____, log in ipairs(logs) do -- 195
-						ImGui.TextWrapped(log) -- 196
-					end -- 196
-					if ImGui.GetScrollY() >= ImGui.GetScrollMaxY() then -- 196
-						ImGui.SetScrollHereY(1) -- 199
-					end -- 199
-				end -- 194
-			) -- 194
-			if llmWorking then -- 194
-				ImGui.BeginDisabled(function() -- 203
-					ChatButton() -- 204
-				end) -- 203
-			else -- 203
-				ChatButton() -- 207
-			end -- 207
-		end -- 177
-	) -- 177
-	return false -- 210
-end) -- 173
-root:slot( -- 213
-	"Output", -- 213
-	function(message) -- 213
-		logs[#logs + 1] = message -- 214
-	end -- 213
-) -- 213
-root:slot( -- 217
-	"Update", -- 217
-	function(message) -- 217
-		logs[#logs] = message -- 218
-	end -- 217
-) -- 217
-return ____exports -- 217
+	return false -- 209
+end) -- 172
+root:slot( -- 212
+	"Output", -- 212
+	function(message) -- 212
+		logs[#logs + 1] = message -- 213
+	end -- 212
+) -- 212
+root:slot( -- 216
+	"Update", -- 216
+	function(message) -- 216
+		logs[#logs] = message -- 217
+	end -- 216
+) -- 216
+return ____exports -- 216

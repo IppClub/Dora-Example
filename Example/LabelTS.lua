@@ -49,30 +49,29 @@ local windowFlags = { -- 40
 	"AlwaysAutoResize", -- 42
 	"NoSavedSettings", -- 43
 	"NoFocusOnAppearing", -- 44
-	"NoNav", -- 45
-	"NoMove" -- 46
-} -- 46
-threadLoop(function() -- 48
-	local size = App.visualSize -- 49
-	ImGui.SetNextWindowBgAlpha(0.35) -- 50
-	ImGui.SetNextWindowPos( -- 51
-		Vec2(size.width - 10, 10), -- 51
-		"Always", -- 51
-		Vec2(1, 0) -- 51
+	"NoMove" -- 45
+} -- 45
+threadLoop(function() -- 47
+	local size = App.visualSize -- 48
+	ImGui.SetNextWindowBgAlpha(0.35) -- 49
+	ImGui.SetNextWindowPos( -- 50
+		Vec2(size.width - 10, 10), -- 50
+		"Always", -- 50
+		Vec2(1, 0) -- 50
+	) -- 50
+	ImGui.SetNextWindowSize( -- 51
+		Vec2(240, 0), -- 51
+		"FirstUseEver" -- 51
 	) -- 51
-	ImGui.SetNextWindowSize( -- 52
-		Vec2(240, 0), -- 52
-		"FirstUseEver" -- 52
+	ImGui.Begin( -- 52
+		"Label", -- 52
+		windowFlags, -- 52
+		function() -- 52
+			ImGui.Text("Label (TypeScript)") -- 53
+			ImGui.Separator() -- 54
+			ImGui.TextWrapped("Render labels with unbatched and batched methods!") -- 55
+		end -- 52
 	) -- 52
-	ImGui.Begin( -- 53
-		"Label", -- 53
-		windowFlags, -- 53
-		function() -- 53
-			ImGui.Text("Label (TypeScript)") -- 54
-			ImGui.Separator() -- 55
-			ImGui.TextWrapped("Render labels with unbatched and batched methods!") -- 56
-		end -- 53
-	) -- 53
-	return false -- 58
-end) -- 48
-return ____exports -- 48
+	return false -- 57
+end) -- 47
+return ____exports -- 47

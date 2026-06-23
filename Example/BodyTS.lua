@@ -71,31 +71,30 @@ local windowFlags = { -- 52
 	"AlwaysAutoResize", -- 54
 	"NoSavedSettings", -- 55
 	"NoFocusOnAppearing", -- 56
-	"NoNav", -- 57
-	"NoMove" -- 58
-} -- 58
-threadLoop(function() -- 60
-	local ____App_visualSize_0 = App.visualSize -- 61
-	local width = ____App_visualSize_0.width -- 61
-	ImGui.SetNextWindowBgAlpha(0.35) -- 62
-	ImGui.SetNextWindowPos( -- 63
-		Vec2(width - 10, 10), -- 63
-		"Always", -- 63
-		Vec2(1, 0) -- 63
+	"NoMove" -- 57
+} -- 57
+threadLoop(function() -- 59
+	local ____App_visualSize_0 = App.visualSize -- 60
+	local width = ____App_visualSize_0.width -- 60
+	ImGui.SetNextWindowBgAlpha(0.35) -- 61
+	ImGui.SetNextWindowPos( -- 62
+		Vec2(width - 10, 10), -- 62
+		"Always", -- 62
+		Vec2(1, 0) -- 62
+	) -- 62
+	ImGui.SetNextWindowSize( -- 63
+		Vec2(240, 0), -- 63
+		"FirstUseEver" -- 63
 	) -- 63
-	ImGui.SetNextWindowSize( -- 64
-		Vec2(240, 0), -- 64
-		"FirstUseEver" -- 64
+	ImGui.Begin( -- 64
+		"Body", -- 64
+		windowFlags, -- 64
+		function() -- 64
+			ImGui.Text("Body (TypeScript)") -- 65
+			ImGui.Separator() -- 66
+			ImGui.TextWrapped("Basic usage to create physics bodies!") -- 67
+		end -- 64
 	) -- 64
-	ImGui.Begin( -- 65
-		"Body", -- 65
-		windowFlags, -- 65
-		function() -- 65
-			ImGui.Text("Body (TypeScript)") -- 66
-			ImGui.Separator() -- 67
-			ImGui.TextWrapped("Basic usage to create physics bodies!") -- 68
-		end -- 65
-	) -- 65
-	return false -- 70
-end) -- 60
-return ____exports -- 60
+	return false -- 69
+end) -- 59
+return ____exports -- 59

@@ -99,7 +99,6 @@ const windowFlags = [
 	WindowFlag.AlwaysAutoResize,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoFocusOnAppearing,
-	WindowFlag.NoNav,
 	WindowFlag.NoMove
 ];
 Observer(EntityEvent.Add, ["scene"]).watch(entity => {

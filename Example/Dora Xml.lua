@@ -1,4 +1,4 @@
--- [xml]: Example/Dora Xml.xml
+-- [xml]: Dora-Example/Example/Dora Xml.xml
 local Path = require("Path") -- 4
 local selfPath = Path(Path:getScriptPath(...), "Dora Xml.xml") -- 5
 return function(args) -- 1
@@ -25,20 +25,19 @@ do -- 27
 		"AlwaysAutoResize", -- 34
 		"NoSavedSettings", -- 34
 		"NoFocusOnAppearing", -- 34
-		"NoNav", -- 34
 		"NoMove" -- 34
 	} -- 34
-	root:schedule(function() -- 42
-		local width = App.visualSize.width -- 43
-		ImGui.SetNextWindowBgAlpha(0.35) -- 44
-		ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 45
-		ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 46
-		return ImGui.Begin("Dora Xml", windowFlags, function() -- 47
-			ImGui.Text("Dora Xml (Xml)") -- 48
-			ImGui.Separator() -- 49
-			return ImGui.TextWrapped("View related codes in log window!") -- 50
-		end) -- 47
-	end) -- 42
+	root:schedule(function() -- 41
+		local width = App.visualSize.width -- 42
+		ImGui.SetNextWindowBgAlpha(0.35) -- 43
+		ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 44
+		ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 45
+		return ImGui.Begin("Dora Xml", windowFlags, function() -- 46
+			ImGui.Text("Dora Xml (Xml)") -- 47
+			ImGui.Separator() -- 48
+			return ImGui.TextWrapped("View related codes in log window!") -- 49
+		end) -- 46
+	end) -- 41
 end -- 27
 return root -- 28
 end

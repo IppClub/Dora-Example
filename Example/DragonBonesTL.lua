@@ -72,7 +72,6 @@ local windowFlags = {
 	"AlwaysAutoResize",
 	"NoSavedSettings",
 	"NoFocusOnAppearing",
-	"NoNav",
 	"NoMove",
 }
 local showDebug = bone.showDebug

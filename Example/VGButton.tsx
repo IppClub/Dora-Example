@@ -6,7 +6,7 @@ import * as nvg from 'nvg';
 interface ButtonProps {
 	text: string;
 	onClick: () => void
-	children: any;
+	children: React.Element;
 }
 
 const Button = (props: ButtonProps) => {

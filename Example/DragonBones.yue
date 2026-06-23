@@ -39,7 +39,6 @@ windowFlags = $WindowFlag(
 	AlwaysAutoResize
 	NoSavedSettings
 	NoFocusOnAppearing
-	NoNav
 	NoMove
 )
 :showDebug = bone

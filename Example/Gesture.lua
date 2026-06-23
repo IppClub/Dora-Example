@@ -1,4 +1,4 @@
--- [yue]: Example/Gesture.yue
+-- [yue]: Dora-Example/Example/Gesture.yue
 local _ENV = Dora -- 2
 local nvg <const> = nvg -- 3
 local Sprite <const> = Sprite -- 3
@@ -30,18 +30,17 @@ local windowFlags = { -- 27
 	"AlwaysAutoResize", -- 27
 	"NoSavedSettings", -- 27
 	"NoFocusOnAppearing", -- 27
-	"NoNav", -- 27
 	"NoMove" -- 27
 } -- 27
-return threadLoop(function() -- 35
-	local width -- 36
-	width = App.visualSize.width -- 36
-	ImGui.SetNextWindowBgAlpha(0.35) -- 37
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 38
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 39
-	return ImGui.Begin("Gesture", windowFlags, function() -- 40
-		ImGui.Text("Gesture (YueScript)") -- 41
-		ImGui.Separator() -- 42
-		return ImGui.TextWrapped("Interact with multi-touches!") -- 43
-	end) -- 40
-end) -- 35
+return threadLoop(function() -- 34
+	local width -- 35
+	width = App.visualSize.width -- 35
+	ImGui.SetNextWindowBgAlpha(0.35) -- 36
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 37
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 38
+	return ImGui.Begin("Gesture", windowFlags, function() -- 39
+		ImGui.Text("Gesture (YueScript)") -- 40
+		ImGui.Separator() -- 41
+		return ImGui.TextWrapped("Interact with multi-touches!") -- 42
+	end) -- 39
+end) -- 34

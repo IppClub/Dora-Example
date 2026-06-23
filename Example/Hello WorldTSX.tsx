@@ -30,7 +30,6 @@ const windowFlags = [
 	WindowFlag.AlwaysAutoResize,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoFocusOnAppearing,
-	WindowFlag.NoNav,
 	WindowFlag.NoMove
 ];
 threadLoop(() => {

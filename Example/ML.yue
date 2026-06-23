@@ -249,7 +249,7 @@ decisionStr = nil
 import "ImGuiEnum" as :$WindowFlag
 windowFlags = $WindowFlag(
 	NoResize, NoSavedSettings, NoMove
-	NoCollapse, NoDecoration, NoNav
+	NoCollapse, NoDecoration
 	AlwaysVerticalScrollbar
 	NoSavedSettings
 )

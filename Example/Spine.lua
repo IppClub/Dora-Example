@@ -1,4 +1,4 @@
--- [yue]: Example/Spine.yue
+-- [yue]: Dora-Example/Example/Spine.yue
 local _ENV = Dora -- 2
 local Spine <const> = Spine -- 3
 local p <const> = p -- 3
@@ -57,24 +57,23 @@ local windowFlags = { -- 35
 	"AlwaysAutoResize", -- 35
 	"NoSavedSettings", -- 35
 	"NoFocusOnAppearing", -- 35
-	"NoNav", -- 35
 	"NoMove" -- 35
 } -- 35
-local showDebug = spine.showDebug -- 43
-return threadLoop(function() -- 44
-	local width -- 45
-	width = App.visualSize.width -- 45
-	ImGui.SetNextWindowBgAlpha(0.35) -- 46
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 47
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 48
-	return ImGui.Begin("Spine", windowFlags, function() -- 49
-		ImGui.Text("Spine (YueScript)") -- 50
-		ImGui.Separator() -- 51
-		ImGui.TextWrapped("Basic usage to create spine! Tap it for a hit test.") -- 52
-		local changed -- 53
-		changed, showDebug = ImGui.Checkbox("BoundingBox", showDebug) -- 53
-		if changed then -- 53
-			spine.showDebug = showDebug -- 54
-		end -- 53
-	end) -- 49
-end) -- 44
+local showDebug = spine.showDebug -- 42
+return threadLoop(function() -- 43
+	local width -- 44
+	width = App.visualSize.width -- 44
+	ImGui.SetNextWindowBgAlpha(0.35) -- 45
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 46
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 47
+	return ImGui.Begin("Spine", windowFlags, function() -- 48
+		ImGui.Text("Spine (YueScript)") -- 49
+		ImGui.Separator() -- 50
+		ImGui.TextWrapped("Basic usage to create spine! Tap it for a hit test.") -- 51
+		local changed -- 52
+		changed, showDebug = ImGui.Checkbox("BoundingBox", showDebug) -- 52
+		if changed then -- 52
+			spine.showDebug = showDebug -- 53
+		end -- 52
+	end) -- 48
+end) -- 43

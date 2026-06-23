@@ -51,41 +51,35 @@ local testNames = __TS__ArrayMap( -- 41
 	function(____, t) return t.name end -- 41
 ) -- 41
 local currentTest = 1 -- 43
-local windowFlags = { -- 44
-	"NoDecoration", -- 45
-	"NoSavedSettings", -- 46
-	"NoFocusOnAppearing", -- 47
-	"NoNav", -- 48
-	"NoMove" -- 49
-} -- 49
-threadLoop(function() -- 51
-	local ____App_visualSize_0 = App.visualSize -- 52
-	local width = ____App_visualSize_0.width -- 52
-	ImGui.SetNextWindowPos( -- 53
-		Vec2(width - 10, 10), -- 53
-		"Always", -- 53
-		Vec2(1, 0) -- 53
+local windowFlags = {"NoDecoration", "NoSavedSettings", "NoFocusOnAppearing", "NoMove"} -- 44
+threadLoop(function() -- 50
+	local ____App_visualSize_0 = App.visualSize -- 51
+	local width = ____App_visualSize_0.width -- 51
+	ImGui.SetNextWindowPos( -- 52
+		Vec2(width - 10, 10), -- 52
+		"Always", -- 52
+		Vec2(1, 0) -- 52
+	) -- 52
+	ImGui.SetNextWindowSize( -- 53
+		Vec2(200, 0), -- 53
+		"Always" -- 53
 	) -- 53
-	ImGui.SetNextWindowSize( -- 54
-		Vec2(200, 0), -- 54
-		"Always" -- 54
+	ImGui.Begin( -- 54
+		"Effekseer", -- 54
+		windowFlags, -- 54
+		function() -- 54
+			ImGui.Text("Effekseer (TSX)") -- 55
+			ImGui.Separator() -- 56
+			local changed = false -- 57
+			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 58
+			if changed then -- 58
+				if current then -- 58
+					current:removeFromParent() -- 61
+				end -- 61
+				tests[currentTest].test() -- 63
+			end -- 63
+		end -- 54
 	) -- 54
-	ImGui.Begin( -- 55
-		"Effekseer", -- 55
-		windowFlags, -- 55
-		function() -- 55
-			ImGui.Text("Effekseer (TSX)") -- 56
-			ImGui.Separator() -- 57
-			local changed = false -- 58
-			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 59
-			if changed then -- 59
-				if current then -- 59
-					current:removeFromParent() -- 62
-				end -- 62
-				tests[currentTest].test() -- 64
-			end -- 64
-		end -- 55
-	) -- 55
-	return false -- 67
-end) -- 51
-return ____exports -- 51
+	return false -- 66
+end) -- 50
+return ____exports -- 50

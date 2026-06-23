@@ -1,4 +1,4 @@
--- [yue]: Example/Body.yue
+-- [yue]: Dora-Example/Example/Body.yue
 local _ENV = Dora -- 2
 local Vec2 <const> = Vec2 -- 3
 local BodyDef <const> = BodyDef -- 3
@@ -70,18 +70,17 @@ local windowFlags = { -- 53
 	"AlwaysAutoResize", -- 53
 	"NoSavedSettings", -- 53
 	"NoFocusOnAppearing", -- 53
-	"NoNav", -- 53
 	"NoMove" -- 53
 } -- 53
-return threadLoop(function() -- 61
-	local width -- 62
-	width = App.visualSize.width -- 62
-	ImGui.SetNextWindowBgAlpha(0.35) -- 63
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 64
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 65
-	return ImGui.Begin("Body", windowFlags, function() -- 66
-		ImGui.Text("Body (Yuescript)") -- 67
-		ImGui.Separator() -- 68
-		return ImGui.TextWrapped("Basic usage to create physics bodies!") -- 69
-	end) -- 66
-end) -- 61
+return threadLoop(function() -- 60
+	local width -- 61
+	width = App.visualSize.width -- 61
+	ImGui.SetNextWindowBgAlpha(0.35) -- 62
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 63
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 64
+	return ImGui.Begin("Body", windowFlags, function() -- 65
+		ImGui.Text("Body (Yuescript)") -- 66
+		ImGui.Separator() -- 67
+		return ImGui.TextWrapped("Basic usage to create physics bodies!") -- 68
+	end) -- 65
+end) -- 60

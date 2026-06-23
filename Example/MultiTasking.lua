@@ -1,4 +1,4 @@
--- [yue]: Example/MultiTasking.yue
+-- [yue]: Dora-Example/Example/MultiTasking.yue
 local _ENV = Dora -- 2
 local thread <const> = thread -- 3
 local print <const> = print -- 3
@@ -53,18 +53,17 @@ local windowFlags = { -- 38
 	"AlwaysAutoResize", -- 38
 	"NoSavedSettings", -- 38
 	"NoFocusOnAppearing", -- 38
-	"NoNav", -- 38
 	"NoMove" -- 38
 } -- 38
-return threadLoop(function() -- 46
-	local width -- 47
-	width = App.visualSize.width -- 47
-	ImGui.SetNextWindowBgAlpha(0.35) -- 48
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 49
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 50
-	return ImGui.Begin("Multi-tasking", windowFlags, function() -- 51
-		ImGui.Text("Multi-tasking (YueScript)") -- 52
-		ImGui.Separator() -- 53
-		return ImGui.TextWrapped("Basic Dora multi-tasking usage. Powered by View outputs in log window!") -- 54
-	end) -- 51
-end) -- 46
+return threadLoop(function() -- 45
+	local width -- 46
+	width = App.visualSize.width -- 46
+	ImGui.SetNextWindowBgAlpha(0.35) -- 47
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 48
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 49
+	return ImGui.Begin("Multi-tasking", windowFlags, function() -- 50
+		ImGui.Text("Multi-tasking (YueScript)") -- 51
+		ImGui.Separator() -- 52
+		return ImGui.TextWrapped("Basic Dora multi-tasking usage. Powered by View outputs in log window!") -- 53
+	end) -- 50
+end) -- 45

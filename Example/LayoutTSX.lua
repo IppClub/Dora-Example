@@ -226,41 +226,35 @@ local testNames = __TS__ArrayMap( -- 326
 	function(____, t) return t.name end -- 326
 ) -- 326
 local currentTest = 1 -- 328
-local windowFlags = { -- 329
-	"NoDecoration", -- 330
-	"NoSavedSettings", -- 331
-	"NoFocusOnAppearing", -- 332
-	"NoNav", -- 333
-	"NoMove" -- 334
-} -- 334
-threadLoop(function() -- 336
-	local ____App_visualSize_0 = App.visualSize -- 337
-	local width = ____App_visualSize_0.width -- 337
-	ImGui.SetNextWindowPos( -- 338
-		Vec2(width - 10, 10), -- 338
-		"Always", -- 338
-		Vec2(1, 0) -- 338
+local windowFlags = {"NoDecoration", "NoSavedSettings", "NoFocusOnAppearing", "NoMove"} -- 329
+threadLoop(function() -- 335
+	local ____App_visualSize_0 = App.visualSize -- 336
+	local width = ____App_visualSize_0.width -- 336
+	ImGui.SetNextWindowPos( -- 337
+		Vec2(width - 10, 10), -- 337
+		"Always", -- 337
+		Vec2(1, 0) -- 337
+	) -- 337
+	ImGui.SetNextWindowSize( -- 338
+		Vec2(200, 0), -- 338
+		"Always" -- 338
 	) -- 338
-	ImGui.SetNextWindowSize( -- 339
-		Vec2(200, 0), -- 339
-		"Always" -- 339
+	ImGui.Begin( -- 339
+		"Layout", -- 339
+		windowFlags, -- 339
+		function() -- 339
+			ImGui.Text("Layout (TSX)") -- 340
+			ImGui.Separator() -- 341
+			local changed = false -- 342
+			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 343
+			if changed then -- 343
+				if current then -- 343
+					current:removeFromParent() -- 346
+				end -- 346
+				tests[currentTest].test() -- 348
+			end -- 348
+		end -- 339
 	) -- 339
-	ImGui.Begin( -- 340
-		"Layout", -- 340
-		windowFlags, -- 340
-		function() -- 340
-			ImGui.Text("Layout (TSX)") -- 341
-			ImGui.Separator() -- 342
-			local changed = false -- 343
-			changed, currentTest = ImGui.Combo("Test", currentTest, testNames) -- 344
-			if changed then -- 344
-				if current then -- 344
-					current:removeFromParent() -- 347
-				end -- 347
-				tests[currentTest].test() -- 349
-			end -- 349
-		end -- 340
-	) -- 340
-	return false -- 352
-end) -- 336
-return ____exports -- 336
+	return false -- 351
+end) -- 335
+return ____exports -- 335

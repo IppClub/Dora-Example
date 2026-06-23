@@ -49,30 +49,29 @@ local windowFlags = { -- 50
 	"AlwaysAutoResize", -- 52
 	"NoSavedSettings", -- 53
 	"NoFocusOnAppearing", -- 54
-	"NoNav", -- 55
-	"NoMove" -- 56
-} -- 56
-threadLoop(function() -- 58
-	local size = App.visualSize -- 59
-	ImGui.SetNextWindowBgAlpha(0.35) -- 60
-	ImGui.SetNextWindowPos( -- 61
-		Vec2(size.width - 10, 10), -- 61
-		"Always", -- 61
-		Vec2(1, 0) -- 61
+	"NoMove" -- 55
+} -- 55
+threadLoop(function() -- 57
+	local size = App.visualSize -- 58
+	ImGui.SetNextWindowBgAlpha(0.35) -- 59
+	ImGui.SetNextWindowPos( -- 60
+		Vec2(size.width - 10, 10), -- 60
+		"Always", -- 60
+		Vec2(1, 0) -- 60
+	) -- 60
+	ImGui.SetNextWindowSize( -- 61
+		Vec2(240, 0), -- 61
+		"FirstUseEver" -- 61
 	) -- 61
-	ImGui.SetNextWindowSize( -- 62
-		Vec2(240, 0), -- 62
-		"FirstUseEver" -- 62
+	ImGui.Begin( -- 62
+		"SQLite", -- 62
+		windowFlags, -- 62
+		function() -- 62
+			ImGui.Text("SQLite (TypeScript)") -- 63
+			ImGui.Separator() -- 64
+			ImGui.TextWrapped("Doing database operations in synchronous and asynchronous ways") -- 65
+		end -- 62
 	) -- 62
-	ImGui.Begin( -- 63
-		"SQLite", -- 63
-		windowFlags, -- 63
-		function() -- 63
-			ImGui.Text("SQLite (TypeScript)") -- 64
-			ImGui.Separator() -- 65
-			ImGui.TextWrapped("Doing database operations in synchronous and asynchronous ways") -- 66
-		end -- 63
-	) -- 63
-	return false -- 68
-end) -- 58
-return ____exports -- 58
+	return false -- 67
+end) -- 57
+return ____exports -- 57

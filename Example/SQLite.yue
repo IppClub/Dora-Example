@@ -44,7 +44,6 @@ windowFlags = $WindowFlag(
 	AlwaysAutoResize
 	NoSavedSettings
 	NoFocusOnAppearing
-	NoNav
 	NoMove
 )
 threadLoop ->

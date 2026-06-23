@@ -69,30 +69,29 @@ local windowFlags = { -- 49
 	"AlwaysAutoResize", -- 51
 	"NoSavedSettings", -- 52
 	"NoFocusOnAppearing", -- 53
-	"NoNav", -- 54
-	"NoMove" -- 55
-} -- 55
-threadLoop(function() -- 57
-	local size = App.visualSize -- 58
-	ImGui.SetNextWindowBgAlpha(0.35) -- 59
-	ImGui.SetNextWindowPos( -- 60
-		Vec2(size.width - 10, 10), -- 60
-		"Always", -- 60
-		Vec2(1, 0) -- 60
+	"NoMove" -- 54
+} -- 54
+threadLoop(function() -- 56
+	local size = App.visualSize -- 57
+	ImGui.SetNextWindowBgAlpha(0.35) -- 58
+	ImGui.SetNextWindowPos( -- 59
+		Vec2(size.width - 10, 10), -- 59
+		"Always", -- 59
+		Vec2(1, 0) -- 59
+	) -- 59
+	ImGui.SetNextWindowSize( -- 60
+		Vec2(240, 0), -- 60
+		"FirstUseEver" -- 60
 	) -- 60
-	ImGui.SetNextWindowSize( -- 61
-		Vec2(240, 0), -- 61
-		"FirstUseEver" -- 61
+	ImGui.Begin( -- 61
+		"Render Target", -- 61
+		windowFlags, -- 61
+		function() -- 61
+			ImGui.Text("Render Target (TypeScript)") -- 62
+			ImGui.Separator() -- 63
+			ImGui.TextWrapped("Use render target node as a mirror!") -- 64
+		end -- 61
 	) -- 61
-	ImGui.Begin( -- 62
-		"Render Target", -- 62
-		windowFlags, -- 62
-		function() -- 62
-			ImGui.Text("Render Target (TypeScript)") -- 63
-			ImGui.Separator() -- 64
-			ImGui.TextWrapped("Use render target node as a mirror!") -- 65
-		end -- 62
-	) -- 62
-	return false -- 67
-end) -- 57
-return ____exports -- 57
+	return false -- 66
+end) -- 56
+return ____exports -- 56

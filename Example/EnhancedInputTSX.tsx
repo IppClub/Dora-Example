@@ -74,7 +74,7 @@ node.gslot("Input.Confirm", (state: TriggerState, progress: number) => {
 	}
 });
 
-node.gslot("Input.MoveDown", (state: TriggerState, progress: number, value: any) => {
+node.gslot("Input.MoveDown", (state: TriggerState, progress: number, value: Vec2.Type) => {
 	if (state === TriggerState.Completed) {
 		print(state, progress, value);
 	}
@@ -173,7 +173,6 @@ const windowFlags = [
 	WindowFlag.AlwaysAutoResize,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoFocusOnAppearing,
-	WindowFlag.NoNav,
 	WindowFlag.NoMove
 ];
 threadLoop(() => {

@@ -1,4 +1,4 @@
--- [yue]: Example/SQLite.yue
+-- [yue]: Dora-Example/Example/SQLite.yue
 local _ENV = Dora -- 2
 local DB <const> = DB -- 3
 local print <const> = print -- 3
@@ -74,18 +74,17 @@ local windowFlags = { -- 42
 	"AlwaysAutoResize", -- 42
 	"NoSavedSettings", -- 42
 	"NoFocusOnAppearing", -- 42
-	"NoNav", -- 42
 	"NoMove" -- 42
 } -- 42
-return threadLoop(function() -- 50
-	local width -- 51
-	width = App.visualSize.width -- 51
-	ImGui.SetNextWindowBgAlpha(0.35) -- 52
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 53
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 54
-	return ImGui.Begin("SQLite", windowFlags, function() -- 55
-		ImGui.Text("SQLite (YueScript)") -- 56
-		ImGui.Separator() -- 57
-		return ImGui.TextWrapped("Doing database operations in synchronous and asynchronous ways.") -- 58
-	end) -- 55
-end) -- 50
+return threadLoop(function() -- 49
+	local width -- 50
+	width = App.visualSize.width -- 50
+	ImGui.SetNextWindowBgAlpha(0.35) -- 51
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 52
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 53
+	return ImGui.Begin("SQLite", windowFlags, function() -- 54
+		ImGui.Text("SQLite (YueScript)") -- 55
+		ImGui.Separator() -- 56
+		return ImGui.TextWrapped("Doing database operations in synchronous and asynchronous ways.") -- 57
+	end) -- 54
+end) -- 49

@@ -1,4 +1,4 @@
--- [yue]: Example/Entity Move.yue
+-- [yue]: Dora-Example/Example/Entity Move.yue
 local _ENV = Dora -- 2
 local sceneGroup = Group({ -- 4
 	"scene" -- 4
@@ -112,42 +112,41 @@ local windowFlags = { -- 64
 	"AlwaysAutoResize", -- 64
 	"NoSavedSettings", -- 64
 	"NoFocusOnAppearing", -- 64
-	"NoNav", -- 64
 	"NoMove" -- 64
 } -- 64
-return threadLoop(function() -- 72
-	local width -- 73
-	width = App.visualSize.width -- 73
-	ImGui.SetNextWindowBgAlpha(0.35) -- 74
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 75
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 76
-	return ImGui.Begin("ECS System", windowFlags, function() -- 77
-		ImGui.Text("ECS System (YueScript)") -- 78
-		ImGui.Separator() -- 79
-		ImGui.TextWrapped("Tap any place to move entities.") -- 80
-		if ImGui.Button("Create Random Entity") then -- 81
-			Entity({ -- 83
-				image = "Image/logo.png", -- 83
-				position = Vec2(6 * math.random(1, 100), 6 * math.random(1, 100)), -- 84
-				direction = 1.0 * math.random(0, 360), -- 85
-				speed = 1.0 * math.random(1, 20) -- 86
-			}) -- 82
-		end -- 81
-		if ImGui.Button("Destroy An Entity") then -- 87
-			return Group({ -- 88
-				"sprite", -- 88
-				"position" -- 88
-			}):each(function(entity) -- 88
-				entity.position = nil -- 89
-				do -- 90
-					local _with_0 = entity.sprite -- 90
-					_with_0:runAction(Sequence(Scale(0.5, 0.5, 0, Ease.InBack), Event("Destroy"))) -- 91
-					_with_0:slot("Destroy", function() -- 92
-						return entity:destroy() -- 92
-					end) -- 92
-				end -- 90
-				return true -- 93
-			end) -- 88
-		end -- 87
-	end) -- 77
-end) -- 72
+return threadLoop(function() -- 71
+	local width -- 72
+	width = App.visualSize.width -- 72
+	ImGui.SetNextWindowBgAlpha(0.35) -- 73
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 74
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 75
+	return ImGui.Begin("ECS System", windowFlags, function() -- 76
+		ImGui.Text("ECS System (YueScript)") -- 77
+		ImGui.Separator() -- 78
+		ImGui.TextWrapped("Tap any place to move entities.") -- 79
+		if ImGui.Button("Create Random Entity") then -- 80
+			Entity({ -- 82
+				image = "Image/logo.png", -- 82
+				position = Vec2(6 * math.random(1, 100), 6 * math.random(1, 100)), -- 83
+				direction = 1.0 * math.random(0, 360), -- 84
+				speed = 1.0 * math.random(1, 20) -- 85
+			}) -- 81
+		end -- 80
+		if ImGui.Button("Destroy An Entity") then -- 86
+			return Group({ -- 87
+				"sprite", -- 87
+				"position" -- 87
+			}):each(function(entity) -- 87
+				entity.position = nil -- 88
+				do -- 89
+					local _with_0 = entity.sprite -- 89
+					_with_0:runAction(Sequence(Scale(0.5, 0.5, 0, Ease.InBack), Event("Destroy"))) -- 90
+					_with_0:slot("Destroy", function() -- 91
+						return entity:destroy() -- 91
+					end) -- 91
+				end -- 89
+				return true -- 92
+			end) -- 87
+		end -- 86
+	end) -- 76
+end) -- 71

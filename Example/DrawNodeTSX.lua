@@ -133,31 +133,30 @@ local windowFlags = { -- 75
 	"AlwaysAutoResize", -- 77
 	"NoSavedSettings", -- 78
 	"NoFocusOnAppearing", -- 79
-	"NoNav", -- 80
-	"NoMove" -- 81
-} -- 81
-threadLoop(function() -- 83
-	local ____App_visualSize_0 = App.visualSize -- 84
-	local width = ____App_visualSize_0.width -- 84
-	ImGui.SetNextWindowBgAlpha(0.35) -- 85
-	ImGui.SetNextWindowPos( -- 86
-		Vec2(width - 10, 10), -- 86
-		"Always", -- 86
-		Vec2(1, 0) -- 86
+	"NoMove" -- 80
+} -- 80
+threadLoop(function() -- 82
+	local ____App_visualSize_0 = App.visualSize -- 83
+	local width = ____App_visualSize_0.width -- 83
+	ImGui.SetNextWindowBgAlpha(0.35) -- 84
+	ImGui.SetNextWindowPos( -- 85
+		Vec2(width - 10, 10), -- 85
+		"Always", -- 85
+		Vec2(1, 0) -- 85
+	) -- 85
+	ImGui.SetNextWindowSize( -- 86
+		Vec2(240, 0), -- 86
+		"FirstUseEver" -- 86
 	) -- 86
-	ImGui.SetNextWindowSize( -- 87
-		Vec2(240, 0), -- 87
-		"FirstUseEver" -- 87
+	ImGui.Begin( -- 87
+		"Draw Node", -- 87
+		windowFlags, -- 87
+		function() -- 87
+			ImGui.Text("Draw Node (TSX)") -- 88
+			ImGui.Separator() -- 89
+			ImGui.TextWrapped("Draw shapes and lines!") -- 90
+		end -- 87
 	) -- 87
-	ImGui.Begin( -- 88
-		"Draw Node", -- 88
-		windowFlags, -- 88
-		function() -- 88
-			ImGui.Text("Draw Node (TSX)") -- 89
-			ImGui.Separator() -- 90
-			ImGui.TextWrapped("Draw shapes and lines!") -- 91
-		end -- 88
-	) -- 88
-	return false -- 93
-end) -- 83
-return ____exports -- 83
+	return false -- 92
+end) -- 82
+return ____exports -- 82

@@ -1,4 +1,4 @@
--- [yue]: Example/EnhancedInput.yue
+-- [yue]: Dora-Example/Example/EnhancedInput.yue
 local _ENV = Dora -- 2
 local require <const> = require -- 3
 local Node <const> = Node -- 3
@@ -151,29 +151,28 @@ local windowFlags = { -- 148
 	"AlwaysAutoResize", -- 148
 	"NoSavedSettings", -- 148
 	"NoFocusOnAppearing", -- 148
-	"NoNav", -- 148
 	"NoMove" -- 148
 } -- 148
-return threadLoop(function() -- 156
-	local width = App.visualSize.width -- 157
-	ImGui.SetNextWindowBgAlpha(0.35) -- 158
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), ("Always"), Vec2(1, 0)) -- 159
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 160
-	ImGui.Begin("EnhancedInput", windowFlags, function() -- 161
-		ImGui.Text("Enhanced Input (YueScript)") -- 162
-		ImGui.Separator() -- 163
-		ImGui.TextWrapped("Change input context to alter input mapping") -- 164
-		if phase == "None" then -- 165
-			local changed -- 166
-			changed, checked = ImGui.Checkbox("hold X to confirm (instead Y)", checked) -- 166
-			if changed then -- 166
-				if checked then -- 167
-					return inputManager:pushContext("Test") -- 168
-				else -- 170
-					return inputManager:popContext() -- 170
-				end -- 167
-			end -- 166
-		end -- 165
-	end) -- 161
-	return false -- 156
-end) -- 156
+return threadLoop(function() -- 155
+	local width = App.visualSize.width -- 156
+	ImGui.SetNextWindowBgAlpha(0.35) -- 157
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), ("Always"), Vec2(1, 0)) -- 158
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 159
+	ImGui.Begin("EnhancedInput", windowFlags, function() -- 160
+		ImGui.Text("Enhanced Input (YueScript)") -- 161
+		ImGui.Separator() -- 162
+		ImGui.TextWrapped("Change input context to alter input mapping") -- 163
+		if phase == "None" then -- 164
+			local changed -- 165
+			changed, checked = ImGui.Checkbox("hold X to confirm (instead Y)", checked) -- 165
+			if changed then -- 165
+				if checked then -- 166
+					return inputManager:pushContext("Test") -- 167
+				else -- 169
+					return inputManager:popContext() -- 169
+				end -- 166
+			end -- 165
+		end -- 164
+	end) -- 160
+	return false -- 155
+end) -- 155

@@ -132,7 +132,6 @@ local windowFlags = {
 	"AlwaysAutoResize",
 	"NoSavedSettings",
 	"NoFocusOnAppearing",
-	"NoNav",
 	"NoMove",
 }
 Observer("Add", { "scene" }):watch(function(entity)

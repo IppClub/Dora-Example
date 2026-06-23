@@ -136,8 +136,8 @@ const runFlow = async () => {
 	};
 	try {
 		await flow.run(chatInfo);
-	} catch (err: any) {
-		Log("Error", err);
+	} catch (err: unknown) {
+		Log("Error", err as string);
 		runFlow();
 	}
 };
@@ -165,7 +165,6 @@ const windowsFlags = [
 	WindowFlag.NoCollapse,
 	WindowFlag.NoResize,
 	WindowFlag.NoDecoration,
-	WindowFlag.NoNav,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoBringToFrontOnFocus,
 	WindowFlag.NoFocusOnAppearing,

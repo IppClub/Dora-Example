@@ -1,4 +1,4 @@
--- [yue]: Example/Hello World.yue
+-- [yue]: Dora-Example/Example/Hello World.yue
 local _ENV = Dora -- 2
 local Node <const> = Node -- 3
 local print <const> = print -- 3
@@ -31,18 +31,17 @@ local windowFlags = { -- 18
 	"AlwaysAutoResize", -- 18
 	"NoSavedSettings", -- 18
 	"NoFocusOnAppearing", -- 18
-	"NoNav", -- 18
 	"NoMove" -- 18
 } -- 18
-return threadLoop(function() -- 26
-	local width -- 27
-	width = App.visualSize.width -- 27
-	ImGui.SetNextWindowBgAlpha(0.35) -- 28
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 29
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 30
-	return ImGui.Begin("Hello World", windowFlags, function() -- 31
-		ImGui.Text("Hello World (YueScript)") -- 32
-		ImGui.Separator() -- 33
-		return ImGui.TextWrapped("Basic Dora schedule and signal function usage. Written in Yuescript. View outputs in log window!") -- 34
-	end) -- 31
-end) -- 26
+return threadLoop(function() -- 25
+	local width -- 26
+	width = App.visualSize.width -- 26
+	ImGui.SetNextWindowBgAlpha(0.35) -- 27
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 28
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 29
+	return ImGui.Begin("Hello World", windowFlags, function() -- 30
+		ImGui.Text("Hello World (YueScript)") -- 31
+		ImGui.Separator() -- 32
+		return ImGui.TextWrapped("Basic Dora schedule and signal function usage. Written in Yuescript. View outputs in log window!") -- 33
+	end) -- 30
+end) -- 25

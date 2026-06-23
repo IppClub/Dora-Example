@@ -513,7 +513,6 @@ local windowFlags = {
 	"AlwaysAutoResize",
 	"NoSavedSettings",
 	"NoFocusOnAppearing",
-	"NoNav",
 	"NoMove"
 }
 Director.ui:schedule(function(): boolean

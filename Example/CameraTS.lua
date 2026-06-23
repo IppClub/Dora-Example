@@ -83,30 +83,29 @@ local windowFlags = { -- 49
 	"AlwaysAutoResize", -- 51
 	"NoSavedSettings", -- 52
 	"NoFocusOnAppearing", -- 53
-	"NoNav", -- 54
-	"NoMove" -- 55
-} -- 55
-threadLoop(function() -- 57
-	local ____App_visualSize_0 = App.visualSize -- 58
-	local width = ____App_visualSize_0.width -- 58
-	ImGui.SetNextWindowPos( -- 59
-		Vec2(width - 10, 10), -- 59
-		"Always", -- 59
-		Vec2(1, 0) -- 59
+	"NoMove" -- 54
+} -- 54
+threadLoop(function() -- 56
+	local ____App_visualSize_0 = App.visualSize -- 57
+	local width = ____App_visualSize_0.width -- 57
+	ImGui.SetNextWindowPos( -- 58
+		Vec2(width - 10, 10), -- 58
+		"Always", -- 58
+		Vec2(1, 0) -- 58
+	) -- 58
+	ImGui.SetNextWindowSize( -- 59
+		Vec2(240, 0), -- 59
+		"FirstUseEver" -- 59
 	) -- 59
-	ImGui.SetNextWindowSize( -- 60
-		Vec2(240, 0), -- 60
-		"FirstUseEver" -- 60
+	ImGui.Begin( -- 60
+		"Camera", -- 60
+		windowFlags, -- 60
+		function() -- 60
+			ImGui.Text("Camera (TypeScript)") -- 61
+			ImGui.Separator() -- 62
+			ImGui.TextWrapped("View camera motions, use 3D camera as default!") -- 63
+		end -- 60
 	) -- 60
-	ImGui.Begin( -- 61
-		"Camera", -- 61
-		windowFlags, -- 61
-		function() -- 61
-			ImGui.Text("Camera (TypeScript)") -- 62
-			ImGui.Separator() -- 63
-			ImGui.TextWrapped("View camera motions, use 3D camera as default!") -- 64
-		end -- 61
-	) -- 61
-	return false -- 66
-end) -- 57
-return ____exports -- 57
+	return false -- 65
+end) -- 56
+return ____exports -- 56

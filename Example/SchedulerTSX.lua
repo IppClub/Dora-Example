@@ -62,46 +62,40 @@ toNode(React.createElement( -- 41
 	React.createElement(Scene, {flip = true, scheduler = scheduler}) -- 41
 )) -- 41
 local timeScale = scheduler.timeScale -- 41
-local windowFlags = { -- 50
-	"NoDecoration", -- 51
-	"NoSavedSettings", -- 52
-	"NoFocusOnAppearing", -- 53
-	"NoNav", -- 54
-	"NoMove" -- 55
-} -- 55
-threadLoop(function() -- 57
-	local ____App_visualSize_0 = App.visualSize -- 58
-	local width = ____App_visualSize_0.width -- 58
-	ImGui.SetNextWindowPos( -- 59
-		Vec2(width - 10, 10), -- 59
-		"Always", -- 59
-		Vec2(1, 0) -- 59
+local windowFlags = {"NoDecoration", "NoSavedSettings", "NoFocusOnAppearing", "NoMove"} -- 50
+threadLoop(function() -- 56
+	local ____App_visualSize_0 = App.visualSize -- 57
+	local width = ____App_visualSize_0.width -- 57
+	ImGui.SetNextWindowPos( -- 58
+		Vec2(width - 10, 10), -- 58
+		"Always", -- 58
+		Vec2(1, 0) -- 58
+	) -- 58
+	ImGui.SetNextWindowSize( -- 59
+		Vec2(200, 0), -- 59
+		"Always" -- 59
 	) -- 59
-	ImGui.SetNextWindowSize( -- 60
-		Vec2(200, 0), -- 60
-		"Always" -- 60
+	ImGui.Begin( -- 60
+		"Scheduler", -- 60
+		windowFlags, -- 60
+		function() -- 60
+			ImGui.Text("Scheduler (TSX)") -- 61
+			ImGui.Separator() -- 62
+			ImGui.TextWrapped("Using a custom scheduler to control update speed.") -- 63
+			local changed = false -- 64
+			changed, timeScale = ImGui.DragFloat( -- 65
+				"Speed", -- 65
+				timeScale, -- 65
+				0.01, -- 65
+				0.1, -- 65
+				3, -- 65
+				"%.2f" -- 65
+			) -- 65
+			if changed then -- 65
+				scheduler.timeScale = timeScale -- 67
+			end -- 67
+		end -- 60
 	) -- 60
-	ImGui.Begin( -- 61
-		"Scheduler", -- 61
-		windowFlags, -- 61
-		function() -- 61
-			ImGui.Text("Scheduler (TSX)") -- 62
-			ImGui.Separator() -- 63
-			ImGui.TextWrapped("Using a custom scheduler to control update speed.") -- 64
-			local changed = false -- 65
-			changed, timeScale = ImGui.DragFloat( -- 66
-				"Speed", -- 66
-				timeScale, -- 66
-				0.01, -- 66
-				0.1, -- 66
-				3, -- 66
-				"%.2f" -- 66
-			) -- 66
-			if changed then -- 66
-				scheduler.timeScale = timeScale -- 68
-			end -- 68
-		end -- 61
-	) -- 61
-	return false -- 71
-end) -- 57
-return ____exports -- 57
+	return false -- 70
+end) -- 56
+return ____exports -- 56

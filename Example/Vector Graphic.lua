@@ -1,4 +1,4 @@
--- [yue]: Example/Vector Graphic.yue
+-- [yue]: Dora-Example/Example/Vector Graphic.yue
 local _ENV = Dora -- 2
 local nvg <const> = nvg -- 3
 local Color <const> = Color -- 3
@@ -69,18 +69,17 @@ local windowFlags = { -- 56
 	"AlwaysAutoResize", -- 56
 	"NoSavedSettings", -- 56
 	"NoFocusOnAppearing", -- 56
-	"NoNav", -- 56
 	"NoMove" -- 56
 } -- 56
-return threadLoop(function() -- 64
-	local width -- 65
-	width = App.visualSize.width -- 65
-	ImGui.SetNextWindowBgAlpha(0.35) -- 66
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 67
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 68
-	return ImGui.Begin("Vector Graphic Rendering", windowFlags, function() -- 69
-		ImGui.Text("Vector Graphic Rendering (Yuescript)") -- 70
-		ImGui.Separator() -- 71
-		return ImGui.TextWrapped("Use nanoVG lib to do vector graphic rendering, render to a texture or do instant render!") -- 72
-	end) -- 69
-end) -- 64
+return threadLoop(function() -- 63
+	local width -- 64
+	width = App.visualSize.width -- 64
+	ImGui.SetNextWindowBgAlpha(0.35) -- 65
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 66
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 67
+	return ImGui.Begin("Vector Graphic Rendering", windowFlags, function() -- 68
+		ImGui.Text("Vector Graphic Rendering (Yuescript)") -- 69
+		ImGui.Separator() -- 70
+		return ImGui.TextWrapped("Use nanoVG lib to do vector graphic rendering, render to a texture or do instant render!") -- 71
+	end) -- 68
+end) -- 63

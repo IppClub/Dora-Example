@@ -467,7 +467,6 @@ const windowFlags = [
 	WindowFlag.AlwaysAutoResize,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoFocusOnAppearing,
-	WindowFlag.NoNav,
 	WindowFlag.NoMove
 ];
 Director.ui.schedule(() => {
@@ -485,7 +484,7 @@ Director.ui.schedule(() => {
 		ImGui.Separator();
 		ImGui.Columns(3, false);
 		pickedItemGroup.each(e => {
-			const item = e as any as ItemEntity;
+			const item = e as unknown as ItemEntity;
 			if (item.num > 0) {
 				if (ImGui.ImageButton("item" + item.no, item.icon, Vec2(50, 50))) {
 					item.num -= 1;

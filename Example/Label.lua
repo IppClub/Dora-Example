@@ -1,4 +1,4 @@
--- [yue]: Example/Label.yue
+-- [yue]: Dora-Example/Example/Label.yue
 local _ENV = Dora -- 2
 local Label <const> = Label -- 3
 local Sequence <const> = Sequence -- 3
@@ -33,18 +33,17 @@ local windowFlags = { -- 29
 	"AlwaysAutoResize", -- 29
 	"NoSavedSettings", -- 29
 	"NoFocusOnAppearing", -- 29
-	"NoNav", -- 29
 	"NoMove" -- 29
 } -- 29
-return threadLoop(function() -- 37
-	local width -- 38
-	width = App.visualSize.width -- 38
-	ImGui.SetNextWindowBgAlpha(0.35) -- 39
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 40
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 41
-	return ImGui.Begin("Label", windowFlags, function() -- 42
-		ImGui.Text("Label (YueScript)") -- 43
-		ImGui.Separator() -- 44
-		return ImGui.TextWrapped("Render labels with unbatched and batched methods!") -- 45
-	end) -- 42
-end) -- 37
+return threadLoop(function() -- 36
+	local width -- 37
+	width = App.visualSize.width -- 37
+	ImGui.SetNextWindowBgAlpha(0.35) -- 38
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 39
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 40
+	return ImGui.Begin("Label", windowFlags, function() -- 41
+		ImGui.Text("Label (YueScript)") -- 42
+		ImGui.Separator() -- 43
+		return ImGui.TextWrapped("Render labels with unbatched and batched methods!") -- 44
+	end) -- 41
+end) -- 36

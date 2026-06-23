@@ -1,4 +1,4 @@
--- [yue]: Example/Camera.yue
+-- [yue]: Dora-Example/Example/Camera.yue
 local _ENV = Dora -- 2
 local Node <const> = Node -- 3
 local Model <const> = Model -- 3
@@ -57,17 +57,16 @@ local windowFlags = { -- 29
 	"AlwaysAutoResize", -- 29
 	"NoSavedSettings", -- 29
 	"NoFocusOnAppearing", -- 29
-	"NoNav", -- 29
 	"NoMove" -- 29
 } -- 29
-return threadLoop(function() -- 37
-	local width -- 38
-	width = App.visualSize.width -- 38
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 39
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 40
-	return ImGui.Begin("Camera", windowFlags, function() -- 41
-		ImGui.Text("Camera (YueScript)") -- 42
-		ImGui.Separator() -- 43
-		return ImGui.TextWrapped("View camera motions, use 3D camera as default!") -- 44
-	end) -- 41
-end) -- 37
+return threadLoop(function() -- 36
+	local width -- 37
+	width = App.visualSize.width -- 37
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 38
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 39
+	return ImGui.Begin("Camera", windowFlags, function() -- 40
+		ImGui.Text("Camera (YueScript)") -- 41
+		ImGui.Separator() -- 42
+		return ImGui.TextWrapped("View camera motions, use 3D camera as default!") -- 43
+	end) -- 40
+end) -- 36

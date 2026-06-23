@@ -64,41 +64,40 @@ local windowFlags = { -- 52
 	"AlwaysAutoResize", -- 54
 	"NoSavedSettings", -- 55
 	"NoFocusOnAppearing", -- 56
-	"NoNav", -- 57
-	"NoMove" -- 58
-} -- 58
-local ____temp_3 = bone and bone.showDebug -- 60
-if ____temp_3 == nil then -- 60
-	____temp_3 = false -- 60
-end -- 60
-local showDebug = ____temp_3 -- 60
-threadLoop(function() -- 61
-	local ____App_visualSize_4 = App.visualSize -- 62
-	local width = ____App_visualSize_4.width -- 62
-	ImGui.SetNextWindowBgAlpha(0.35) -- 63
-	ImGui.SetNextWindowPos( -- 64
-		Vec2(width - 10, 10), -- 64
-		"Always", -- 64
-		Vec2(1, 0) -- 64
+	"NoMove" -- 57
+} -- 57
+local ____temp_3 = bone and bone.showDebug -- 59
+if ____temp_3 == nil then -- 59
+	____temp_3 = false -- 59
+end -- 59
+local showDebug = ____temp_3 -- 59
+threadLoop(function() -- 60
+	local ____App_visualSize_4 = App.visualSize -- 61
+	local width = ____App_visualSize_4.width -- 61
+	ImGui.SetNextWindowBgAlpha(0.35) -- 62
+	ImGui.SetNextWindowPos( -- 63
+		Vec2(width - 10, 10), -- 63
+		"Always", -- 63
+		Vec2(1, 0) -- 63
+	) -- 63
+	ImGui.SetNextWindowSize( -- 64
+		Vec2(240, 0), -- 64
+		"FirstUseEver" -- 64
 	) -- 64
-	ImGui.SetNextWindowSize( -- 65
-		Vec2(240, 0), -- 65
-		"FirstUseEver" -- 65
+	ImGui.Begin( -- 65
+		"DragonBones", -- 65
+		windowFlags, -- 65
+		function() -- 65
+			ImGui.Text("DragonBones (TypeScript)") -- 66
+			ImGui.Separator() -- 67
+			ImGui.TextWrapped("Basic usage to create dragonBones! Tap it for a hit test.") -- 68
+			local changed = false -- 69
+			changed, showDebug = ImGui.Checkbox("BoundingBox", showDebug) -- 70
+			if changed and bone then -- 70
+				bone.showDebug = showDebug -- 72
+			end -- 72
+		end -- 65
 	) -- 65
-	ImGui.Begin( -- 66
-		"DragonBones", -- 66
-		windowFlags, -- 66
-		function() -- 66
-			ImGui.Text("DragonBones (TypeScript)") -- 67
-			ImGui.Separator() -- 68
-			ImGui.TextWrapped("Basic usage to create dragonBones! Tap it for a hit test.") -- 69
-			local changed = false -- 70
-			changed, showDebug = ImGui.Checkbox("BoundingBox", showDebug) -- 71
-			if changed and bone then -- 71
-				bone.showDebug = showDebug -- 73
-			end -- 73
-		end -- 66
-	) -- 66
-	return false -- 76
-end) -- 61
-return ____exports -- 61
+	return false -- 75
+end) -- 60
+return ____exports -- 60

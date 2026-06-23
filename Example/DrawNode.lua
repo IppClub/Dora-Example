@@ -1,4 +1,4 @@
--- [yue]: Example/DrawNode.yue
+-- [yue]: Dora-Example/Example/DrawNode.yue
 local _ENV = Dora -- 2
 local math <const> = math -- 3
 local Vec2 <const> = Vec2 -- 3
@@ -117,18 +117,17 @@ local windowFlags = { -- 74
 	"AlwaysAutoResize", -- 74
 	"NoSavedSettings", -- 74
 	"NoFocusOnAppearing", -- 74
-	"NoNav", -- 74
 	"NoMove" -- 74
 } -- 74
-return threadLoop(function() -- 82
-	local width -- 83
-	width = App.visualSize.width -- 83
-	ImGui.SetNextWindowBgAlpha(0.35) -- 84
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 85
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 86
-	return ImGui.Begin("Draw Node", windowFlags, function() -- 87
-		ImGui.Text("Draw Node (YueScript)") -- 88
-		ImGui.Separator() -- 89
-		return ImGui.TextWrapped("Draw shapes and lines!") -- 90
-	end) -- 87
-end) -- 82
+return threadLoop(function() -- 81
+	local width -- 82
+	width = App.visualSize.width -- 82
+	ImGui.SetNextWindowBgAlpha(0.35) -- 83
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 84
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 85
+	return ImGui.Begin("Draw Node", windowFlags, function() -- 86
+		ImGui.Text("Draw Node (YueScript)") -- 87
+		ImGui.Separator() -- 88
+		return ImGui.TextWrapped("Draw shapes and lines!") -- 89
+	end) -- 86
+end) -- 81

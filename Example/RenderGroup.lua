@@ -1,4 +1,4 @@
--- [yue]: Example/RenderGroup.yue
+-- [yue]: Dora-Example/Example/RenderGroup.yue
 local _ENV = Dora -- 2
 local Class <const> = Class -- 3
 local Node <const> = Node -- 3
@@ -71,23 +71,22 @@ local windowFlags = { -- 48
 	"AlwaysAutoResize", -- 48
 	"NoSavedSettings", -- 48
 	"NoFocusOnAppearing", -- 48
-	"NoNav", -- 48
 	"NoMove" -- 48
 } -- 48
-return threadLoop(function() -- 56
-	local width -- 57
-	width = App.visualSize.width -- 57
-	ImGui.SetNextWindowBgAlpha(0.35) -- 58
-	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 59
-	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 60
-	return ImGui.Begin("Render Group", windowFlags, function() -- 61
-		ImGui.Text("Render Group (YueScript)") -- 62
-		ImGui.Separator() -- 63
-		ImGui.TextWrapped("When render group is enabled, the nodes in the sub render tree will be grouped by \"renderOrder\" property, and get rendered in ascending order!\nNotice the draw call changes in stats window.") -- 64
-		local changed -- 65
-		changed, renderGroup = ImGui.Checkbox("Grouped", renderGroup) -- 65
-		if changed then -- 65
-			currentEntry.renderGroup = renderGroup -- 66
-		end -- 65
-	end) -- 61
-end) -- 56
+return threadLoop(function() -- 55
+	local width -- 56
+	width = App.visualSize.width -- 56
+	ImGui.SetNextWindowBgAlpha(0.35) -- 57
+	ImGui.SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 58
+	ImGui.SetNextWindowSize(Vec2(240, 0), "FirstUseEver") -- 59
+	return ImGui.Begin("Render Group", windowFlags, function() -- 60
+		ImGui.Text("Render Group (YueScript)") -- 61
+		ImGui.Separator() -- 62
+		ImGui.TextWrapped("When render group is enabled, the nodes in the sub render tree will be grouped by \"renderOrder\" property, and get rendered in ascending order!\nNotice the draw call changes in stats window.") -- 63
+		local changed -- 64
+		changed, renderGroup = ImGui.Checkbox("Grouped", renderGroup) -- 64
+		if changed then -- 64
+			currentEntry.renderGroup = renderGroup -- 65
+		end -- 64
+	end) -- 60
+end) -- 55

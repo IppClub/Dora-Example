@@ -96,67 +96,66 @@ local windowFlags = { -- 97
 	"AlwaysAutoResize", -- 99
 	"NoSavedSettings", -- 100
 	"NoFocusOnAppearing", -- 101
-	"NoNav", -- 102
-	"NoMove" -- 103
-} -- 103
-Observer("Add", {"scene"}):watch(function(entity) -- 105
-	local scene = tolua.cast(entity.scene, "Node") -- 106
-	if scene then -- 106
-		scene:schedule(function() -- 108
-			local ____App_visualSize_4 = App.visualSize -- 109
-			local width = ____App_visualSize_4.width -- 109
-			ImGui.SetNextWindowBgAlpha(0.35) -- 110
-			ImGui.SetNextWindowPos( -- 111
-				Vec2(width - 10, 10), -- 111
-				"Always", -- 111
-				Vec2(1, 0) -- 111
+	"NoMove" -- 102
+} -- 102
+Observer("Add", {"scene"}):watch(function(entity) -- 104
+	local scene = tolua.cast(entity.scene, "Node") -- 105
+	if scene then -- 105
+		scene:schedule(function() -- 107
+			local ____App_visualSize_4 = App.visualSize -- 108
+			local width = ____App_visualSize_4.width -- 108
+			ImGui.SetNextWindowBgAlpha(0.35) -- 109
+			ImGui.SetNextWindowPos( -- 110
+				Vec2(width - 10, 10), -- 110
+				"Always", -- 110
+				Vec2(1, 0) -- 110
+			) -- 110
+			ImGui.SetNextWindowSize( -- 111
+				Vec2(240, 0), -- 111
+				"FirstUseEver" -- 111
 			) -- 111
-			ImGui.SetNextWindowSize( -- 112
-				Vec2(240, 0), -- 112
-				"FirstUseEver" -- 112
+			ImGui.Begin( -- 112
+				"ECS System", -- 112
+				windowFlags, -- 112
+				function() -- 112
+					ImGui.Text("ECS System (Typescript)") -- 113
+					ImGui.Separator() -- 114
+					ImGui.TextWrapped("Tap any place to move entities.") -- 115
+					if ImGui.Button("Create Random Entity") then -- 115
+						Entity({ -- 117
+							image = "Image/logo.png", -- 118
+							position = Vec2( -- 119
+								6 * math.random(1, 100), -- 119
+								6 * math.random(1, 100) -- 119
+							), -- 119
+							direction = 1 * math.random(0, 360), -- 120
+							speed = 1 * math.random(1, 20) -- 121
+						}) -- 121
+					end -- 121
+					if ImGui.Button("Destroy An Entity") then -- 121
+						Group({"sprite", "position"}):each(function(e) -- 125
+							e.position = nil -- 126
+							local sprite = tolua.cast(e.sprite, "Sprite") -- 127
+							if sprite then -- 127
+								sprite:runAction(Sequence( -- 129
+									Scale(0.5, 0.5, 0, Ease.InBack), -- 131
+									Event("Destroy") -- 132
+								)) -- 132
+								sprite:slot( -- 135
+									"Destroy", -- 135
+									function() -- 135
+										e:destroy() -- 136
+									end -- 135
+								) -- 135
+							end -- 135
+							return true -- 139
+						end) -- 125
+					end -- 125
+				end -- 112
 			) -- 112
-			ImGui.Begin( -- 113
-				"ECS System", -- 113
-				windowFlags, -- 113
-				function() -- 113
-					ImGui.Text("ECS System (Typescript)") -- 114
-					ImGui.Separator() -- 115
-					ImGui.TextWrapped("Tap any place to move entities.") -- 116
-					if ImGui.Button("Create Random Entity") then -- 116
-						Entity({ -- 118
-							image = "Image/logo.png", -- 119
-							position = Vec2( -- 120
-								6 * math.random(1, 100), -- 120
-								6 * math.random(1, 100) -- 120
-							), -- 120
-							direction = 1 * math.random(0, 360), -- 121
-							speed = 1 * math.random(1, 20) -- 122
-						}) -- 122
-					end -- 122
-					if ImGui.Button("Destroy An Entity") then -- 122
-						Group({"sprite", "position"}):each(function(e) -- 126
-							e.position = nil -- 127
-							local sprite = tolua.cast(e.sprite, "Sprite") -- 128
-							if sprite then -- 128
-								sprite:runAction(Sequence( -- 130
-									Scale(0.5, 0.5, 0, Ease.InBack), -- 132
-									Event("Destroy") -- 133
-								)) -- 133
-								sprite:slot( -- 136
-									"Destroy", -- 136
-									function() -- 136
-										e:destroy() -- 137
-									end -- 136
-								) -- 136
-							end -- 136
-							return true -- 140
-						end) -- 126
-					end -- 126
-				end -- 113
-			) -- 113
-			return false -- 144
-		end) -- 108
-	end -- 108
-	return false -- 147
-end) -- 105
-return ____exports -- 105
+			return false -- 143
+		end) -- 107
+	end -- 107
+	return false -- 146
+end) -- 104
+return ____exports -- 104

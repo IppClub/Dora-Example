@@ -205,42 +205,41 @@ local windowFlags = { -- 171
 	"AlwaysAutoResize", -- 173
 	"NoSavedSettings", -- 174
 	"NoFocusOnAppearing", -- 175
-	"NoNav", -- 176
-	"NoMove" -- 177
-} -- 177
-threadLoop(function() -- 179
-	local ____App_visualSize_1 = App.visualSize -- 180
-	local width = ____App_visualSize_1.width -- 180
-	ImGui.SetNextWindowBgAlpha(0.35) -- 181
-	ImGui.SetNextWindowPos( -- 182
-		Vec2(width - 10, 10), -- 182
-		"Always", -- 182
-		Vec2(1, 0) -- 182
+	"NoMove" -- 176
+} -- 176
+threadLoop(function() -- 178
+	local ____App_visualSize_1 = App.visualSize -- 179
+	local width = ____App_visualSize_1.width -- 179
+	ImGui.SetNextWindowBgAlpha(0.35) -- 180
+	ImGui.SetNextWindowPos( -- 181
+		Vec2(width - 10, 10), -- 181
+		"Always", -- 181
+		Vec2(1, 0) -- 181
+	) -- 181
+	ImGui.SetNextWindowSize( -- 182
+		Vec2(240, 0), -- 182
+		"FirstUseEver" -- 182
 	) -- 182
-	ImGui.SetNextWindowSize( -- 183
-		Vec2(240, 0), -- 183
-		"FirstUseEver" -- 183
+	ImGui.Begin( -- 183
+		"EnhancedInput", -- 183
+		windowFlags, -- 183
+		function() -- 183
+			ImGui.Text("Enhanced Input (TSX)") -- 184
+			ImGui.Separator() -- 185
+			ImGui.TextWrapped("Change input context to alter input mapping") -- 186
+			if phase == "None" then -- 186
+				local changed, result = ImGui.Checkbox("hold X to Confirm (instead Y)", checked) -- 188
+				if changed then -- 188
+					if checked then -- 188
+						inputManager:popContext() -- 191
+					else -- 191
+						inputManager:pushContext("Test") -- 193
+					end -- 193
+					checked = result -- 195
+				end -- 195
+			end -- 195
+		end -- 183
 	) -- 183
-	ImGui.Begin( -- 184
-		"EnhancedInput", -- 184
-		windowFlags, -- 184
-		function() -- 184
-			ImGui.Text("Enhanced Input (TSX)") -- 185
-			ImGui.Separator() -- 186
-			ImGui.TextWrapped("Change input context to alter input mapping") -- 187
-			if phase == "None" then -- 187
-				local changed, result = ImGui.Checkbox("hold X to Confirm (instead Y)", checked) -- 189
-				if changed then -- 189
-					if checked then -- 189
-						inputManager:popContext() -- 192
-					else -- 192
-						inputManager:pushContext("Test") -- 194
-					end -- 194
-					checked = result -- 196
-				end -- 196
-			end -- 196
-		end -- 184
-	) -- 184
-	return false -- 200
-end) -- 179
-return ____exports -- 179
+	return false -- 199
+end) -- 178
+return ____exports -- 178

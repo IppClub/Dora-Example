@@ -54,7 +54,6 @@ const windowFlags = [
 	WindowFlag.AlwaysAutoResize,
 	WindowFlag.NoSavedSettings,
 	WindowFlag.NoFocusOnAppearing,
-	WindowFlag.NoNav,
 	WindowFlag.NoMove
 ];
 let showDebug = bone?.showDebug ?? false;

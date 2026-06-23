@@ -56,7 +56,6 @@ local windowFlags = {
 	"AlwaysAutoResize",
 	"NoSavedSettings",
 	"NoFocusOnAppearing",
-	"NoNav",
 	"NoMove"
 }
 threadLoop(function(): boolean

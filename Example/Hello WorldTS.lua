@@ -33,30 +33,29 @@ local windowFlags = { -- 24
 	"AlwaysAutoResize", -- 26
 	"NoSavedSettings", -- 27
 	"NoFocusOnAppearing", -- 28
-	"NoNav", -- 29
-	"NoMove" -- 30
-} -- 30
-threadLoop(function() -- 32
-	local size = App.visualSize -- 33
-	ImGui.SetNextWindowBgAlpha(0.35) -- 34
-	ImGui.SetNextWindowPos( -- 35
-		Vec2(size.width - 10, 10), -- 35
-		"Always", -- 35
-		Vec2(1, 0) -- 35
+	"NoMove" -- 29
+} -- 29
+threadLoop(function() -- 31
+	local size = App.visualSize -- 32
+	ImGui.SetNextWindowBgAlpha(0.35) -- 33
+	ImGui.SetNextWindowPos( -- 34
+		Vec2(size.width - 10, 10), -- 34
+		"Always", -- 34
+		Vec2(1, 0) -- 34
+	) -- 34
+	ImGui.SetNextWindowSize( -- 35
+		Vec2(240, 0), -- 35
+		"FirstUseEver" -- 35
 	) -- 35
-	ImGui.SetNextWindowSize( -- 36
-		Vec2(240, 0), -- 36
-		"FirstUseEver" -- 36
+	ImGui.Begin( -- 36
+		"Hello World", -- 36
+		windowFlags, -- 36
+		function() -- 36
+			ImGui.Text("Hello World (TypeScript)") -- 37
+			ImGui.Separator() -- 38
+			ImGui.TextWrapped("Basic Dora schedule and signal function usage. Written in Teal. View outputs in log window!") -- 39
+		end -- 36
 	) -- 36
-	ImGui.Begin( -- 37
-		"Hello World", -- 37
-		windowFlags, -- 37
-		function() -- 37
-			ImGui.Text("Hello World (TypeScript)") -- 38
-			ImGui.Separator() -- 39
-			ImGui.TextWrapped("Basic Dora schedule and signal function usage. Written in Teal. View outputs in log window!") -- 40
-		end -- 37
-	) -- 37
-	return false -- 42
-end) -- 32
-return ____exports -- 32
+	return false -- 41
+end) -- 31
+return ____exports -- 31

@@ -14,7 +14,7 @@ interface ButtonProps {
 	text: string;
 	width: number;
 	height: number;
-	children?: any[];
+	children?: React.Element[];
 	onClick: (this: void) => void;
 }
 
@@ -29,7 +29,7 @@ const Button = (props: ButtonProps) => {
 			props.onClick();
 		});
 		if (props.ref) {
-			(props.ref.current as any) = btn;
+			(props.ref as unknown as {current: Button.Type}).current = btn;
 		}
 		return btn;
 	}} children={props.children}/>;
@@ -56,7 +56,7 @@ const ScrollArea = (props: ScrollAreaProps) => {
 		const {width, height} = props;
 		const scrollArea = ScrollAreaCreate(props);
 		if (props.ref) {
-			(props.ref.current as any) = scrollArea;
+			(props.ref as unknown as {current: ScrollArea.Type}).current = scrollArea;
 		}
 		if (props.children) {
 			for (let child of props.children) {

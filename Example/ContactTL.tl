@@ -82,7 +82,6 @@ local windowFlags = {
 	"AlwaysAutoResize",
 	"NoSavedSettings",
 	"NoFocusOnAppearing",
-	"NoNav",
 	"NoMove"
 }
 local receivingContact = disk.receivingContact

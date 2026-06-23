@@ -79,40 +79,39 @@ local windowFlags = { -- 52
 	"AlwaysAutoResize", -- 54
 	"NoSavedSettings", -- 55
 	"NoFocusOnAppearing", -- 56
-	"NoNav", -- 57
-	"NoMove" -- 58
-} -- 58
-local receivingContact = disk.receivingContact -- 60
-threadLoop(function() -- 61
-	local ____App_visualSize_2 = App.visualSize -- 62
-	local width = ____App_visualSize_2.width -- 62
-	ImGui.SetNextWindowBgAlpha(0.35) -- 63
-	ImGui.SetNextWindowPos( -- 64
-		Vec2(width - 10, 10), -- 64
-		"Always", -- 64
-		Vec2(1, 0) -- 64
+	"NoMove" -- 57
+} -- 57
+local receivingContact = disk.receivingContact -- 59
+threadLoop(function() -- 60
+	local ____App_visualSize_2 = App.visualSize -- 61
+	local width = ____App_visualSize_2.width -- 61
+	ImGui.SetNextWindowBgAlpha(0.35) -- 62
+	ImGui.SetNextWindowPos( -- 63
+		Vec2(width - 10, 10), -- 63
+		"Always", -- 63
+		Vec2(1, 0) -- 63
+	) -- 63
+	ImGui.SetNextWindowSize( -- 64
+		Vec2(240, 0), -- 64
+		"FirstUseEver" -- 64
 	) -- 64
-	ImGui.SetNextWindowSize( -- 65
-		Vec2(240, 0), -- 65
-		"FirstUseEver" -- 65
+	ImGui.Begin( -- 65
+		"Contact", -- 65
+		windowFlags, -- 65
+		function() -- 65
+			ImGui.Text("Contact (TypeScript)") -- 66
+			ImGui.Separator() -- 67
+			ImGui.TextWrapped("Receive events when physics bodies contact.") -- 68
+			local changed = false -- 69
+			changed, receivingContact = ImGui.Checkbox("Receiving Contact", receivingContact) -- 70
+			if changed then -- 70
+				disk.receivingContact = receivingContact -- 72
+				if label ~= nil then -- 72
+					label.text = "" -- 73
+				end -- 73
+			end -- 73
+		end -- 65
 	) -- 65
-	ImGui.Begin( -- 66
-		"Contact", -- 66
-		windowFlags, -- 66
-		function() -- 66
-			ImGui.Text("Contact (TypeScript)") -- 67
-			ImGui.Separator() -- 68
-			ImGui.TextWrapped("Receive events when physics bodies contact.") -- 69
-			local changed = false -- 70
-			changed, receivingContact = ImGui.Checkbox("Receiving Contact", receivingContact) -- 71
-			if changed then -- 71
-				disk.receivingContact = receivingContact -- 73
-				if label ~= nil then -- 73
-					label.text = "" -- 74
-				end -- 74
-			end -- 74
-		end -- 66
-	) -- 66
-	return false -- 77
-end) -- 61
-return ____exports -- 61
+	return false -- 76
+end) -- 60
+return ____exports -- 60

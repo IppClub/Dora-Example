@@ -1,4 +1,4 @@
--- [yue]: Example/ML.yue
+-- [yue]: Dora-Example/Example/ML.yue
 local _ENV = Dora(Dora.ImGui) -- 2
 local App <const> = App -- 3
 local table <const> = table -- 3
@@ -763,7 +763,6 @@ local windowFlags = { -- 250
 	"NoMove", -- 250
 	"NoCollapse", -- 250
 	"NoDecoration", -- 250
-	"NoNav", -- 250
 	"AlwaysVerticalScrollbar", -- 250
 	"NoSavedSettings" -- 250
 } -- 250

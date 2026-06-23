@@ -31,39 +31,33 @@ end -- 9
 local files = {"TMX/platform.tmx", "TMX/demo.tmx"} -- 25
 TMX(files[1]) -- 30
 local currentTest = 1 -- 32
-local windowFlags = { -- 33
-	"NoDecoration", -- 34
-	"NoSavedSettings", -- 35
-	"NoFocusOnAppearing", -- 36
-	"NoNav", -- 37
-	"NoMove" -- 38
-} -- 38
-threadLoop(function() -- 40
-	local ____App_visualSize_0 = App.visualSize -- 41
-	local width = ____App_visualSize_0.width -- 41
-	ImGui.SetNextWindowPos( -- 42
-		Vec2(width - 10, 10), -- 42
-		"Always", -- 42
-		Vec2(1, 0) -- 42
+local windowFlags = {"NoDecoration", "NoSavedSettings", "NoFocusOnAppearing", "NoMove"} -- 33
+threadLoop(function() -- 39
+	local ____App_visualSize_0 = App.visualSize -- 40
+	local width = ____App_visualSize_0.width -- 40
+	ImGui.SetNextWindowPos( -- 41
+		Vec2(width - 10, 10), -- 41
+		"Always", -- 41
+		Vec2(1, 0) -- 41
+	) -- 41
+	ImGui.SetNextWindowSize( -- 42
+		Vec2(200, 0), -- 42
+		"Always" -- 42
 	) -- 42
-	ImGui.SetNextWindowSize( -- 43
-		Vec2(200, 0), -- 43
-		"Always" -- 43
+	ImGui.Begin( -- 43
+		"Tilemap", -- 43
+		windowFlags, -- 43
+		function() -- 43
+			ImGui.Text("Tilemap (TSX)") -- 44
+			ImGui.Separator() -- 45
+			ImGui.TextWrapped("Drag to view the whole scene.") -- 46
+			local changed = false -- 47
+			changed, currentTest = ImGui.Combo("File", currentTest, files) -- 48
+			if changed then -- 48
+				TMX(files[currentTest]) -- 50
+			end -- 50
+		end -- 43
 	) -- 43
-	ImGui.Begin( -- 44
-		"Tilemap", -- 44
-		windowFlags, -- 44
-		function() -- 44
-			ImGui.Text("Tilemap (TSX)") -- 45
-			ImGui.Separator() -- 46
-			ImGui.TextWrapped("Drag to view the whole scene.") -- 47
-			local changed = false -- 48
-			changed, currentTest = ImGui.Combo("File", currentTest, files) -- 49
-			if changed then -- 49
-				TMX(files[currentTest]) -- 51
-			end -- 51
-		end -- 44
-	) -- 44
-	return false -- 54
-end) -- 40
-return ____exports -- 40
+	return false -- 53
+end) -- 39
+return ____exports -- 39

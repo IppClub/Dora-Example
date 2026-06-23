@@ -1,4 +1,4 @@
--- [yue]: Example/Yarn.yue
+-- [yue]: Dora-Example/Example/Yarn.yue
 local _ENV = Dora(Dora.ImGui) -- 2
 local YarnRunner = require("YarnRunner") -- 3
 local LineRect = require("UI.View.Shape.LineRect") -- 4
@@ -223,34 +223,33 @@ local windowFlags = { -- 114
 	"NoDecoration", -- 114
 	"NoSavedSettings", -- 114
 	"NoFocusOnAppearing", -- 114
-	"NoNav", -- 114
 	"NoMove" -- 114
 } -- 114
-return threadLoop(function() -- 121
-	local width -- 122
-	width = App.visualSize.width -- 122
-	SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 123
-	SetNextWindowSize(Vec2(200, 0), "Always") -- 124
-	return Begin("Yarn Test", windowFlags, function() -- 125
-		Text("Yarn Tester (Yuescript)") -- 126
-		Separator() -- 127
-		local changed -- 128
-		changed, currentFile = Combo("File", currentFile, files) -- 128
-		if changed then -- 129
-			xpcall(function() -- 130
-				runner = YarnRunner(testFiles[currentFile], "Start", { }, commands, true) -- 131
-				texts = { } -- 132
-				return advance() -- 133
-			end, function(err) -- 133
-				local msg = debug.traceback(err) -- 135
-				label.text = "failed to load file " .. tostring(testFiles[currentFile]) .. "\n" .. tostring(msg) -- 136
-				return scroll:adjustSizeWithAlign("Auto", 10) -- 137
-			end) -- 130
-		end -- 129
-		Text("Variables") -- 138
-		Separator() -- 139
-		for k, v in pairs(runner.state) do -- 140
-			Text(tostring(k) .. ": " .. tostring(v)) -- 141
-		end -- 140
-	end) -- 125
-end) -- 121
+return threadLoop(function() -- 120
+	local width -- 121
+	width = App.visualSize.width -- 121
+	SetNextWindowPos(Vec2(width - 10, 10), "Always", Vec2(1, 0)) -- 122
+	SetNextWindowSize(Vec2(200, 0), "Always") -- 123
+	return Begin("Yarn Test", windowFlags, function() -- 124
+		Text("Yarn Tester (Yuescript)") -- 125
+		Separator() -- 126
+		local changed -- 127
+		changed, currentFile = Combo("File", currentFile, files) -- 127
+		if changed then -- 128
+			xpcall(function() -- 129
+				runner = YarnRunner(testFiles[currentFile], "Start", { }, commands, true) -- 130
+				texts = { } -- 131
+				return advance() -- 132
+			end, function(err) -- 132
+				local msg = debug.traceback(err) -- 134
+				label.text = "failed to load file " .. tostring(testFiles[currentFile]) .. "\n" .. tostring(msg) -- 135
+				return scroll:adjustSizeWithAlign("Auto", 10) -- 136
+			end) -- 129
+		end -- 128
+		Text("Variables") -- 137
+		Separator() -- 138
+		for k, v in pairs(runner.state) do -- 139
+			Text(tostring(k) .. ": " .. tostring(v)) -- 140
+		end -- 139
+	end) -- 124
+end) -- 120

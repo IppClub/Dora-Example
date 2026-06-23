@@ -41,22 +41,22 @@ emit('MyEvent', 998, 'Hello')
 temp.position = Vec2(0, 0)
 local world = PhysicsWorld()
 world.showDebug = true
-local temp = (function()
+do
   local bodyDef = BodyDef()
   bodyDef.type = 'Dynamic'
   bodyDef.fixedRotation = false
   bodyDef.group = 0
   bodyDef.linearAcceleration = Vec2(0, -9.8)
   bodyDef:attachPolygon(Vec2(0, 150), 80, 80, 0, 1, 0.4, 0)
-  return Body(bodyDef, world, Vec2(0, 0), 0)
-end)()
-local temp = (function()
+  Body(bodyDef, world, Vec2(0, 0), 0)
+end
+do
   local bodyDef2 = BodyDef()
   bodyDef2.type = 'Static'
   bodyDef2.fixedRotation = false
   bodyDef2.group = 0
   bodyDef2.linearAcceleration = Vec2(0, -9.8)
   bodyDef2:attachPolygon({Vec2(-100, -50), Vec2(-80, 0), Vec2(80, 0), Vec2(100, -50)}, 1, 0.4, 0.4)
-  return Body(bodyDef2, world, Vec2(0, -200), 0)
-end)()
+  Body(bodyDef2, world, Vec2(0, -200), 0)
+end
 return 123

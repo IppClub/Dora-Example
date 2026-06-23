@@ -71,36 +71,35 @@ local windowFlags = { -- 53
 	"AlwaysAutoResize", -- 55
 	"NoSavedSettings", -- 56
 	"NoFocusOnAppearing", -- 57
-	"NoNav", -- 58
-	"NoMove" -- 59
-} -- 59
-threadLoop(function() -- 61
-	local ____App_visualSize_2 = App.visualSize -- 62
-	local width = ____App_visualSize_2.width -- 62
-	ImGui.SetNextWindowBgAlpha(0.35) -- 63
-	ImGui.SetNextWindowPos( -- 64
-		Vec2(width - 10, 10), -- 64
-		"Always", -- 64
-		Vec2(1, 0) -- 64
+	"NoMove" -- 58
+} -- 58
+threadLoop(function() -- 60
+	local ____App_visualSize_2 = App.visualSize -- 61
+	local width = ____App_visualSize_2.width -- 61
+	ImGui.SetNextWindowBgAlpha(0.35) -- 62
+	ImGui.SetNextWindowPos( -- 63
+		Vec2(width - 10, 10), -- 63
+		"Always", -- 63
+		Vec2(1, 0) -- 63
+	) -- 63
+	ImGui.SetNextWindowSize( -- 64
+		Vec2(240, 0), -- 64
+		"FirstUseEver" -- 64
 	) -- 64
-	ImGui.SetNextWindowSize( -- 65
-		Vec2(240, 0), -- 65
-		"FirstUseEver" -- 65
+	ImGui.Begin( -- 65
+		"Render Group", -- 65
+		windowFlags, -- 65
+		function() -- 65
+			ImGui.Text("Render Group (TypeScript)") -- 66
+			ImGui.Separator() -- 67
+			ImGui.TextWrapped("When render group is enabled, the nodes in the sub render tree will be grouped by \"renderOrder\" property, and get rendered in ascending order!\nNotice the draw call changes in stats window.") -- 68
+			local changed = false -- 69
+			changed, renderGroup = ImGui.Checkbox("Grouped", renderGroup) -- 70
+			if changed then -- 70
+				currentEntry.renderGroup = renderGroup -- 72
+			end -- 72
+		end -- 65
 	) -- 65
-	ImGui.Begin( -- 66
-		"Render Group", -- 66
-		windowFlags, -- 66
-		function() -- 66
-			ImGui.Text("Render Group (TypeScript)") -- 67
-			ImGui.Separator() -- 68
-			ImGui.TextWrapped("When render group is enabled, the nodes in the sub render tree will be grouped by \"renderOrder\" property, and get rendered in ascending order!\nNotice the draw call changes in stats window.") -- 69
-			local changed = false -- 70
-			changed, renderGroup = ImGui.Checkbox("Grouped", renderGroup) -- 71
-			if changed then -- 71
-				currentEntry.renderGroup = renderGroup -- 73
-			end -- 73
-		end -- 66
-	) -- 66
-	return false -- 76
-end) -- 61
-return ____exports -- 61
+	return false -- 75
+end) -- 60
+return ____exports -- 60
