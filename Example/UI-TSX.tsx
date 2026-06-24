@@ -1,7 +1,7 @@
 // @preview-file on clear
-import { React, toNode, toAction, useRef } from 'DoraX';
-import { Ease, Size, sleep, thread, tolua, TypeName, Vec2 } from 'Dora';
-import { Struct } from 'Utils';
+import { React, createRoot, signal, toAction, toNode, useRef } from 'DoraX';
+import { Director, Ease, Size, sleep, thread, Vec2, once } from 'Dora';
+import type * as Dora from 'Dora';
 
 import * as LineRectCreate from 'UI/View/Shape/LineRect';
 import * as ButtonCreate from 'UI/Control/Basic/Button';
@@ -11,15 +11,18 @@ import { ScrollArea, AlignMode } from 'UI/Control/Basic/ScrollArea';
 
 interface ButtonProps {
 	ref?: JSX.Ref<Button.Type>;
+	key?: string | number;
 	text: string;
 	width: number;
 	height: number;
 	children?: React.Element[];
+	onCreate?: (this: void) => Button.Type;
+	onMount?: (this: void, node: Dora.Node.Type) => void;
 	onClick: (this: void) => void;
 }
 
 const Button = (props: ButtonProps) => {
-	return <custom-node onCreate={() => {
+	return <custom-node key={props.key} onMount={props.onMount} onCreate={props.onCreate ?? (() => {
 		const btn = ButtonCreate({
 			text: props.text,
 			width: props.width,
@@ -32,7 +35,7 @@ const Button = (props: ButtonProps) => {
 			(props.ref as unknown as {current: Button.Type}).current = btn;
 		}
 		return btn;
-	}} children={props.children}/>;
+	})} children={props.children}/>;
 };
 
 interface ScrollAreaProps {
@@ -69,67 +72,147 @@ const ScrollArea = (props: ScrollAreaProps) => {
 };
 
 interface ItemProps {
+	id: number;
 	name: string;
 	value: number;
+	createButton: (this: void) => Button.Type;
+	mountButton: (this: void, node: Dora.Node.Type) => void;
+	remove: (this: void) => void;
 };
-
-const Array = Struct.Array<ItemProps>();
-const Item = Struct.Item<ItemProps>('name', 'value');
 
 const scrollArea = useRef<ScrollArea.Type>();
+const items = signal<ItemProps[]>([]);
+let listRoot: ReturnType<typeof createRoot> | undefined;
 
-const items = Array();
-items.__added = (index, item) => {
+function adjustScrollArea(this: void) {
 	const {current} = scrollArea;
 	if (!current) return;
-	const node = toNode(
-		<Button text={item.name} width={50} height={50} onClick={() => {
-			thread(() => {
-				sleep(0.5);
-				items.remove(item);
-			});
-		}}/>
-	);
-	if (node) {
-		tolua.cast(node.children?.first, TypeName.Node)?.perform(toAction(
-			<scale time={0.3} start={0} stop={1} easing={Ease.OutBack}/>
-		));
-		node.addTo(current.view, index);
-		current.adjustSizeWithAlign(AlignMode.Auto);
-	}
-};
-items.__removed = (index) => {
-	const {current} = scrollArea;
-	const children = current?.view.children;
-	if (!children) return;
-	const child = tolua.cast(children.get(index), TypeName.Node);
-	if (child) child.removeFromParent();
-	for (let i = 1; i <= children.count; i++) {
-		const child = tolua.cast(children[i], TypeName.Node);
-		if (child) child.order = i;
-	}
 	current.adjustSizeWithAlign(AlignMode.Auto);
-};
+}
 
-toNode(
-	<align-node windowRoot style={{alignItems: 'center', justifyContent: 'center'}}>
-		<align-node style={{width: "50%", height: "50%"}} onLayout={(width, height) => {
-			const {current} = scrollArea;
-			if (!current) return;
-			current.position = Vec2(width / 2, height / 2);
-			current.adjustSizeWithAlign(AlignMode.Auto, 10, Size(width, height));
-			current.getChildByTag("border")?.removeFromParent();
-			const border = LineRectCreate({x: -width / 2, y: -height / 2, width, height, color: 0xffffffff});
-			current.addChild(border, 0, "border");
-		}}>
-			<ScrollArea ref={scrollArea} width={250} height={300} paddingX={0}/>
-		</align-node>
-	</align-node>
-);
+function scheduleAdjustScrollArea(this: void) {
+	Director.scheduler.schedule(once(() => {
+		sleep();
+		adjustScrollArea();
+	}));
+}
 
-thread(() => {
-	for (let i of $range(1, 30)) {
-		items.insert(Item({name: `btn ${i}`, value: i}));
-		sleep(1);
+function setItems(this: void, nextItems: ItemProps[]) {
+	items.value = nextItems;
+	scheduleAdjustScrollArea();
+}
+
+function removeItem(this: void, target: ItemProps) {
+	const nextItems: ItemProps[] = [];
+	for (let item of items.value) {
+		if (item !== target) {
+			nextItems.push(item);
+		}
 	}
-});
+	setItems(nextItems);
+}
+
+function appendItem(this: void, item: ItemProps) {
+	const nextItems: ItemProps[] = [];
+	for (let current of items.value) {
+		nextItems.push(current);
+	}
+	nextItems.push(item);
+	setItems(nextItems);
+}
+
+function createItem(this: void, id: number): ItemProps {
+	const item = {} as ItemProps;
+	item.id = id;
+	item.name = `btn ${id}`;
+	item.value = id;
+	item.remove = () => {
+		thread(() => {
+			sleep(0.5);
+			removeItem(item);
+		});
+	};
+	item.createButton = () => {
+		const btn = ButtonCreate({
+			text: item.name,
+			width: 50,
+			height: 50
+		});
+		btn.onTapped(item.remove);
+		return btn;
+	};
+	item.mountButton = (node) => {
+		const btn = node as Button.Type;
+		btn.once(() => {
+			btn.face.perform(toAction(
+				<scale time={0.3} start={0} stop={1} easing={Ease.OutBack} />
+			));
+			sleep();
+			adjustScrollArea();
+		});
+	};
+	return item;
+}
+
+function renderItems(this: void) {
+	return items.value.map(item => (
+		<Button
+			key={item.id}
+			text={item.name}
+			width={50}
+			height={50}
+			onClick={item.remove}
+			onCreate={item.createButton}
+			onMount={item.mountButton}
+		/>
+	));
+}
+
+function mountItemRoot(this: void) {
+	const {current} = scrollArea;
+	if (!current || listRoot) return;
+	listRoot = createRoot(current.view);
+	listRoot.render(renderItems);
+	adjustScrollArea();
+}
+
+function updateScrollLayout(this: void, width: number, height: number) {
+	const {current} = scrollArea;
+	if (!current) return;
+	current.position = Vec2(width / 2, height / 2);
+	current.adjustSizeWithAlign(AlignMode.Auto, 10, Size(width, height));
+	current.getChildByTag("border")?.removeFromParent();
+	const border = LineRectCreate({x: -width / 2, y: -height / 2, width, height, color: 0xffffffff});
+	current.addChild(border, 0, "border");
+	mountItemRoot();
+}
+
+function startAddingItems(this: void) {
+	thread(() => {
+		for (let i of $range(1, 30)) {
+			appendItem(createItem(i));
+			sleep(1);
+		}
+	});
+}
+
+function App(this: void) {
+	return (
+		<align-node windowRoot style={{alignItems: 'center', justifyContent: 'center'}}>
+			<align-node style={{width: "50%", height: "50%"}} onLayout={updateScrollLayout}>
+				<ScrollArea ref={scrollArea} width={250} height={300} paddingX={0}/>
+			</align-node>
+		</align-node>
+	);
+}
+
+const appNode = toNode(<App />);
+if (appNode) {
+	appNode.onCleanup(() => {
+		if (listRoot) {
+			listRoot.unmount();
+			listRoot = undefined;
+		}
+	});
+	startAddingItems();
+}
