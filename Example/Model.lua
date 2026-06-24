@@ -1,4 +1,4 @@
--- [yue]: Example/Model.yue
+-- [yue]: Dora-Example/Example/Model.yue
 local _ENV = Dora -- 2
 local Model <const> = Model -- 3
 local print <const> = print -- 3

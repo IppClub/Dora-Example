@@ -1,4 +1,4 @@
--- [yue]: Example/Particle.yue
+-- [yue]: Dora-Example/Example/Particle.yue
 local _ENV = Dora(Dora.ImGui) -- 2
 local BlendFunc <const> = BlendFunc -- 3
 local Color <const> = Color -- 3

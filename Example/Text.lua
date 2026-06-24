@@ -1,4 +1,4 @@
--- [yue]: Example/Text.yue
+-- [yue]: Dora-Example/Example/Text.yue
 local _ENV = Dora -- 2
 local LineRect = require("UI.View.Shape.LineRect") -- 3
 local ScrollArea = require("UI.Control.Basic.ScrollArea") -- 4

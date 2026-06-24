@@ -1,4 +1,4 @@
--- [yue]: Example/Sprite.yue
+-- [yue]: Dora-Example/Example/Sprite.yue
 local _ENV = Dora -- 2
 local Sprite <const> = Sprite -- 3
 local Node <const> = Node -- 3
