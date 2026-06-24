@@ -82,9 +82,9 @@ Director.systemScheduler:schedule(once(function() -- 52
 		expect(rendersB == 2, "batched signalB changes should update rootB once") -- 64
 		expect(rendersStatic == 1, "signalB should not update static root") -- 65
 		expect(labelB.current.text == "B:3", "rootB did not render latest signalB value") -- 66
-		rootA:dispose() -- 68
-		rootB:dispose() -- 69
-		rootStatic:dispose() -- 70
+		rootA:unmount() -- 68
+		rootB:unmount() -- 69
+		rootStatic:unmount() -- 70
 		hostA:removeFromParent(true) -- 71
 		hostB:removeFromParent(true) -- 72
 		hostStatic:removeFromParent(true) -- 73

@@ -65,9 +65,9 @@ Director.systemScheduler.schedule(once(() => {
 		expect(rendersStatic === 1, "signalB should not update static root");
 		expect(labelB.current!.text === "B:3", "rootB did not render latest signalB value");
 
-		rootA.dispose();
-		rootB.dispose();
-		rootStatic.dispose();
+		rootA.unmount();
+		rootB.unmount();
+		rootStatic.unmount();
 		hostA.removeFromParent(true);
 		hostB.removeFromParent(true);
 		hostStatic.removeFromParent(true);

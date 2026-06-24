@@ -2,11 +2,11 @@ import { Content, Director, Log, Node as DNode, Path, once } from "Dora";
 import type * as Dora from "Dora";
 import { React, createRoot, signal, useRef } from "DoraX";
 
-const resultFile = Path(Content.writablePath, "DoraXRootDisposeTest.result");
+const resultFile = Path(Content.writablePath, "DoraXRootUnmountTest.result");
 Content.save(resultFile, "running");
 
 function fail(this: void, message: string): never {
-	error(`[DoraXRootDisposeTest] ${message}`);
+	error(`[DoraXRootUnmountTest] ${message}`);
 }
 
 function expect(this: void, condition: boolean, message: string) {
@@ -29,19 +29,19 @@ root.render(() => {
 expect(renders === 1, "initial render count was wrong");
 expect(host.hasChildren, "initial root render did not mount child");
 
-root.dispose();
-expect(!host.hasChildren, "dispose should unmount root children");
+root.unmount();
+expect(!host.hasChildren, "unmount should remove root children");
 
 value.value = 1;
 
 Director.systemScheduler.schedule(once(() => {
-	expect(renders === 1, "disposed root should not update after signal change");
+	expect(renders === 1, "unmounted root should not update after signal change");
 
 	root.render(() => {
 		renders += 1;
 		return <label ref={labelRef} fontName="sarasa-mono-sc-regular" fontSize={18} text={`value:${value.value}`} />;
 	});
-	expect(renders === 2, "disposed root should be renderable again");
+	expect(renders === 2, "unmounted root should be renderable again");
 	expect(labelRef.current!.text === "value:1", "rerendered root did not read latest signal value");
 
 	value.value = 2;
@@ -52,6 +52,6 @@ Director.systemScheduler.schedule(once(() => {
 		root.unmount();
 		host.removeFromParent(true);
 		Content.save(resultFile, "passed");
-		Log("Info", "[DoraXRootDisposeTest] passed");
+		Log("Info", "[DoraXRootUnmountTest] passed");
 	}));
 }));
