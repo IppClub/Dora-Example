@@ -23,6 +23,7 @@ let enters = 0;
 let exits = 0;
 let cleanups = 0;
 let mounts = 0;
+let unmounts = 0;
 
 const action = toAction(
 	<sequence>
@@ -50,6 +51,9 @@ Director.systemScheduler.schedule(once(() => {
 			onCleanup={() => {
 				cleanups += 1;
 			}}
+			onUnmount={() => {
+				unmounts += 1;
+			}}
 		/>
 	);
 
@@ -63,6 +67,7 @@ Director.systemScheduler.schedule(once(() => {
 	Director.systemScheduler.schedule(once(() => {
 	expect(mounts === 1, "onMount should not rerun when node is removed");
 	expect(!host.hasChildren, "diff removal should clear tracked node from host");
+	expect(unmounts === 1, "onUnmount should run when diff removes node");
 
 	root.render(
 		<node
@@ -77,6 +82,9 @@ Director.systemScheduler.schedule(once(() => {
 			onCleanup={() => {
 				cleanups += 1;
 			}}
+			onUnmount={() => {
+				unmounts += 1;
+			}}
 		/>
 	);
 
@@ -87,6 +95,7 @@ Director.systemScheduler.schedule(once(() => {
 
 			Director.systemScheduler.schedule(once(() => {
 	expect(!host.hasChildren, "lifecycle unmount did not clear host");
+	expect(unmounts === 2, "onUnmount should run during root unmount");
 	host.removeFromParent(true);
 	Content.save(resultFile, "passed");
 	Log("Info", "[DoraXActionLifecycleTest] passed");

@@ -99,12 +99,33 @@ root:render(React.createElement( -- 59
 		React.createElement("rect-fixture", {width = 120, height = 20, friction = 0.5, restitution = 0.3}) -- 59
 	) -- 59
 )) -- 59
-expect(worldRef.current ~= world, "physics-world should recreate when contact config changes") -- 67
+expect(worldRef.current == world, "physics-world should patch contact config without recreating") -- 67
 expect(bodyRef.current ~= terrain, "body should recreate when move type changes") -- 68
 expect(movingRef.current == moving, "removed body ref should keep the last mounted node") -- 69
-root:unmount() -- 71
-expect(not host.hasChildren, "physics nodes unmount did not clear host") -- 72
-host:removeFromParent(true) -- 73
-Content:save(resultFile, "passed") -- 74
-Log("Info", "[DoraXPhysicsNodesTest] passed") -- 75
-return ____exports -- 75
+local patchedWorld = worldRef.current -- 71
+local patchedBody = bodyRef.current -- 72
+root:render(React.createElement( -- 73
+	"physics-world", -- 73
+	{ref = worldRef, showDebug = true}, -- 73
+	React.createElement( -- 73
+		"body", -- 73
+		{ -- 73
+			key = "terrain", -- 73
+			ref = bodyRef, -- 73
+			type = "Dynamic", -- 73
+			group = 2, -- 73
+			y = 40 -- 73
+		}, -- 73
+		React.createElement("rect-fixture", {width = 120, height = 20, friction = 0.5, restitution = 0.3}) -- 73
+	) -- 73
+)) -- 73
+expect(worldRef.current == patchedWorld, "physics-world should patch when contact config is unchanged") -- 81
+expect(bodyRef.current == patchedBody, "body should patch non-structural props without recreating") -- 82
+expect(bodyRef.current.y == 40, "body y prop was not patched") -- 83
+expect(bodyRef.current.group == 2, "body group prop was not patched") -- 84
+root:unmount() -- 86
+expect(not host.hasChildren, "physics nodes unmount did not clear host") -- 87
+host:removeFromParent(true) -- 88
+Content:save(resultFile, "passed") -- 89
+Log("Info", "[DoraXPhysicsNodesTest] passed") -- 90
+return ____exports -- 90
