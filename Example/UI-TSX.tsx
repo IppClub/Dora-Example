@@ -1,5 +1,5 @@
 // @preview-file on clear
-import { React, createRoot, reference, signal, toAction, toNode } from 'DoraX';
+import { React, createRoot, reference, signal, toAction, toNode, useCallback } from 'DoraX';
 import { Director, Ease, Size, sleep, thread, Vec2, once } from 'Dora';
 import type * as Dora from 'Dora';
 
@@ -16,26 +16,22 @@ interface ButtonProps {
 	width: number;
 	height: number;
 	children?: React.Element[];
-	onCreate?: (this: void) => Button.Type;
 	onMount?: (this: void, node: Dora.Node.Type) => void;
 	onClick: (this: void) => void;
 }
 
 const Button = (props: ButtonProps) => {
-	return <custom-node key={props.key} onMount={props.onMount} onCreate={props.onCreate ?? (() => {
+	const { text, onClick } = props;
+	const createButton = useCallback(() => {
 		const btn = ButtonCreate({
-			text: props.text,
-			width: props.width,
-			height: props.height
+			text,
+			width: 50,
+			height: 50
 		});
-		btn.onTapped(() => {
-			props.onClick();
-		});
-		if (props.ref) {
-			(props.ref as unknown as {current: Button.Type}).current = btn;
-		}
+		btn.onTapped(onClick);
 		return btn;
-	})} children={props.children}/>;
+	}, [text, onClick]);
+	return <custom-node key={props.key} onMount={props.onMount} onCreate={createButton} children={props.children} />;
 };
 
 interface ScrollAreaProps {
@@ -56,10 +52,10 @@ interface ScrollAreaProps {
 
 const ScrollArea = (props: ScrollAreaProps) => {
 	return <custom-node onCreate={() => {
-		const {width, height} = props;
+		const { width, height } = props;
 		const scrollArea = ScrollAreaCreate(props);
 		if (props.ref) {
-			(props.ref as unknown as {current: ScrollArea.Type}).current = scrollArea;
+			(props.ref as unknown as { current: ScrollArea.Type }).current = scrollArea;
 		}
 		if (props.children) {
 			for (let child of props.children) {
@@ -68,14 +64,13 @@ const ScrollArea = (props: ScrollAreaProps) => {
 			scrollArea.adjustSizeWithAlign(AlignMode.Auto, 10, Size(width, height));
 		}
 		return scrollArea;
-	}}/>;
+	}} />;
 };
 
 interface ItemProps {
 	id: number;
 	name: string;
 	value: number;
-	createButton: (this: void) => Button.Type;
 	mountButton: (this: void, node: Dora.Node.Type) => void;
 	remove: (this: void) => void;
 };
@@ -85,7 +80,7 @@ const items = signal<ItemProps[]>([]);
 let listRoot: ReturnType<typeof createRoot> | undefined;
 
 function adjustScrollArea(this: void) {
-	const {current} = scrollArea;
+	const { current } = scrollArea;
 	if (!current) return;
 	current.adjustSizeWithAlign(AlignMode.Auto);
 }
@@ -132,15 +127,6 @@ function createItem(this: void, id: number): ItemProps {
 			removeItem(item);
 		});
 	};
-	item.createButton = () => {
-		const btn = ButtonCreate({
-			text: item.name,
-			width: 50,
-			height: 50
-		});
-		btn.onTapped(item.remove);
-		return btn;
-	};
 	item.mountButton = (node) => {
 		const btn = node as Button.Type;
 		btn.once(() => {
@@ -162,14 +148,13 @@ function renderItems(this: void) {
 			width={50}
 			height={50}
 			onClick={item.remove}
-			onCreate={item.createButton}
 			onMount={item.mountButton}
 		/>
 	));
 }
 
 function mountItemRoot(this: void) {
-	const {current} = scrollArea;
+	const { current } = scrollArea;
 	if (!current || listRoot) return;
 	listRoot = createRoot(current.view);
 	listRoot.render(renderItems);
@@ -177,12 +162,12 @@ function mountItemRoot(this: void) {
 }
 
 function updateScrollLayout(this: void, width: number, height: number) {
-	const {current} = scrollArea;
+	const { current } = scrollArea;
 	if (!current) return;
 	current.position = Vec2(width / 2, height / 2);
 	current.adjustSizeWithAlign(AlignMode.Auto, 10, Size(width, height));
 	current.getChildByTag("border")?.removeFromParent();
-	const border = LineRectCreate({x: -width / 2, y: -height / 2, width, height, color: 0xffffffff});
+	const border = LineRectCreate({ x: -width / 2, y: -height / 2, width, height, color: 0xffffffff });
 	current.addChild(border, 0, "border");
 	mountItemRoot();
 }
@@ -198,9 +183,9 @@ function startAddingItems(this: void) {
 
 function App(this: void) {
 	return (
-		<align-node windowRoot style={{alignItems: 'center', justifyContent: 'center'}}>
-			<align-node style={{width: "50%", height: "50%"}} onLayout={updateScrollLayout}>
-				<ScrollArea ref={scrollArea} width={250} height={300} paddingX={0}/>
+		<align-node windowRoot style={{ alignItems: 'center', justifyContent: 'center' }}>
+			<align-node style={{ width: "50%", height: "50%" }} onLayout={updateScrollLayout}>
+				<ScrollArea ref={scrollArea} width={250} height={300} paddingX={0} />
 			</align-node>
 		</align-node>
 	);

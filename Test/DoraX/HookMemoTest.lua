@@ -35,97 +35,138 @@ local labelRef = reference() -- 22
 local tick = signal(0) -- 23
 local spare = signal(0) -- 24
 local dep = signal(1) -- 25
-local creates = 0 -- 26
-local memoBuilds = 0 -- 27
-local stableRefObject -- 28
-local localSignalObject -- 29
-local plainRef = reference(1) -- 31
-expect(plainRef.current == 1, "reference should be available outside function components") -- 32
-local useRefOk = pcall(function() return useRef(1) end) -- 34
-local useSignalOk = pcall(function() return useSignal(1) end) -- 35
-local useMemoOk = pcall(function() return useMemo( -- 36
-	function() return 1 end, -- 36
-	{} -- 36
-) end) -- 36
-local useCallbackOk = pcall(function() return useCallback( -- 37
-	function() return 1 end, -- 37
-	{} -- 37
-) end) -- 37
-expect(not useRefOk, "useRef should throw outside function components") -- 38
-expect(not useSignalOk, "useSignal should throw outside function components") -- 39
-expect(not useMemoOk, "useMemo should throw outside function components") -- 40
-expect(not useCallbackOk, "useCallback should throw outside function components") -- 41
-local function StableCustom() -- 43
-	local localRef = useRef(3) -- 44
-	local localSignal = useSignal(5) -- 45
-	if stableRefObject == nil then -- 45
-		stableRefObject = localRef -- 47
-	end -- 47
-	if localSignalObject == nil then -- 47
-		localSignalObject = localSignal -- 50
-	end -- 50
-	if spare.value == 1 then -- 50
-		localRef.current = 9 -- 53
-		localSignal.value = 8 -- 54
+local keyedItems = signal({1, 2, 3, 4}) -- 26
+local creates = 0 -- 27
+local memoBuilds = 0 -- 28
+local keyedCreates = 0 -- 29
+local stableRefObject -- 30
+local localSignalObject -- 31
+local keyedNodes = {} -- 32
+local keyedCreateCounts = {} -- 33
+local plainRef = reference(1) -- 35
+expect(plainRef.current == 1, "reference should be available outside function components") -- 36
+local useRefOk = pcall(function() return useRef(1) end) -- 38
+local useSignalOk = pcall(function() return useSignal(1) end) -- 39
+local useMemoOk = pcall(function() return useMemo( -- 40
+	function() return 1 end, -- 40
+	{} -- 40
+) end) -- 40
+local useCallbackOk = pcall(function() return useCallback( -- 41
+	function() return 1 end, -- 41
+	{} -- 41
+) end) -- 41
+expect(not useRefOk, "useRef should throw outside function components") -- 42
+expect(not useSignalOk, "useSignal should throw outside function components") -- 43
+expect(not useMemoOk, "useMemo should throw outside function components") -- 44
+expect(not useCallbackOk, "useCallback should throw outside function components") -- 45
+local function StableCustom() -- 47
+	local localRef = useRef(3) -- 48
+	local localSignal = useSignal(5) -- 49
+	if stableRefObject == nil then -- 49
+		stableRefObject = localRef -- 51
+	end -- 51
+	if localSignalObject == nil then -- 51
+		localSignalObject = localSignal -- 54
 	end -- 54
-	local onCreate = useCallback( -- 56
-		function() -- 56
-			creates = creates + 1 -- 57
-			return DNode() -- 58
-		end, -- 56
-		{} -- 59
-	) -- 59
-	return React.createElement("custom-node", {key = "custom", ref = customRef, x = tick.value, onCreate = onCreate}) -- 60
-end -- 43
-local function MemoLabel() -- 63
-	local memo = useMemo( -- 64
-		function() -- 64
-			memoBuilds = memoBuilds + 1 -- 65
-			return {text = "dep:" .. tostring(dep.value)} -- 66
-		end, -- 64
-		{dep.value} -- 67
-	) -- 67
-	return React.createElement( -- 68
-		"label", -- 68
-		{ -- 68
-			key = "label", -- 68
-			ref = labelRef, -- 68
-			fontName = "sarasa-mono-sc-regular", -- 68
-			fontSize = 18, -- 68
-			text = (memo.text .. ";spare:") .. tostring(spare.value) -- 68
-		} -- 68
-	) -- 68
-end -- 63
-root:render(function() return React.createElement( -- 79
-	"node", -- 79
-	nil, -- 79
-	React.createElement(StableCustom, nil), -- 79
-	React.createElement(MemoLabel, nil) -- 79
-) end) -- 79
-local customNode = customRef.current -- 86
-expect(customNode ~= nil, "custom node was not mounted") -- 87
-expect(creates == 1, "custom node should be created once on mount") -- 88
-expect(memoBuilds == 1, "memo should build once on mount") -- 89
-expect(labelRef.current.text == "dep:1;spare:0", "initial memo label text was wrong") -- 90
-tick.value = 10 -- 92
-spare.value = 1 -- 93
-Director.systemScheduler:schedule(once(function() -- 95
-	expect(customRef.current == customNode, "stable useCallback should prevent custom-node recreation") -- 96
-	expect(creates == 1, "stable custom onCreate should not run again") -- 97
-	expect(customRef.current.x == 10, "custom node prop should still patch after stable callback render") -- 98
-	expect(stableRefObject ~= nil and stableRefObject.current == 9, "useRef should reuse the same ref object across renders") -- 99
-	expect(localSignalObject ~= nil and localSignalObject.value == 8, "useSignal should reuse the same signal across renders") -- 100
-	expect(memoBuilds == 1, "useMemo should not rebuild when deps are unchanged") -- 101
-	expect(labelRef.current.text == "dep:1;spare:1", "label should still patch with memoized value") -- 102
-	dep.value = 2 -- 104
-	Director.systemScheduler:schedule(once(function() -- 106
-		expect(memoBuilds == 2, "useMemo should rebuild when deps change") -- 107
-		expect(labelRef.current.text == "dep:2;spare:1", "label should render rebuilt memo value") -- 108
-		root:unmount() -- 109
-		expect(not host.hasChildren, "hook memo test unmount did not clear host") -- 110
-		host:removeFromParent(true) -- 111
-		Content:save(resultFile, "passed") -- 112
-		Log("Info", "[DoraXHookMemoTest] passed") -- 113
-	end)) -- 106
-end)) -- 95
-return ____exports -- 95
+	if spare.value == 1 then -- 54
+		localRef.current = 9 -- 57
+		localSignal.value = 8 -- 58
+	end -- 58
+	local onCreate = useCallback( -- 60
+		function() -- 60
+			creates = creates + 1 -- 61
+			return DNode() -- 62
+		end, -- 60
+		{} -- 63
+	) -- 63
+	return React.createElement("custom-node", {key = "custom", ref = customRef, x = tick.value, onCreate = onCreate}) -- 64
+end -- 47
+local function MemoLabel() -- 67
+	local memo = useMemo( -- 68
+		function() -- 68
+			memoBuilds = memoBuilds + 1 -- 69
+			return {text = "dep:" .. tostring(dep.value)} -- 70
+		end, -- 68
+		{dep.value} -- 71
+	) -- 71
+	return React.createElement( -- 72
+		"label", -- 72
+		{ -- 72
+			key = "label", -- 72
+			ref = labelRef, -- 72
+			fontName = "sarasa-mono-sc-regular", -- 72
+			fontSize = 18, -- 72
+			text = (memo.text .. ";spare:") .. tostring(spare.value) -- 72
+		} -- 72
+	) -- 72
+end -- 67
+local function KeyedCustom(props) -- 83
+	local ____props_0 = props -- 84
+	local id = ____props_0.id -- 84
+	local onCreate = useCallback( -- 85
+		function() -- 85
+			keyedCreates = keyedCreates + 1 -- 86
+			keyedCreateCounts[id] = (keyedCreateCounts[id] or 0) + 1 -- 87
+			return DNode() -- 88
+		end, -- 85
+		{id} -- 89
+	) -- 89
+	local onMount = useCallback( -- 90
+		function(node) -- 90
+			keyedNodes[id] = node -- 91
+		end, -- 90
+		{id} -- 92
+	) -- 92
+	return React.createElement("custom-node", {key = id, x = spare.value, onCreate = onCreate, onMount = onMount}) -- 93
+end -- 83
+local function renderKeyedItems() -- 103
+	local elements = { -- 104
+		React.createElement(StableCustom, {key = "stable"}), -- 104
+		React.createElement(MemoLabel, {key = "memo"}) -- 104
+	} -- 104
+	for i = 1, #keyedItems.value do -- 104
+		local id = keyedItems.value[i] -- 109
+		elements[#elements + 1] = React.createElement(KeyedCustom, {key = id, id = id}) -- 110
+	end -- 110
+	return elements -- 112
+end -- 103
+root:render(renderKeyedItems) -- 115
+local customNode = customRef.current -- 117
+local keyedNode3 = keyedNodes[3] -- 118
+local keyedNode4 = keyedNodes[4] -- 119
+expect(customNode ~= nil, "custom node was not mounted") -- 120
+expect(keyedNode3 ~= nil and keyedNode4 ~= nil, "initial keyed custom nodes were not mounted") -- 121
+expect(creates == 1, "custom node should be created once on mount") -- 122
+expect(keyedCreates == 4, "keyed custom nodes should be created once on mount") -- 123
+expect(memoBuilds == 1, "memo should build once on mount") -- 124
+expect(labelRef.current.text == "dep:1;spare:0", "initial memo label text was wrong") -- 125
+tick.value = 10 -- 127
+spare.value = 1 -- 128
+Director.systemScheduler:schedule(once(function() -- 130
+	expect(customRef.current == customNode, "stable useCallback should prevent custom-node recreation") -- 131
+	expect(creates == 1, "stable custom onCreate should not run again") -- 132
+	expect(customRef.current.x == 10, "custom node prop should still patch after stable callback render") -- 133
+	expect(stableRefObject ~= nil and stableRefObject.current == 9, "useRef should reuse the same ref object across renders") -- 134
+	expect(localSignalObject ~= nil and localSignalObject.value == 8, "useSignal should reuse the same signal across renders") -- 135
+	expect(memoBuilds == 1, "useMemo should not rebuild when deps are unchanged") -- 136
+	expect(labelRef.current.text == "dep:1;spare:1", "label should still patch with memoized value") -- 137
+	keyedItems.value = {1, 3, 4} -- 139
+	Director.systemScheduler:schedule(once(function() -- 141
+		expect(keyedNodes[3] == keyedNode3, "keyed function component after deletion should keep node 3") -- 142
+		expect(keyedNodes[4] == keyedNode4, "keyed function component after deletion should keep node 4") -- 143
+		expect(keyedCreates == 4, "deleting a keyed function component should not recreate following items") -- 144
+		expect(keyedCreateCounts[3] == 1, "keyed function component 3 should keep its hook callback") -- 145
+		expect(keyedCreateCounts[4] == 1, "keyed function component 4 should keep its hook callback") -- 146
+		dep.value = 2 -- 148
+		Director.systemScheduler:schedule(once(function() -- 150
+			expect(memoBuilds == 2, "useMemo should rebuild when deps change") -- 151
+			expect(labelRef.current.text == "dep:2;spare:1", "label should render rebuilt memo value") -- 152
+			root:unmount() -- 153
+			expect(not host.hasChildren, "hook memo test unmount did not clear host") -- 154
+			host:removeFromParent(true) -- 155
+			Content:save(resultFile, "passed") -- 156
+			Log("Info", "[DoraXHookMemoTest] passed") -- 157
+		end)) -- 150
+	end)) -- 141
+end)) -- 130
+return ____exports -- 130
