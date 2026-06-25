@@ -1,6 +1,6 @@
 import { Content, Director, Ease, Log, Node as DNode, Path, once } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, toAction, useRef } from "DoraX";
+import { React, createRoot, reference, toAction } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXActionLifecycleTest.result");
 Content.save(resultFile, "running");
@@ -18,7 +18,7 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const nodeRef = useRef<Dora.Node.Type>();
+const nodeRef = reference<Dora.Node.Type>();
 let enters = 0;
 let exits = 0;
 let cleanups = 0;

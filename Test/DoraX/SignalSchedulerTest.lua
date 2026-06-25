@@ -10,8 +10,8 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local signal = ____DoraX.signal -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXSignalSchedulerTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -29,8 +29,8 @@ Director.entry:addChild(hostB) -- 19
 local rootA = createRoot(hostA) -- 21
 local rootB = createRoot(hostB) -- 22
 local value = signal(0) -- 23
-local labelA = useRef() -- 24
-local labelB = useRef() -- 25
+local labelA = reference() -- 24
+local labelB = reference() -- 25
 local rendersA = 0 -- 26
 local rendersB = 0 -- 27
 rootA:render(function() -- 29

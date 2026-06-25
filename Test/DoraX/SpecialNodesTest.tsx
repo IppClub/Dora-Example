@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, Vec2 } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, useRef } from "DoraX";
+import { React, createRoot, reference } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXSpecialNodesTest.result");
 Content.save(resultFile, "running");
@@ -17,12 +17,12 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const drawRef = useRef<Dora.DrawNode.Type>();
-const clipRef = useRef<Dora.ClipNode.Type>();
-const particleRef = useRef<Dora.Particle.Type>();
-const alignRef = useRef<Dora.AlignNode.Type>();
-const lineRef = useRef<Dora.Line.Type>();
-const customRef = useRef<Dora.Node.Type>();
+const drawRef = reference<Dora.DrawNode.Type>();
+const clipRef = reference<Dora.ClipNode.Type>();
+const particleRef = reference<Dora.Particle.Type>();
+const alignRef = reference<Dora.AlignNode.Type>();
+const lineRef = reference<Dora.Line.Type>();
+const customRef = reference<Dora.Node.Type>();
 const customCreatedA = DNode();
 const customCreatedB = DNode();
 let createA = 0;

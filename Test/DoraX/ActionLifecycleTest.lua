@@ -11,8 +11,8 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local toAction = ____DoraX.toAction -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXActionLifecycleTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -27,7 +27,7 @@ end -- 13
 local host = DNode() -- 17
 Director.entry:addChild(host) -- 18
 local root = createRoot(host) -- 20
-local nodeRef = useRef() -- 21
+local nodeRef = reference() -- 21
 local enters = 0 -- 22
 local exits = 0 -- 23
 local cleanups = 0 -- 24

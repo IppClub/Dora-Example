@@ -10,7 +10,7 @@ local Vec2 = ____Dora.Vec2 -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
-local useRef = ____DoraX.useRef -- 3
+local reference = ____DoraX.reference -- 3
 local resultFile = Path(Content.writablePath, "DoraXSpecialNodesTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -24,12 +24,12 @@ end -- 12
 local host = DNode() -- 16
 Director.entry:addChild(host) -- 17
 local root = createRoot(host) -- 19
-local drawRef = useRef() -- 20
-local clipRef = useRef() -- 21
-local particleRef = useRef() -- 22
-local alignRef = useRef() -- 23
-local lineRef = useRef() -- 24
-local customRef = useRef() -- 25
+local drawRef = reference() -- 20
+local clipRef = reference() -- 21
+local particleRef = reference() -- 22
+local alignRef = reference() -- 23
+local lineRef = reference() -- 24
+local customRef = reference() -- 25
 local customCreatedA = DNode() -- 26
 local customCreatedB = DNode() -- 27
 local createA = 0 -- 28

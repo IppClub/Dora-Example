@@ -5,10 +5,10 @@ local ____exports = {} -- 1
 local ____DoraX = require("DoraX") -- 2
 local React = ____DoraX.React -- 2
 local createRoot = ____DoraX.createRoot -- 2
+local reference = ____DoraX.reference -- 2
 local signal = ____DoraX.signal -- 2
 local toAction = ____DoraX.toAction -- 2
 local toNode = ____DoraX.toNode -- 2
-local useRef = ____DoraX.useRef -- 2
 local ____Dora = require("Dora") -- 3
 local Director = ____Dora.Director -- 3
 local Ease = ____Dora.Ease -- 3
@@ -68,7 +68,7 @@ local function ScrollArea(props) -- 57
 		end} -- 58
 	) -- 58
 end -- 57
-local scrollArea = useRef() -- 83
+local scrollArea = reference() -- 83
 local items = signal({}) -- 84
 local listRoot -- 85
 local function adjustScrollArea() -- 87

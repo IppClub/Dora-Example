@@ -9,7 +9,7 @@ local Path = ____Dora.Path -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
-local useRef = ____DoraX.useRef -- 3
+local reference = ____DoraX.reference -- 3
 local resultFile = Path(Content.writablePath, "DoraXResourceNodesTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -23,13 +23,13 @@ end -- 12
 local host = DNode() -- 16
 Director.entry:addChild(host) -- 17
 local root = createRoot(host) -- 19
-local spriteRef = useRef() -- 20
-local gridRef = useRef() -- 21
-local tileRef = useRef() -- 22
-local modelRef = useRef() -- 23
-local animModelRef = useRef() -- 24
-local audioRef = useRef() -- 25
-local playAudioRef = useRef() -- 26
+local spriteRef = reference() -- 20
+local gridRef = reference() -- 21
+local tileRef = reference() -- 22
+local modelRef = reference() -- 23
+local animModelRef = reference() -- 24
+local audioRef = reference() -- 25
+local playAudioRef = reference() -- 26
 root:render(React.createElement( -- 28
 	"node", -- 28
 	nil, -- 28

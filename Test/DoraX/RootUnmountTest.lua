@@ -10,8 +10,8 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local signal = ____DoraX.signal -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXRootUnmountTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -26,7 +26,7 @@ local host = DNode() -- 16
 Director.entry:addChild(host) -- 17
 local root = createRoot(host) -- 19
 local value = signal(0) -- 20
-local labelRef = useRef() -- 21
+local labelRef = reference() -- 21
 local renders = 0 -- 22
 root:render(function() -- 24
 	renders = renders + 1 -- 25

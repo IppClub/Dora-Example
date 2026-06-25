@@ -1,5 +1,5 @@
 // @preview-file on clear
-import { React, toNode, useRef } from 'DoraX';
+import { React, reference, toNode } from 'DoraX';
 import { Body, BodyMoveType, Ease, Label, Line, Scale, TypeName, Vec2, tolua, PhysicsWorld } from 'Dora';
 
 toNode(<sprite file='Image/logo.png' scaleX={0.2} scaleY={0.2} />);
@@ -25,14 +25,14 @@ const Box = (props: BoxProps) => {
 	);
 };
 
-const bird = useRef<Body.Type>();
-const score = useRef<Label.Type>();
+const bird = reference<Body.Type>();
+const score = reference<Label.Type>();
 
 let start = Vec2.zero;
 let delta = Vec2.zero;
 
 const line = Line();
-const world = useRef<PhysicsWorld.Type>();
+const world = reference<PhysicsWorld.Type>();
 
 toNode(
 	<align-node windowRoot onLayout={(w, h) => {

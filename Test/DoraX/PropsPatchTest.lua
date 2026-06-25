@@ -10,7 +10,7 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
-local useRef = ____DoraX.useRef -- 3
+local reference = ____DoraX.reference -- 3
 local resultFile = Path(Content.writablePath, "DoraXPropsPatchTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -27,14 +27,14 @@ end -- 16
 local host = DNode() -- 20
 Director.entry:addChild(host) -- 21
 local root = createRoot(host) -- 23
-local nodeRef = useRef() -- 24
-local replacementRef = useRef() -- 25
-local targetRef = useRef() -- 26
+local nodeRef = reference() -- 24
+local replacementRef = reference() -- 25
+local targetRef = reference() -- 26
 local transformTargetRef = targetRef -- 27
-local labelRef = useRef() -- 28
-local eventRef = useRef() -- 29
-local updateRef = useRef() -- 30
-local inputRef = useRef() -- 31
+local labelRef = reference() -- 28
+local eventRef = reference() -- 29
+local updateRef = reference() -- 30
+local inputRef = reference() -- 31
 root:render(React.createElement( -- 33
 	"node", -- 33
 	nil, -- 33

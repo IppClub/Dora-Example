@@ -10,8 +10,8 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local signal = ____DoraX.signal -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXSignalDependencyTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -33,9 +33,9 @@ local rootB = createRoot(hostB) -- 24
 local rootStatic = createRoot(hostStatic) -- 25
 local signalA = signal(0) -- 26
 local signalB = signal(0) -- 27
-local labelA = useRef() -- 28
-local labelB = useRef() -- 29
-local labelStatic = useRef() -- 30
+local labelA = reference() -- 28
+local labelB = reference() -- 29
+local labelStatic = reference() -- 30
 local rendersA = 0 -- 31
 local rendersB = 0 -- 32
 local rendersStatic = 0 -- 33

@@ -1,5 +1,5 @@
 // @preview-file on clear
-import { React, createRoot, signal, toAction, toNode, useRef } from 'DoraX';
+import { React, createRoot, reference, signal, toAction, toNode } from 'DoraX';
 import { Director, Ease, Size, sleep, thread, Vec2, once } from 'Dora';
 import type * as Dora from 'Dora';
 
@@ -80,7 +80,7 @@ interface ItemProps {
 	remove: (this: void) => void;
 };
 
-const scrollArea = useRef<ScrollArea.Type>();
+const scrollArea = reference<ScrollArea.Type>();
 const items = signal<ItemProps[]>([]);
 let listRoot: ReturnType<typeof createRoot> | undefined;
 

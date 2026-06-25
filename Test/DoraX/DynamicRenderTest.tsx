@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, Slot, once } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, signal, useRef } from "DoraX";
+import { React, createRoot, reference, signal } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXDynamicRenderTest.result");
 Content.save(resultFile, "running");
@@ -18,14 +18,14 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const labelRef = useRef<Dora.Label.Type>();
-const firstNodeRef = useRef<Dora.Node.Type>();
-const secondNodeRef = useRef<Dora.Node.Type>();
-const keyedBRef = useRef<Dora.Node.Type>();
-const keyedARef = useRef<Dora.Node.Type>();
-const drawRef = useRef<Dora.DrawNode.Type>();
-const buttonRef = useRef<Dora.Node.Type>();
-const buttonLabelRef = useRef<Dora.Label.Type>();
+const labelRef = reference<Dora.Label.Type>();
+const firstNodeRef = reference<Dora.Node.Type>();
+const secondNodeRef = reference<Dora.Node.Type>();
+const keyedBRef = reference<Dora.Node.Type>();
+const keyedARef = reference<Dora.Node.Type>();
+const drawRef = reference<Dora.DrawNode.Type>();
+const buttonRef = reference<Dora.Node.Type>();
+const buttonLabelRef = reference<Dora.Label.Type>();
 const value = signal(1);
 const buttonClicks = signal(0);
 

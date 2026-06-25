@@ -9,7 +9,7 @@ local Path = ____Dora.Path -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
-local useRef = ____DoraX.useRef -- 3
+local reference = ____DoraX.reference -- 3
 local resultFile = Path(Content.writablePath, "DoraXChildrenDiffTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -23,10 +23,10 @@ end -- 12
 local host = DNode() -- 16
 Director.entry:addChild(host) -- 17
 local root = createRoot(host) -- 19
-local aRef = useRef() -- 20
-local bRef = useRef() -- 21
-local cRef = useRef() -- 22
-local dRef = useRef() -- 23
+local aRef = reference() -- 20
+local bRef = reference() -- 21
+local cRef = reference() -- 22
+local dRef = reference() -- 23
 root:render(React.createElement( -- 25
 	"node", -- 25
 	nil, -- 25
@@ -52,8 +52,8 @@ expect(dRef.current ~= b, "new key d must not reuse removed key b") -- 49
 expect(cRef.current.x == 30, "moved child c was not patched") -- 50
 expect(aRef.current.x == 10, "moved child a was not patched") -- 51
 expect(dRef.current.x == 40, "inserted child d prop was not applied") -- 52
-local firstRef = useRef() -- 54
-local secondRef = useRef() -- 55
+local firstRef = reference() -- 54
+local secondRef = reference() -- 55
 root:render(React.createElement( -- 56
 	"node", -- 56
 	nil, -- 56

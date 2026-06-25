@@ -2,17 +2,17 @@
 local ____exports = {} -- 1
 local ____DoraX = require("DoraX") -- 2
 local React = ____DoraX.React -- 2
+local reference = ____DoraX.reference -- 2
 local toNode = ____DoraX.toNode -- 2
-local useRef = ____DoraX.useRef -- 2
 local ImGui = require("ImGui") -- 4
 local ____Dora = require("Dora") -- 5
 local App = ____Dora.App -- 5
 local Vec2 = ____Dora.Vec2 -- 5
 local threadLoop = ____Dora.threadLoop -- 5
 local gravity = Vec2(0, -10) -- 7
-local anchor = useRef() -- 8
-local label = useRef() -- 9
-local disk = useRef() -- 10
+local anchor = reference() -- 8
+local label = reference() -- 9
+local disk = reference() -- 10
 toNode(React.createElement( -- 12
 	"physics-world", -- 12
 	{showDebug = true}, -- 12

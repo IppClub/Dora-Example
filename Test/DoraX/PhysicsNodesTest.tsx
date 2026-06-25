@@ -1,6 +1,6 @@
 import { BodyMoveType, Content, Director, Log, Node as DNode, Path, Vec2 } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, useRef } from "DoraX";
+import { React, createRoot, reference } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXPhysicsNodesTest.result");
 Content.save(resultFile, "running");
@@ -18,9 +18,9 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const worldRef = useRef<Dora.PhysicsWorld.Type>();
-const bodyRef = useRef<Dora.Body.Type>();
-const movingRef = useRef<Dora.Body.Type>();
+const worldRef = reference<Dora.PhysicsWorld.Type>();
+const bodyRef = reference<Dora.Body.Type>();
+const movingRef = reference<Dora.Body.Type>();
 let contactFilterCalls = 0;
 
 root.render(

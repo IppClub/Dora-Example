@@ -1,5 +1,5 @@
 // @preview-file on clear
-import { React, toNode, useRef } from 'DoraX';
+import { React, reference, toNode } from 'DoraX';
 import { TileNode, Node, App, Vec2, threadLoop } from 'Dora';
 import { SetCond, WindowFlag } from 'ImGui';
 import * as ImGui from 'ImGui';
@@ -10,7 +10,7 @@ function TMX(file: string) {
 	if (current) {
 			current.removeFromParent();
 	}
-	const tileNodeRef = useRef<TileNode.Type>();
+	const tileNodeRef = reference<TileNode.Type>();
 	current = toNode(
 		<align-node windowRoot onTapMoved={touch => {
 				if (tileNodeRef.current) {

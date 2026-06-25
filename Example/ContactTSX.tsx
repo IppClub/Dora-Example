@@ -1,13 +1,13 @@
 // @preview-file on clear
-import { React, toNode, useRef } from 'DoraX';
+import { React, reference, toNode } from 'DoraX';
 import { SetCond, WindowFlag } from "ImGui";
 import * as ImGui from 'ImGui';
 import { App, Body, BodyMoveType, Label, Line, Vec2, threadLoop } from "Dora";
 
 const gravity = Vec2(0, -10);
-const anchor = useRef<Line.Type>();
-const label = useRef<Label.Type>();
-const disk = useRef<Body.Type>();
+const anchor = reference<Line.Type>();
+const label = reference<Label.Type>();
+const disk = reference<Body.Type>();
 
 toNode(
 	<physics-world showDebug>

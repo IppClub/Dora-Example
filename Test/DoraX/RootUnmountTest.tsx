@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, once } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, signal, useRef } from "DoraX";
+import { React, createRoot, reference, signal } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXRootUnmountTest.result");
 Content.save(resultFile, "running");
@@ -18,7 +18,7 @@ Director.entry.addChild(host);
 
 const root = createRoot(host);
 const value = signal(0);
-const labelRef = useRef<Dora.Label.Type>();
+const labelRef = reference<Dora.Label.Type>();
 let renders = 0;
 
 root.render(() => {

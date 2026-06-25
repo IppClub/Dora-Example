@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, useRef } from "DoraX";
+import { React, createRoot, reference } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXChildrenDiffTest.result");
 Content.save(resultFile, "running");
@@ -17,10 +17,10 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const aRef = useRef<Dora.Node.Type>();
-const bRef = useRef<Dora.Node.Type>();
-const cRef = useRef<Dora.Node.Type>();
-const dRef = useRef<Dora.Node.Type>();
+const aRef = reference<Dora.Node.Type>();
+const bRef = reference<Dora.Node.Type>();
+const cRef = reference<Dora.Node.Type>();
+const dRef = reference<Dora.Node.Type>();
 
 root.render(
 	<node>
@@ -51,8 +51,8 @@ expect(cRef.current!.x === 30, "moved child c was not patched");
 expect(aRef.current!.x === 10, "moved child a was not patched");
 expect(dRef.current!.x === 40, "inserted child d prop was not applied");
 
-const firstRef = useRef<Dora.Node.Type>();
-const secondRef = useRef<Dora.Node.Type>();
+const firstRef = reference<Dora.Node.Type>();
+const secondRef = reference<Dora.Node.Type>();
 root.render(
 	<node>
 		<node ref={firstRef} x={5} />

@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, toNode, useRef } from "DoraX";
+import { React, createRoot, reference, toNode } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXRootFragmentTest.result");
 Content.save(resultFile, "running");
@@ -14,7 +14,7 @@ function expect(this: void, condition: boolean, message: string) {
 	if (!condition) fail(message);
 }
 
-const staticLabelRef = useRef<Dora.Label.Type>();
+const staticLabelRef = reference<Dora.Label.Type>();
 const staticNode = toNode(
 	<>
 		<label ref={staticLabelRef} fontName="sarasa-mono-sc-regular" fontSize={18}>static</label>
@@ -31,8 +31,8 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const aRef = useRef<Dora.Node.Type>();
-const bRef = useRef<Dora.Node.Type>();
+const aRef = reference<Dora.Node.Type>();
+const bRef = reference<Dora.Node.Type>();
 
 root.render(
 	<>

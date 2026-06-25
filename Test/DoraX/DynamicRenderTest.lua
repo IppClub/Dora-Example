@@ -10,8 +10,8 @@ local once = ____Dora.once -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local signal = ____DoraX.signal -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXDynamicRenderTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -26,14 +26,14 @@ end -- 13
 local host = DNode() -- 17
 Director.entry:addChild(host) -- 18
 local root = createRoot(host) -- 20
-local labelRef = useRef() -- 21
-local firstNodeRef = useRef() -- 22
-local secondNodeRef = useRef() -- 23
-local keyedBRef = useRef() -- 24
-local keyedARef = useRef() -- 25
-local drawRef = useRef() -- 26
-local buttonRef = useRef() -- 27
-local buttonLabelRef = useRef() -- 28
+local labelRef = reference() -- 21
+local firstNodeRef = reference() -- 22
+local secondNodeRef = reference() -- 23
+local keyedBRef = reference() -- 24
+local keyedARef = reference() -- 25
+local drawRef = reference() -- 26
+local buttonRef = reference() -- 27
+local buttonLabelRef = reference() -- 28
 local value = signal(1) -- 29
 local buttonClicks = signal(0) -- 30
 local function TestButton(props) -- 40

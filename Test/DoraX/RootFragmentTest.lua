@@ -9,8 +9,8 @@ local Path = ____Dora.Path -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local toNode = ____DoraX.toNode -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXRootFragmentTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -22,7 +22,7 @@ local function expect(condition, message) -- 13
 		fail(message) -- 14
 	end -- 14
 end -- 13
-local staticLabelRef = useRef() -- 17
+local staticLabelRef = reference() -- 17
 local staticNode = toNode(React.createElement( -- 18
 	React.Fragment, -- 18
 	nil, -- 18
@@ -37,8 +37,8 @@ staticNode:removeFromParent(true) -- 28
 local host = DNode() -- 30
 Director.entry:addChild(host) -- 31
 local root = createRoot(host) -- 33
-local aRef = useRef() -- 34
-local bRef = useRef() -- 35
+local aRef = reference() -- 34
+local bRef = reference() -- 35
 root:render(React.createElement( -- 37
 	React.Fragment, -- 37
 	nil, -- 37

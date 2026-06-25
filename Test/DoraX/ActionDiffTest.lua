@@ -11,8 +11,8 @@ local Dora = require("Dora") -- 2
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
+local reference = ____DoraX.reference -- 3
 local signal = ____DoraX.signal -- 3
-local useRef = ____DoraX.useRef -- 3
 local resultFile = Path(Content.writablePath, "DoraXActionDiffTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -48,11 +48,11 @@ local exclusiveRoot = createRoot(exclusiveHost) -- 39
 local loopRoot = createRoot(loopHost) -- 40
 local multiRoot = createRoot(multiHost) -- 41
 local conflictRoot = createRoot(conflictHost) -- 42
-local nodeRef = useRef() -- 43
-local exclusiveRef = useRef() -- 44
-local loopRef = useRef() -- 45
-local multiRef = useRef() -- 46
-local conflictRef = useRef() -- 47
+local nodeRef = reference() -- 43
+local exclusiveRef = reference() -- 44
+local loopRef = reference() -- 45
+local multiRef = reference() -- 46
+local conflictRef = reference() -- 47
 local nodeY = signal(0) -- 48
 local actionStop = signal(10) -- 49
 local exclusiveStop = signal(100) -- 50
@@ -97,7 +97,7 @@ loopRoot:render(function() return React.createElement( -- 98
 		"loop", -- 98
 		{exclusive = true}, -- 98
 		React.createElement("move-x", {time = 0.01, start = 0, stop = loopStop.value}), -- 98
-		React.createElement("delay", {time = 0.01}) -- 98
+		React.createElement("delay", {time = 0.5}) -- 98
 	) -- 98
 ) end) -- 98
 local loopNode = loopRef.current -- 107
@@ -124,7 +124,7 @@ conflictRoot:render(React.createElement( -- 128
 		"loop", -- 128
 		{exclusive = true}, -- 128
 		React.createElement("move-x", {time = 0.01, start = 0, stop = 25}), -- 128
-		React.createElement("delay", {time = 0.01}) -- 128
+		React.createElement("delay", {time = 0.5}) -- 128
 	), -- 128
 	React.createElement("move-y", {exclusive = true, time = 0.01, start = 0, stop = 25}) -- 128
 )) -- 128

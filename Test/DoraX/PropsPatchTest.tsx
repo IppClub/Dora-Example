@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, Slot, once } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, useRef } from "DoraX";
+import { React, createRoot, reference } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXPropsPatchTest.result");
 Content.save(resultFile, "running");
@@ -21,14 +21,14 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const nodeRef = useRef<Dora.Node.Type>();
-const replacementRef = useRef<Dora.Node.Type>();
-const targetRef = useRef<Dora.Node.Type>();
+const nodeRef = reference<Dora.Node.Type>();
+const replacementRef = reference<Dora.Node.Type>();
+const targetRef = reference<Dora.Node.Type>();
 const transformTargetRef = targetRef as unknown as JSX.Ref<JSX.Node>;
-const labelRef = useRef<Dora.Label.Type>();
-const eventRef = useRef<Dora.Node.Type>();
-const updateRef = useRef<Dora.Node.Type>();
-const inputRef = useRef<Dora.Node.Type>();
+const labelRef = reference<Dora.Label.Type>();
+const eventRef = reference<Dora.Node.Type>();
+const updateRef = reference<Dora.Node.Type>();
+const inputRef = reference<Dora.Node.Type>();
 
 root.render(
 	<node>

@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, useRef } from "DoraX";
+import { React, createRoot, reference } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXResourceNodesTest.result");
 Content.save(resultFile, "running");
@@ -17,13 +17,13 @@ const host = DNode();
 Director.entry.addChild(host);
 
 const root = createRoot(host);
-const spriteRef = useRef<Dora.Sprite.Type>();
-const gridRef = useRef<Dora.Grid.Type>();
-const tileRef = useRef<Dora.TileNode.Type>();
-const modelRef = useRef<Dora.Model.Type>();
-const animModelRef = useRef<Dora.Model.Type>();
-const audioRef = useRef<Dora.AudioSource.Type>();
-const playAudioRef = useRef<Dora.AudioSource.Type>();
+const spriteRef = reference<Dora.Sprite.Type>();
+const gridRef = reference<Dora.Grid.Type>();
+const tileRef = reference<Dora.TileNode.Type>();
+const modelRef = reference<Dora.Model.Type>();
+const animModelRef = reference<Dora.Model.Type>();
+const audioRef = reference<Dora.AudioSource.Type>();
+const playAudioRef = reference<Dora.AudioSource.Type>();
 
 root.render(
 	<node>

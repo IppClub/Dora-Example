@@ -7,6 +7,8 @@ Director.entry.addChild(host);
 
 const root = createRoot(host);
 
+const count = signal(0);
+
 function renderBars(this: void, value: number) {
 	const bars: React.Element[] = [];
 	const active = value % 10;
@@ -25,14 +27,18 @@ function renderBars(this: void, value: number) {
 			>
 				<draw-node>
 					<rect-shape width={16} height={24 + i * 4} fillColor={0xffffffff}/>
+					{i === active ?
+						<>
+							<scale exclusive time={0.2} start={1.35} stop={1} easing={Ease.OutBack} />
+							<angle exclusive time={0.2} start={count.value % 2 === 0 ? -8 : 8} stop={0} easing={Ease.OutQuad} />
+						</> : undefined
+					}
 				</draw-node>
 			</node>
 		);
 	}
 	return bars;
 }
-
-const count = signal(0);
 
 root.render(() =>
 	<node>

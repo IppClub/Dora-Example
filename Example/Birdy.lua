@@ -5,8 +5,8 @@ local __TS__ParseFloat = ____lualib.__TS__ParseFloat -- 1
 local ____exports = {} -- 1
 local ____DoraX = require("DoraX") -- 2
 local React = ____DoraX.React -- 2
+local reference = ____DoraX.reference -- 2
 local toNode = ____DoraX.toNode -- 2
-local useRef = ____DoraX.useRef -- 2
 local ____Dora = require("Dora") -- 3
 local Ease = ____Dora.Ease -- 3
 local Line = ____Dora.Line -- 3
@@ -42,12 +42,12 @@ local function Box(props) -- 14
 		props.children -- 23
 	) -- 23
 end -- 14
-local bird = useRef() -- 28
-local score = useRef() -- 29
+local bird = reference() -- 28
+local score = reference() -- 29
 local start = Vec2.zero -- 31
 local delta = Vec2.zero -- 32
 local line = Line() -- 34
-local world = useRef() -- 35
+local world = reference() -- 35
 toNode(React.createElement( -- 37
 	"align-node", -- 37
 	{ -- 37

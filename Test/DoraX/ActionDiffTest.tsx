@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, once } from "Dora";
 import * as Dora from "Dora";
-import { React, createRoot, signal, useRef } from "DoraX";
+import { React, createRoot, reference, signal } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXActionDiffTest.result");
 Content.save(resultFile, "running");
@@ -40,11 +40,11 @@ const exclusiveRoot = createRoot(exclusiveHost);
 const loopRoot = createRoot(loopHost);
 const multiRoot = createRoot(multiHost);
 const conflictRoot = createRoot(conflictHost);
-const nodeRef = useRef<Dora.Node.Type>();
-const exclusiveRef = useRef<Dora.Node.Type>();
-const loopRef = useRef<Dora.Node.Type>();
-const multiRef = useRef<Dora.Node.Type>();
-const conflictRef = useRef<Dora.Node.Type>();
+const nodeRef = reference<Dora.Node.Type>();
+const exclusiveRef = reference<Dora.Node.Type>();
+const loopRef = reference<Dora.Node.Type>();
+const multiRef = reference<Dora.Node.Type>();
+const conflictRef = reference<Dora.Node.Type>();
 const nodeY = signal(0);
 const actionStop = signal(10);
 const exclusiveStop = signal(100);
@@ -99,7 +99,7 @@ loopRoot.render(() =>
 	<node key="loop-exclusive" ref={loopRef}>
 		<loop exclusive>
 			<move-x time={0.01} start={0} stop={loopStop.value} />
-			<delay time={0.01} />
+			<delay time={0.5} />
 		</loop>
 	</node>
 );
@@ -129,7 +129,7 @@ conflictRoot.render(
 	<node key="conflict" ref={conflictRef}>
 		<loop exclusive>
 			<move-x time={0.01} start={0} stop={25} />
-			<delay time={0.01} />
+			<delay time={0.5} />
 		</loop>
 		<move-y exclusive time={0.01} start={0} stop={25} />
 	</node>

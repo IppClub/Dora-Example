@@ -2,8 +2,8 @@
 local ____exports = {} -- 1
 local ____DoraX = require("DoraX") -- 2
 local React = ____DoraX.React -- 2
+local reference = ____DoraX.reference -- 2
 local toNode = ____DoraX.toNode -- 2
-local useRef = ____DoraX.useRef -- 2
 local ____Dora = require("Dora") -- 3
 local App = ____Dora.App -- 3
 local Vec2 = ____Dora.Vec2 -- 3
@@ -14,7 +14,7 @@ local function TMX(file) -- 9
 	if current then -- 9
 		current:removeFromParent() -- 11
 	end -- 11
-	local tileNodeRef = useRef() -- 13
+	local tileNodeRef = reference() -- 13
 	current = toNode(React.createElement( -- 14
 		"align-node", -- 14
 		{ -- 14

@@ -1,6 +1,6 @@
 import { Content, Director, Log, Node as DNode, Path, once } from "Dora";
 import type * as Dora from "Dora";
-import { React, createRoot, signal, useRef } from "DoraX";
+import { React, createRoot, reference, signal } from "DoraX";
 
 const resultFile = Path(Content.writablePath, "DoraXSignalSchedulerTest.result");
 Content.save(resultFile, "running");
@@ -21,8 +21,8 @@ Director.entry.addChild(hostB);
 const rootA = createRoot(hostA);
 const rootB = createRoot(hostB);
 const value = signal(0);
-const labelA = useRef<Dora.Label.Type>();
-const labelB = useRef<Dora.Label.Type>();
+const labelA = reference<Dora.Label.Type>();
+const labelB = reference<Dora.Label.Type>();
 let rendersA = 0;
 let rendersB = 0;
 

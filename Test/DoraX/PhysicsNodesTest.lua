@@ -10,7 +10,7 @@ local Vec2 = ____Dora.Vec2 -- 1
 local ____DoraX = require("DoraX") -- 3
 local React = ____DoraX.React -- 3
 local createRoot = ____DoraX.createRoot -- 3
-local useRef = ____DoraX.useRef -- 3
+local reference = ____DoraX.reference -- 3
 local resultFile = Path(Content.writablePath, "DoraXPhysicsNodesTest.result") -- 5
 Content:save(resultFile, "running") -- 6
 local function fail(message) -- 8
@@ -25,9 +25,9 @@ end -- 13
 local host = DNode() -- 17
 Director.entry:addChild(host) -- 18
 local root = createRoot(host) -- 20
-local worldRef = useRef() -- 21
-local bodyRef = useRef() -- 22
-local movingRef = useRef() -- 23
+local worldRef = reference() -- 21
+local bodyRef = reference() -- 22
+local movingRef = reference() -- 23
 local contactFilterCalls = 0 -- 24
 root:render(React.createElement( -- 26
 	"physics-world", -- 26
