@@ -18,9 +18,12 @@ function close(this: void, a: number, b: number) {
 }
 
 const host = DNode();
+const renderHost = DNode();
 Director.entry.addChild(host);
+Director.entry.addChild(renderHost);
 
 const root = createRoot(host);
+const renderRoot = createRoot(renderHost);
 const nodeRef = reference<Dora.Node.Type>();
 const replacementRef = reference<Dora.Node.Type>();
 const targetRef = reference<Dora.Node.Type>();
@@ -28,6 +31,7 @@ const transformTargetRef = targetRef as unknown as JSX.Ref<JSX.Node>;
 const labelRef = reference<Dora.Label.Type>();
 const eventRef = reference<Dora.Node.Type>();
 const updateRef = reference<Dora.Node.Type>();
+const renderRef = reference<Dora.Node.Type>();
 const inputRef = reference<Dora.Node.Type>();
 
 root.render(
@@ -271,6 +275,15 @@ expect(updateRef.current === firstUpdateNode, "onUpdate change should patch node
 root.render(<node key="update" ref={updateRef} />);
 expect(updateRef.current === firstUpdateNode, "onUpdate removal should patch node without recreation");
 
+let firstRenders = 0;
+let secondRenders = 0;
+renderRoot.render(<node key="render" ref={renderRef} onRender={() => {
+	firstRenders += 1;
+	return false;
+}} />);
+const firstRenderNode = renderRef.current;
+expect(firstRenderNode !== undefined, "render node was not mounted");
+
 root.render(<node key="input" ref={inputRef} />);
 const inputNode = inputRef.current;
 expect(inputNode !== undefined, "input node was not mounted");
@@ -291,8 +304,29 @@ expect(inputRef.current === inputNode, "adding controller event should patch inp
 expect(inputNode!.controllerEnabled, "adding controller event should auto-enable controller");
 
 Director.systemScheduler.schedule(once(() => {
-	root.unmount();
-	host.removeFromParent(true);
-	Content.save(resultFile, "passed");
-	Log("Info", "[DoraXPropsPatchTest] passed");
+	expect(firstRenders > 0, "initial onRender handler was not called");
+	const firstRendersBeforePatch = firstRenders;
+	renderRoot.render(<node key="render" ref={renderRef} onRender={() => {
+		secondRenders += 1;
+		return false;
+	}} />);
+	expect(renderRef.current === firstRenderNode, "onRender change should patch node without recreation");
+
+	Director.systemScheduler.schedule(once(() => {
+		expect(firstRenders === firstRendersBeforePatch, "old onRender handler should stop after patch");
+		expect(secondRenders > 0, "patched onRender handler was not called");
+		const secondRendersBeforeRemoval = secondRenders;
+		renderRoot.render(<node key="render" ref={renderRef} />);
+		expect(renderRef.current === firstRenderNode, "onRender removal should patch node without recreation");
+
+		Director.systemScheduler.schedule(once(() => {
+			expect(secondRenders === secondRendersBeforeRemoval, "removed onRender handler should stop running");
+			root.unmount();
+			renderRoot.unmount();
+			host.removeFromParent(true);
+			renderHost.removeFromParent(true);
+			Content.save(resultFile, "passed");
+			Log("Info", "[DoraXPropsPatchTest] passed");
+		}));
+	}));
 }));
