@@ -1,5 +1,5 @@
 // @preview-file on nolog
-import { App, Color, Director, Node as DNode, loop, sleep, Vec2 } from "Dora";
+import { Color, Director, Ease, Node as DNode, loop, sleep } from "Dora";
 import { React, createRoot, signal } from "DoraX";
 
 const host = DNode();
@@ -50,7 +50,10 @@ root.render(() =>
 			fontSize={52}
 			text={`${count.value}`}
 			color3={0xffd166}
-		/>
+		>
+			<scale exclusive time={0.2} start={1.35} stop={1} easing={Ease.OutBack} />
+			<angle exclusive time={0.2} start={count.value % 2 === 0 ? -8 : 8} stop={0} easing={Ease.OutQuad} />
+		</label>
 		{renderBars(count.value)}
 	</node>
 );

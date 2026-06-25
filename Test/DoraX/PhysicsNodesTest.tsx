@@ -6,6 +6,7 @@ const resultFile = Path(Content.writablePath, "DoraXPhysicsNodesTest.result");
 Content.save(resultFile, "running");
 
 function fail(this: void, message: string): never {
+	Content.save(resultFile, `failed: ${message}`);
 	error(`[DoraXPhysicsNodesTest] ${message}`);
 }
 
@@ -66,7 +67,7 @@ root.render(
 
 expect(worldRef.current === world, "physics-world should patch contact config without recreating");
 expect(bodyRef.current !== terrain, "body should recreate when move type changes");
-expect(movingRef.current === moving, "removed body ref should keep the last mounted node");
+expect(movingRef.current === undefined, "removed body ref should be cleared");
 
 const patchedWorld = worldRef.current;
 const patchedBody = bodyRef.current;
@@ -82,6 +83,65 @@ expect(worldRef.current === patchedWorld, "physics-world should patch when conta
 expect(bodyRef.current === patchedBody, "body should patch non-structural props without recreating");
 expect(bodyRef.current!.y === 40, "body y prop was not patched");
 expect(bodyRef.current!.group === 2, "body group prop was not patched");
+
+root.render(
+	<physics-world ref={worldRef} showDebug={true}>
+		<body
+			key="terrain"
+			ref={bodyRef}
+			type={BodyMoveType.Dynamic}
+			group={2}
+			y={40}
+			onContactFilter={() => false}
+		>
+			<rect-fixture width={120} height={20} friction={0.5} restitution={0.3} />
+		</body>
+	</physics-world>
+);
+expect(bodyRef.current === patchedBody, "adding contact filter should patch body without recreating");
+
+root.render(
+	<physics-world ref={worldRef} showDebug={true}>
+		<body
+			key="terrain"
+			ref={bodyRef}
+			type={BodyMoveType.Dynamic}
+			group={2}
+			y={40}
+			onContactFilter={() => true}
+		>
+			<rect-fixture width={120} height={20} friction={0.5} restitution={0.3} />
+		</body>
+	</physics-world>
+);
+expect(bodyRef.current === patchedBody, "changing contact filter should patch body without recreating");
+
+root.render(
+	<physics-world ref={worldRef} showDebug={true}>
+		<body key="terrain" ref={bodyRef} type={BodyMoveType.Dynamic} group={2} y={40}>
+			<rect-fixture width={120} height={20} friction={0.5} restitution={0.3} />
+		</body>
+	</physics-world>
+);
+expect(bodyRef.current === patchedBody, "removing contact filter should patch body without recreating");
+expect(!bodyRef.current!.receivingContact, "body should start without receiving contact after contact event removal");
+
+root.render(
+	<physics-world ref={worldRef} showDebug={true}>
+		<body
+			key="terrain"
+			ref={bodyRef}
+			type={BodyMoveType.Dynamic}
+			group={2}
+			y={40}
+			onContactStart={() => {}}
+		>
+			<rect-fixture width={120} height={20} friction={0.5} restitution={0.3} />
+		</body>
+	</physics-world>
+);
+expect(bodyRef.current === patchedBody, "adding contact event should patch body without recreating");
+expect(bodyRef.current!.receivingContact, "adding contact event should auto-enable receivingContact");
 
 root.unmount();
 expect(!host.hasChildren, "physics nodes unmount did not clear host");

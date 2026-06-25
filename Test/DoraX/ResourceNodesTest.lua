@@ -27,79 +27,117 @@ local spriteRef = useRef() -- 20
 local gridRef = useRef() -- 21
 local tileRef = useRef() -- 22
 local modelRef = useRef() -- 23
-local audioRef = useRef() -- 24
-root:render(React.createElement( -- 26
-	"node", -- 26
-	nil, -- 26
-	React.createElement("sprite", { -- 26
-		key = "sprite", -- 26
-		ref = spriteRef, -- 26
-		file = "Image/logo.png", -- 26
-		width = 80, -- 26
-		height = 80 -- 26
-	}), -- 26
-	React.createElement("grid", { -- 26
-		key = "grid", -- 26
-		ref = gridRef, -- 26
-		file = "Image/logo.png", -- 26
-		gridX = 2, -- 26
-		gridY = 2 -- 26
-	}), -- 26
-	React.createElement("tile-node", {key = "tile", ref = tileRef, file = "TMX/demo.tmx"}), -- 26
-	React.createElement("model", {key = "model", ref = modelRef, file = "Model/KidW.model"}), -- 26
-	React.createElement("audio-source", { -- 26
-		key = "audio", -- 26
-		ref = audioRef, -- 26
-		file = "Audio/di.wav", -- 26
-		autoRemove = false, -- 26
-		volume = 0.2 -- 26
-	}) -- 26
-)) -- 26
-local sprite = spriteRef.current -- 36
-local grid = gridRef.current -- 37
-local tile = tileRef.current -- 38
-local model = modelRef.current -- 39
-local audio = audioRef.current -- 40
-expect(sprite ~= nil, "sprite resource node was not mounted") -- 41
-expect(grid ~= nil, "grid resource node was not mounted") -- 42
-expect(tile ~= nil, "tile-node resource node was not mounted") -- 43
-expect(model ~= nil, "model resource node was not mounted") -- 44
-expect(audio ~= nil, "audio-source resource node was not mounted") -- 45
-root:render(React.createElement( -- 47
-	"node", -- 47
-	nil, -- 47
-	React.createElement("sprite", { -- 47
-		key = "sprite", -- 47
-		ref = spriteRef, -- 47
-		file = "Image/icon.png", -- 47
-		width = 64, -- 47
-		height = 64 -- 47
-	}), -- 47
-	React.createElement("grid", { -- 47
-		key = "grid", -- 47
-		ref = gridRef, -- 47
-		file = "Image/icon.png", -- 47
-		gridX = 3, -- 47
-		gridY = 3 -- 47
-	}), -- 47
-	React.createElement("tile-node", {key = "tile", ref = tileRef, file = "TMX/platform.tmx"}), -- 47
-	React.createElement("model", {key = "model", ref = modelRef, file = "Model/KidM.model"}), -- 47
-	React.createElement("audio-source", { -- 47
-		key = "audio", -- 47
-		ref = audioRef, -- 47
-		file = "Audio/select.wav", -- 47
-		autoRemove = false, -- 47
-		volume = 0.3 -- 47
-	}) -- 47
-)) -- 47
-expect(spriteRef.current ~= sprite, "sprite should recreate when file changes") -- 57
-expect(gridRef.current ~= grid, "grid should recreate when file or grid size changes") -- 58
-expect(tileRef.current ~= tile, "tile-node should recreate when file changes") -- 59
-expect(modelRef.current ~= model, "model should recreate when file changes") -- 60
-expect(audioRef.current ~= audio, "audio-source should recreate when file changes") -- 61
-root:unmount() -- 63
-expect(not host.hasChildren, "resource nodes unmount did not clear host") -- 64
-host:removeFromParent(true) -- 65
-Content:save(resultFile, "passed") -- 66
-Log("Info", "[DoraXResourceNodesTest] passed") -- 67
-return ____exports -- 67
+local animModelRef = useRef() -- 24
+local audioRef = useRef() -- 25
+local playAudioRef = useRef() -- 26
+root:render(React.createElement( -- 28
+	"node", -- 28
+	nil, -- 28
+	React.createElement("sprite", { -- 28
+		key = "sprite", -- 28
+		ref = spriteRef, -- 28
+		file = "Image/logo.png", -- 28
+		width = 80, -- 28
+		height = 80 -- 28
+	}), -- 28
+	React.createElement("grid", { -- 28
+		key = "grid", -- 28
+		ref = gridRef, -- 28
+		file = "Image/logo.png", -- 28
+		gridX = 2, -- 28
+		gridY = 2 -- 28
+	}), -- 28
+	React.createElement("tile-node", {key = "tile", ref = tileRef, file = "TMX/demo.tmx"}), -- 28
+	React.createElement("model", {key = "model", ref = modelRef, file = "Model/KidW.model"}), -- 28
+	React.createElement("model", { -- 28
+		key = "anim-model", -- 28
+		ref = animModelRef, -- 28
+		file = "Model/xiaoli.model", -- 28
+		play = "walk", -- 28
+		loop = true -- 28
+	}), -- 28
+	React.createElement("audio-source", { -- 28
+		key = "audio", -- 28
+		ref = audioRef, -- 28
+		file = "Audio/di.wav", -- 28
+		autoRemove = false, -- 28
+		volume = 0.2 -- 28
+	}), -- 28
+	React.createElement("audio-source", { -- 28
+		key = "play-audio", -- 28
+		ref = playAudioRef, -- 28
+		file = "Audio/di.wav", -- 28
+		autoRemove = false, -- 28
+		playMode = "normal" -- 28
+	}) -- 28
+)) -- 28
+local sprite = spriteRef.current -- 40
+local grid = gridRef.current -- 41
+local tile = tileRef.current -- 42
+local model = modelRef.current -- 43
+local animModel = animModelRef.current -- 44
+local audio = audioRef.current -- 45
+local playAudio = playAudioRef.current -- 46
+expect(sprite ~= nil, "sprite resource node was not mounted") -- 47
+expect(grid ~= nil, "grid resource node was not mounted") -- 48
+expect(tile ~= nil, "tile-node resource node was not mounted") -- 49
+expect(model ~= nil, "model resource node was not mounted") -- 50
+expect(animModel ~= nil, "animated model node was not mounted") -- 51
+expect(audio ~= nil, "audio-source resource node was not mounted") -- 52
+expect(playAudio ~= nil, "play audio-source node was not mounted") -- 53
+expect(animModel.current == "walk", "initial model play helper did not run") -- 54
+root:render(React.createElement( -- 56
+	"node", -- 56
+	nil, -- 56
+	React.createElement("sprite", { -- 56
+		key = "sprite", -- 56
+		ref = spriteRef, -- 56
+		file = "Image/icon.png", -- 56
+		width = 64, -- 56
+		height = 64 -- 56
+	}), -- 56
+	React.createElement("grid", { -- 56
+		key = "grid", -- 56
+		ref = gridRef, -- 56
+		file = "Image/icon.png", -- 56
+		gridX = 3, -- 56
+		gridY = 3 -- 56
+	}), -- 56
+	React.createElement("tile-node", {key = "tile", ref = tileRef, file = "TMX/platform.tmx"}), -- 56
+	React.createElement("model", {key = "model", ref = modelRef, file = "Model/KidM.model"}), -- 56
+	React.createElement("model", { -- 56
+		key = "anim-model", -- 56
+		ref = animModelRef, -- 56
+		file = "Model/xiaoli.model", -- 56
+		play = "idle", -- 56
+		loop = true -- 56
+	}), -- 56
+	React.createElement("audio-source", { -- 56
+		key = "audio", -- 56
+		ref = audioRef, -- 56
+		file = "Audio/select.wav", -- 56
+		autoRemove = false, -- 56
+		volume = 0.3 -- 56
+	}), -- 56
+	React.createElement("audio-source", { -- 56
+		key = "play-audio", -- 56
+		ref = playAudioRef, -- 56
+		file = "Audio/di.wav", -- 56
+		autoRemove = false, -- 56
+		playMode = "background" -- 56
+	}) -- 56
+)) -- 56
+expect(spriteRef.current ~= sprite, "sprite should recreate when file changes") -- 68
+expect(gridRef.current ~= grid, "grid should recreate when file or grid size changes") -- 69
+expect(tileRef.current ~= tile, "tile-node should recreate when file changes") -- 70
+expect(modelRef.current ~= model, "model should recreate when file changes") -- 71
+expect(animModelRef.current == animModel, "model play change should patch without recreating") -- 72
+expect(animModelRef.current.current == "idle", "model play helper was not called during patch") -- 73
+expect(audioRef.current ~= audio, "audio-source should recreate when file changes") -- 74
+expect(playAudioRef.current == playAudio, "audio playMode change should patch without recreating") -- 75
+root:unmount() -- 77
+expect(not host.hasChildren, "resource nodes unmount did not clear host") -- 78
+host:removeFromParent(true) -- 79
+Content:save(resultFile, "passed") -- 80
+Log("Info", "[DoraXResourceNodesTest] passed") -- 81
+return ____exports -- 81

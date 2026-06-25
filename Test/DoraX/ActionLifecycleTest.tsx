@@ -62,45 +62,47 @@ Director.systemScheduler.schedule(once(() => {
 	expect(mounts === 1, "onMount should run once on initial mount");
 
 	Director.systemScheduler.schedule(once(() => {
-	root.render([]);
+		root.render([]);
 
-	Director.systemScheduler.schedule(once(() => {
-	expect(mounts === 1, "onMount should not rerun when node is removed");
-	expect(!host.hasChildren, "diff removal should clear tracked node from host");
-	expect(unmounts === 1, "onUnmount should run when diff removes node");
+		Director.systemScheduler.schedule(once(() => {
+			expect(mounts === 1, "onMount should not rerun when node is removed");
+			expect(!host.hasChildren, "diff removal should clear tracked node from host");
+			expect(nodeRef.current === undefined, "diff removal should clear node ref");
+			expect(unmounts === 1, "onUnmount should run when diff removes node");
 
-	root.render(
-		<node
-			key="tracked"
-			ref={nodeRef}
-			onEnter={() => {
-				enters += 1;
-			}}
-			onExit={() => {
-				exits += 1;
-			}}
-			onCleanup={() => {
-				cleanups += 1;
-			}}
-			onUnmount={() => {
-				unmounts += 1;
-			}}
-		/>
-	);
-
-	Director.systemScheduler.schedule(once(() => {
-	expect(nodeRef.current !== tracked, "removed node should mount as a new instance when added again");
-
-	root.unmount();
+			root.render(
+				<node
+					key="tracked"
+					ref={nodeRef}
+					onEnter={() => {
+						enters += 1;
+					}}
+					onExit={() => {
+						exits += 1;
+					}}
+					onCleanup={() => {
+						cleanups += 1;
+					}}
+					onUnmount={() => {
+						unmounts += 1;
+					}}
+				/>
+			);
 
 			Director.systemScheduler.schedule(once(() => {
-	expect(!host.hasChildren, "lifecycle unmount did not clear host");
-	expect(unmounts === 2, "onUnmount should run during root unmount");
-	host.removeFromParent(true);
-	Content.save(resultFile, "passed");
-	Log("Info", "[DoraXActionLifecycleTest] passed");
+				expect(nodeRef.current !== tracked, "removed node should mount as a new instance when added again");
+
+				root.unmount();
+
+				Director.systemScheduler.schedule(once(() => {
+					expect(!host.hasChildren, "lifecycle unmount did not clear host");
+					expect(nodeRef.current === undefined, "root unmount should clear node ref");
+					expect(unmounts === 2, "onUnmount should run during root unmount");
+					host.removeFromParent(true);
+					Content.save(resultFile, "passed");
+					Log("Info", "[DoraXActionLifecycleTest] passed");
+				}));
 			}));
 		}));
-	}));
 	}));
 }));

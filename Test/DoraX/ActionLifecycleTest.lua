@@ -72,37 +72,39 @@ Director.systemScheduler:schedule(once(function() -- 36
 		Director.systemScheduler:schedule(once(function() -- 67
 			expect(mounts == 1, "onMount should not rerun when node is removed") -- 68
 			expect(not host.hasChildren, "diff removal should clear tracked node from host") -- 69
-			expect(unmounts == 1, "onUnmount should run when diff removes node") -- 70
-			root:render(React.createElement( -- 72
-				"node", -- 72
-				{ -- 72
-					key = "tracked", -- 72
-					ref = nodeRef, -- 72
-					onEnter = function() -- 72
-						enters = enters + 1 -- 77
-					end, -- 76
-					onExit = function() -- 76
-						exits = exits + 1 -- 80
-					end, -- 79
-					onCleanup = function() -- 79
-						cleanups = cleanups + 1 -- 83
-					end, -- 82
-					onUnmount = function() -- 82
-						unmounts = unmounts + 1 -- 86
-					end -- 85
-				} -- 85
-			)) -- 85
-			Director.systemScheduler:schedule(once(function() -- 91
-				expect(nodeRef.current ~= tracked, "removed node should mount as a new instance when added again") -- 92
-				root:unmount() -- 94
-				Director.systemScheduler:schedule(once(function() -- 96
-					expect(not host.hasChildren, "lifecycle unmount did not clear host") -- 97
-					expect(unmounts == 2, "onUnmount should run during root unmount") -- 98
-					host:removeFromParent(true) -- 99
-					Content:save(resultFile, "passed") -- 100
-					Log("Info", "[DoraXActionLifecycleTest] passed") -- 101
-				end)) -- 96
-			end)) -- 91
+			expect(nodeRef.current == nil, "diff removal should clear node ref") -- 70
+			expect(unmounts == 1, "onUnmount should run when diff removes node") -- 71
+			root:render(React.createElement( -- 73
+				"node", -- 73
+				{ -- 73
+					key = "tracked", -- 73
+					ref = nodeRef, -- 73
+					onEnter = function() -- 73
+						enters = enters + 1 -- 78
+					end, -- 77
+					onExit = function() -- 77
+						exits = exits + 1 -- 81
+					end, -- 80
+					onCleanup = function() -- 80
+						cleanups = cleanups + 1 -- 84
+					end, -- 83
+					onUnmount = function() -- 83
+						unmounts = unmounts + 1 -- 87
+					end -- 86
+				} -- 86
+			)) -- 86
+			Director.systemScheduler:schedule(once(function() -- 92
+				expect(nodeRef.current ~= tracked, "removed node should mount as a new instance when added again") -- 93
+				root:unmount() -- 95
+				Director.systemScheduler:schedule(once(function() -- 97
+					expect(not host.hasChildren, "lifecycle unmount did not clear host") -- 98
+					expect(nodeRef.current == nil, "root unmount should clear node ref") -- 99
+					expect(unmounts == 2, "onUnmount should run during root unmount") -- 100
+					host:removeFromParent(true) -- 101
+					Content:save(resultFile, "passed") -- 102
+					Log("Info", "[DoraXActionLifecycleTest] passed") -- 103
+				end)) -- 97
+			end)) -- 92
 		end)) -- 67
 	end)) -- 64
 end)) -- 36

@@ -6,6 +6,7 @@ const resultFile = Path(Content.writablePath, "DoraXDynamicRenderTest.result");
 Content.save(resultFile, "running");
 
 function fail(this: void, message: string): never {
+	Content.save(resultFile, `failed: ${message}`);
 	error(`[DoraXDynamicRenderTest] ${message}`);
 }
 

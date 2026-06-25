@@ -6,6 +6,7 @@ const resultFile = Path(Content.writablePath, "DoraXRootFragmentTest.result");
 Content.save(resultFile, "running");
 
 function fail(this: void, message: string): never {
+	Content.save(resultFile, `failed: ${message}`);
 	error(`[DoraXRootFragmentTest] ${message}`);
 }
 
@@ -47,7 +48,7 @@ expect(host.hasChildren, "root fragment did not add children to host");
 root.render(<node key="a" ref={aRef} x={3} />);
 expect(aRef.current === a, "root should reuse keyed child when fragment becomes single node");
 expect(aRef.current!.x === 3, "single-node render did not patch reused child");
-expect(bRef.current === b, "removed child ref should remain last assigned value");
+expect(bRef.current === undefined, "removed child ref should be cleared");
 
 root.render([]);
 expect(!host.hasChildren, "empty root render did not remove all children");
