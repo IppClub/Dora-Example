@@ -115,10 +115,15 @@ expect(firstEventNode !== undefined, "event node was not mounted");
 firstEventNode!.emit(Slot.Tapped);
 expect(taps === 1, "first event handler was not called");
 
-root.render(<node key="event" ref={eventRef} onTapped={secondHandler} />);
-expect(eventRef.current !== firstEventNode, "event handler change should recreate node");
-eventRef.current!.emit(Slot.Tapped);
-expect(taps === 11, "second event handler was not called after recreation");
+	root.render(<node key="event" ref={eventRef} onTapped={secondHandler} />);
+	expect(eventRef.current === firstEventNode, "event handler change should patch node without recreation");
+	eventRef.current!.emit(Slot.Tapped);
+	expect(taps === 11, "second event handler should replace first handler");
+
+	root.render(<node key="event" ref={eventRef} />);
+	expect(eventRef.current === firstEventNode, "event handler removal should patch node without recreation");
+	eventRef.current!.emit(Slot.Tapped);
+	expect(taps === 11, "removed event handler should clear slot callbacks");
 
 Director.systemScheduler.schedule(once(() => {
 	root.unmount();

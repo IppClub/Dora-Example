@@ -135,13 +135,17 @@ expect(firstEventNode ~= nil, "event node was not mounted") -- 114
 firstEventNode:emit("Tapped") -- 115
 expect(taps == 1, "first event handler was not called") -- 116
 root:render(React.createElement("node", {key = "event", ref = eventRef, onTapped = secondHandler})) -- 118
-expect(eventRef.current ~= firstEventNode, "event handler change should recreate node") -- 119
+expect(eventRef.current == firstEventNode, "event handler change should patch node without recreation") -- 119
 eventRef.current:emit("Tapped") -- 120
-expect(taps == 11, "second event handler was not called after recreation") -- 121
-Director.systemScheduler:schedule(once(function() -- 123
-	root:unmount() -- 124
-	host:removeFromParent(true) -- 125
-	Content:save(resultFile, "passed") -- 126
-	Log("Info", "[DoraXPropsPatchTest] passed") -- 127
-end)) -- 123
-return ____exports -- 123
+expect(taps == 11, "second event handler should replace first handler") -- 121
+root:render(React.createElement("node", {key = "event", ref = eventRef})) -- 123
+expect(eventRef.current == firstEventNode, "event handler removal should patch node without recreation") -- 124
+eventRef.current:emit("Tapped") -- 125
+expect(taps == 11, "removed event handler should clear slot callbacks") -- 126
+Director.systemScheduler:schedule(once(function() -- 128
+	root:unmount() -- 129
+	host:removeFromParent(true) -- 130
+	Content:save(resultFile, "passed") -- 131
+	Log("Info", "[DoraXPropsPatchTest] passed") -- 132
+end)) -- 128
+return ____exports -- 128

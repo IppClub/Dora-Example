@@ -118,7 +118,7 @@ expect(firstLabel.x == 10, "initial label x was not applied") -- 97
 local firstButton = buttonRef.current -- 99
 buttonRef.current:emit("Tapped") -- 100
 Director.systemScheduler:schedule(once(function() -- 102
-	expect(buttonRef.current ~= firstButton, "button event update should recreate event-bound node") -- 103
+	expect(buttonRef.current == firstButton, "button event update should patch event-bound node") -- 103
 	expect(buttonLabelRef.current ~= nil, "button label was not remounted") -- 104
 	expect(buttonLabelRef.current.text == "Clicks: 1", "button click did not update label text") -- 105
 	root:render(React.createElement( -- 107

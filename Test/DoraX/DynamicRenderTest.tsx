@@ -99,10 +99,10 @@ expect(firstLabel!.x === 10, "initial label x was not applied");
 const firstButton = buttonRef.current;
 buttonRef.current!.emit(Slot.Tapped);
 
-Director.systemScheduler.schedule(once(() => {
-	expect(buttonRef.current !== firstButton, "button event update should recreate event-bound node");
-	expect(buttonLabelRef.current !== undefined, "button label was not remounted");
-	expect(buttonLabelRef.current!.text === "Clicks: 1", "button click did not update label text");
+	Director.systemScheduler.schedule(once(() => {
+		expect(buttonRef.current === firstButton, "button event update should patch event-bound node");
+		expect(buttonLabelRef.current !== undefined, "button label was not remounted");
+		expect(buttonLabelRef.current!.text === "Clicks: 1", "button click did not update label text");
 
 	root.render(
 		<node>
