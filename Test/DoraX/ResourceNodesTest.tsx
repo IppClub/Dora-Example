@@ -18,6 +18,10 @@ Director.entry.addChild(host);
 
 const root = createRoot(host);
 const spriteRef = reference<Dora.Sprite.Type>();
+const spriteChildRef = reference<Dora.Node.Type>();
+const spriteLabelRef = reference<Dora.Label.Type>();
+const spriteRemovedRef = reference<Dora.Node.Type>();
+const spriteAddedRef = reference<Dora.Node.Type>();
 const gridRef = reference<Dora.Grid.Type>();
 const tileRef = reference<Dora.TileNode.Type>();
 const modelRef = reference<Dora.Model.Type>();
@@ -27,7 +31,11 @@ const playAudioRef = reference<Dora.AudioSource.Type>();
 
 root.render(
 	<node>
-		<sprite key="sprite" ref={spriteRef} file="Image/logo.png" width={80} height={80} />
+		<sprite key="sprite" ref={spriteRef} file="Image/logo.png" width={80} height={80}>
+			<node key="sprite-child" ref={spriteChildRef} tag="child" />
+			<label key="sprite-label" ref={spriteLabelRef} fontName="sarasa-mono-sc-regular" fontSize={12} text="child" />
+			<node key="sprite-removed" ref={spriteRemovedRef} tag="removed" />
+		</sprite>
 			<grid key="grid" ref={gridRef} file="Image/logo.png" gridX={2} gridY={2} />
 			<tile-node key="tile" ref={tileRef} file="TMX/demo.tmx" />
 			<model key="model" ref={modelRef} file="Model/KidW.model" />
@@ -38,6 +46,9 @@ root.render(
 	);
 
 const sprite = spriteRef.current;
+const spriteChild = spriteChildRef.current;
+const spriteLabel = spriteLabelRef.current;
+const spriteRemoved = spriteRemovedRef.current;
 const grid = gridRef.current;
 const tile = tileRef.current;
 const model = modelRef.current;
@@ -45,6 +56,12 @@ const animModel = animModelRef.current;
 const audio = audioRef.current;
 const playAudio = playAudioRef.current;
 expect(sprite !== undefined, "sprite resource node was not mounted");
+expect(spriteChild !== undefined, "sprite child was not mounted");
+expect(spriteChild!.parent === sprite, "sprite child parent was not set");
+expect(spriteLabel !== undefined, "sprite label child was not mounted");
+expect(spriteLabel!.parent === sprite, "sprite label child parent was not set");
+expect(spriteRemoved !== undefined, "sprite removed child was not mounted");
+expect(spriteRemoved!.parent === sprite, "sprite removed child parent was not set");
 expect(grid !== undefined, "grid resource node was not mounted");
 expect(tile !== undefined, "tile-node resource node was not mounted");
 expect(model !== undefined, "model resource node was not mounted");
@@ -55,7 +72,11 @@ expect(animModel!.current === "walk", "initial model play helper did not run");
 
 root.render(
 	<node>
-		<sprite key="sprite" ref={spriteRef} file="Image/icon.png" width={64} height={64} />
+		<sprite key="sprite" ref={spriteRef} file="Image/icon.png" width={64} height={64}>
+			<node key="sprite-child" ref={spriteChildRef} tag="child" />
+			<label key="sprite-label" ref={spriteLabelRef} fontName="sarasa-mono-sc-regular" fontSize={14} text="child" />
+			<node key="sprite-added" ref={spriteAddedRef} tag="added" />
+		</sprite>
 			<grid key="grid" ref={gridRef} file="Image/icon.png" gridX={3} gridY={3} />
 			<tile-node key="tile" ref={tileRef} file="TMX/platform.tmx" />
 			<model key="model" ref={modelRef} file="Model/KidM.model" />
@@ -66,6 +87,13 @@ root.render(
 	);
 
 expect(spriteRef.current !== sprite, "sprite should recreate when file changes");
+expect(spriteChildRef.current === spriteChild, "sprite child should move to recreated sprite");
+expect(spriteChildRef.current!.parent === spriteRef.current, "sprite child parent should update to recreated sprite");
+expect(spriteLabelRef.current !== spriteLabel, "sprite label child should recreate when its construction props change");
+expect(spriteLabelRef.current!.parent === spriteRef.current, "recreated sprite label parent should be recreated sprite");
+expect(spriteRemovedRef.current === undefined, "removed sprite child ref should clear during parent recreation");
+expect(spriteAddedRef.current !== undefined, "added sprite child should mount during parent recreation");
+expect(spriteAddedRef.current!.parent === spriteRef.current, "added sprite child parent should be recreated sprite");
 expect(gridRef.current !== grid, "grid should recreate when file or grid size changes");
 expect(tileRef.current !== tile, "tile-node should recreate when file changes");
 expect(modelRef.current !== model, "model should recreate when file changes");
