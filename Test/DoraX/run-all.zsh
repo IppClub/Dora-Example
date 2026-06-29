@@ -56,7 +56,7 @@ for file in "${SCRIPT_DIR}"/*Test.tsx; do
 		cat "${log_file}"
 		exit 1
 	fi
-	if rg -n "\\[Warn\\]|Warning|Error|failed|must be placed" "${log_file}" >/dev/null; then
+	if rg -n "\\[Warn\\]|Warning|Error|failed|must be placed" "${log_file}" | rg -v "useRef\\(\\) called outside a function component; falling back to reference\\(\\)" >/dev/null; then
 		print "warning in ${test_name}"
 		cat "${log_file}"
 		exit 1

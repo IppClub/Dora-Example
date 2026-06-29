@@ -35,11 +35,11 @@ const keyedCreateCounts: LuaTable<number, number> = new LuaTable();
 const plainRef = reference(1);
 expect(plainRef.current === 1, "reference should be available outside function components");
 
-const [useRefOk] = pcall(() => useRef(1));
+const [useRefOk, outsideRef] = pcall(() => useRef(1));
 const [useSignalOk] = pcall(() => useSignal(1));
 const [useMemoOk] = pcall(() => useMemo(() => 1, []));
 const [useCallbackOk] = pcall(() => useCallback(() => 1, []));
-expect(!useRefOk, "useRef should throw outside function components");
+expect(useRefOk && outsideRef.current === 1, "useRef should fall back to reference outside function components");
 expect(!useSignalOk, "useSignal should throw outside function components");
 expect(!useMemoOk, "useMemo should throw outside function components");
 expect(!useCallbackOk, "useCallback should throw outside function components");

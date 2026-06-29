@@ -45,7 +45,7 @@ local keyedNodes = {} -- 32
 local keyedCreateCounts = {} -- 33
 local plainRef = reference(1) -- 35
 expect(plainRef.current == 1, "reference should be available outside function components") -- 36
-local useRefOk = pcall(function() return useRef(1) end) -- 38
+local useRefOk, outsideRef = pcall(function() return useRef(1) end) -- 38
 local useSignalOk = pcall(function() return useSignal(1) end) -- 39
 local useMemoOk = pcall(function() return useMemo( -- 40
 	function() return 1 end, -- 40
@@ -55,7 +55,7 @@ local useCallbackOk = pcall(function() return useCallback( -- 41
 	function() return 1 end, -- 41
 	{} -- 41
 ) end) -- 41
-expect(not useRefOk, "useRef should throw outside function components") -- 42
+expect(useRefOk and outsideRef.current == 1, "useRef should fall back to reference outside function components") -- 42
 expect(not useSignalOk, "useSignal should throw outside function components") -- 43
 expect(not useMemoOk, "useMemo should throw outside function components") -- 44
 expect(not useCallbackOk, "useCallback should throw outside function components") -- 45
