@@ -11,7 +11,7 @@ local KeyName = Keyboard.KeyName
 local type Controller = require("Controller")
 local ButtonName = Controller.ButtonName
 local Trigger <const> = InputManager.Trigger
-local type TriggerState = InputManager.TriggerState
+local type InputEvent = InputManager.InputEvent
 
 local enum QTE
 	"None"
@@ -20,7 +20,7 @@ local enum QTE
 	"Phase3"
 end
 
-local function QTEContext(keyName: KeyName, buttonName: ButtonName, timeWindow: number): {string: InputManager.Trigger}
+local function QTEContext(keyName: KeyName, buttonName: ButtonName, timeWindow: number): {string : Trigger}
 	return {
 		QTE = Trigger.Sequence({
 			Trigger.Selector({
@@ -43,20 +43,20 @@ end
 
 local inputManager = InputManager.CreateManager({
 	Default = {
-		Confirm = Trigger.Selector({
-			Trigger.ButtonHold("y", 1),
-			Trigger.KeyHold("Return", 1),
-		}),
-		MoveDown = Trigger.Selector({
-			Trigger.ButtonPressed("dpdown"),
-			Trigger.KeyPressed("S")
+		Confirm = Trigger.Hold({
+			{button = "y"},
+			{key = "Return"},
+		}, 1),
+		MoveDown = Trigger.Pressed({
+			{button = "dpdown"},
+			{key = "S"},
 		}),
 	},
 	Test = {
-		Confirm = Trigger.Selector({
-			Trigger.ButtonHold("x", 0.3),
-			Trigger.KeyHold("LCtrl", 0.3),
-		}),
+		Confirm = Trigger.Hold({
+			{button = "x"},
+			{key = "LCtrl"},
+		}, 0.3),
 	},
 	Phase1 = QTEContext("J", "a", 3),
 	Phase2 = QTEContext("K", "b", 2),
@@ -72,21 +72,21 @@ local text = ""
 
 local holdTime = 0.0
 local node = Node()
-node:gslot("Input.Confirm", function(state: TriggerState, progress: number)
-	if state == "Completed" then
+inputManager:on("Confirm", function(event: InputEvent)
+	if event.state == "Completed" then
 		holdTime = 1
-	elseif state == "Ongoing" then
-		holdTime = progress
+	elseif event.state == "Ongoing" then
+		holdTime = event.progress
 	end
 end)
 
-node:gslot("Input.MoveDown", function(state: TriggerState, progress: number, value: any)
-	if state == "Completed" then
-		print(state, progress, value)
-	end
+inputManager:onCompleted("MoveDown", function(event: InputEvent)
+	print(event.state, event.progress, event.value)
 end)
 
-node:gslot("Input.QTE", function(state: TriggerState, progress: number)
+inputManager:on("QTE", function(event: InputEvent)
+	local state = event.state
+	local progress = event.progress
 	if phase == "Phase1" then
 		if state == "Canceled" then
 			phase = "None"

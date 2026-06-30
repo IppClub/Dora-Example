@@ -35,20 +35,20 @@ function QTEContext(keyName: KeyName, buttonName: ButtonName, timeWindow: number
 
 const inputManager = CreateManager({
 	Default: {
-		Confirm: Trigger.Selector([
-			Trigger.ButtonHold(ButtonName.Y, 1),
-			Trigger.KeyHold(KeyName.Return, 1),
-		]),
-		MoveDown: Trigger.Selector([
-			Trigger.ButtonPressed(ButtonName.Down),
-			Trigger.KeyPressed(KeyName.S)
+		Confirm: Trigger.Hold([
+			{ button: ButtonName.Y },
+			{ key: KeyName.Return },
+		], 1),
+		MoveDown: Trigger.Pressed([
+			{ button: ButtonName.Down },
+			{ key: KeyName.S },
 		]),
 	},
 	Test: {
-		Confirm: Trigger.Selector([
-			Trigger.ButtonHold(ButtonName.X, 0.3),
-			Trigger.KeyHold(KeyName.LCtrl, 0.3),
-		]),
+		Confirm: Trigger.Hold([
+			{ button: ButtonName.X },
+			{ key: KeyName.LCtrl },
+		], 0.3),
 	},
 	[QTE.Phase1]: QTEContext(KeyName.J, ButtonName.A, 3),
 	[QTE.Phase2]: QTEContext(KeyName.K, ButtonName.B, 2),
@@ -66,21 +66,19 @@ let text = "";
 
 let holdTime = 0;
 const node = Node();
-node.gslot("Input.Confirm", (state: TriggerState, progress: number) => {
-	if (state === TriggerState.Completed) {
+inputManager.on("Confirm", event => {
+	if (event.state === TriggerState.Completed) {
 		holdTime = 1;
-	} else if (state === TriggerState.Ongoing) {
-		holdTime = progress;
+	} else if (event.state === TriggerState.Ongoing) {
+		holdTime = event.progress;
 	}
 });
 
-node.gslot("Input.MoveDown", (state: TriggerState, progress: number, value: Vec2.Type) => {
-	if (state === TriggerState.Completed) {
-		print(state, progress, value);
-	}
+inputManager.onCompleted("MoveDown", event => {
+	print(event.state, event.progress, event.value as Vec2.Type);
 });
 
-node.gslot("Input.QTE", (state: TriggerState, progress: number) => {
+inputManager.on("QTE", ({state, progress}) => {
 	switch (phase) {
 		case QTE.Phase1:
 			switch (state) {
