@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/EnhancedInput.yue
+-- [yue]: Example/EnhancedInput.yue
 local _ENV = Dora -- 2
 local require <const> = require -- 3
 local Node <const> = Node -- 3

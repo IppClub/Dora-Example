@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/DrawNode.yue
+-- [yue]: Example/DrawNode.yue
 local _ENV = Dora -- 2
 local math <const> = math -- 3
 local Vec2 <const> = Vec2 -- 3

@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/UI.yue
+-- [yue]: Example/UI.yue
 local _ENV = Dora -- 2
 local Button = require("UI.Control.Basic.Button") -- 3
 local LineRect = require("UI.View.Shape.LineRect") -- 4

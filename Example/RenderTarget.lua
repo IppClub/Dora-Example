@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/RenderTarget.yue
+-- [yue]: Example/RenderTarget.yue
 local _ENV = Dora -- 2
 local Node <const> = Node -- 3
 local Model <const> = Model -- 3

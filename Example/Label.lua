@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Label.yue
+-- [yue]: Example/Label.yue
 local _ENV = Dora -- 2
 local Label <const> = Label -- 3
 local Sequence <const> = Sequence -- 3

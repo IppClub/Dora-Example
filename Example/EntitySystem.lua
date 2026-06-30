@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/EntitySystem.yue
+-- [yue]: Example/EntitySystem.yue
 local _ENV = Dora -- 2
 local hpGroup = Group({ -- 4
 	"hp" -- 4

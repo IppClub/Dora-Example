@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/FixedLabel.yue
+-- [yue]: Example/FixedLabel.yue
 local _ENV = Dora -- 2
 local require <const> = require -- 3
 local sleep <const> = sleep -- 3

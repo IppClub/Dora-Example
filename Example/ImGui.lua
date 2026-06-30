@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/ImGui.yue
+-- [yue]: Example/ImGui.yue
 local _ENV = Dora -- 2
 local threadLoop <const> = threadLoop -- 3
 local ImGui <const> = ImGui -- 3

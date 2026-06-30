@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Gesture.yue
+-- [yue]: Example/Gesture.yue
 local _ENV = Dora -- 2
 local nvg <const> = nvg -- 3
 local Sprite <const> = Sprite -- 3

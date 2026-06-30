@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Body.yue
+-- [yue]: Example/Body.yue
 local _ENV = Dora -- 2
 local Vec2 <const> = Vec2 -- 3
 local BodyDef <const> = BodyDef -- 3

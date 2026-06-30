@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Struct.yue
+-- [yue]: Example/Struct.yue
 local Struct = require("Utils").Struct -- 2
 local print <const> = print -- 3
 local tostring <const> = tostring -- 3

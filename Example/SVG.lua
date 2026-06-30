@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/SVG.yue
+-- [yue]: Example/SVG.yue
 local _ENV = Dora -- 2
 local SVG <const> = SVG -- 3
 local Node <const> = Node -- 3

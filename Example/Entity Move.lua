@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Entity Move.yue
+-- [yue]: Example/Entity Move.yue
 local _ENV = Dora -- 2
 local sceneGroup = Group({ -- 4
 	"scene" -- 4

@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Spine.yue
+-- [yue]: Example/Spine.yue
 local _ENV = Dora -- 2
 local Spine <const> = Spine -- 3
 local p <const> = p -- 3

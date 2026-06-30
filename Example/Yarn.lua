@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Yarn.yue
+-- [yue]: Example/Yarn.yue
 local _ENV = Dora(Dora.ImGui) -- 2
 local YarnRunner = require("YarnRunner") -- 3
 local LineRect = require("UI.View.Shape.LineRect") -- 4

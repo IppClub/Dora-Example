@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/ClipNode.yue
+-- [yue]: Example/ClipNode.yue
 local _ENV = Dora -- 2
 local math <const> = math -- 3
 local Vec2 <const> = Vec2 -- 3

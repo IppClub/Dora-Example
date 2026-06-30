@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/TextInput.yue
+-- [yue]: Example/TextInput.yue
 local _ENV = Dora -- 2
 local LineRect = require("UI.View.Shape.LineRect") -- 3
 local SolidRect = require("UI.View.Shape.SolidRect") -- 4

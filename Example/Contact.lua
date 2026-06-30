@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Contact.yue
+-- [yue]: Example/Contact.yue
 local _ENV = Dora -- 2
 local Vec2 <const> = Vec2 -- 3
 local PhysicsWorld <const> = PhysicsWorld -- 3

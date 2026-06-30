@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/SQLite.yue
+-- [yue]: Example/SQLite.yue
 local _ENV = Dora -- 2
 local DB <const> = DB -- 3
 local print <const> = print -- 3

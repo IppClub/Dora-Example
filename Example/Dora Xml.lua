@@ -1,4 +1,4 @@
--- [xml]: Dora-Example/Example/Dora Xml.xml
+-- [xml]: Example/Dora Xml.xml
 local Path = require("Path") -- 4
 local selfPath = Path(Path:getScriptPath(...), "Dora Xml.xml") -- 5
 return function(args) -- 1

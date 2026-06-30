@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Vector Graphic.yue
+-- [yue]: Example/Vector Graphic.yue
 local _ENV = Dora -- 2
 local nvg <const> = nvg -- 3
 local Color <const> = Color -- 3

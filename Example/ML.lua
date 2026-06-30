@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/ML.yue
+-- [yue]: Example/ML.yue
 local _ENV = Dora(Dora.ImGui) -- 2
 local App <const> = App -- 3
 local table <const> = table -- 3

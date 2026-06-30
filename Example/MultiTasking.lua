@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/MultiTasking.yue
+-- [yue]: Example/MultiTasking.yue
 local _ENV = Dora -- 2
 local thread <const> = thread -- 3
 local print <const> = print -- 3

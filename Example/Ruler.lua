@@ -1,4 +1,4 @@
--- [yue]: Dora-Example/Example/Ruler.yue
+-- [yue]: Example/Ruler.yue
 local _ENV = Dora -- 2
 local Ruler = require("UI.Control.Basic.Ruler") -- 3
 local CircleButton = require("UI.Control.Basic.CircleButton") -- 4
