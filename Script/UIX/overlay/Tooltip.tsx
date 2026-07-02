@@ -1,5 +1,5 @@
-import { TextAlign } from "Dora";
-import { React } from "DoraX";
+import { Size, TextAlign } from "Dora";
+import { React, useRef } from "DoraX";
 import { getUiContext } from "UIX/context";
 import { Text, wrapTextLines } from "UIX/foundation/Text";
 import { Column } from "UIX/layout/Column";
@@ -16,6 +16,8 @@ export interface TooltipProps extends UiNodeProps {
 
 export function Tooltip(this: void, props: TooltipProps): React.Element {
 	const theme = getUiContext().theme;
+	const localRef = useRef<import("Dora").AlignNode.Type>();
+	const rootRef = (props.ref ?? localRef) as JSX.Ref<import("Dora").AlignNode.Type>;
 	const width = props.width ?? 220;
 	const hasTitle = props.title !== undefined && props.title !== "";
 	const textFontSize = theme.font.size.sm;
@@ -23,20 +25,26 @@ export function Tooltip(this: void, props: TooltipProps): React.Element {
 	const textWidth = width - theme.space.md * 2;
 	const textLines = props.text !== undefined ? wrapTextLines(props.text, textWidth, textFontSize) : [];
 	const textHeight = props.text !== undefined ? math.max(textLineHeight, textLines.length * textLineHeight) : 0;
+	const tooltipHeight = (hasTitle ? 30 : 0) + textHeight + theme.space.md * 2;
+	const syncSize = (node: import("Dora").AlignNode.Type | undefined) => {
+		if (node !== undefined) node.size = Size(width, tooltipHeight);
+	};
 	return (
 		<align-node
 			key={props.key}
-			ref={props.ref as JSX.Ref<import("Dora").AlignNode.Type> | undefined}
+			ref={rootRef}
 			style={mergeStyle({
 				position: "absolute",
 				width,
-				height: (hasTitle ? 30 : 0) + textHeight + theme.space.md * 2,
+				height: tooltipHeight,
 				padding: theme.space.md,
 				gap: theme.space.xs,
 			}, props.style)}
 			visible={props.visible}
 			opacity={props.opacity}
 			touchEnabled={false}
+			onMount={() => syncSize(rootRef.current)}
+			onLayout={() => syncSize(rootRef.current)}
 		>
 			<PaintNode painter={(ctx) => roundedPanel(ctx, { x: 0, y: 0, width: ctx.width, height: ctx.height }, {
 				variant: "solid",

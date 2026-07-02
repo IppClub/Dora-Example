@@ -70,15 +70,14 @@ function ____exports.Panel(props) -- 25
 				height = contentHeight, -- 61
 				contentHeight = math.max(contentHeight, scrollContentHeight), -- 61
 				wheelSpeed = props.scrollWheelSpeed, -- 61
-				onScroll = props.onScroll, -- 61
-				style = {flex = 1} -- 61
+				onScroll = props.onScroll -- 61
 			}, -- 61
-			props.children -- 70
-		) -- 70
-	else -- 70
-		____temp_5 = React.createElement(Box, {key = "content", style = {flex = 1}}, props.children) -- 70
-	end -- 70
-	__TS__SparseArrayPush(____array_6, ____temp_5) -- 70
+			props.children -- 69
+		) -- 69
+	else -- 69
+		____temp_5 = React.createElement(Box, {key = "content", style = {flex = 1, flexDirection = "column", alignItems = "flex-start", justifyContent = "flex-start"}}, props.children) -- 69
+	end -- 69
+	__TS__SparseArrayPush(____array_6, ____temp_5) -- 69
 	return ____React_createElement_7(__TS__SparseArraySpread(____array_6)) -- 36
 end -- 25
 return ____exports -- 25

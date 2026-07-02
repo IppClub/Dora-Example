@@ -99,6 +99,12 @@ export const iconPainters: Record<string, IconPainter> = {
 	arrow(_ctx, r, color) {
 		lineIcon([0.25, 0.5, 0.75, 0.5, 0.55, 0.3, 0.75, 0.5, 0.55, 0.7], r, color, 2);
 	},
+	chevronDown(_ctx, r, color) {
+		lineIcon([0.24, 0.38, 0.5, 0.64, 0.76, 0.38], r, color, 2);
+	},
+	chevronUp(_ctx, r, color) {
+		lineIcon([0.24, 0.62, 0.5, 0.36, 0.76, 0.62], r, color, 2);
+	},
 };
 
 export function drawIcon(this: void, name: string, ctx: PaintContext, rect: Rect, color: number): void {

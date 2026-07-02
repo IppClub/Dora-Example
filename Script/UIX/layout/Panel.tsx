@@ -65,11 +65,18 @@ export function Panel(this: void, props: PanelProps): React.Element {
 					contentHeight={math.max(contentHeight, scrollContentHeight)}
 					wheelSpeed={props.scrollWheelSpeed}
 					onScroll={props.onScroll}
-					style={{ flex: 1 }}
 				>
 					{props.children}
 				</ScrollView> :
-				<Box key="content" style={{ flex: 1 }}>
+				<Box
+					key="content"
+					style={{
+						flex: 1,
+						flexDirection: "column",
+						alignItems: "flex-start",
+						justifyContent: "flex-start",
+					}}
+				>
 					{props.children}
 				</Box>
 			}

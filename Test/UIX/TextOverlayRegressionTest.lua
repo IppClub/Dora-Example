@@ -65,21 +65,26 @@ modalRoot:render(function() return React.createElement( -- 42
 	} -- 51
 ) end) -- 51
 Director.systemScheduler:schedule(once(function() -- 58
-	expect(tooltipRef.current ~= nil, "tooltip did not mount") -- 59
-	expect(tooltipRef.current.width == 220, "tooltip width changed unexpectedly") -- 60
-	expect(tooltipRef.current.height >= 88, "tooltip height is too small for wrapped text") -- 61
-	expect(modalRef.current ~= nil, "modal did not mount") -- 62
-	expect(modalRef.current.width > 0 and modalRef.current.height > 0, "modal root did not receive visual size") -- 63
-	modalRef.current:emit("Tapped") -- 64
-	expect(closed.value == 1, "modal backdrop tap did not close") -- 65
-	Director.systemScheduler:schedule(once(function() -- 66
-		expect(open.value == false, "modal signal did not close") -- 67
-		Content:save(resultFile, "passed") -- 68
-		Log("Info", "[UIXTextOverlayRegressionTest] passed") -- 69
-		host:removeFromParent(true) -- 70
-		root:unmount() -- 71
-		modalRoot:unmount() -- 72
-		modalHost:removeFromParent(true) -- 73
-	end)) -- 66
+	Director.systemScheduler:schedule(once(function() -- 59
+		expect(tooltipRef.current ~= nil, "tooltip did not mount") -- 60
+		expect( -- 61
+			tooltipRef.current.width == 220, -- 61
+			"tooltip width changed unexpectedly: " .. tostring(tooltipRef.current.width) -- 61
+		) -- 61
+		expect(tooltipRef.current.height >= 88, "tooltip height is too small for wrapped text") -- 62
+		expect(modalRef.current ~= nil, "modal did not mount") -- 63
+		expect(modalRef.current.width > 0 and modalRef.current.height > 0, "modal root did not receive visual size") -- 64
+		modalRef.current:emit("Tapped") -- 65
+		expect(closed.value == 1, "modal backdrop tap did not close") -- 66
+		Director.systemScheduler:schedule(once(function() -- 67
+			expect(open.value == false, "modal signal did not close") -- 68
+			Content:save(resultFile, "passed") -- 69
+			Log("Info", "[UIXTextOverlayRegressionTest] passed") -- 70
+			host:removeFromParent(true) -- 71
+			root:unmount() -- 72
+			modalRoot:unmount() -- 73
+			modalHost:removeFromParent(true) -- 74
+		end)) -- 67
+	end)) -- 59
 end)) -- 58
 return ____exports -- 58

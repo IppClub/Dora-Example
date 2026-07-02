@@ -7,6 +7,6 @@ export interface SpacerProps {
 }
 
 export function Spacer(this: void, props: SpacerProps): React.Element {
-	return <align-node style={{ flex: props.flex ?? 1, width: props.width, height: props.height }} />;
+	const flex = props.flex ?? (props.width === undefined && props.height === undefined ? 1 : 0);
+	return <align-node style={{ flex, width: props.width, height: props.height }} />;
 }
-

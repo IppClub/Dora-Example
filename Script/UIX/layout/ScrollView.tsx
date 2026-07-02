@@ -1,6 +1,6 @@
 import { App, Mouse, Size, Vec2 } from "Dora";
 import type * as Dora from "Dora";
-import { React, useRef } from "DoraX";
+import { React, useCallback, useRef, useSignal } from "DoraX";
 import { registerClip, unregisterClip } from "UIX/paint/clip";
 import { mergeStyle } from "UIX/layout/helpers";
 import type { UiNodeProps } from "UIX/types";
@@ -10,7 +10,7 @@ export interface ScrollViewProps extends UiNodeProps {
 	width?: number;
 	height?: number;
 	contentHeight: number;
-	offsetY?: number;
+	defaultOffsetY?: number;
 	wheelSpeed?: number;
 	inputOverlay?: boolean;
 	dragOverlay?: boolean;
@@ -19,7 +19,7 @@ export interface ScrollViewProps extends UiNodeProps {
 }
 
 export function ScrollView(this: void, props: ScrollViewProps): React.Element {
-	const localOffset = useRef(props.offsetY ?? 0);
+	const localOffset = useSignal(props.defaultOffsetY ?? 0);
 	const localRef = useRef<Dora.AlignNode.Type>();
 	const contentRef = useRef<Dora.AlignNode.Type>();
 	const inputRef = useRef<Dora.AlignNode.Type>();
@@ -34,24 +34,25 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 	const width = props.width ?? styleWidth ?? 240;
 	const height = props.height ?? styleHeight ?? 160;
 	const maxOffset = math.max(0, props.contentHeight - height);
-	const offset = clamp(props.offsetY ?? localOffset.current ?? 0, 0, maxOffset);
-	const getOffset = () => clamp(props.offsetY ?? localOffset.current ?? 0, 0, maxOffset);
-	const applyContentOffset = (next: number) => {
+	const offset = clamp(localOffset.value, 0, maxOffset);
+
+	const contentYForOffset = useCallback((next: number) => next + height - props.contentHeight / 2, [height, props.contentHeight]);
+	const applyContentOffset = useCallback((next: number) => {
 		const node = contentRef.current;
 		if (node !== undefined) {
-			node.y = next;
+			node.y = contentYForOffset(next);
 		}
-	};
-	const setOffset = (value: number) => {
+	}, [contentYForOffset]);
+	const setOffset = useCallback((value: number) => {
 		const next = clamp(value, 0, maxOffset);
-		if (props.offsetY === undefined) (localOffset as AnyTable).current = next;
+		localOffset.value = next;
 		applyContentOffset(next);
 		props.onScroll?.(next);
-	};
-	const scrollByWheel = (deltaY: number) => {
-		setOffset(getOffset() + deltaY * (props.wheelSpeed ?? 24));
-	};
-	const mouseRootLocation = () => {
+	}, [localOffset.value, maxOffset, props.onScroll, applyContentOffset]);
+	const scrollByWheel = useCallback((deltaY: number) => {
+		setOffset(offset + deltaY * (props.wheelSpeed ?? 24));
+	}, [offset, props.wheelSpeed, setOffset]);
+	const mouseRootLocation = useCallback(() => {
 		const root = rootRef.current;
 		if (root === undefined) return undefined;
 		const { width: bw, height: bh } = App.bufferSize;
@@ -59,77 +60,66 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 		let pos = Mouse.position.mul(bw / vw);
 		pos = Vec2(pos.x - bw / 2, bh / 2 - pos.y);
 		return root.convertToNodeSpace(pos);
-	};
-	const touchRootLocation = (touch: Dora.Touch.Type) => {
+	}, []);
+	const touchRootLocation = useCallback((touch: Dora.Touch.Type) => {
 		const root = rootRef.current;
 		if (root !== undefined && touch.worldLocation !== undefined) {
 			return root.convertToNodeSpace(touch.worldLocation);
 		}
 		return touch.location;
-	};
-	const isInsideTouch = (touch: Dora.Touch.Type) => {
+	}, []);
+	const isInsideTouch = useCallback((touch: Dora.Touch.Type) => {
 		const location = touchRootLocation(touch);
 		return location.x >= 0 && location.x <= width && location.y >= 0 && location.y <= height;
-	};
-	const filterDrag = (touch: Dora.Touch.Type) => {
+	}, [height, touchRootLocation, width]);
+	const filterDrag = useCallback((touch: Dora.Touch.Type) => {
 		if (!touch.first || !isInsideTouch(touch)) {
 			touch.enabled = false;
 		}
-	};
-	const moveDrag = (touch: Dora.Touch.Type) => {
-		if (Mouse.leftButtonPressed) return;
+	}, [isInsideTouch]);
+	const moveDrag = useCallback((touch: Dora.Touch.Type) => {
 		const nextDistance = (dragDistance.current ?? 0) + touch.delta.length;
 		(dragDistance as AnyTable).current = nextDistance;
 		if (scrollActive.current || nextDistance > 10) {
 			(scrollActive as AnyTable).current = true;
-			setOffset(getOffset() + touch.delta.y);
+			setOffset(offset + touch.delta.y);
 		}
-	};
-	const beginDrag = (touch: Dora.Touch.Type) => {
+	}, [dragDistance, offset, scrollActive, setOffset]);
+	const beginDrag = useCallback((touch: Dora.Touch.Type) => {
 		const location = touchRootLocation(touch);
-		(dragging as AnyTable).current = Mouse.leftButtonPressed;
+		(dragging as AnyTable).current = true;
 		(scrollActive as AnyTable).current = false;
 		(dragDistance as AnyTable).current = 0;
 		(lastDragY as AnyTable).current = location.y;
-	};
-	const endDrag = () => {
+	}, [dragDistance, dragging, lastDragY, scrollActive, touchRootLocation]);
+	const endDrag = useCallback(() => {
 		(dragging as AnyTable).current = false;
 		(scrollActive as AnyTable).current = false;
 		(dragDistance as AnyTable).current = 0;
-	};
-	const pollDrag = () => {
-		if (!dragging.current) return false;
-		if (!Mouse.leftButtonPressed) {
-			(dragging as AnyTable).current = false;
-			return false;
-		}
-		const location = mouseRootLocation();
-		if (location === undefined) return false;
-		const deltaY = location.y - (lastDragY.current ?? location.y);
-		(lastDragY as AnyTable).current = location.y;
-		const nextDistance = (dragDistance.current ?? 0) + math.abs(deltaY);
-		(dragDistance as AnyTable).current = nextDistance;
-		if (scrollActive.current || nextDistance > 10) {
-			(scrollActive as AnyTable).current = true;
-			if (deltaY !== 0) setOffset(getOffset() + deltaY);
-		}
-		return false;
-	};
-	const syncClip = (node: Dora.AlignNode.Type | undefined, clipWidth: number, clipHeight: number) => {
+	}, [dragDistance, dragging, scrollActive]);
+	const syncClip = useCallback((node: Dora.AlignNode.Type | undefined, clipWidth: number, clipHeight: number) => {
 		if (node !== undefined) {
 			node.size = Size(clipWidth, clipHeight);
 			registerClip(node, clipWidth, clipHeight);
 		}
-	};
-	const syncInputSize = (node: Dora.AlignNode.Type | undefined, inputWidth: number, inputHeight: number) => {
+	}, []);
+	const syncInputSize = useCallback((node: Dora.AlignNode.Type | undefined, inputWidth: number, inputHeight: number) => {
 		if (node !== undefined) node.size = Size(inputWidth, inputHeight);
-	};
-	const syncContentNode = (node: Dora.AlignNode.Type | undefined) => {
+	}, []);
+	const syncContentNode = useCallback((node: Dora.AlignNode.Type | undefined) => {
 		if (node !== undefined) {
-			node.y = getOffset();
 			node.size = Size(width, props.contentHeight);
+			node.y = contentYForOffset(offset);
 		}
-	};
+	}, [contentYForOffset, offset, props.contentHeight, width]);
+	const onRootLayout = useCallback((w: number, h: number) => syncClip(rootRef.current, w, h), [syncClip]);
+	const onRootUnmount = useCallback((node: Dora.AlignNode.Type) => {
+		unregisterClip(node);
+	}, []);
+	const onContentLayout = useCallback(() => syncContentNode(contentRef.current), [syncContentNode]);
+	const onInputLayout = useCallback((w: number, h: number) => syncInputSize(inputRef.current, w, h), [syncInputSize]);
+	const onWheel = useCallback((delta: Vec2.Type) => scrollByWheel(delta.y), [scrollByWheel]);
+	const onDragLayout = useCallback((w: number, h: number) => syncInputSize(dragRef.current, w, h), [syncInputSize]);
 	return (
 		<align-node
 			key={props.key}
@@ -141,26 +131,26 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 			}, props.style)}
 			visible={props.visible}
 			opacity={props.opacity}
-			onLayout={(w, h) => syncClip(rootRef.current, w, h)}
-			onUnmount={(node) => {
-				unregisterClip(node);
-			}}
+			onLayout={onRootLayout}
+			onUnmount={onRootUnmount}
 		>
-			<align-node
-				key="content"
-				ref={contentRef}
-				style={{
-					position: "absolute",
-					width: "100%",
-					height: props.contentHeight,
-					flexDirection: "column",
-					alignItems: "flex-start",
-					justifyContent: "flex-start",
-				}}
-				onLayout={() => syncContentNode(contentRef.current)}
-			>
-				{props.children}
-			</align-node>
+			<menu anchorX={0} anchorY={0} width={width} height={height}>
+				<align-node
+					key="content"
+					ref={contentRef}
+					style={{
+						width,
+						height: props.contentHeight,
+						flexDirection: "column",
+						alignItems: "flex-start",
+						justifyContent: "flex-start",
+					}}
+					anchorX={0}
+					onLayout={onContentLayout}
+				>
+					{props.children}
+				</align-node>
+			</menu>
 			{props.inputOverlay !== false ?
 				<align-node
 					key="input-overlay"
@@ -175,8 +165,8 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 					touchEnabled={!props.disabled}
 					swallowTouches={props.dragOverlay === true}
 					swallowMouseWheel
-					onLayout={(w, h) => syncInputSize(inputRef.current, w, h)}
-					onMouseWheel={(delta) => scrollByWheel(delta.y)}
+					onLayout={onInputLayout}
+					onMouseWheel={onWheel}
 				/> : undefined
 			}
 			{props.inputOverlay !== false ?
@@ -192,12 +182,10 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 					}}
 					touchEnabled={!props.disabled}
 					swallowTouches={props.swallowDrag ?? false}
-					onLayout={(w, h) => syncInputSize(dragRef.current, w, h)}
-					onTapFilter={filterDrag}
+					onLayout={onDragLayout}
 					onTapBegan={beginDrag}
 					onTapMoved={moveDrag}
 					onTapEnded={endDrag}
-					onUpdate={pollDrag}
 				/> : undefined
 			}
 		</align-node>

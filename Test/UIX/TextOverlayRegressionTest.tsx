@@ -56,20 +56,22 @@ modalRoot.render(() => (
 ));
 
 Director.systemScheduler.schedule(once(() => {
-	expect(tooltipRef.current !== undefined, "tooltip did not mount");
-	expect(tooltipRef.current!.width === 220, "tooltip width changed unexpectedly");
-	expect(tooltipRef.current!.height >= 88, "tooltip height is too small for wrapped text");
-	expect(modalRef.current !== undefined, "modal did not mount");
-	expect(modalRef.current!.width > 0 && modalRef.current!.height > 0, "modal root did not receive visual size");
-	modalRef.current!.emit(Slot.Tapped);
-	expect(closed.value === 1, "modal backdrop tap did not close");
 	Director.systemScheduler.schedule(once(() => {
-		expect(open.value === false, "modal signal did not close");
-		Content.save(resultFile, "passed");
-		Log("Info", "[UIXTextOverlayRegressionTest] passed");
-		host.removeFromParent(true);
-		root.unmount();
-		modalRoot.unmount();
-		modalHost.removeFromParent(true);
+		expect(tooltipRef.current !== undefined, "tooltip did not mount");
+		expect(tooltipRef.current!.width === 220, `tooltip width changed unexpectedly: ${tooltipRef.current!.width}`);
+		expect(tooltipRef.current!.height >= 88, "tooltip height is too small for wrapped text");
+		expect(modalRef.current !== undefined, "modal did not mount");
+		expect(modalRef.current!.width > 0 && modalRef.current!.height > 0, "modal root did not receive visual size");
+		modalRef.current!.emit(Slot.Tapped);
+		expect(closed.value === 1, "modal backdrop tap did not close");
+		Director.systemScheduler.schedule(once(() => {
+			expect(open.value === false, "modal signal did not close");
+			Content.save(resultFile, "passed");
+			Log("Info", "[UIXTextOverlayRegressionTest] passed");
+			host.removeFromParent(true);
+			root.unmount();
+			modalRoot.unmount();
+			modalHost.removeFromParent(true);
+		}));
 	}));
 }));

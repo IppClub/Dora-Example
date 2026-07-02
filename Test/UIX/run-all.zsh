@@ -6,7 +6,6 @@ unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY
 SCRIPT_DIR=${0:A:h}
 PROJECT=${PROJECT:-${SCRIPT_DIR:h:h}}
 MARKER_ROOT=${MARKER_ROOT:-${PROJECT:h}}
-SSR_ROOT=${SSR_ROOT:-/Users/Jin/Workspace/Dora-SSR}
 
 if [[ -z ${DORA_CMD:-} ]]; then
 	if [[ -f ~/.zshrc ]]; then
@@ -26,16 +25,17 @@ run_dora() {
 build_file() {
 	local file=$1
 	local log_file="/tmp/uix_build_${file:t}.log"
-	run_dora cli build -f "${file}" >"${log_file}" 2>&1
+	local rc=0
+	run_dora cli build -f "${file}" >"${log_file}" 2>&1 || rc=$?
 	cat "${log_file}"
-	if rg -n "\\[error\\] Compiling error" "${log_file}" >/dev/null; then
+	if (( rc != 0 )) || rg -n "\\[error\\] Compiling error" "${log_file}" >/dev/null; then
 		exit 1
 	fi
 }
 
 build_uix_sources() {
 	(
-		cd "${SSR_ROOT}/Assets/Script/Lib"
+		cd "${PROJECT}/Script"
 		for file in $(find UIX -type f \( -name '*.ts' -o -name '*.tsx' \) | sort); do
 			build_file "${file}"
 		done
@@ -43,7 +43,7 @@ build_uix_sources() {
 }
 
 build_uix_sources
-build_file "${SSR_ROOT}/Assets/Script/Lib/UIX.ts"
+build_file "${PROJECT}/Script/UIX.ts"
 
 for file in "${SCRIPT_DIR}"/*.tsx; do
 	build_file "${file}"

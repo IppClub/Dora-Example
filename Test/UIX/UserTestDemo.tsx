@@ -11,6 +11,8 @@ import { ProgressBar } from "UIX/controls/ProgressBar";
 import { ResourceCounter } from "UIX/game/ResourceCounter";
 import { Row } from "UIX/layout/Row";
 import { ScrollView } from "UIX/layout/ScrollView";
+import { Spacer } from "UIX/layout/Spacer";
+import { Select } from "UIX/controls/Select";
 import { Slider } from "UIX/controls/Slider";
 import { Tabs } from "UIX/controls/Tabs";
 import { Text } from "UIX/foundation/Text";
@@ -38,6 +40,8 @@ const logText = signal("Ready");
 const clicks = signal(0);
 const modalOpen = signal(false);
 const tooltipVisible = signal(true);
+const difficultyPreset = signal("normal");
+const difficultySelectOpen = signal(false);
 const fireCooldown = signal(0);
 const shieldCooldown = signal(0);
 const blinkCooldown = signal(0);
@@ -68,7 +72,7 @@ function castBlink(this: void) {
 
 function CombatPage(this: void) {
 	return (
-		<Column key="combat-page" style={{ gap: 10, width: "100%" }}>
+		<Column key="combat-page" align="flex-start" justify="flex-start" style={{ gap: 10, width: "100%", height: 126 }}>
 			<Row gap={10} style={{ height: 72, alignItems: "center" }}>
 				<CooldownButton icon="warning" cooldown={fireCooldown.value} maxCooldown={5} onCast={castFire} />
 				<CooldownButton icon="heart" cooldown={shieldCooldown.value} maxCooldown={8} onCast={castShield} />
@@ -107,7 +111,7 @@ function InventoryPage(this: void) {
 		{ id: "empty", icon: "close", quality: "common" as const, disabled: true },
 	];
 	return (
-		<Column key="inventory-page" style={{ gap: 10, width: "100%", height: 264 }}>
+		<Column key="inventory-page" align="flex-start" justify="flex-start" style={{ gap: 10, width: "100%", height: 264 }}>
 			<InventoryGrid
 				key="bag-grid"
 				items={items}
@@ -117,7 +121,7 @@ function InventoryPage(this: void) {
 				gap={8}
 				selectedId={selectedItem.value}
 				slotSwallowTouches={false}
-					onSelect={(id: string) => {
+				onSelect={(id: string) => {
 					selectedItem.value = id;
 					pushLog(`Item ${id}`);
 				}}
@@ -146,8 +150,9 @@ function InventoryPage(this: void) {
 }
 
 function SettingsPage(this: void) {
+	const pageHeight = difficultySelectOpen.value ? 420 : 252;
 	return (
-		<Column key="settings-page" style={{ gap: 12, width: "100%" }}>
+		<Column key="settings-page" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%", height: pageHeight }}>
 			<Toggle checked={autoRegen.value} label="Auto Regen" onChange={(value) => {
 				autoRegen.value = value;
 				pushLog(value ? "Regen On" : "Regen Off");
@@ -156,10 +161,34 @@ function SettingsPage(this: void) {
 				compact.value = value;
 				pushLog(value ? "Compact" : "Expanded");
 			}} />
+			<Select
+				key="difficulty-select"
+				value={difficultyPreset.value}
+				items={[
+					{ id: "easy", label: "Easy", icon: "heart" },
+					{ id: "normal", label: "Normal", icon: "check" },
+					{ id: "hard", label: "Hard", icon: "warning" },
+					{ id: "custom", label: "Custom", icon: "gear" },
+				]}
+				open={difficultySelectOpen.value}
+				onOpenChange={(value) => {
+					difficultySelectOpen.value = value;
+				}}
+				onValueChange={(value) => {
+					difficultyPreset.value = value;
+					if (value === "easy") difficulty.value = 0.2;
+					else if (value === "hard") difficulty.value = 0.8;
+					else difficulty.value = 0.45;
+					pushLog(`Difficulty ${value}`);
+				}}
+				style={{ width: 180 }}
+			/>
 			<Slider value={difficulty.value} min={0} max={1} step={0.05} showValue onValueChange={(value) => {
 				difficulty.value = value;
+				difficultyPreset.value = "custom";
 				pushLog("Difficulty");
 			}} />
+			<Spacer height={16} />
 		</Column>
 	);
 }
@@ -174,8 +203,11 @@ function ActivePage(this: void) {
 
 function App(this: void) {
 	const panelWidth = compact.value ? 316 : 420;
-	const pageScrollHeight = 156;
-	const inventoryContentHeight = 284;
+	const pageScrollHeight = 154;
+	const inventoryContentHeight = 300;
+	const settingsContentHeight = difficultySelectOpen.value ? 420 : 252;
+	const activeContentHeight = activeTab.value === "inventory" ? inventoryContentHeight : settingsContentHeight;
+	const shouldScrollPage = activeTab.value === "inventory" || activeTab.value === "settings";
 	return (
 		<align-node windowRoot style={{ padding: 18, flexDirection: "column" }}>
 			<Row key="top-hud" gap={14} style={{ width: "100%", height: 58, alignItems: "center" }}>
@@ -207,7 +239,7 @@ function App(this: void) {
 					headerHeight={34}
 					style={{ position: "absolute", left: 18, top: 92, width: panelWidth, height: 280 }}
 				>
-					<Column key="panel-body" style={{ gap: 12, width: "100%" }}>
+					<Column key="panel-body" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%" }}>
 						<Tabs
 							key="main-tabs"
 							value={activeTab.value}
@@ -221,15 +253,15 @@ function App(this: void) {
 								pushLog(value);
 							}}
 						/>
-						{activeTab.value === "inventory" ?
+						{shouldScrollPage ?
 							<ScrollView
-								key="inventory-scroll"
+								key={`page-scroll-${activeTab.value}`}
 								width={panelWidth - 28}
 								height={pageScrollHeight}
-								contentHeight={inventoryContentHeight}
+								contentHeight={math.max(pageScrollHeight, activeContentHeight)}
 								wheelSpeed={18}
 							>
-								<InventoryPage />
+								<ActivePage />
 							</ScrollView> :
 							<ActivePage />
 						}

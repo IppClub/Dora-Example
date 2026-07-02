@@ -24,6 +24,7 @@ import { ProgressBar } from "UIX/controls/ProgressBar";
 import { Slider } from "UIX/controls/Slider";
 import { Tabs } from "UIX/controls/Tabs";
 import { Toggle } from "UIX/controls/Toggle";
+import { Select } from "UIX/controls/Select";
 import { Tooltip } from "UIX/overlay/Tooltip";
 import { Modal } from "UIX/overlay/Modal";
 import { ToastStack } from "UIX/overlay/ToastStack";
@@ -77,6 +78,7 @@ export {
 	Slider,
 	Tabs,
 	Toggle,
+	Select,
 	Tooltip,
 	Modal,
 	ToastStack,
@@ -121,6 +123,7 @@ export type { ProgressBarProps } from "UIX/controls/ProgressBar";
 export type { SliderProps } from "UIX/controls/Slider";
 export type { TabItem, TabsProps } from "UIX/controls/Tabs";
 export type { ToggleProps } from "UIX/controls/Toggle";
+export type { SelectItem, SelectProps } from "UIX/controls/Select";
 export type { TooltipProps } from "UIX/overlay/Tooltip";
 export type { ModalAction, ModalProps } from "UIX/overlay/Modal";
 export type { ToastItem, ToastStackProps } from "UIX/overlay/ToastStack";

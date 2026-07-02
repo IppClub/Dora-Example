@@ -187,30 +187,50 @@ ____exports.iconPainters = { -- 21
 			0.55, -- 100
 			0.7 -- 100
 		}, r, color, 2) -- 100
-	end -- 99
-} -- 99
-function ____exports.drawIcon(name, ctx, rect, color) -- 104
-	nvg.Save() -- 105
-	nvg.Translate(rect.x, rect.y + rect.height) -- 106
-	nvg.Scale(1, -1) -- 107
-	local drawRect = {x = 0, y = 0, width = rect.width, height = rect.height} -- 108
-	local painter = ____exports.iconPainters[name] -- 109
-	if painter ~= nil then -- 109
-		painter(ctx, drawRect, color) -- 111
-		nvg.Restore() -- 112
-		return -- 113
-	end -- 113
-	nvg.BeginPath() -- 115
-	nvg.RoundedRect( -- 116
-		2, -- 116
-		2, -- 116
-		rect.width - 4, -- 116
-		rect.height - 4, -- 116
-		3 -- 116
-	) -- 116
-	nvg.StrokeWidth(2) -- 117
-	nvg.StrokeColor(Color(color)) -- 118
-	nvg.Stroke() -- 119
-	nvg.Restore() -- 120
-end -- 104
-return ____exports -- 104
+	end, -- 99
+	chevronDown = function(_ctx, r, color) -- 102
+		lineIcon({ -- 103
+			0.24, -- 103
+			0.38, -- 103
+			0.5, -- 103
+			0.64, -- 103
+			0.76, -- 103
+			0.38 -- 103
+		}, r, color, 2) -- 103
+	end, -- 102
+	chevronUp = function(_ctx, r, color) -- 105
+		lineIcon({ -- 106
+			0.24, -- 106
+			0.62, -- 106
+			0.5, -- 106
+			0.36, -- 106
+			0.76, -- 106
+			0.62 -- 106
+		}, r, color, 2) -- 106
+	end -- 105
+} -- 105
+function ____exports.drawIcon(name, ctx, rect, color) -- 110
+	nvg.Save() -- 111
+	nvg.Translate(rect.x, rect.y + rect.height) -- 112
+	nvg.Scale(1, -1) -- 113
+	local drawRect = {x = 0, y = 0, width = rect.width, height = rect.height} -- 114
+	local painter = ____exports.iconPainters[name] -- 115
+	if painter ~= nil then -- 115
+		painter(ctx, drawRect, color) -- 117
+		nvg.Restore() -- 118
+		return -- 119
+	end -- 119
+	nvg.BeginPath() -- 121
+	nvg.RoundedRect( -- 122
+		2, -- 122
+		2, -- 122
+		rect.width - 4, -- 122
+		rect.height - 4, -- 122
+		3 -- 122
+	) -- 122
+	nvg.StrokeWidth(2) -- 123
+	nvg.StrokeColor(Color(color)) -- 124
+	nvg.Stroke() -- 125
+	nvg.Restore() -- 126
+end -- 110
+return ____exports -- 110
