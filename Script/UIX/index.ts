@@ -28,6 +28,7 @@ import { Checkbox } from "UIX/controls/Checkbox";
 import { RadioGroup } from "UIX/controls/RadioGroup";
 import { Select } from "UIX/controls/Select";
 import { TextInput } from "UIX/controls/TextInput";
+import { Stepper } from "UIX/controls/Stepper";
 import { Tooltip } from "UIX/overlay/Tooltip";
 import { Modal } from "UIX/overlay/Modal";
 import { ToastStack } from "UIX/overlay/ToastStack";
@@ -85,6 +86,7 @@ export {
 	RadioGroup,
 	Select,
 	TextInput,
+	Stepper,
 	Tooltip,
 	Modal,
 	ToastStack,
@@ -133,6 +135,7 @@ export type { CheckboxProps } from "UIX/controls/Checkbox";
 export type { RadioItem, RadioGroupProps } from "UIX/controls/RadioGroup";
 export type { SelectItem, SelectProps } from "UIX/controls/Select";
 export type { TextInputProps } from "UIX/controls/TextInput";
+export type { StepperProps } from "UIX/controls/Stepper";
 export type { TooltipProps } from "UIX/overlay/Tooltip";
 export type { ModalAction, ModalProps } from "UIX/overlay/Modal";
 export type { ToastItem, ToastStackProps } from "UIX/overlay/ToastStack";

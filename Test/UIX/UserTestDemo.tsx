@@ -16,6 +16,7 @@ import { ScrollView } from "UIX/layout/ScrollView";
 import { Spacer } from "UIX/layout/Spacer";
 import { Select } from "UIX/controls/Select";
 import { Slider } from "UIX/controls/Slider";
+import { Stepper } from "UIX/controls/Stepper";
 import { Tabs } from "UIX/controls/Tabs";
 import { TextInput } from "UIX/controls/TextInput";
 import { Text } from "UIX/foundation/Text";
@@ -39,6 +40,7 @@ const compact = signal(false);
 const lootHints = signal(true);
 const expertMode = signal(false);
 const targetMode = signal("assist");
+const partySize = signal(3);
 const difficulty = signal(0.45);
 const activeTab = signal("combat");
 const selectedItem = signal("potion");
@@ -157,7 +159,7 @@ function InventoryPage(this: void) {
 }
 
 function SettingsPage(this: void) {
-	const pageHeight = difficultySelectOpen.value ? 600 : 432;
+	const pageHeight = difficultySelectOpen.value ? 650 : 482;
 	return (
 		<Column key="settings-page" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%", height: pageHeight }}>
 			<Toggle checked={autoRegen.value} label="Auto Regen" onChange={(value) => {
@@ -188,6 +190,20 @@ function SettingsPage(this: void) {
 				onValueChange={(value) => {
 					targetMode.value = value;
 					pushLog(`Mode ${value}`);
+				}}
+			/>
+			<Stepper
+				key="party-size-stepper"
+				value={partySize.value}
+				min={1}
+				max={6}
+				step={1}
+				prefixIcon="heart"
+				suffixLabel="party"
+				valueWidth={112}
+				onValueChange={(value) => {
+					partySize.value = value;
+					pushLog(`Party ${value}`);
 				}}
 			/>
 			<Select
@@ -250,7 +266,7 @@ function App(this: void) {
 	const panelHeight = useSignal(math.max(minPanelHeight, DoraApp.visualSize.height - panelTop - tooltipReserveHeight - 50 - panelToTooltipGap));
 	const pageScrollHeight = math.max(154, panelHeight.value - 126);
 	const inventoryContentHeight = 300;
-	const settingsContentHeight = difficultySelectOpen.value ? 600 : 432;
+	const settingsContentHeight = difficultySelectOpen.value ? 650 : 482;
 	const activeContentHeight = activeTab.value === "inventory" ? inventoryContentHeight : settingsContentHeight;
 	const shouldScrollPage = activeTab.value === "inventory" || activeTab.value === "settings";
 	const onLayout = useCallback((w: number, h: number) => {

@@ -32,205 +32,212 @@ ____exports.iconPainters = { -- 21
 		lineIcon({0.25, 0.25, 0.75, 0.75}, r, color, 2) -- 32
 		lineIcon({0.75, 0.25, 0.25, 0.75}, r, color, 2) -- 33
 	end, -- 31
-	gear = function(_ctx, r, color) -- 35
-		nvg.BeginPath() -- 36
-		nvg.Circle( -- 37
-			r.x + r.width / 2, -- 37
-			r.y + r.height / 2, -- 37
-			math.min(r.width, r.height) * 0.32 -- 37
-		) -- 37
-		nvg.StrokeWidth(2) -- 38
-		nvg.StrokeColor(Color(color)) -- 39
-		nvg.Stroke() -- 40
-		nvg.BeginPath() -- 41
-		nvg.Circle( -- 42
-			r.x + r.width / 2, -- 42
-			r.y + r.height / 2, -- 42
-			math.min(r.width, r.height) * 0.11 -- 42
-		) -- 42
-		nvg.FillColor(Color(color)) -- 43
-		nvg.Fill() -- 44
+	minus = function(_ctx, r, color) -- 35
+		lineIcon({0.24, 0.5, 0.76, 0.5}, r, color, 2.4) -- 36
 	end, -- 35
-	coin = function(_ctx, r, color) -- 46
-		nvg.BeginPath() -- 47
-		nvg.Circle( -- 48
-			r.x + r.width / 2, -- 48
-			r.y + r.height / 2, -- 48
-			math.min(r.width, r.height) * 0.38 -- 48
-		) -- 48
-		nvg.FillColor(Color(color)) -- 49
-		nvg.Fill() -- 50
-		nvg.BeginPath() -- 51
-		nvg.Circle( -- 52
-			r.x + r.width / 2, -- 52
-			r.y + r.height / 2, -- 52
-			math.min(r.width, r.height) * 0.24 -- 52
-		) -- 52
-		nvg.StrokeWidth(2) -- 53
-		nvg.StrokeColor(Color(1426063360)) -- 54
-		nvg.Stroke() -- 55
-	end, -- 46
-	heart = function(_ctx, r, color) -- 57
+	plus = function(_ctx, r, color) -- 38
+		lineIcon({0.24, 0.5, 0.76, 0.5}, r, color, 2.4) -- 39
+		lineIcon({0.5, 0.24, 0.5, 0.76}, r, color, 2.4) -- 40
+	end, -- 38
+	gear = function(_ctx, r, color) -- 42
+		nvg.BeginPath() -- 43
+		nvg.Circle( -- 44
+			r.x + r.width / 2, -- 44
+			r.y + r.height / 2, -- 44
+			math.min(r.width, r.height) * 0.32 -- 44
+		) -- 44
+		nvg.StrokeWidth(2) -- 45
+		nvg.StrokeColor(Color(color)) -- 46
+		nvg.Stroke() -- 47
+		nvg.BeginPath() -- 48
+		nvg.Circle( -- 49
+			r.x + r.width / 2, -- 49
+			r.y + r.height / 2, -- 49
+			math.min(r.width, r.height) * 0.11 -- 49
+		) -- 49
+		nvg.FillColor(Color(color)) -- 50
+		nvg.Fill() -- 51
+	end, -- 42
+	coin = function(_ctx, r, color) -- 53
+		nvg.BeginPath() -- 54
+		nvg.Circle( -- 55
+			r.x + r.width / 2, -- 55
+			r.y + r.height / 2, -- 55
+			math.min(r.width, r.height) * 0.38 -- 55
+		) -- 55
+		nvg.FillColor(Color(color)) -- 56
+		nvg.Fill() -- 57
 		nvg.BeginPath() -- 58
-		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.78) -- 59
-		nvg.BezierTo( -- 60
-			r.x + r.width * 0.18, -- 60
-			r.y + r.height * 0.55, -- 60
-			r.x + r.width * 0.15, -- 60
-			r.y + r.height * 0.25, -- 60
-			r.x + r.width * 0.36, -- 60
-			r.y + r.height * 0.25 -- 60
-		) -- 60
-		nvg.BezierTo( -- 61
-			r.x + r.width * 0.46, -- 61
-			r.y + r.height * 0.25, -- 61
-			r.x + r.width * 0.5, -- 61
-			r.y + r.height * 0.36, -- 61
-			r.x + r.width * 0.5, -- 61
-			r.y + r.height * 0.36 -- 61
-		) -- 61
-		nvg.BezierTo( -- 62
-			r.x + r.width * 0.5, -- 62
-			r.y + r.height * 0.36, -- 62
-			r.x + r.width * 0.54, -- 62
-			r.y + r.height * 0.25, -- 62
-			r.x + r.width * 0.64, -- 62
-			r.y + r.height * 0.25 -- 62
-		) -- 62
-		nvg.BezierTo( -- 63
-			r.x + r.width * 0.85, -- 63
-			r.y + r.height * 0.25, -- 63
-			r.x + r.width * 0.82, -- 63
-			r.y + r.height * 0.55, -- 63
-			r.x + r.width * 0.5, -- 63
-			r.y + r.height * 0.78 -- 63
-		) -- 63
-		nvg.FillColor(Color(color)) -- 64
-		nvg.Fill() -- 65
-	end, -- 57
-	mana = function(_ctx, r, color) -- 67
-		nvg.BeginPath() -- 68
-		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.12) -- 69
+		nvg.Circle( -- 59
+			r.x + r.width / 2, -- 59
+			r.y + r.height / 2, -- 59
+			math.min(r.width, r.height) * 0.24 -- 59
+		) -- 59
+		nvg.StrokeWidth(2) -- 60
+		nvg.StrokeColor(Color(1426063360)) -- 61
+		nvg.Stroke() -- 62
+	end, -- 53
+	heart = function(_ctx, r, color) -- 64
+		nvg.BeginPath() -- 65
+		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.78) -- 66
+		nvg.BezierTo( -- 67
+			r.x + r.width * 0.18, -- 67
+			r.y + r.height * 0.55, -- 67
+			r.x + r.width * 0.15, -- 67
+			r.y + r.height * 0.25, -- 67
+			r.x + r.width * 0.36, -- 67
+			r.y + r.height * 0.25 -- 67
+		) -- 67
+		nvg.BezierTo( -- 68
+			r.x + r.width * 0.46, -- 68
+			r.y + r.height * 0.25, -- 68
+			r.x + r.width * 0.5, -- 68
+			r.y + r.height * 0.36, -- 68
+			r.x + r.width * 0.5, -- 68
+			r.y + r.height * 0.36 -- 68
+		) -- 68
+		nvg.BezierTo( -- 69
+			r.x + r.width * 0.5, -- 69
+			r.y + r.height * 0.36, -- 69
+			r.x + r.width * 0.54, -- 69
+			r.y + r.height * 0.25, -- 69
+			r.x + r.width * 0.64, -- 69
+			r.y + r.height * 0.25 -- 69
+		) -- 69
 		nvg.BezierTo( -- 70
-			r.x + r.width * 0.28, -- 70
-			r.y + r.height * 0.42, -- 70
-			r.x + r.width * 0.2, -- 70
-			r.y + r.height * 0.58, -- 70
+			r.x + r.width * 0.85, -- 70
+			r.y + r.height * 0.25, -- 70
+			r.x + r.width * 0.82, -- 70
+			r.y + r.height * 0.55, -- 70
 			r.x + r.width * 0.5, -- 70
-			r.y + r.height * 0.86 -- 70
+			r.y + r.height * 0.78 -- 70
 		) -- 70
-		nvg.BezierTo( -- 71
-			r.x + r.width * 0.8, -- 71
-			r.y + r.height * 0.58, -- 71
-			r.x + r.width * 0.72, -- 71
-			r.y + r.height * 0.42, -- 71
-			r.x + r.width * 0.5, -- 71
-			r.y + r.height * 0.12 -- 71
-		) -- 71
-		nvg.FillColor(Color(color)) -- 72
-		nvg.Fill() -- 73
-	end, -- 67
-	lock = function(_ctx, r, color) -- 75
-		nvg.BeginPath() -- 76
-		nvg.RoundedRect( -- 77
-			r.x + r.width * 0.25, -- 77
-			r.y + r.height * 0.44, -- 77
-			r.width * 0.5, -- 77
-			r.height * 0.38, -- 77
-			3 -- 77
+		nvg.FillColor(Color(color)) -- 71
+		nvg.Fill() -- 72
+	end, -- 64
+	mana = function(_ctx, r, color) -- 74
+		nvg.BeginPath() -- 75
+		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.12) -- 76
+		nvg.BezierTo( -- 77
+			r.x + r.width * 0.28, -- 77
+			r.y + r.height * 0.42, -- 77
+			r.x + r.width * 0.2, -- 77
+			r.y + r.height * 0.58, -- 77
+			r.x + r.width * 0.5, -- 77
+			r.y + r.height * 0.86 -- 77
 		) -- 77
-		nvg.FillColor(Color(color)) -- 78
-		nvg.Fill() -- 79
-		nvg.BeginPath() -- 80
-		nvg.Arc( -- 81
-			r.x + r.width * 0.5, -- 81
-			r.y + r.height * 0.45, -- 81
-			r.width * 0.22, -- 81
-			math.pi, -- 81
-			math.pi * 2, -- 81
-			"CW" -- 81
-		) -- 81
-		nvg.StrokeWidth(2) -- 82
-		nvg.StrokeColor(Color(color)) -- 83
-		nvg.Stroke() -- 84
-	end, -- 75
-	check = function(_ctx, r, color) -- 86
-		lineIcon({ -- 87
-			0.22, -- 87
-			0.52, -- 87
-			0.42, -- 87
-			0.72, -- 87
-			0.78, -- 87
-			0.28 -- 87
-		}, r, color, 3) -- 87
-	end, -- 86
-	warning = function(_ctx, r, color) -- 89
-		nvg.BeginPath() -- 90
-		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.16) -- 91
-		nvg.LineTo(r.x + r.width * 0.86, r.y + r.height * 0.82) -- 92
-		nvg.LineTo(r.x + r.width * 0.14, r.y + r.height * 0.82) -- 93
-		nvg.ClosePath() -- 94
-		nvg.StrokeWidth(2) -- 95
-		nvg.StrokeColor(Color(color)) -- 96
-		nvg.Stroke() -- 97
-	end, -- 89
-	arrow = function(_ctx, r, color) -- 99
-		lineIcon({ -- 100
-			0.25, -- 100
-			0.5, -- 100
-			0.75, -- 100
-			0.5, -- 100
-			0.55, -- 100
-			0.3, -- 100
-			0.75, -- 100
-			0.5, -- 100
-			0.55, -- 100
-			0.7 -- 100
-		}, r, color, 2) -- 100
-	end, -- 99
-	chevronDown = function(_ctx, r, color) -- 102
-		lineIcon({ -- 103
-			0.24, -- 103
-			0.38, -- 103
-			0.5, -- 103
-			0.64, -- 103
-			0.76, -- 103
-			0.38 -- 103
-		}, r, color, 2) -- 103
-	end, -- 102
-	chevronUp = function(_ctx, r, color) -- 105
-		lineIcon({ -- 106
-			0.24, -- 106
-			0.62, -- 106
-			0.5, -- 106
-			0.36, -- 106
-			0.76, -- 106
-			0.62 -- 106
-		}, r, color, 2) -- 106
-	end -- 105
-} -- 105
-function ____exports.drawIcon(name, ctx, rect, color) -- 110
-	nvg.Save() -- 111
-	nvg.Translate(rect.x, rect.y + rect.height) -- 112
-	nvg.Scale(1, -1) -- 113
-	local drawRect = {x = 0, y = 0, width = rect.width, height = rect.height} -- 114
-	local painter = ____exports.iconPainters[name] -- 115
-	if painter ~= nil then -- 115
-		painter(ctx, drawRect, color) -- 117
-		nvg.Restore() -- 118
-		return -- 119
-	end -- 119
-	nvg.BeginPath() -- 121
-	nvg.RoundedRect( -- 122
-		2, -- 122
-		2, -- 122
-		rect.width - 4, -- 122
-		rect.height - 4, -- 122
-		3 -- 122
-	) -- 122
-	nvg.StrokeWidth(2) -- 123
-	nvg.StrokeColor(Color(color)) -- 124
-	nvg.Stroke() -- 125
-	nvg.Restore() -- 126
-end -- 110
-return ____exports -- 110
+		nvg.BezierTo( -- 78
+			r.x + r.width * 0.8, -- 78
+			r.y + r.height * 0.58, -- 78
+			r.x + r.width * 0.72, -- 78
+			r.y + r.height * 0.42, -- 78
+			r.x + r.width * 0.5, -- 78
+			r.y + r.height * 0.12 -- 78
+		) -- 78
+		nvg.FillColor(Color(color)) -- 79
+		nvg.Fill() -- 80
+	end, -- 74
+	lock = function(_ctx, r, color) -- 82
+		nvg.BeginPath() -- 83
+		nvg.RoundedRect( -- 84
+			r.x + r.width * 0.25, -- 84
+			r.y + r.height * 0.44, -- 84
+			r.width * 0.5, -- 84
+			r.height * 0.38, -- 84
+			3 -- 84
+		) -- 84
+		nvg.FillColor(Color(color)) -- 85
+		nvg.Fill() -- 86
+		nvg.BeginPath() -- 87
+		nvg.Arc( -- 88
+			r.x + r.width * 0.5, -- 88
+			r.y + r.height * 0.45, -- 88
+			r.width * 0.22, -- 88
+			math.pi, -- 88
+			math.pi * 2, -- 88
+			"CW" -- 88
+		) -- 88
+		nvg.StrokeWidth(2) -- 89
+		nvg.StrokeColor(Color(color)) -- 90
+		nvg.Stroke() -- 91
+	end, -- 82
+	check = function(_ctx, r, color) -- 93
+		lineIcon({ -- 94
+			0.22, -- 94
+			0.52, -- 94
+			0.42, -- 94
+			0.72, -- 94
+			0.78, -- 94
+			0.28 -- 94
+		}, r, color, 3) -- 94
+	end, -- 93
+	warning = function(_ctx, r, color) -- 96
+		nvg.BeginPath() -- 97
+		nvg.MoveTo(r.x + r.width * 0.5, r.y + r.height * 0.16) -- 98
+		nvg.LineTo(r.x + r.width * 0.86, r.y + r.height * 0.82) -- 99
+		nvg.LineTo(r.x + r.width * 0.14, r.y + r.height * 0.82) -- 100
+		nvg.ClosePath() -- 101
+		nvg.StrokeWidth(2) -- 102
+		nvg.StrokeColor(Color(color)) -- 103
+		nvg.Stroke() -- 104
+	end, -- 96
+	arrow = function(_ctx, r, color) -- 106
+		lineIcon({ -- 107
+			0.25, -- 107
+			0.5, -- 107
+			0.75, -- 107
+			0.5, -- 107
+			0.55, -- 107
+			0.3, -- 107
+			0.75, -- 107
+			0.5, -- 107
+			0.55, -- 107
+			0.7 -- 107
+		}, r, color, 2) -- 107
+	end, -- 106
+	chevronDown = function(_ctx, r, color) -- 109
+		lineIcon({ -- 110
+			0.24, -- 110
+			0.38, -- 110
+			0.5, -- 110
+			0.64, -- 110
+			0.76, -- 110
+			0.38 -- 110
+		}, r, color, 2) -- 110
+	end, -- 109
+	chevronUp = function(_ctx, r, color) -- 112
+		lineIcon({ -- 113
+			0.24, -- 113
+			0.62, -- 113
+			0.5, -- 113
+			0.36, -- 113
+			0.76, -- 113
+			0.62 -- 113
+		}, r, color, 2) -- 113
+	end -- 112
+} -- 112
+function ____exports.drawIcon(name, ctx, rect, color) -- 117
+	nvg.Save() -- 118
+	nvg.Translate(rect.x, rect.y + rect.height) -- 119
+	nvg.Scale(1, -1) -- 120
+	local drawRect = {x = 0, y = 0, width = rect.width, height = rect.height} -- 121
+	local painter = ____exports.iconPainters[name] -- 122
+	if painter ~= nil then -- 122
+		painter(ctx, drawRect, color) -- 124
+		nvg.Restore() -- 125
+		return -- 126
+	end -- 126
+	nvg.BeginPath() -- 128
+	nvg.RoundedRect( -- 129
+		2, -- 129
+		2, -- 129
+		rect.width - 4, -- 129
+		rect.height - 4, -- 129
+		3 -- 129
+	) -- 129
+	nvg.StrokeWidth(2) -- 130
+	nvg.StrokeColor(Color(color)) -- 131
+	nvg.Stroke() -- 132
+	nvg.Restore() -- 133
+end -- 117
+return ____exports -- 117

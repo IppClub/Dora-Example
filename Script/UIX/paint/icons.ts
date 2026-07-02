@@ -32,6 +32,13 @@ export const iconPainters: Record<string, IconPainter> = {
 		lineIcon([0.25, 0.25, 0.75, 0.75], r, color, 2);
 		lineIcon([0.75, 0.25, 0.25, 0.75], r, color, 2);
 	},
+	minus(_ctx, r, color) {
+		lineIcon([0.24, 0.5, 0.76, 0.5], r, color, 2.4);
+	},
+	plus(_ctx, r, color) {
+		lineIcon([0.24, 0.5, 0.76, 0.5], r, color, 2.4);
+		lineIcon([0.5, 0.24, 0.5, 0.76], r, color, 2.4);
+	},
 	gear(_ctx, r, color) {
 		nvg.BeginPath();
 		nvg.Circle(r.x + r.width / 2, r.y + r.height / 2, math.min(r.width, r.height) * 0.32);
