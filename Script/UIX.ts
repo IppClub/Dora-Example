@@ -24,7 +24,10 @@ import { ProgressBar } from "UIX/controls/ProgressBar";
 import { Slider } from "UIX/controls/Slider";
 import { Tabs } from "UIX/controls/Tabs";
 import { Toggle } from "UIX/controls/Toggle";
+import { Checkbox } from "UIX/controls/Checkbox";
+import { RadioGroup } from "UIX/controls/RadioGroup";
 import { Select } from "UIX/controls/Select";
+import { TextInput } from "UIX/controls/TextInput";
 import { Tooltip } from "UIX/overlay/Tooltip";
 import { Modal } from "UIX/overlay/Modal";
 import { ToastStack } from "UIX/overlay/ToastStack";
@@ -78,7 +81,10 @@ export {
 	Slider,
 	Tabs,
 	Toggle,
+	Checkbox,
+	RadioGroup,
 	Select,
+	TextInput,
 	Tooltip,
 	Modal,
 	ToastStack,
@@ -123,7 +129,10 @@ export type { ProgressBarProps } from "UIX/controls/ProgressBar";
 export type { SliderProps } from "UIX/controls/Slider";
 export type { TabItem, TabsProps } from "UIX/controls/Tabs";
 export type { ToggleProps } from "UIX/controls/Toggle";
+export type { CheckboxProps } from "UIX/controls/Checkbox";
+export type { RadioItem, RadioGroupProps } from "UIX/controls/RadioGroup";
 export type { SelectItem, SelectProps } from "UIX/controls/Select";
+export type { TextInputProps } from "UIX/controls/TextInput";
 export type { TooltipProps } from "UIX/overlay/Tooltip";
 export type { ModalAction, ModalProps } from "UIX/overlay/Modal";
 export type { ToastItem, ToastStackProps } from "UIX/overlay/ToastStack";

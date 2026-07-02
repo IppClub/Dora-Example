@@ -28,6 +28,7 @@ export interface PaintNodeProps extends UiNodeProps {
 	state?: Partial<InteractionState>;
 	data?: unknown;
 	onMountNode?: (this: void, node: Dora.Node.Type) => void;
+	children?: React.Element | React.Element[];
 }
 
 export function PaintNode(this: void, props: PaintNodeProps): React.Element {
@@ -51,7 +52,7 @@ export function PaintNode(this: void, props: PaintNodeProps): React.Element {
 				height,
 				theme: ui.theme,
 				pixelRatio: ui.scale,
-				opacity: latest.opacity ?? 1,
+				opacity: node.opacity,
 				state: mergeInteractionState(latest.state),
 				time: App.elapsedTime,
 				data: latest.data,
@@ -78,6 +79,8 @@ export function PaintNode(this: void, props: PaintNodeProps): React.Element {
 					(clearRender as (node: Dora.Node.Type) => void)(self);
 				}
 			}}
-		/>
+		>
+			{props.children}
+		</custom-node>
 	);
 }

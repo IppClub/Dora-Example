@@ -21,6 +21,17 @@ const root = createRoot(host);
 const scrollRef = reference<Dora.AlignNode.Type>();
 const offset = signal(0);
 const rerenderTick = signal(0);
+const scrollHeight = 64;
+const contentHeight = 168;
+
+function expectedContentY(this: void, value: number): number {
+	return value + scrollHeight - contentHeight / 2;
+}
+
+function getContentNode(this: void): Dora.Node.Type {
+	const menu = scrollRef.current!.children!.get(1) as Dora.Node.Type;
+	return menu.children!.get(1) as Dora.Node.Type;
+}
 
 root.render(() => (
 	<align-node windowRoot style={{ padding: 8 }}>
@@ -28,8 +39,8 @@ root.render(() => (
 		<ScrollView
 			ref={scrollRef}
 			width={160}
-			height={64}
-			contentHeight={168}
+			height={scrollHeight}
+			contentHeight={contentHeight}
 			wheelSpeed={20}
 			onScroll={(value) => offset.value = value}
 		>
@@ -49,14 +60,14 @@ Director.systemScheduler.schedule(once(() => {
 	expect(scrollRef.current!.children !== undefined && scrollRef.current!.children!.count === 3, "scroll content or input layers missing");
 	expect(scrollRef.current!.width === 160 && scrollRef.current!.height === 64, "scroll view hit size was not synced");
 	const originalScrollNode = scrollRef.current!;
-	let contentNode = scrollRef.current!.children!.get(1) as Dora.Node.Type;
+	let contentNode = getContentNode();
 	let inputOverlay = scrollRef.current!.children!.get(2) as Dora.Node.Type;
 	expect(inputOverlay.width === 160 && inputOverlay.height === 64, "scroll input overlay hit size was not synced");
 	inputOverlay.emit(Slot.MouseWheel, Vec2(0, 1));
 	Director.systemScheduler.schedule(once(() => {
 		expect(offset.value === 20, "mouse wheel did not update scroll offset");
-		contentNode = scrollRef.current!.children!.get(1) as Dora.Node.Type;
-		expect(contentNode.y === 20, "scroll content y did not follow offset direction");
+		contentNode = getContentNode();
+		expect(contentNode.y === expectedContentY(20), "scroll content y did not follow offset direction");
 		inputOverlay = scrollRef.current!.children!.get(2) as Dora.Node.Type;
 		inputOverlay.emit(Slot.MouseWheel, Vec2(0, 100));
 		Director.systemScheduler.schedule(once(() => {
@@ -70,14 +81,14 @@ Director.systemScheduler.schedule(once(() => {
 			dragCapture.emit(Slot.TapMoved, touch);
 			Director.systemScheduler.schedule(once(() => {
 				expect(offset.value === 74, "tap drag did not update scroll offset");
-				contentNode = scrollRef.current!.children!.get(1) as Dora.Node.Type;
-				expect(contentNode.y === 74, "scroll content y did not follow tap drag");
+				contentNode = getContentNode();
+				expect(contentNode.y === expectedContentY(74), "scroll content y did not follow tap drag");
 				rerenderTick.value += 1;
 				Director.systemScheduler.schedule(once(() => {
 					expect(scrollRef.current === originalScrollNode, "scroll view node was recreated by parent rerender");
 					expect(offset.value === 74, "scroll offset changed after parent rerender");
-					contentNode = scrollRef.current!.children!.get(1) as Dora.Node.Type;
-					expect(contentNode.y === 74, "scroll content y changed after parent rerender");
+					contentNode = getContentNode();
+					expect(contentNode.y === expectedContentY(74), "scroll content y changed after parent rerender");
 					Content.save(resultFile, "passed");
 					Log("Info", "[UIXScrollViewTest] passed");
 					host.removeFromParent(true);

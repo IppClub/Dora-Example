@@ -29,10 +29,8 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 	const dragDistance = useRef(0);
 	const lastDragY = useRef(0);
 	const rootRef = (props.ref ?? localRef) as JSX.Ref<Dora.AlignNode.Type>;
-	const styleWidth = props.style?.width as number | undefined;
-	const styleHeight = props.style?.height as number | undefined;
-	const width = props.width ?? styleWidth ?? 240;
-	const height = props.height ?? styleHeight ?? 160;
+	const width = props.width ?? props.style?.width as number ?? 240;
+	const height = props.height ?? props.style?.height as number ?? 160;
 	const maxOffset = math.max(0, props.contentHeight - height);
 	const offset = clamp(localOffset.value, 0, maxOffset);
 
@@ -112,14 +110,22 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 			node.y = contentYForOffset(offset);
 		}
 	}, [contentYForOffset, offset, props.contentHeight, width]);
-	const onRootLayout = useCallback((w: number, h: number) => syncClip(rootRef.current, w, h), [syncClip]);
+	const onContentLayout = useCallback(() => syncContentNode(contentRef.current), [syncContentNode]);
+	const onRootLayout = useCallback((w: number, h: number) => {
+		syncClip(rootRef.current, w, h);
+		onContentLayout();
+	}, [syncClip, onContentLayout]);
+	const onRootMount = useCallback((node: Dora.AlignNode.Type) => {
+		syncClip(node, width, height);
+	}, [height, syncClip, width]);
 	const onRootUnmount = useCallback((node: Dora.AlignNode.Type) => {
 		unregisterClip(node);
 	}, []);
-	const onContentLayout = useCallback(() => syncContentNode(contentRef.current), [syncContentNode]);
 	const onInputLayout = useCallback((w: number, h: number) => syncInputSize(inputRef.current, w, h), [syncInputSize]);
+	const onInputMount = useCallback((node: Dora.AlignNode.Type) => syncInputSize(node, width, height), [height, syncInputSize, width]);
 	const onWheel = useCallback((delta: Vec2.Type) => scrollByWheel(delta.y), [scrollByWheel]);
 	const onDragLayout = useCallback((w: number, h: number) => syncInputSize(dragRef.current, w, h), [syncInputSize]);
+	const onDragMount = useCallback((node: Dora.AlignNode.Type) => syncInputSize(node, width, height), [height, syncInputSize, width]);
 	return (
 		<align-node
 			key={props.key}
@@ -131,6 +137,7 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 			}, props.style)}
 			visible={props.visible}
 			opacity={props.opacity}
+			onMount={onRootMount}
 			onLayout={onRootLayout}
 			onUnmount={onRootUnmount}
 		>
@@ -165,6 +172,7 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 					touchEnabled={!props.disabled}
 					swallowTouches={props.dragOverlay === true}
 					swallowMouseWheel
+					onMount={onInputMount}
 					onLayout={onInputLayout}
 					onMouseWheel={onWheel}
 				/> : undefined
@@ -182,6 +190,7 @@ export function ScrollView(this: void, props: ScrollViewProps): React.Element {
 					}}
 					touchEnabled={!props.disabled}
 					swallowTouches={props.swallowDrag ?? false}
+					onMount={onDragMount}
 					onLayout={onDragLayout}
 					onTapBegan={beginDrag}
 					onTapMoved={moveDrag}

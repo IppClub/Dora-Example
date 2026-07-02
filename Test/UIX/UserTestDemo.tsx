@@ -1,13 +1,15 @@
 // @preview-file on clear
-import { Color, Director, Node as DNode, loop, sleep } from "Dora";
-import { React, createRoot, signal } from "DoraX";
+import { App as DoraApp, Color, Director, Node as DNode, loop, sleep } from "Dora";
+import { React, createRoot, signal, useSignal, useCallback } from "DoraX";
 import { Button } from "UIX/controls/Button";
+import { Checkbox } from "UIX/controls/Checkbox";
 import { Column } from "UIX/layout/Column";
 import { CooldownButton } from "UIX/game/CooldownButton";
 import { HealthBar } from "UIX/game/HealthBar";
 import { InventoryGrid } from "UIX/game/InventoryGrid";
 import { Panel } from "UIX/layout/Panel";
 import { ProgressBar } from "UIX/controls/ProgressBar";
+import { RadioGroup } from "UIX/controls/RadioGroup";
 import { ResourceCounter } from "UIX/game/ResourceCounter";
 import { Row } from "UIX/layout/Row";
 import { ScrollView } from "UIX/layout/ScrollView";
@@ -15,6 +17,7 @@ import { Spacer } from "UIX/layout/Spacer";
 import { Select } from "UIX/controls/Select";
 import { Slider } from "UIX/controls/Slider";
 import { Tabs } from "UIX/controls/Tabs";
+import { TextInput } from "UIX/controls/TextInput";
 import { Text } from "UIX/foundation/Text";
 import { Modal } from "UIX/overlay/Modal";
 import { ToastStack } from "UIX/overlay/ToastStack";
@@ -33,6 +36,9 @@ const gold = signal(1460);
 const gems = signal(18);
 const autoRegen = signal(true);
 const compact = signal(false);
+const lootHints = signal(true);
+const expertMode = signal(false);
+const targetMode = signal("assist");
 const difficulty = signal(0.45);
 const activeTab = signal("combat");
 const selectedItem = signal("potion");
@@ -42,6 +48,7 @@ const modalOpen = signal(false);
 const tooltipVisible = signal(true);
 const difficultyPreset = signal("normal");
 const difficultySelectOpen = signal(false);
+const playerName = signal("Dora");
 const fireCooldown = signal(0);
 const shieldCooldown = signal(0);
 const blinkCooldown = signal(0);
@@ -150,7 +157,7 @@ function InventoryPage(this: void) {
 }
 
 function SettingsPage(this: void) {
-	const pageHeight = difficultySelectOpen.value ? 420 : 252;
+	const pageHeight = difficultySelectOpen.value ? 600 : 432;
 	return (
 		<Column key="settings-page" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%", height: pageHeight }}>
 			<Toggle checked={autoRegen.value} label="Auto Regen" onChange={(value) => {
@@ -161,6 +168,28 @@ function SettingsPage(this: void) {
 				compact.value = value;
 				pushLog(value ? "Compact" : "Expanded");
 			}} />
+			<Checkbox checked={lootHints.value} label="Loot Hints" onChange={(value) => {
+				lootHints.value = value;
+				pushLog(value ? "Hints On" : "Hints Off");
+			}} />
+			<Checkbox checked={expertMode.value} indeterminate={!expertMode.value && difficultyPreset.value === "custom"} label="Expert Rules" onChange={(value) => {
+				expertMode.value = value;
+				pushLog(value ? "Expert On" : "Expert Off");
+			}} />
+			<RadioGroup
+				key="target-mode-radio"
+				value={targetMode.value}
+				direction="row"
+				itemWidth={108}
+				items={[
+					{ id: "assist", label: "Assist", icon: "heart" },
+					{ id: "manual", label: "Manual", icon: "warning" },
+				]}
+				onValueChange={(value) => {
+					targetMode.value = value;
+					pushLog(`Mode ${value}`);
+				}}
+			/>
 			<Select
 				key="difficulty-select"
 				value={difficultyPreset.value}
@@ -188,7 +217,18 @@ function SettingsPage(this: void) {
 				difficultyPreset.value = "custom";
 				pushLog("Difficulty");
 			}} />
-			<Spacer height={16} />
+			<TextInput
+				key="player-name-input"
+				value={playerName.value}
+				placeholder="Player name"
+				prefixIcon="gear"
+				maxLength={18}
+				style={{ width: 220 }}
+				onValueChange={(value) => {
+					playerName.value = value;
+				}}
+				onSubmit={(value) => pushLog(value === "" ? "Name Empty" : `Name ${value}`)}
+			/>
 		</Column>
 	);
 }
@@ -203,13 +243,21 @@ function ActivePage(this: void) {
 
 function App(this: void) {
 	const panelWidth = compact.value ? 316 : 420;
-	const pageScrollHeight = 154;
+	const panelTop = 92;
+	const minPanelHeight = 280;
+	const tooltipReserveHeight = 88;
+	const panelToTooltipGap = 16;
+	const panelHeight = useSignal(math.max(minPanelHeight, DoraApp.visualSize.height - panelTop - tooltipReserveHeight - 50 - panelToTooltipGap));
+	const pageScrollHeight = math.max(154, panelHeight.value - 126);
 	const inventoryContentHeight = 300;
-	const settingsContentHeight = difficultySelectOpen.value ? 420 : 252;
+	const settingsContentHeight = difficultySelectOpen.value ? 600 : 432;
 	const activeContentHeight = activeTab.value === "inventory" ? inventoryContentHeight : settingsContentHeight;
 	const shouldScrollPage = activeTab.value === "inventory" || activeTab.value === "settings";
+	const onLayout = useCallback((w: number, h: number) => {
+		panelHeight.value = math.max(minPanelHeight, DoraApp.visualSize.height - panelTop - tooltipReserveHeight - 50 - panelToTooltipGap);
+	}, [minPanelHeight, panelHeight.value, panelToTooltipGap, panelTop, tooltipReserveHeight]);
 	return (
-		<align-node windowRoot style={{ padding: 18, flexDirection: "column" }}>
+		<align-node windowRoot style={{ padding: 18, flexDirection: "column" }} onLayout={onLayout}>
 			<Row key="top-hud" gap={14} style={{ width: "100%", height: 58, alignItems: "center" }}>
 				<Column style={{ width: compact.value ? 220 : 320, gap: 7 }}>
 					<HealthBar value={hp.value} max={1} showValue style={{ width: "100%", height: 22 }} />
@@ -237,7 +285,7 @@ function App(this: void) {
 					variant="glass"
 					padding={14}
 					headerHeight={34}
-					style={{ position: "absolute", left: 18, top: 92, width: panelWidth, height: 280 }}
+					style={{ position: "absolute", left: 18, top: panelTop, width: panelWidth, height: panelHeight.value }}
 				>
 					<Column key="panel-body" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%" }}>
 						<Tabs
