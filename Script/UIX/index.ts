@@ -19,6 +19,7 @@ import { Text, wrapTextLines } from "UIX/foundation/Text";
 import { Icon } from "UIX/foundation/Icon";
 import { FocusRing } from "UIX/foundation/FocusRing";
 import { Button } from "UIX/controls/Button";
+import { Badge } from "UIX/controls/Badge";
 import { IconButton } from "UIX/controls/IconButton";
 import { ProgressBar } from "UIX/controls/ProgressBar";
 import { Slider } from "UIX/controls/Slider";
@@ -77,6 +78,7 @@ export {
 	Icon,
 	FocusRing,
 	Button,
+	Badge,
 	IconButton,
 	ProgressBar,
 	Slider,
@@ -126,6 +128,7 @@ export type { TextProps } from "UIX/foundation/Text";
 export type { IconProps } from "UIX/foundation/Icon";
 export type { FocusRingProps } from "UIX/foundation/FocusRing";
 export type { ButtonProps } from "UIX/controls/Button";
+export type { BadgeProps, BadgeTone } from "UIX/controls/Badge";
 export type { IconButtonProps } from "UIX/controls/IconButton";
 export type { ProgressBarProps } from "UIX/controls/ProgressBar";
 export type { SliderProps } from "UIX/controls/Slider";

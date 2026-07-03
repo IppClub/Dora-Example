@@ -1,6 +1,7 @@
 // @preview-file on clear
 import { App as DoraApp, Color, Director, Node as DNode, loop, sleep } from "Dora";
 import { React, createRoot, signal, useSignal, useCallback } from "DoraX";
+import { Badge } from "UIX/controls/Badge";
 import { Button } from "UIX/controls/Button";
 import { Checkbox } from "UIX/controls/Checkbox";
 import { Column } from "UIX/layout/Column";
@@ -159,7 +160,7 @@ function InventoryPage(this: void) {
 }
 
 function SettingsPage(this: void) {
-	const pageHeight = difficultySelectOpen.value ? 650 : 482;
+	const pageHeight = difficultySelectOpen.value ? 686 : 518;
 	return (
 		<Column key="settings-page" align="flex-start" justify="flex-start" style={{ gap: 12, width: "100%", height: pageHeight }}>
 			<Toggle checked={autoRegen.value} label="Auto Regen" onChange={(value) => {
@@ -206,6 +207,11 @@ function SettingsPage(this: void) {
 					pushLog(`Party ${value}`);
 				}}
 			/>
+			<Row key="settings-badges" gap={6} style={{ height: 28, alignItems: "center" }}>
+				<Badge tone="success" icon="check">Ready</Badge>
+				<Badge tone="warm" dot>Rare</Badge>
+				<Badge tone="mana" dot>Mana</Badge>
+			</Row>
 			<Select
 				key="difficulty-select"
 				value={difficultyPreset.value}
@@ -266,7 +272,7 @@ function App(this: void) {
 	const panelHeight = useSignal(math.max(minPanelHeight, DoraApp.visualSize.height - panelTop - tooltipReserveHeight - 50 - panelToTooltipGap));
 	const pageScrollHeight = math.max(154, panelHeight.value - 126);
 	const inventoryContentHeight = 300;
-	const settingsContentHeight = difficultySelectOpen.value ? 650 : 482;
+	const settingsContentHeight = difficultySelectOpen.value ? 686 : 518;
 	const activeContentHeight = activeTab.value === "inventory" ? inventoryContentHeight : settingsContentHeight;
 	const shouldScrollPage = activeTab.value === "inventory" || activeTab.value === "settings";
 	const onLayout = useCallback((w: number, h: number) => {

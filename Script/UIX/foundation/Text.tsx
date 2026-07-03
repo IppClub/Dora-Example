@@ -13,6 +13,7 @@ export interface TextProps extends UiNodeProps {
 	fontSize?: number;
 	color?: number;
 	alignment?: TextAlign;
+	verticalAlign?: "top" | "center" | "bottom";
 	wrap?: boolean;
 	lineHeight?: number;
 	sdf?: boolean;
@@ -36,6 +37,19 @@ function toNvgAlign(this: void, alignment: TextAlign | undefined): nvg.TextHAlig
 	if (alignment === TextAlign.Left) return nvg.TextHAlign.Left;
 	if (alignment === TextAlign.Right) return nvg.TextHAlign.Right;
 	return nvg.TextHAlign.Center;
+}
+
+function splitTextLines(this: void, text: string): string[] {
+	const lines = text.split("\n");
+	return lines.length > 0 ? lines : [""];
+}
+
+function longestLineLength(this: void, text: string): number {
+	let length = 0;
+	for (const line of splitTextLines(text)) {
+		length = math.max(length, line.length);
+	}
+	return length;
 }
 
 function splitLongWord(this: void, word: string, maxChars: number, out: string[]) {
@@ -121,6 +135,16 @@ function wrapTextLinesMeasured(this: void, text: string, maxWidth: number): stri
 	return lines.length > 0 ? lines : [""];
 }
 
+function textLinesMeasured(this: void, text: string, wrap: boolean, maxWidth: number): string[] {
+	return wrap ? wrapTextLinesMeasured(text, maxWidth) : splitTextLines(text);
+}
+
+function firstLineY(this: void, height: number, blockHeight: number, lineHeight: number, verticalAlign: TextProps["verticalAlign"]): number {
+	if (verticalAlign === "top") return lineHeight * 0.5;
+	if (verticalAlign === "bottom") return height - blockHeight + lineHeight * 0.5;
+	return (height - blockHeight) * 0.5 + lineHeight * 0.5;
+}
+
 export function Text(this: void, props: TextProps): React.Element {
 	const theme = getUiContext().theme;
 	const value = textFromChildren(props.children, props.text !== undefined ? tostring(props.text) : "");
@@ -128,8 +152,9 @@ export function Text(this: void, props: TextProps): React.Element {
 	const fontName = props.fontName ?? theme.font.name;
 	const hAlign = toNvgAlign(props.alignment);
 	const lineHeight = props.lineHeight ?? fontSize * 1.25;
-	const estimatedWidth = math.max(fontSize, value.length * fontSize * 0.62 + 4);
-	const estimatedHeight = math.max(fontSize, lineHeight);
+	const explicitLineCount = splitTextLines(value).length;
+	const estimatedWidth = math.max(fontSize, longestLineLength(value) * fontSize * 0.62 + 4);
+	const estimatedHeight = math.max(fontSize, lineHeight * explicitLineCount);
 	return (
 		<align-node
 			key={props.key}
@@ -153,13 +178,13 @@ export function Text(this: void, props: TextProps): React.Element {
 					nvg.FontSize(fontSize);
 					nvg.TextAlign(hAlign, nvg.TextVAlign.Middle);
 					nvg.FillColor(Color(props.color ?? ctx.theme.colors.text.primary));
-					const lines = props.wrap === true ? wrapTextLinesMeasured(value, ctx.width) : [value];
+					const lines = textLinesMeasured(value, props.wrap === true, ctx.width);
 					const blockHeight = lineHeight * lines.length;
-					const firstY = (ctx.height - blockHeight) * 0.5 + lineHeight * 0.5;
+					const y0 = firstLineY(ctx.height, blockHeight, lineHeight, props.verticalAlign);
 					nvg.Save();
 					nvg.Scale(1, -1);
 					for (let i of $range(1, lines.length)) {
-						const y = firstY + (lines.length - i) * lineHeight;
+						const y = y0 + (lines.length - i) * lineHeight;
 						nvg.Text(x, -y, lines[i - 1]);
 					}
 					nvg.Restore();
