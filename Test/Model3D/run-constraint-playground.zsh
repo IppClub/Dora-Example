@@ -4,7 +4,7 @@ set -euo pipefail
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY no_proxy
 
 SCRIPT_DIR=${0:A:h}
-STAGE=${DORA_3D_STAGE:-/tmp/dora-3d-async-visual}
+STAGE=${DORA_3D_STAGE:-/tmp/dora-3d-test}
 
 source ~/.zshrc >/dev/null 2>&1 || true
 if (( $+aliases[dora] )); then
@@ -22,9 +22,9 @@ close_external_web_ide_tabs
 pkill -x Dora >/dev/null 2>&1 || true
 run_dora cli doctor --fix
 sleep 2
-run_dora cli build -f "${SCRIPT_DIR}/AsyncLoadVisual.ts"
+run_dora cli build -f "${SCRIPT_DIR}/ConstraintPlayground3D.ts"
 rm -rf "${STAGE}"
-mkdir -p "${STAGE}/Test/Model3D/Assets/Model"
-cp "${SCRIPT_DIR}/Assets/Model/DamagedHelmet.glb" "${STAGE}/Test/Model3D/Assets/Model/"
-cp "${SCRIPT_DIR}/AsyncLoadVisual.lua" "${STAGE}/init.lua"
+mkdir -p "${STAGE}/Test/Model3D"
+rsync -a "${SCRIPT_DIR}/Assets/" "${STAGE}/Test/Model3D/Assets/"
+cp "${SCRIPT_DIR}/ConstraintPlayground3D.lua" "${STAGE}/init.lua"
 run_dora cli run -p "${STAGE}"

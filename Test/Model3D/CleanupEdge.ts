@@ -8,6 +8,10 @@ type CleanupCase = {
 	animation?: string;
 };
 
+type Node3DHierarchyState = {
+	readonly hasChildren: boolean;
+};
+
 const cases: CleanupCase[] = [
 	{name: "Specular", file: "Test/Model3D/Assets/Model/SpecularTest.glb", scale: 1.0},
 	{name: "Helmet", file: "Test/Model3D/Assets/Model/DamagedHelmet.glb", scale: 1.8},
@@ -30,15 +34,15 @@ let index = 0;
 let elapsed = 0;
 let switches = 0;
 
-function verifyCleanupMisuse() {
+function verifyCleanupWithParent() {
 	const probe = Node3D();
 	view.scene.addChild(probe);
-	const [ok] = pcall(() => {
-		probe.cleanup();
-	});
-	assert(!ok, "Node3D.cleanup() with a parent should fail");
-	print("cleanup_edge parent_cleanup_error=true");
-	probe.removeFromParent(true);
+	probe.cleanup();
+	assert(probe.parent === undefined, "Node3D.cleanup() should clear its parent");
+	const hierarchy = view.scene as unknown as Node3DHierarchyState;
+	assert(!hierarchy.hasChildren, "Node3D.cleanup() should remove the parent child reference");
+	view.scene.removeAllChildren(false);
+	print("cleanup_edge parent_cleanup_success=true");
 }
 
 function loadNext() {
@@ -68,7 +72,7 @@ function loadNext() {
 	print(`cleanup_edge switch=${switches} case=${item.name} load=${(App.runningTime - start).toFixed(3)}`);
 }
 
-verifyCleanupMisuse();
+verifyCleanupWithParent();
 loadNext();
 
 threadLoop(() => {

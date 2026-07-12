@@ -1,5 +1,5 @@
 // @preview-file on clear
-import { App, Camera3D, Director, Model3D, Vec2, Vec3, View, threadLoop } from "Dora";
+import { App, Camera3D, Content, Director, Model3D, Vec2, Vec3, View, threadLoop } from "Dora";
 import { SetCond, WindowFlag } from "ImGui";
 import * as ImGui from "ImGui";
 
@@ -20,6 +20,11 @@ type LightingProfile = {
 	exposure: number;
 };
 
+const metalRoughPackage = Content.getFullPath("Test/Model3D/Assets/Model/MetalRoughSpheres.glb.zip");
+if (Content.searchPaths.indexOf(metalRoughPackage) < 0) {
+	Content.addSearchPath(metalRoughPackage);
+}
+
 const cases: Case[] = [
 	{
 		name: "Specular",
@@ -30,7 +35,7 @@ const cases: Case[] = [
 	},
 	{
 		name: "Metal Rough",
-		file: "Test/Model3D/Assets/Model/MetalRoughSpheres.glb",
+		file: "MetalRoughSpheres.glb",
 		description: "Metallic-roughness grid with texture-driven material values.",
 		scale: 0.7,
 		camera: [0, 0.4, 4.2, 0, 0.1, 0],

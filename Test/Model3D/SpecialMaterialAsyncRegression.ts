@@ -20,6 +20,16 @@ type Case = {
 	camera: [number, number, number, number, number, number];
 };
 
+type FrameSample = {
+	frame: number;
+	state: string;
+	deltaMs: number;
+	uploadCommands: number;
+	uploadBytes: number;
+	uploadUs: number;
+	uploadMaxUs: number;
+};
+
 const cases: Case[] = [
 	{
 		name: "anisotropy-packed",
@@ -56,6 +66,14 @@ let stateFrames = 0;
 let loadStart = 0;
 let maxDeltaMs = 0;
 let maxDeltaFrame = 0;
+let maxDeltaState = "";
+let maxDeltaUploadCommands = 0;
+let maxDeltaUploadBytes = 0;
+let maxDeltaUploadMaxUs = 0;
+let previousUploadCommands = 0;
+let previousUploadBytes = 0;
+let previousUploadUs = 0;
+let frameSamples: FrameSample[] = [];
 let screenshotPath = "";
 let model: Model3D.Type | undefined;
 const results: string[] = [];
@@ -89,6 +107,15 @@ function startNextCase() {
 	camera.lookAt(Vec3(ex, ey, ez), Vec3(tx, ty, tz));
 	maxDeltaMs = 0;
 	maxDeltaFrame = 0;
+	maxDeltaState = "";
+	maxDeltaUploadCommands = 0;
+	maxDeltaUploadBytes = 0;
+	maxDeltaUploadMaxUs = 0;
+	const stats = view.stats;
+	previousUploadCommands = stats.uploadCommands;
+	previousUploadBytes = stats.uploadBytes;
+	previousUploadUs = stats.uploadMicros;
+	frameSamples = [];
 	loadStart = App.runningTime;
 	state = "loading";
 	emit(`SPECIAL_ASYNC_BEGIN case=${item.name}`);
@@ -124,17 +151,59 @@ threadLoop(() => {
 	}
 	if (state === "loading" || state === "measure") {
 		const deltaMs = App.deltaTime * 1000;
+		const stats = view.stats;
+		const sample: FrameSample = {
+			frame,
+			state,
+			deltaMs,
+			uploadCommands: stats.uploadCommands - previousUploadCommands,
+			uploadBytes: stats.uploadBytes - previousUploadBytes,
+			uploadUs: stats.uploadMicros - previousUploadUs,
+			uploadMaxUs: stats.uploadMaxCommandMicros,
+		};
+		previousUploadCommands = stats.uploadCommands;
+		previousUploadBytes = stats.uploadBytes;
+		previousUploadUs = stats.uploadMicros;
+		frameSamples.push(sample);
 		if (deltaMs > maxDeltaMs) {
 			maxDeltaMs = deltaMs;
 			maxDeltaFrame = frame;
+			maxDeltaState = state;
+			maxDeltaUploadCommands = stats.uploadCommands;
+			maxDeltaUploadBytes = stats.uploadBytes;
+			maxDeltaUploadMaxUs = stats.uploadMaxCommandMicros;
 		}
 	}
 	if (state === "measure") {
 		stateFrames -= 1;
 		if (stateFrames <= 0) {
 			const item = cases[caseIndex];
+			const slowest = frameSamples
+				.slice()
+				.sort((a, b) => b.deltaMs - a.deltaMs)
+				.slice(0, 5);
+			for (const sample of slowest) {
+				emit(
+					`SPECIAL_ASYNC_SAMPLE case=${item.name} frame=${sample.frame} state=${sample.state} ` +
+					`deltaMs=${sample.deltaMs.toFixed(1)} uploadCommands=${sample.uploadCommands} ` +
+					`uploadBytes=${sample.uploadBytes} uploadUs=${sample.uploadUs} uploadMaxUs=${sample.uploadMaxUs}`,
+				);
+			}
+			const largestUploads = frameSamples
+				.filter((sample) => sample.uploadCommands > 0)
+				.sort((a, b) => b.uploadBytes - a.uploadBytes)
+				.slice(0, 5);
+			for (const sample of largestUploads) {
+				emit(
+					`SPECIAL_ASYNC_UPLOAD case=${item.name} frame=${sample.frame} state=${sample.state} ` +
+					`deltaMs=${sample.deltaMs.toFixed(1)} uploadCommands=${sample.uploadCommands} ` +
+					`uploadBytes=${sample.uploadBytes} uploadUs=${sample.uploadUs} uploadMaxUs=${sample.uploadMaxUs}`,
+				);
+			}
 			emit(
-				`SPECIAL_ASYNC_FRAME case=${item.name} maxDeltaMs=${maxDeltaMs.toFixed(1)} frame=${maxDeltaFrame}`,
+				`SPECIAL_ASYNC_FRAME case=${item.name} maxDeltaMs=${maxDeltaMs.toFixed(1)} ` +
+				`frame=${maxDeltaFrame} state=${maxDeltaState} uploadCommands=${maxDeltaUploadCommands} ` +
+				`uploadBytes=${maxDeltaUploadBytes} uploadMaxUs=${maxDeltaUploadMaxUs}`,
 			);
 			if (maxDeltaMs > 250) {
 				finish("FAIL", `${item.name}_frame_budget_exceeded`);

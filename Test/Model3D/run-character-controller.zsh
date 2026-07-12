@@ -5,7 +5,7 @@ unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY
 
 SCRIPT_DIR=${0:A:h}
 STAGE=${DORA_3D_STAGE:-/tmp/dora-3d-test}
-OUTPUT=${DORA_3D_SPECIAL_ASYNC_OUTPUT:-/tmp/dora-3d-special-async}
+OUTPUT=${DORA_3D_CHARACTER_OUTPUT:-/tmp/dora-3d-character}
 
 source ~/.zshrc >/dev/null 2>&1 || true
 if (( $+aliases[dora] )); then
@@ -23,11 +23,11 @@ close_external_web_ide_tabs
 pkill -x Dora >/dev/null 2>&1 || true
 run_dora cli doctor --fix
 sleep 2
-run_dora cli build -f "${SCRIPT_DIR}/SpecialMaterialAsyncRegression.ts"
+run_dora cli build -f "${SCRIPT_DIR}/CharacterController3D.ts"
 rm -rf "${OUTPUT}" "${STAGE}"
 mkdir -p "${OUTPUT}" "${STAGE}/Test/Model3D"
 rsync -a "${SCRIPT_DIR}/Assets/" "${STAGE}/Test/Model3D/Assets/"
-cp "${SCRIPT_DIR}/SpecialMaterialAsyncRegression.lua" "${STAGE}/init.lua"
+cp "${SCRIPT_DIR}/CharacterController3D.lua" "${STAGE}/init.lua"
 run_dora cli run -p "${STAGE}"
 
 for _ in {1..240}; do
@@ -36,14 +36,9 @@ for _ in {1..240}; do
 done
 
 if [[ ! -f "${OUTPUT}/result.txt" ]]; then
-	print -u2 "Special material async regression timed out"
+	print -u2 "Character controller test timed out"
 	exit 1
 fi
 
 cat "${OUTPUT}/result.txt"
-grep -q '^SPECIAL_ASYNC_SUMMARY status=PASS' "${OUTPUT}/result.txt"
-
-for input in "${OUTPUT}"/*.tga; do
-	[[ -e ${input} ]] || continue
-	magick "${input}" "${input:r}.png"
-done
+grep -q '^CHARACTER3D_SUMMARY status=PASS' "${OUTPUT}/result.txt"

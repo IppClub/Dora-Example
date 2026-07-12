@@ -18,6 +18,8 @@ run_dora() {
 	eval "${DORA_CMD} \"\$@\""
 }
 
+source "${SCRIPT_DIR}/runner-common.zsh"
+close_external_web_ide_tabs
 pkill -x Dora >/dev/null 2>&1 || true
 run_dora cli doctor --fix
 sleep 2
