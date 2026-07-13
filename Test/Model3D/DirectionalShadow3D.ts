@@ -25,7 +25,9 @@ ground.position = Vec3(0, -0.72, 0);
 view.addChild(ground);
 
 const alphaCaster = Model3D("Test/Model3D/Assets/Model/AlphaMaskCaster.gltf");
-alphaCaster.position = Vec3(0.15, 0.35, -1.15);
+// The source plane spans z=-3..3. After the X rotation and 0.22 scale,
+// y=-0.06 places its lower edge exactly on the ground at y=-0.72.
+alphaCaster.position = Vec3(2.2, -0.06, -1.15);
 alphaCaster.scale = Vec3(0.22, 0.22, 0.22);
 alphaCaster.angleX = 90;
 view.addChild(alphaCaster);
