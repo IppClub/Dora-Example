@@ -1,10 +1,12 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
 	Body3DType,
 	Camera3D,
 	Color3,
-	Constraint3DType,
+	Constraint3D,
+Constraint3DType,
 	DirectionalLight3D,
 	Director,
 	Model3D,
@@ -40,7 +42,7 @@ view.addChild(groundModel);
 const groundNode = Node3D();
 groundNode.position = Vec3(0, -0.5, 0);
 view.addChild(groundNode);
-world.createBox(groundNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, groundNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 
 const anchorNode = Node3D();
 anchorNode.position = Vec3(0, 4.5, 0);
@@ -49,7 +51,7 @@ const anchorModel = Model3D("Test/Model3D/Assets/Model/Duck.glb");
 anchorModel.scale = Vec3(0.32, 0.32, 0.32);
 anchorModel.position = Vec3(0, -0.2, 0);
 anchorNode.addChild(anchorModel);
-const anchorBody = world.createBox(anchorNode, Vec3(0.22, 0.22, 0.22), PhysicsWorld3D.Static);
+const anchorBody = makeBoxBody3D(world, anchorNode, Vec3(0.22, 0.22, 0.22), PhysicsWorld3D.Static);
 
 const dynamicNode = Node3D();
 view.addChild(dynamicNode);
@@ -68,7 +70,7 @@ let dragGain = 0.9;
 let showAABB = false;
 let physicsDebug = false;
 let selected = false;
-let body: Body3DType = world.createBox(dynamicNode, Vec3(0.65, 0.55, 0.65));
+let body: Body3DType = makeBoxBody3D(world, dynamicNode, Vec3(0.65, 0.55, 0.65));
 let constraint: Constraint3DType | undefined;
 let state = "Connected";
 let peakSpeed = 0;
@@ -80,7 +82,7 @@ const vecLength = (value: Vec3.Type) => Math.sqrt(
 function rebuild() {
 	constraint?.destroy();
 	constraint = undefined;
-	body.destroy();
+	body.removeFromParent(true);
 
 	const start = mode === 0
 		? Vec3(1.8, 2.4, 0)
@@ -88,13 +90,13 @@ function rebuild() {
 			? Vec3(ropeLength * 0.72, 4.5 - ropeLength * 0.69, 0)
 			: Vec3(1.8, 2.4, 0);
 	dynamicNode.position = start;
-	dynamicNode.eulerAngles = Vec3(0, 0, 0);
-	body = world.createBox(dynamicNode, Vec3(0.65, 0.55, 0.65));
+	dynamicNode.angles = Vec3(0, 0, 0);
+	body = makeBoxBody3D(world, dynamicNode, Vec3(0.65, 0.55, 0.65));
 
 	if (mode === 0) {
-		constraint = world.createFixedConstraint(anchorBody, body, Vec3(0.9, 3.45, 0));
+		constraint = Constraint3D.fixed(anchorBody, body, Vec3(0.9, 3.45, 0));
 	} else if (mode === 1) {
-		constraint = world.createDistanceConstraint(
+		constraint = Constraint3D.distance(
 			anchorBody,
 			body,
 			anchorNode.position,
@@ -103,7 +105,7 @@ function rebuild() {
 			ropeLength
 		);
 	} else {
-		constraint = world.createHingeConstraint(
+		constraint = Constraint3D.hinge(
 			anchorBody,
 			body,
 			anchorNode.position,
@@ -117,7 +119,7 @@ function rebuild() {
 }
 
 function push(x: number, y: number) {
-	body.applyImpulse(Vec3(x * impulse, y * impulse, 0));
+	body.applyLinearImpulse(Vec3(x * impulse, y * impulse, 0));
 }
 
 view.onTapBegan((touch) => {

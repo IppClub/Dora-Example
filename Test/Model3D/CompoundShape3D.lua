@@ -2,155 +2,157 @@
 local ____lualib = require("lualib_bundle") -- 1
 local __TS__NumberToFixed = ____lualib.__TS__NumberToFixed -- 1
 local ____exports = {} -- 1
-local ____Dora = require("Dora") -- 2
-local App = ____Dora.App -- 3
-local Camera3D = ____Dora.Camera3D -- 4
-local Color3 = ____Dora.Color3 -- 5
-local Content = ____Dora.Content -- 6
-local DirectionalLight3D = ____Dora.DirectionalLight3D -- 7
-local Director = ____Dora.Director -- 8
-local Model3D = ____Dora.Model3D -- 9
-local Node3D = ____Dora.Node3D -- 10
-local PhysicsShape3D = ____Dora.PhysicsShape3D -- 11
-local PhysicsWorld3D = ____Dora.PhysicsWorld3D -- 12
-local Vec2 = ____Dora.Vec2 -- 13
-local Vec3 = ____Dora.Vec3 -- 14
-local threadLoop = ____Dora.threadLoop -- 15
-local ImGui = require("ImGui") -- 18
-local output = "/tmp/dora-3d-compound" -- 20
-local view = Director.entry -- 21
-local camera = Camera3D() -- 22
-camera:lookAt( -- 23
-	Vec3(7, 5, 11), -- 23
-	Vec3(0, 1, 0) -- 23
-) -- 23
-Director:pushCamera(camera) -- 24
-view:setEnvironmentMap("") -- 25
-view:setEnvironmentIntensity(0, 0, 1) -- 26
-local light = DirectionalLight3D() -- 28
-light.color = Color3(16777215) -- 29
-light.intensity = 4 -- 30
-light.angleX = -45 -- 31
-light.angleY = 25 -- 32
-view:addChild(light) -- 33
-local world = PhysicsWorld3D() -- 35
-world.gravity = Vec3(0, -9.81, 0) -- 36
-view:addChild(world) -- 37
-local floorVisual = Model3D("Test/Model3D/Assets/Model/Ground.gltf") -- 39
-view:addChild(floorVisual) -- 40
-local floorNode = Node3D() -- 41
-floorNode.position = Vec3(0, -0.5, 0) -- 42
-view:addChild(floorNode) -- 43
-world:createBox( -- 44
-	floorNode, -- 44
-	Vec3(7, 0.5, 4), -- 44
-	PhysicsWorld3D.Static -- 44
-) -- 44
-local compoundNode = Node3D() -- 46
-compoundNode.position = Vec3(0, 4, 0) -- 47
-view:addChild(compoundNode) -- 48
-for ____, x in ipairs({-1, 1}) do -- 50
-	local duck = Model3D("Test/Model3D/Assets/Model/Duck.glb") -- 51
-	duck.position = Vec3(x, -0.45, 0) -- 52
-	duck.scale = Vec3(0.55, 0.55, 0.55) -- 53
-	compoundNode:addChild(duck) -- 54
-end -- 54
-local box = PhysicsShape3D:box(Vec3(0.55, 0.55, 0.55)) -- 57
-local sphere = PhysicsShape3D:sphere(0.55) -- 58
-local compound = PhysicsShape3D:compound() -- 59
-local leftAdded = compound:addChild( -- 60
-	box, -- 60
-	Vec3(-1, 0, 0) -- 60
-) -- 60
-local rightAdded = compound:addChild( -- 61
-	sphere, -- 61
-	Vec3(1, 0, 0), -- 61
-	Vec3(0, 30, 0) -- 61
+local ____PhysicsBody3D = require("PhysicsBody3D") -- 1
+local makeBody3D = ____PhysicsBody3D.makeBody3D -- 1
+local makeBoxBody3D = ____PhysicsBody3D.makeBoxBody3D -- 1
+local ____Dora = require("Dora") -- 3
+local App = ____Dora.App -- 4
+local Camera3D = ____Dora.Camera3D -- 5
+local Color3 = ____Dora.Color3 -- 6
+local Content = ____Dora.Content -- 7
+local DirectionalLight3D = ____Dora.DirectionalLight3D -- 8
+local Director = ____Dora.Director -- 9
+local Model3D = ____Dora.Model3D -- 10
+local Node3D = ____Dora.Node3D -- 11
+local FixtureDef3D = ____Dora.FixtureDef3D -- 12
+local PhysicsWorld3D = ____Dora.PhysicsWorld3D -- 13
+local Vec2 = ____Dora.Vec2 -- 14
+local Vec3 = ____Dora.Vec3 -- 15
+local threadLoop = ____Dora.threadLoop -- 16
+local ImGui = require("ImGui") -- 19
+local output = "/tmp/dora-3d-compound" -- 21
+local view = Director.entry -- 22
+local camera = Camera3D() -- 23
+camera:lookAt( -- 24
+	Vec3(7, 5, 11), -- 24
+	Vec3(0, 1, 0) -- 24
+) -- 24
+Director:pushCamera(camera) -- 25
+view:setEnvironmentMap("") -- 26
+view:setEnvironmentIntensity(0, 0, 1) -- 27
+local light = DirectionalLight3D() -- 29
+light.color = Color3(16777215) -- 30
+light.intensity = 4 -- 31
+light.angleX = -45 -- 32
+light.angleY = 25 -- 33
+view:addChild(light) -- 34
+local world = PhysicsWorld3D() -- 36
+world.gravity = Vec3(0, -9.81, 0) -- 37
+view:addChild(world) -- 38
+local floorVisual = Model3D("Test/Model3D/Assets/Model/Ground.gltf") -- 40
+view:addChild(floorVisual) -- 41
+local floorNode = Node3D() -- 42
+floorNode.position = Vec3(0, -0.5, 0) -- 43
+view:addChild(floorNode) -- 44
+makeBoxBody3D( -- 45
+	world, -- 45
+	floorNode, -- 45
+	Vec3(7, 0.5, 4), -- 45
+	PhysicsWorld3D.Static -- 45
+) -- 45
+local compoundNode = Node3D() -- 47
+compoundNode.position = Vec3(0, 4, 0) -- 48
+view:addChild(compoundNode) -- 49
+for ____, x in ipairs({-1, 1}) do -- 51
+	local duck = Model3D("Test/Model3D/Assets/Model/Duck.glb") -- 52
+	duck.position = Vec3(x, -0.45, 0) -- 53
+	duck.scale = Vec3(0.55, 0.55, 0.55) -- 54
+	compoundNode:addChild(duck) -- 55
+end -- 55
+local box = FixtureDef3D:box(Vec3(0.55, 0.55, 0.55)) -- 58
+local sphere = FixtureDef3D:sphere(0.55) -- 59
+local compound = FixtureDef3D:compound() -- 60
+local leftAdded = compound:addChild( -- 61
+	box, -- 61
+	Vec3(-1, 0, 0) -- 61
 ) -- 61
-local built = compound:build() -- 62
-local frozen = not compound:addChild( -- 63
-	box, -- 63
-	Vec3(0, 1, 0) -- 63
-) -- 63
-local body = world:createBody(compoundNode, compound, PhysicsWorld3D.Dynamic) -- 64
-local elapsed = 0 -- 66
-local stableFrames = 0 -- 67
-local leftHit = false -- 68
-local rightHit = false -- 69
-local phase = "Falling" -- 70
-local completed = false -- 71
-local captureDelay = -1 -- 72
-local screenshot = "" -- 73
-print("COMPOUND3D_READY") -- 75
-threadLoop(function() -- 76
-	elapsed = elapsed + App.deltaTime -- 77
-	local velocity = body.linearVelocity -- 78
-	if elapsed > 0.5 and math.abs(velocity.y) < 0.08 and compoundNode.position.y < 0.8 then -- 78
-		stableFrames = stableFrames + 1 -- 80
-	else -- 80
-		stableFrames = 0 -- 82
-	end -- 82
-	if not completed and stableFrames >= 8 then -- 82
-		phase = "Querying" -- 86
-		local y = compoundNode.position.y + 3 -- 87
-		world:raycast( -- 88
-			Vec3(compoundNode.position.x - 1, y, 0), -- 88
-			Vec3(0, -1, 0), -- 88
-			6, -- 88
-			function(hit) -- 88
-				leftHit = hit == body -- 89
-				return true -- 90
-			end -- 88
-		) -- 88
-		world:raycast( -- 92
-			Vec3(compoundNode.position.x + 1, y, 0), -- 92
-			Vec3(0, -1, 0), -- 92
-			6, -- 92
-			function(hit) -- 92
-				rightHit = hit == body -- 93
-				return true -- 94
-			end -- 92
-		) -- 92
-		completed = true -- 96
-		phase = leftAdded and rightAdded and built and compound.built and frozen and leftHit and rightHit and "PASS" or "FAIL" -- 97
-		screenshot = App:saveScreenshot(output .. "/compound-shape") -- 98
-		captureDelay = 0 -- 99
-	end -- 99
-	if not completed and elapsed > 8 then -- 99
-		completed = true -- 103
-		phase = "FAIL" -- 104
-		captureDelay = 0 -- 105
-		screenshot = App:saveScreenshot(output .. "/compound-shape") -- 106
-	end -- 106
-	if captureDelay >= 0 then -- 106
-		captureDelay = captureDelay + App.deltaTime -- 110
-		if captureDelay >= 2 then -- 110
-			captureDelay = -1 -- 112
-			local summary = (((((((((((("COMPOUND3D_SUMMARY status=" .. phase) .. " built=") .. tostring(compound.built)) .. " frozen=") .. tostring(frozen)) .. " left=") .. tostring(leftHit)) .. " right=") .. tostring(rightHit)) .. " y=") .. __TS__NumberToFixed(compoundNode.position.y, 3)) .. " screenshot=") .. screenshot -- 113
-			Content:save(output .. "/result.txt", summary) -- 114
-			print(summary) -- 115
-		end -- 115
-	end -- 115
-	ImGui.SetNextWindowPos( -- 119
-		Vec2(12, 12), -- 119
-		"Always" -- 119
-	) -- 119
-	ImGui.SetNextWindowSize( -- 120
-		Vec2(350, 0), -- 120
+local rightAdded = compound:addChild( -- 62
+	sphere, -- 62
+	Vec3(1, 0, 0), -- 62
+	Vec3(0, 30, 0) -- 62
+) -- 62
+local built = compound:build() -- 63
+local frozen = not compound:addChild( -- 64
+	box, -- 64
+	Vec3(0, 1, 0) -- 64
+) -- 64
+local body = makeBody3D(world, compoundNode, compound, PhysicsWorld3D.Dynamic) -- 65
+local elapsed = 0 -- 67
+local stableFrames = 0 -- 68
+local leftHit = false -- 69
+local rightHit = false -- 70
+local phase = "Falling" -- 71
+local completed = false -- 72
+local captureDelay = -1 -- 73
+local screenshot = "" -- 74
+print("COMPOUND3D_READY") -- 76
+threadLoop(function() -- 77
+	elapsed = elapsed + App.deltaTime -- 78
+	local velocity = body.linearVelocity -- 79
+	if elapsed > 0.5 and math.abs(velocity.y) < 0.08 and body.position.y < 0.8 then -- 79
+		stableFrames = stableFrames + 1 -- 81
+	else -- 81
+		stableFrames = 0 -- 83
+	end -- 83
+	if not completed and stableFrames >= 8 then -- 83
+		phase = "Querying" -- 87
+		local y = body.position.y + 3 -- 88
+		world:raycast( -- 89
+			Vec3(body.position.x - 1, y, 0), -- 89
+			Vec3(body.position.x - 1, y - 6, 0), -- 89
+			function(hit) -- 89
+				leftHit = hit == body -- 90
+				return true -- 91
+			end -- 89
+		) -- 89
+		world:raycast( -- 93
+			Vec3(body.position.x + 1, y, 0), -- 93
+			Vec3(body.position.x + 1, y - 6, 0), -- 93
+			function(hit) -- 93
+				rightHit = hit == body -- 94
+				return true -- 95
+			end -- 93
+		) -- 93
+		completed = true -- 97
+		phase = leftAdded and rightAdded and built and compound.built and frozen and leftHit and rightHit and "PASS" or "FAIL" -- 98
+		screenshot = App:saveScreenshot(output .. "/compound-shape") -- 99
+		captureDelay = 0 -- 100
+	end -- 100
+	if not completed and elapsed > 8 then -- 100
+		completed = true -- 104
+		phase = "FAIL" -- 105
+		captureDelay = 0 -- 106
+		screenshot = App:saveScreenshot(output .. "/compound-shape") -- 107
+	end -- 107
+	if captureDelay >= 0 then -- 107
+		captureDelay = captureDelay + App.deltaTime -- 111
+		if captureDelay >= 2 then -- 111
+			captureDelay = -1 -- 113
+			local summary = (((((((((((("COMPOUND3D_SUMMARY status=" .. phase) .. " built=") .. tostring(compound.built)) .. " frozen=") .. tostring(frozen)) .. " left=") .. tostring(leftHit)) .. " right=") .. tostring(rightHit)) .. " y=") .. __TS__NumberToFixed(body.position.y, 3)) .. " screenshot=") .. screenshot -- 114
+			Content:save(output .. "/result.txt", summary) -- 115
+			print(summary) -- 116
+		end -- 116
+	end -- 116
+	ImGui.SetNextWindowPos( -- 120
+		Vec2(12, 12), -- 120
 		"Always" -- 120
 	) -- 120
-	ImGui.SetNextWindowBgAlpha(0.78) -- 121
-	ImGui.Begin( -- 122
-		"JOLT-C Compound Shape", -- 122
-		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 122
-		function() -- 122
-			ImGui.Text("Phase: " .. phase) -- 123
-			ImGui.Text("Built: " .. tostring(compound.built)) -- 124
-			ImGui.Text("Frozen: " .. tostring(frozen)) -- 125
-			ImGui.Text((("Ray hits: " .. tostring(leftHit)) .. ", ") .. tostring(rightHit)) -- 126
-			ImGui.Text("Body Y: " .. __TS__NumberToFixed(compoundNode.position.y, 2)) -- 127
-		end -- 122
-	) -- 122
-	return false -- 129
-end) -- 76
-return ____exports -- 76
+	ImGui.SetNextWindowSize( -- 121
+		Vec2(350, 0), -- 121
+		"Always" -- 121
+	) -- 121
+	ImGui.SetNextWindowBgAlpha(0.78) -- 122
+	ImGui.Begin( -- 123
+		"JOLT-C Compound Shape", -- 123
+		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 123
+		function() -- 123
+			ImGui.Text("Phase: " .. phase) -- 124
+			ImGui.Text("Built: " .. tostring(compound.built)) -- 125
+			ImGui.Text("Frozen: " .. tostring(frozen)) -- 126
+			ImGui.Text((("Ray hits: " .. tostring(leftHit)) .. ", ") .. tostring(rightHit)) -- 127
+			ImGui.Text("Body Y: " .. __TS__NumberToFixed(body.position.y, 2)) -- 128
+		end -- 123
+	) -- 123
+	return false -- 130
+end) -- 77
+return ____exports -- 77

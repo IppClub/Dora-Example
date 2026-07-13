@@ -52,6 +52,8 @@ Before running a local profile, close existing Dora Web IDE browser tabs. The ru
 
 Results are written to `/tmp/dora-3d-animation-profile/result.txt`. The output includes frame, collect, sort, and submit P50/P95 values and verifies that every phase releases all model instances.
 
+The 2026-07-12 native arm64 Release baseline was recorded on an Apple M1 Pro with Metal. At 50 concurrent Fox animations, frame P95 was `16.667ms`, collect P95 was `441us`, and submit P95 was `38us`. Treat these values as same-machine regression data, not a portable frame-rate guarantee.
+
 ## Directional shadow
 
 `DirectionalShadow3D.ts` compares the same scene before and after enabling `DirectionalLight3D.castShadow`. It includes a static Duck, an animated skinned Fox, and a deterministic glTF ground receiver:
@@ -109,6 +111,14 @@ The runner writes `CONSTRAINT3D_SUMMARY` and a reviewed screenshot to `/tmp/dora
 ```
 
 ## JOLT feature labs
+
+The deterministic Jolt integration entry point runs rigid bodies, character controller, compound shape, mesh collider, convex hull, constraints, and lifecycle/async stress:
+
+```sh
+./Test/Model3D/run-jolt-integration.zsh
+```
+
+`JoltLifecycleRegression.ts` performs 1000 world/body/constraint/character cleanup cycles and four first-load async mesh/convex-hull cases with eight concurrent handlers each. A passing run ends with `JOLT_LIFECYCLE_SUMMARY status=PASS`.
 
 The interactive labs complement the deterministic regression cases and expose the full current JOLT feature surface:
 

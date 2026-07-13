@@ -11,7 +11,8 @@ for test in \
 	run-compound-shape.zsh \
 	run-mesh-collider.zsh \
 	run-convex-hull.zsh \
-	run-constraint-3d.zsh; do
+	run-constraint-3d.zsh \
+	run-jolt-lifecycle-regression.zsh; do
 	print "==> ${test}"
 	"${SCRIPT_DIR}/${test}"
 done

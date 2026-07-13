@@ -1,10 +1,12 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	Body3DType,
 	Camera3D,
 	CharacterController3DType,
 	Color3,
-	Constraint3DType,
+	Constraint3D,
+Constraint3DType,
 	DirectionalLight3D,
 	Director,
 	Model3D,
@@ -39,7 +41,7 @@ view.addChild(floorVisual);
 const floorNode = Node3D();
 floorNode.position = Vec3(0, -0.5, 0);
 view.addChild(floorNode);
-world.createBox(floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 
 const anchorNode = Node3D();
 anchorNode.position = Vec3(0, 4.5, 0);
@@ -47,7 +49,7 @@ view.addChild(anchorNode);
 const anchorModel = Model3D("Test/Model3D/Assets/Model/Duck.glb");
 anchorModel.scale = Vec3(0.3, 0.3, 0.3);
 anchorNode.addChild(anchorModel);
-const anchorBody = world.createBox(anchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
+const anchorBody = makeBoxBody3D(world, anchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
 
 const actorNode = Node3D();
 view.addChild(actorNode);
@@ -71,13 +73,13 @@ let physicsDebug = false;
 function rebuildActor() {
 	if (actorGeneration > 0) {
 		actorConstraint.destroy();
-		actorBody.destroy();
+		actorBody.removeFromParent(true);
 	}
 	actorGeneration += 1;
 	actorNode.position = Vec3(1.8, 2.2, 0);
-	actorNode.eulerAngles = Vec3(0, 0, 0);
-	actorBody = world.createBox(actorNode, Vec3(0.6, 0.55, 0.6));
-	actorConstraint = world.createHingeConstraint(
+	actorNode.angles = Vec3(0, 0, 0);
+	actorBody = makeBoxBody3D(world, actorNode, Vec3(0.6, 0.55, 0.6));
+	actorConstraint = Constraint3D.hinge(
 		anchorBody,
 		actorBody,
 		anchorNode.position,
@@ -88,7 +90,7 @@ function rebuildActor() {
 }
 
 function destroyBodyCascade() {
-	actorBody.destroy();
+	actorBody.removeFromParent(true);
 	bodyCascadePass = actorBody.world === undefined
 		&& actorConstraint.world === undefined
 		&& actorConstraint.firstBody === undefined;
@@ -107,9 +109,9 @@ function runWorldCleanupCycle() {
 	characterNode.position = Vec3(0, -20, 2);
 	view.addChild(characterNode);
 
-	const first = cycleWorld.createBox(firstNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
-	const second = cycleWorld.createSphere(secondNode, 0.2);
-	const constraint = cycleWorld.createFixedConstraint(first, second, Vec3(0.5, -20, 0));
+	const first = makeBoxBody3D(cycleWorld, firstNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
+	const second = makeSphereBody3D(cycleWorld, secondNode, 0.2);
+	const constraint = Constraint3D.fixed(first, second, Vec3(0.5, -20, 0));
 	const character: CharacterController3DType = cycleWorld.createCharacter(characterNode, 0.45, 0.25);
 
 	cycleWorld.removeFromParent(true);

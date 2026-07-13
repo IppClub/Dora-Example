@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -40,7 +41,7 @@ view.addChild(floorVisual);
 const floor = Node3D();
 floor.position = Vec3(0, -0.5, 0);
 view.addChild(floor);
-world.createBox(floor, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floor, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 
 const characterNode = Node3D();
 characterNode.position = Vec3(-2.5, 3, 0);

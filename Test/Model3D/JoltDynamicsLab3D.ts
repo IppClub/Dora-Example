@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -39,7 +40,7 @@ view.addChild(groundModel);
 const groundNode = Node3D();
 groundNode.position = Vec3(0, -0.5, 0);
 view.addChild(groundNode);
-const groundBody = world.createBox(groundNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+const groundBody = makeBoxBody3D(world, groundNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 groundBody.collisionLayer = 1;
 
 const platformNode = Node3D();
@@ -48,13 +49,13 @@ view.addChild(platformNode);
 const platformModel = Model3D("Test/Model3D/Assets/Model/Ground.gltf");
 platformModel.scale = Vec3(0.35, 0.15, 0.35);
 platformNode.addChild(platformModel);
-const platformBody = world.createBox(platformNode, Vec3(2.2, 0.2, 1.3), PhysicsWorld3D.Kinematic);
+const platformBody = makeBoxBody3D(world, platformNode, Vec3(2.2, 0.2, 1.3), PhysicsWorld3D.Kinematic);
 platformBody.collisionLayer = 1;
 
 const sensorNode = Node3D();
 sensorNode.position = Vec3(0, 2.8, 0);
 view.addChild(sensorNode);
-const sensorBody = world.createBox(sensorNode, Vec3(2.6, 0.12, 2.0), PhysicsWorld3D.Static);
+const sensorBody = makeBoxBody3D(world, sensorNode, Vec3(2.6, 0.12, 2.0), PhysicsWorld3D.Static);
 sensorBody.sensor = true;
 sensorBody.collisionLayer = 2;
 
@@ -105,10 +106,10 @@ function spawn(position?: Vec3.Type) {
 	node.addChild(model);
 
 	const body = shape.index === 0
-		? world.createBox(node, Vec3(0.58, 0.5, 0.58))
+		? makeBoxBody3D(world, node, Vec3(0.58, 0.5, 0.58))
 		: shape.index === 1
-			? world.createSphere(node, 0.58)
-			: world.createCapsule(node, 0.45, 0.42);
+			? makeSphereBody3D(world, node, 0.58)
+			: makeCapsuleBody3D(world, node, 0.45, 0.42);
 	body.collisionLayer = 0;
 	body.collisionMask = collisionEnabled ? 0xffffffff : 1 << 2;
 	const actor: Actor = {node, model, body, name: `${shape.name} ${spawnSerial}`};
@@ -132,8 +133,7 @@ function clearActors() {
 	select(undefined);
 	while (actors.length > 0) {
 		const actor = actors.pop()!;
-		actor.body.destroy();
-		actor.node.removeFromParent(true);
+		actor.body.removeFromParent(true);
 	}
 }
 
@@ -143,12 +143,17 @@ function updateCollisionMasks() {
 
 function queryScene() {
 	rayResult = "None";
-	world.raycast(Vec3(0, 9, 0), Vec3(0, -1, 0), 20, (body, _point, _normal, distance) => {
-		rayResult = `${body.node?.tag ?? "Collider"} @ ${distance.toFixed(2)}`;
+	const start = Vec3(0, 9, 0);
+	world.raycast(start, Vec3(0, -11, 0), (body, point) => {
+		const dx = point.x - start.x;
+		const dy = point.y - start.y;
+		const dz = point.z - start.z;
+		const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+		rayResult = `${body.tag !== "" ? body.tag : "Collider"} @ ${distance.toFixed(2)}`;
 		return true;
 	});
 	overlapCount = 0;
-	world.overlapSphere(Vec3(0, 2.5, 0), 3.5, () => {
+	world.querySphere(Vec3(0, 2.5, 0), 3.5, () => {
 		overlapCount += 1;
 		return false;
 	});
@@ -207,8 +212,7 @@ threadLoop(() => {
 		if (ImGui.Button("Delete", Vec2(115, 30)) && selected) {
 			const target = selected;
 			select(undefined);
-			target.body.destroy();
-			target.node.removeFromParent(true);
+			target.body.removeFromParent(true);
 			const index = actors.indexOf(target);
 			if (index >= 0) actors.splice(index, 1);
 		}
@@ -217,7 +221,7 @@ threadLoop(() => {
 
 		if (ImGui.Button("Force Left", Vec2(115, 30)) && selected) selected.body.applyForce(Vec3(-impulse * 20, 0, 0));
 		ImGui.SameLine();
-		if (ImGui.Button("Impulse Up", Vec2(115, 30)) && selected) selected.body.applyImpulse(Vec3(0, impulse, 0));
+		if (ImGui.Button("Impulse Up", Vec2(115, 30)) && selected) selected.body.applyLinearImpulse(Vec3(0, impulse, 0));
 		ImGui.SameLine();
 		if (ImGui.Button("Spin", Vec2(115, 30)) && selected) selected.body.angularVelocity = Vec3(0, impulse, impulse * 0.4);
 	});

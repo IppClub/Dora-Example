@@ -1,8 +1,10 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
 	Camera3D,
 	Color3,
+	Constraint3D,
 	Content,
 	DirectionalLight3D,
 	Director,
@@ -54,19 +56,19 @@ const addDuck = (position: Vec3.Type, scale = 0.55) => {
 
 const fixedAnchorNode = addDuck(Vec3(-4, 3.4, 0), 0.3);
 const fixedNode = addDuck(Vec3(-4, 2.0, 0));
-const fixedAnchorBody = world.createBox(fixedAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
-const fixedBody = world.createBox(fixedNode, Vec3(0.45, 0.45, 0.45));
-const fixed = world.createFixedConstraint(fixedAnchorBody, fixedBody, Vec3(-4, 2.7, 0));
+const fixedAnchorBody = makeBoxBody3D(world, fixedAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
+const fixedBody = makeBoxBody3D(world, fixedNode, Vec3(0.45, 0.45, 0.45));
+const fixed = Constraint3D.fixed(fixedAnchorBody, fixedBody, Vec3(-4, 2.7, 0));
 
 const distanceAnchorNode = addDuck(Vec3(0, 4.2, 0), 0.3);
 const distanceNode = addDuck(Vec3(0, 2.2, 0));
-const distanceAnchorBody = world.createBox(distanceAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
-const distanceBody = world.createSphere(distanceNode, 0.45);
-const distance = world.createDistanceConstraint(
+const distanceAnchorBody = makeBoxBody3D(world, distanceAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
+const distanceBody = makeSphereBody3D(world, distanceNode, 0.45);
+const distance = Constraint3D.distance(
 	distanceAnchorBody,
 	distanceBody,
-	distanceAnchorNode.position,
-	distanceNode.position,
+	distanceAnchorBody.position,
+	distanceBody.position,
 	2,
 	2
 );
@@ -74,12 +76,12 @@ const distance = world.createDistanceConstraint(
 const hingeAnchorNode = addDuck(Vec3(4, 4.2, 0), 0.3);
 const hingeStart = Vec3(4.7, 3.25, 0);
 const hingeNode = addDuck(hingeStart);
-const hingeAnchorBody = world.createBox(hingeAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
-const hingeBody = world.createBox(hingeNode, Vec3(0.45, 0.45, 0.45));
-const hinge = world.createHingeConstraint(
+const hingeAnchorBody = makeBoxBody3D(world, hingeAnchorNode, Vec3(0.2, 0.2, 0.2), PhysicsWorld3D.Static);
+const hingeBody = makeBoxBody3D(world, hingeNode, Vec3(0.45, 0.45, 0.45));
+const hinge = Constraint3D.hinge(
 	hingeAnchorBody,
 	hingeBody,
-	hingeAnchorNode.position,
+	hingeAnchorBody.position,
 	Vec3(0, 0, 1),
 	-80,
 	80
@@ -91,9 +93,9 @@ view.addChild(disposableFirstNode);
 const disposableSecondNode = Node3D();
 disposableSecondNode.position = Vec3(1, -10, 0);
 view.addChild(disposableSecondNode);
-const disposableFirstBody = world.createBox(disposableFirstNode, Vec3(0.1, 0.1, 0.1), PhysicsWorld3D.Static);
-const disposableSecondBody = world.createBox(disposableSecondNode, Vec3(0.1, 0.1, 0.1), PhysicsWorld3D.Static);
-const disposable = world.createFixedConstraint(disposableFirstBody, disposableSecondBody, Vec3(0.5, -10, 0));
+const disposableFirstBody = makeBoxBody3D(world, disposableFirstNode, Vec3(0.1, 0.1, 0.1), PhysicsWorld3D.Static);
+const disposableSecondBody = makeBoxBody3D(world, disposableSecondNode, Vec3(0.1, 0.1, 0.1), PhysicsWorld3D.Static);
+const disposable = Constraint3D.fixed(disposableFirstBody, disposableSecondBody, Vec3(0.5, -10, 0));
 disposable.destroy();
 const destroyPass = disposable.world === undefined && disposable.firstBody === undefined;
 
@@ -111,15 +113,15 @@ let endpointRefs =
 print("CONSTRAINT3D_READY");
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	maxHingeMovement = Math.max(maxHingeMovement, vecDistance(hingeNode.position, hingeStart));
+	maxHingeMovement = Math.max(maxHingeMovement, vecDistance(hingeBody.position, hingeStart));
 
 	if (!completed && elapsed >= 3) {
-		const fixedDistance = vecDistance(fixedNode.position, fixedAnchorNode.position);
-		const ropeDistance = vecDistance(distanceNode.position, distanceAnchorNode.position);
+		const fixedDistance = vecDistance(fixedBody.position, fixedAnchorBody.position);
+		const ropeDistance = vecDistance(distanceBody.position, distanceAnchorBody.position);
 		measuredFixedDistance = fixedDistance;
 		measuredRopeDistance = ropeDistance;
-		const hingeRadius = vecDistance(hingeNode.position, hingeAnchorNode.position);
-		const expectedHingeRadius = vecDistance(hingeStart, hingeAnchorNode.position);
+		const hingeRadius = vecDistance(hingeBody.position, hingeAnchorBody.position);
+		const expectedHingeRadius = vecDistance(hingeStart, hingeAnchorBody.position);
 		const fixedPass = Math.abs(fixedDistance - 1.4) < 0.12;
 		const distancePass = Math.abs(ropeDistance - 2) < 0.08;
 		const hingePass =

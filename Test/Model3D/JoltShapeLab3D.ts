@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -8,8 +9,8 @@ import {
 	Director,
 	Model3D,
 	Node3D,
-	PhysicsShape3D,
-	PhysicsShape3DType,
+	FixtureDef3D,
+	FixtureDef3DType,
 	PhysicsWorld3D,
 	Vec2,
 	Vec3,
@@ -41,11 +42,11 @@ view.addChild(floorVisual);
 const floorNode = Node3D();
 floorNode.position = Vec3(0, -0.5, 0);
 view.addChild(floorNode);
-world.createBox(floorNode, Vec3(8, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floorNode, Vec3(8, 0.5, 4), PhysicsWorld3D.Static);
 
-const childBox = PhysicsShape3D.box(Vec3(0.55, 0.5, 0.55));
-const childSphere = PhysicsShape3D.sphere(0.58);
-const compound = PhysicsShape3D.compound();
+const childBox = FixtureDef3D.box(Vec3(0.55, 0.5, 0.55));
+const childSphere = FixtureDef3D.sphere(0.58);
+const compound = FixtureDef3D.compound();
 compound.addChild(childBox, Vec3(-0.9, 0, 0), Vec3(0, 0, -12));
 compound.addChild(childSphere, Vec3(0.9, 0, 0));
 compound.build();
@@ -66,15 +67,14 @@ function spawnCompound() {
 		duck.scale = Vec3(0.48, 0.48, 0.48);
 		node.addChild(duck);
 	}
-	const body = world.createBody(node, compound, PhysicsWorld3D.Dynamic);
+	const body = makeBody3D(world, node, compound, PhysicsWorld3D.Dynamic);
 	compounds.push({node, body});
 }
 
 function clearCompounds() {
 	while (compounds.length > 0) {
 		const actor = compounds.pop()!;
-		actor.body.destroy();
-		actor.node.removeFromParent(true);
+		actor.body.removeFromParent(true);
 	}
 }
 
@@ -86,7 +86,7 @@ const meshVisual = Model3D(meshPath);
 meshVisual.scale = Vec3(0.55, 0.55, 0.55);
 meshNode.addChild(meshVisual);
 
-let meshShape: PhysicsShape3DType | undefined;
+let meshShape: FixtureDef3DType | undefined;
 let meshBody: Body3DType | undefined;
 let meshState = "Not loaded";
 let meshLoadTime = 0;
@@ -105,8 +105,8 @@ function createMeshBody() {
 		meshState = "Mesh colliders must be static";
 		return;
 	}
-	meshBody?.destroy();
-	meshBody = world.createBody(
+	meshBody?.removeFromParent(true);
+	meshBody = makeBody3D(world,
 		meshNode,
 		meshShape,
 		PhysicsWorld3D.Static
@@ -117,7 +117,7 @@ function createMeshBody() {
 function loadMesh() {
 	meshState = "Loading through Content";
 	const started = App.runningTime;
-	PhysicsShape3D.loadMeshAsync(meshPath, (shape) => {
+	FixtureDef3D.loadMeshAsync(meshPath, (shape) => {
 		meshLoadTime = App.runningTime - started;
 		if (!shape.built) {
 			meshState = "Cook failed";
@@ -125,7 +125,7 @@ function loadMesh() {
 		}
 		meshShape = shape;
 		createMeshBody();
-		PhysicsShape3D.loadMeshAsync(meshPath, (cached) => {
+		FixtureDef3D.loadMeshAsync(meshPath, (cached) => {
 			cacheHit = cached === shape;
 		});
 	});
@@ -136,9 +136,9 @@ function testDynamicRejection() {
 	const probe = Node3D();
 	probe.position = Vec3(0, -20, 0);
 	view.addChild(probe);
-	const rejected = world.createBody(probe, meshShape, PhysicsWorld3D.Dynamic);
+	const rejected = makeBody3D(world, probe, meshShape, PhysicsWorld3D.Dynamic);
 	dynamicRejected = rejected === undefined;
-	if (rejected !== undefined) rejected.destroy();
+	if (rejected !== undefined) rejected.removeFromParent(true);
 	probe.removeFromParent(true);
 }
 

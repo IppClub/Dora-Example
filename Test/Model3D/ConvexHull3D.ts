@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -9,8 +10,8 @@ import {
 	Director,
 	Model3D,
 	Node3D,
-	PhysicsShape3D,
-	PhysicsShape3DType,
+	FixtureDef3D,
+	FixtureDef3DType,
 	PhysicsWorld3D,
 	Vec2,
 	Vec3,
@@ -42,7 +43,7 @@ view.addChild(world);
 const floorNode = Node3D();
 floorNode.position = Vec3(0, -0.5, 0);
 view.addChild(floorNode);
-world.createBox(floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 
 const hullNode = Node3D();
 hullNode.position = Vec3(0, 4, 0);
@@ -51,7 +52,7 @@ const duck = Model3D(modelPath);
 hullNode.addChild(duck);
 
 let phase = "Loading convex hull through Content";
-let hullShape: PhysicsShape3DType | undefined;
+let hullShape: FixtureDef3DType | undefined;
 let hullBody: Body3DType | undefined;
 let hullBuilt = false;
 let cacheHit = false;
@@ -67,7 +68,7 @@ let captureDelay = -1;
 let screenshot = "";
 const loadStarted = App.runningTime;
 
-PhysicsShape3D.loadConvexHullAsync(modelPath, (shape) => {
+FixtureDef3D.loadConvexHullAsync(modelPath, (shape) => {
 	loadTime = App.runningTime - loadStarted;
 	hullShape = shape;
 	hullBuilt = shape.built;
@@ -77,13 +78,13 @@ PhysicsShape3D.loadConvexHullAsync(modelPath, (shape) => {
 		captureDelay = 0;
 		return;
 	}
-	PhysicsShape3D.loadConvexHullAsync(modelPath, (cached) => {
+	FixtureDef3D.loadConvexHullAsync(modelPath, (cached) => {
 		cacheHit = cached === shape && cached.built;
 	});
-	PhysicsShape3D.loadMeshAsync(modelPath, (mesh) => {
+	FixtureDef3D.loadMeshAsync(modelPath, (mesh) => {
 		cacheIsolated = mesh !== shape && mesh.built;
 	});
-	hullBody = world.createBody(hullNode, shape, PhysicsWorld3D.Dynamic);
+	hullBody = makeBody3D(world, hullNode, shape, PhysicsWorld3D.Dynamic);
 	dynamicCreated = hullBody !== undefined;
 	hullBody.angularVelocity = Vec3(0.4, 1.2, 0.25);
 	phase = "Dynamic hull falling";
@@ -92,18 +93,19 @@ PhysicsShape3D.loadConvexHullAsync(modelPath, (shape) => {
 print("CONVEX_HULL3D_READY");
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	rotated = rotated || Math.abs(hullNode.eulerAngles.y) > 5 || Math.abs(hullNode.eulerAngles.x) > 5;
+	rotated = rotated || Math.abs(hullNode.angles.y) > 5 || Math.abs(hullNode.angles.x) > 5;
 	if (
 		!completed
 		&& hullBody !== undefined
 		&& elapsed > 1
-		&& hullNode.position.y < 2
+		&& hullBody.position.y < 2
 		&& Math.abs(hullBody.linearVelocity.y) < 0.08
 	) {
 		stableFrames += 1;
 		if (stableFrames >= 20) {
-			world.raycast(Vec3(hullNode.position.x, hullNode.position.y + 5, hullNode.position.z), Vec3(0, -1, 0), 10, (body) => {
-				rayHit = body.node === hullNode;
+			const position = hullBody.position;
+			world.raycast(Vec3(position.x, position.y + 5, position.z), Vec3(position.x, position.y - 5, position.z), (body) => {
+				rayHit = body === hullBody;
 				return true;
 			});
 			completed = true;
@@ -126,7 +128,7 @@ threadLoop(() => {
 		captureDelay += App.deltaTime;
 		if (captureDelay >= 2) {
 			captureDelay = -1;
-			const summary = `CONVEX_HULL3D_SUMMARY status=${phase === "PASS" ? "PASS" : "FAIL"} built=${hullBuilt} cache=${cacheHit} isolated=${cacheIsolated} dynamic=${dynamicCreated} rotated=${rotated} ray=${rayHit} y=${hullNode.position.y.toFixed(3)} load=${loadTime.toFixed(3)} screenshot=${screenshot}`;
+			const summary = `CONVEX_HULL3D_SUMMARY status=${phase === "PASS" ? "PASS" : "FAIL"} built=${hullBuilt} cache=${cacheHit} isolated=${cacheIsolated} dynamic=${dynamicCreated} rotated=${rotated} ray=${rayHit} y=${hullBody?.position.y.toFixed(3) ?? "nan"} load=${loadTime.toFixed(3)} screenshot=${screenshot}`;
 			Content.save(`${output}/result.txt`, summary);
 			print(summary);
 		}
@@ -141,7 +143,7 @@ threadLoop(() => {
 		ImGui.Text(`Hull built/cache: ${hullBuilt}/${cacheHit}`);
 		ImGui.Text(`Mesh cache isolated: ${cacheIsolated}`);
 		ImGui.Text(`Dynamic/rotated/ray: ${dynamicCreated}/${rotated}/${rayHit}`);
-		ImGui.Text(`Body Y: ${hullNode.position.y.toFixed(2)}`);
+		ImGui.Text(`Body Y: ${hullBody?.position.y.toFixed(2) ?? "n/a"}`);
 	});
 	return false;
 });

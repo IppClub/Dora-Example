@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -8,7 +9,7 @@ import {
 	Director,
 	Model3D,
 	Node3D,
-	PhysicsShape3D,
+	FixtureDef3D,
 	PhysicsWorld3D,
 	Vec2,
 	Vec3,
@@ -41,7 +42,7 @@ view.addChild(floorVisual);
 const floorNode = Node3D();
 floorNode.position = Vec3(0, -0.5, 0);
 view.addChild(floorNode);
-world.createBox(floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floorNode, Vec3(7, 0.5, 4), PhysicsWorld3D.Static);
 
 const compoundNode = Node3D();
 compoundNode.position = Vec3(0, 4, 0);
@@ -54,14 +55,14 @@ for (const x of [-1, 1]) {
 	compoundNode.addChild(duck);
 }
 
-const box = PhysicsShape3D.box(Vec3(0.55, 0.55, 0.55));
-const sphere = PhysicsShape3D.sphere(0.55);
-const compound = PhysicsShape3D.compound();
+const box = FixtureDef3D.box(Vec3(0.55, 0.55, 0.55));
+const sphere = FixtureDef3D.sphere(0.55);
+const compound = FixtureDef3D.compound();
 const leftAdded = compound.addChild(box, Vec3(-1, 0, 0));
 const rightAdded = compound.addChild(sphere, Vec3(1, 0, 0), Vec3(0, 30, 0));
 const built = compound.build();
 const frozen = !compound.addChild(box, Vec3(0, 1, 0));
-const body = world.createBody(compoundNode, compound, PhysicsWorld3D.Dynamic);
+const body = makeBody3D(world, compoundNode, compound, PhysicsWorld3D.Dynamic);
 
 let elapsed = 0;
 let stableFrames = 0;
@@ -76,7 +77,7 @@ print("COMPOUND3D_READY");
 threadLoop(() => {
 	elapsed += App.deltaTime;
 	const velocity = body.linearVelocity;
-	if (elapsed > 0.5 && Math.abs(velocity.y) < 0.08 && compoundNode.position.y < 0.8) {
+	if (elapsed > 0.5 && Math.abs(velocity.y) < 0.08 && body.position.y < 0.8) {
 		stableFrames += 1;
 	} else {
 		stableFrames = 0;
@@ -84,12 +85,12 @@ threadLoop(() => {
 
 	if (!completed && stableFrames >= 8) {
 		phase = "Querying";
-		const y = compoundNode.position.y + 3;
-		world.raycast(Vec3(compoundNode.position.x - 1, y, 0), Vec3(0, -1, 0), 6, (hit) => {
+		const y = body.position.y + 3;
+		world.raycast(Vec3(body.position.x - 1, y, 0), Vec3(body.position.x - 1, y - 6, 0), (hit) => {
 			leftHit = hit === body;
 			return true;
 		});
-		world.raycast(Vec3(compoundNode.position.x + 1, y, 0), Vec3(0, -1, 0), 6, (hit) => {
+		world.raycast(Vec3(body.position.x + 1, y, 0), Vec3(body.position.x + 1, y - 6, 0), (hit) => {
 			rightHit = hit === body;
 			return true;
 		});
@@ -110,7 +111,7 @@ threadLoop(() => {
 		captureDelay += App.deltaTime;
 		if (captureDelay >= 2) {
 			captureDelay = -1;
-			const summary = `COMPOUND3D_SUMMARY status=${phase} built=${compound.built} frozen=${frozen} left=${leftHit} right=${rightHit} y=${compoundNode.position.y.toFixed(3)} screenshot=${screenshot}`;
+			const summary = `COMPOUND3D_SUMMARY status=${phase} built=${compound.built} frozen=${frozen} left=${leftHit} right=${rightHit} y=${body.position.y.toFixed(3)} screenshot=${screenshot}`;
 			Content.save(`${output}/result.txt`, summary);
 			print(summary);
 		}
@@ -124,7 +125,7 @@ threadLoop(() => {
 		ImGui.Text(`Built: ${compound.built}`);
 		ImGui.Text(`Frozen: ${frozen}`);
 		ImGui.Text(`Ray hits: ${leftHit}, ${rightHit}`);
-		ImGui.Text(`Body Y: ${compoundNode.position.y.toFixed(2)}`);
+		ImGui.Text(`Body Y: ${body.position.y.toFixed(2)}`);
 	});
 	return false;
 });

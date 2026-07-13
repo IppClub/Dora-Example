@@ -1,3 +1,4 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
@@ -66,7 +67,7 @@ view.addChild(world);
 const floor = Node3D();
 floor.position = Vec3(0, -0.5, 0);
 view.addChild(floor);
-world.createBox(floor, Vec3(30, 0.5, 30), PhysicsWorld3D.Static);
+makeBoxBody3D(world, floor, Vec3(30, 0.5, 30), PhysicsWorld3D.Static);
 
 function runPhase(count: number, debug: boolean): Sample {
 	const nodes: Node3D.Type[] = [];
@@ -85,13 +86,13 @@ function runPhase(count: number, debug: boolean): Sample {
 		let body: Body3DType;
 		switch (index % 3) {
 			case 1:
-				body = world.createSphere(node, 0.42);
+				body = makeSphereBody3D(world, node, 0.42);
 				break;
 			case 2:
-				body = world.createCapsule(node, 0.32, 0.3);
+				body = makeCapsuleBody3D(world, node, 0.32, 0.3);
 				break;
 			default:
-				body = world.createBox(node, Vec3(0.4, 0.4, 0.4));
+				body = makeBoxBody3D(world, node, Vec3(0.4, 0.4, 0.4));
 				break;
 		}
 		nodes.push(node);
@@ -128,7 +129,7 @@ function runPhase(count: number, debug: boolean): Sample {
 	);
 
 	world.showDebug = false;
-	for (const body of bodies) body.destroy();
+	for (const body of bodies) body.removeFromParent(true);
 	for (const node of nodes) node.removeFromParent(true);
 	waitFrames(5);
 	return sample;

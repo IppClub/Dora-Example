@@ -1,6 +1,8 @@
+import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
+	Body3DType,
 	Camera3D,
 	Color3,
 	Content,
@@ -8,7 +10,7 @@ import {
 	Director,
 	Model3D,
 	Node3D,
-	PhysicsShape3D,
+	FixtureDef3D,
 	PhysicsWorld3D,
 	Vec2,
 	Vec3,
@@ -50,6 +52,7 @@ sphereNode.addChild(duck);
 
 let phase = "Loading mesh through Content";
 let meshBodyCreated = false;
+let sphereBody: Body3DType | undefined;
 let cacheHit = false;
 let rayHit = false;
 let elapsed = 0;
@@ -60,7 +63,7 @@ let captureDelay = -1;
 let screenshot = "";
 const loadStarted = App.runningTime;
 
-PhysicsShape3D.loadMeshAsync(meshPath, (shape) => {
+FixtureDef3D.loadMeshAsync(meshPath, (shape) => {
 	loadTime = App.runningTime - loadStarted;
 	if (!shape.built) {
 		phase = "FAIL: cook";
@@ -71,10 +74,10 @@ PhysicsShape3D.loadMeshAsync(meshPath, (shape) => {
 	}
 	const meshNode = Node3D();
 	view.addChild(meshNode);
-	const meshBody = world.createBody(meshNode, shape, PhysicsWorld3D.Static);
+	const meshBody = makeBody3D(world, meshNode, shape, PhysicsWorld3D.Static);
 	meshBodyCreated = meshBody !== undefined;
-	world.createSphere(sphereNode, 0.5, PhysicsWorld3D.Dynamic);
-	PhysicsShape3D.loadMeshAsync(meshPath, (cached) => {
+	sphereBody = makeSphereBody3D(world, sphereNode, 0.5, PhysicsWorld3D.Dynamic);
+	FixtureDef3D.loadMeshAsync(meshPath, (cached) => {
 		cacheHit = cached === shape && cached.built;
 	});
 	phase = "Simulating";
@@ -83,11 +86,11 @@ PhysicsShape3D.loadMeshAsync(meshPath, (shape) => {
 print("MESH_COLLIDER3D_READY");
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	if (!completed && meshBodyCreated && sphereNode.position.y < 0.65) {
+	if (!completed && meshBodyCreated && sphereBody !== undefined && sphereBody.position.y < 0.65) {
 		stableFrames += 1;
 		if (stableFrames >= 8) {
-			world.raycast(Vec3(2.5, 3, 0), Vec3(0, -1, 0), 6, (body) => {
-				rayHit = body.node !== sphereNode;
+			world.raycast(Vec3(2.5, 3, 0), Vec3(2.5, -3, 0), (body) => {
+				rayHit = body !== sphereBody;
 				return true;
 			});
 			completed = true;
@@ -110,7 +113,7 @@ threadLoop(() => {
 		captureDelay += App.deltaTime;
 		if (captureDelay >= 2) {
 			captureDelay = -1;
-			const summary = `MESH_COLLIDER3D_SUMMARY status=${phase === "PASS" ? "PASS" : "FAIL"} built=${meshBodyCreated} cache=${cacheHit} ray=${rayHit} y=${sphereNode.position.y.toFixed(3)} load=${loadTime.toFixed(3)} screenshot=${screenshot}`;
+			const summary = `MESH_COLLIDER3D_SUMMARY status=${phase === "PASS" ? "PASS" : "FAIL"} built=${meshBodyCreated} cache=${cacheHit} ray=${rayHit} y=${sphereBody?.position.y.toFixed(3) ?? "nan"} load=${loadTime.toFixed(3)} screenshot=${screenshot}`;
 			Content.save(`${output}/result.txt`, summary);
 			print(summary);
 		}
@@ -124,7 +127,7 @@ threadLoop(() => {
 		ImGui.Text(`Content + cook: ${loadTime.toFixed(3)}s`);
 		ImGui.Text(`Cache hit: ${cacheHit}`);
 		ImGui.Text(`Mesh ray hit: ${rayHit}`);
-		ImGui.Text(`Dynamic body Y: ${sphereNode.position.y.toFixed(2)}`);
+		ImGui.Text(`Dynamic body Y: ${sphereBody?.position.y.toFixed(2) ?? "n/a"}`);
 	});
 	return false;
 });
