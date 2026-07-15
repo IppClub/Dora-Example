@@ -180,7 +180,7 @@ print("JOLT_DYNAMICS_LAB_READY");
 
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	if (platformMotion) platformNode.position = Vec3(Math.sin(elapsed * 1.2) * 2.8, 1.0, -1.2);
+	if (platformMotion) platformBody.position = Vec3(Math.sin(elapsed * 1.2) * 2.8, 1.0, -1.2);
 	world.gravity = Vec3(0, gravity, 0);
 	queryScene();
 

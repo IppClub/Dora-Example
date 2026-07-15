@@ -126,7 +126,7 @@ threadLoop(() => {
 		const distancePass = Math.abs(ropeDistance - 2) < 0.08;
 		const hingePass =
 			Math.abs(hingeRadius - expectedHingeRadius) < 0.1 &&
-			Math.abs(hingeNode.position.z) < 0.03 &&
+			Math.abs(hingeBody.position.z) < 0.03 &&
 			maxHingeMovement > 0.15;
 
 		phase = fixedPass && distancePass && hingePass && endpointRefs && destroyPass ? "PASS" : "FAIL";
@@ -150,8 +150,8 @@ threadLoop(() => {
 	ImGui.SetNextWindowBgAlpha(0.8);
 	ImGui.Begin("JOLT-C Constraints", [WindowFlag.NoSavedSettings, WindowFlag.NoFocusOnAppearing], () => {
 		ImGui.Text(`Phase: ${phase}`);
-		ImGui.Text(`Fixed distance: ${vecDistance(fixedNode.position, fixedAnchorNode.position).toFixed(3)}`);
-		ImGui.Text(`Rope distance: ${vecDistance(distanceNode.position, distanceAnchorNode.position).toFixed(3)}`);
+		ImGui.Text(`Fixed distance: ${vecDistance(fixedBody.position, fixedAnchorBody.position).toFixed(3)}`);
+		ImGui.Text(`Rope distance: ${vecDistance(distanceBody.position, distanceAnchorBody.position).toFixed(3)}`);
 		ImGui.Text(`Hinge movement: ${maxHingeMovement.toFixed(3)}`);
 		ImGui.Text(`Endpoint refs: ${endpointRefs}`);
 	});

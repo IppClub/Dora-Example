@@ -103,73 +103,75 @@ FixtureDef3D:loadConvexHullAsync( -- 71
 print("CONVEX_HULL3D_READY") -- 93
 threadLoop(function() -- 94
 	elapsed = elapsed + App.deltaTime -- 95
-	rotated = rotated or math.abs(hullNode.angles.y) > 5 or math.abs(hullNode.angles.x) > 5 -- 96
-	if not completed and hullBody ~= nil and elapsed > 1 and hullBody.position.y < 2 and math.abs(hullBody.linearVelocity.y) < 0.08 then -- 96
-		stableFrames = stableFrames + 1 -- 104
-		if stableFrames >= 20 then -- 104
-			local position = hullBody.position -- 106
-			world:raycast( -- 107
-				Vec3(position.x, position.y + 5, position.z), -- 107
-				Vec3(position.x, position.y - 5, position.z), -- 107
-				function(body) -- 107
-					rayHit = body == hullBody -- 108
-					return true -- 109
-				end -- 107
-			) -- 107
-			completed = true -- 111
-			phase = hullBuilt and cacheHit and cacheIsolated and dynamicCreated and rotated and rayHit and "PASS" or "FAIL" -- 112
-			screenshot = App:saveScreenshot(output .. "/convex-hull") -- 113
-			captureDelay = 0 -- 114
-		end -- 114
-	elseif not dynamicCreated then -- 114
-		stableFrames = 0 -- 117
-	end -- 117
-	if not completed and elapsed > 12 then -- 117
-		completed = true -- 121
-		phase = "FAIL: timeout" -- 122
-		screenshot = App:saveScreenshot(output .. "/convex-hull") -- 123
-		captureDelay = 0 -- 124
-	end -- 124
-	if captureDelay >= 0 then -- 124
-		captureDelay = captureDelay + App.deltaTime -- 128
-		if captureDelay >= 2 then -- 128
-			captureDelay = -1 -- 130
-			local ____temp_4 = phase == "PASS" and "PASS" or "FAIL" -- 131
-			local ____hullBuilt_5 = hullBuilt -- 131
-			local ____cacheHit_6 = cacheHit -- 131
-			local ____cacheIsolated_7 = cacheIsolated -- 131
-			local ____dynamicCreated_8 = dynamicCreated -- 131
-			local ____rotated_9 = rotated -- 131
-			local ____rayHit_10 = rayHit -- 131
-			local ____opt_0 = hullBody -- 131
-			local summary = (((((((((((((((((("CONVEX_HULL3D_SUMMARY status=" .. ____temp_4) .. " built=") .. tostring(____hullBuilt_5)) .. " cache=") .. tostring(____cacheHit_6)) .. " isolated=") .. tostring(____cacheIsolated_7)) .. " dynamic=") .. tostring(____dynamicCreated_8)) .. " rotated=") .. tostring(____rotated_9)) .. " ray=") .. tostring(____rayHit_10)) .. " y=") .. (____opt_0 and __TS__NumberToFixed(hullBody and hullBody.position.y, 3) or "nan")) .. " load=") .. __TS__NumberToFixed(loadTime, 3)) .. " screenshot=") .. screenshot -- 131
-			Content:save(output .. "/result.txt", summary) -- 132
-			print(summary) -- 133
-		end -- 133
-	end -- 133
-	ImGui.SetNextWindowPos( -- 137
-		Vec2(12, 12), -- 137
-		"Always" -- 137
-	) -- 137
-	ImGui.SetNextWindowSize( -- 138
-		Vec2(380, 0), -- 138
-		"Always" -- 138
-	) -- 138
-	ImGui.SetNextWindowBgAlpha(0.78) -- 139
-	ImGui.Begin( -- 140
-		"JOLT-C Dynamic Convex Hull", -- 140
-		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 140
-		function() -- 140
-			ImGui.Text("Phase: " .. phase) -- 141
-			ImGui.Text(("Content + cook: " .. __TS__NumberToFixed(loadTime, 3)) .. "s") -- 142
-			ImGui.Text((("Hull built/cache: " .. tostring(hullBuilt)) .. "/") .. tostring(cacheHit)) -- 143
-			ImGui.Text("Mesh cache isolated: " .. tostring(cacheIsolated)) -- 144
-			ImGui.Text((((("Dynamic/rotated/ray: " .. tostring(dynamicCreated)) .. "/") .. tostring(rotated)) .. "/") .. tostring(rayHit)) -- 145
-			local ____ImGui_Text_15 = ImGui.Text -- 146
-			local ____opt_11 = hullBody -- 146
-			____ImGui_Text_15("Body Y: " .. (____opt_11 and __TS__NumberToFixed(hullBody and hullBody.position.y, 2) or "n/a")) -- 146
-		end -- 140
+	if hullBody then -- 95
+		rotated = rotated or math.abs(hullBody.angles.y) > 5 or math.abs(hullBody.angles.x) > 5 -- 97
+	end -- 97
+	if not completed and hullBody ~= nil and elapsed > 1 and hullBody.position.y < 2 and math.abs(hullBody.linearVelocity.y) < 0.08 then -- 97
+		stableFrames = stableFrames + 1 -- 106
+		if stableFrames >= 20 then -- 106
+			local position = hullBody.position -- 108
+			world:raycast( -- 109
+				Vec3(position.x, position.y + 5, position.z), -- 109
+				Vec3(position.x, position.y - 5, position.z), -- 109
+				function(body) -- 109
+					rayHit = body == hullBody -- 110
+					return true -- 111
+				end -- 109
+			) -- 109
+			completed = true -- 113
+			phase = hullBuilt and cacheHit and cacheIsolated and dynamicCreated and rotated and rayHit and "PASS" or "FAIL" -- 114
+			screenshot = App:saveScreenshot(output .. "/convex-hull") -- 115
+			captureDelay = 0 -- 116
+		end -- 116
+	elseif not dynamicCreated then -- 116
+		stableFrames = 0 -- 119
+	end -- 119
+	if not completed and elapsed > 12 then -- 119
+		completed = true -- 123
+		phase = "FAIL: timeout" -- 124
+		screenshot = App:saveScreenshot(output .. "/convex-hull") -- 125
+		captureDelay = 0 -- 126
+	end -- 126
+	if captureDelay >= 0 then -- 126
+		captureDelay = captureDelay + App.deltaTime -- 130
+		if captureDelay >= 2 then -- 130
+			captureDelay = -1 -- 132
+			local ____temp_4 = phase == "PASS" and "PASS" or "FAIL" -- 133
+			local ____hullBuilt_5 = hullBuilt -- 133
+			local ____cacheHit_6 = cacheHit -- 133
+			local ____cacheIsolated_7 = cacheIsolated -- 133
+			local ____dynamicCreated_8 = dynamicCreated -- 133
+			local ____rotated_9 = rotated -- 133
+			local ____rayHit_10 = rayHit -- 133
+			local ____opt_0 = hullBody -- 133
+			local summary = (((((((((((((((((("CONVEX_HULL3D_SUMMARY status=" .. ____temp_4) .. " built=") .. tostring(____hullBuilt_5)) .. " cache=") .. tostring(____cacheHit_6)) .. " isolated=") .. tostring(____cacheIsolated_7)) .. " dynamic=") .. tostring(____dynamicCreated_8)) .. " rotated=") .. tostring(____rotated_9)) .. " ray=") .. tostring(____rayHit_10)) .. " y=") .. (____opt_0 and __TS__NumberToFixed(hullBody and hullBody.position.y, 3) or "nan")) .. " load=") .. __TS__NumberToFixed(loadTime, 3)) .. " screenshot=") .. screenshot -- 133
+			Content:save(output .. "/result.txt", summary) -- 134
+			print(summary) -- 135
+		end -- 135
+	end -- 135
+	ImGui.SetNextWindowPos( -- 139
+		Vec2(12, 12), -- 139
+		"Always" -- 139
+	) -- 139
+	ImGui.SetNextWindowSize( -- 140
+		Vec2(380, 0), -- 140
+		"Always" -- 140
 	) -- 140
-	return false -- 148
+	ImGui.SetNextWindowBgAlpha(0.78) -- 141
+	ImGui.Begin( -- 142
+		"JOLT-C Dynamic Convex Hull", -- 142
+		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 142
+		function() -- 142
+			ImGui.Text("Phase: " .. phase) -- 143
+			ImGui.Text(("Content + cook: " .. __TS__NumberToFixed(loadTime, 3)) .. "s") -- 144
+			ImGui.Text((("Hull built/cache: " .. tostring(hullBuilt)) .. "/") .. tostring(cacheHit)) -- 145
+			ImGui.Text("Mesh cache isolated: " .. tostring(cacheIsolated)) -- 146
+			ImGui.Text((((("Dynamic/rotated/ray: " .. tostring(dynamicCreated)) .. "/") .. tostring(rotated)) .. "/") .. tostring(rayHit)) -- 147
+			local ____ImGui_Text_15 = ImGui.Text -- 148
+			local ____opt_11 = hullBody -- 148
+			____ImGui_Text_15("Body Y: " .. (____opt_11 and __TS__NumberToFixed(hullBody and hullBody.position.y, 2) or "n/a")) -- 148
+		end -- 142
+	) -- 142
+	return false -- 150
 end) -- 94
 return ____exports -- 94

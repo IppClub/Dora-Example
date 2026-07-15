@@ -17,6 +17,7 @@ const view = Director.entry;
 const camera = Camera3D();
 Director.pushCamera(camera);
 camera.lookAt(Vec3(4.8, 3.7, 6.5), Vec3(0, 0.25, 0));
+view.shadowMapSize = 2048;
 view.setEnvironmentMap("");
 view.setEnvironmentIntensity(0.18, 0.05, 1.0);
 
@@ -52,6 +53,7 @@ light.angleX = -48;
 light.angleY = -35;
 light.shadowBias = 0.004;
 light.shadowNormalBias = 0.02;
+light.shadowSoftness = 2.0;
 view.addChild(light);
 
 let phase = "without-shadow";

@@ -51,7 +51,7 @@ changedMaterial.metallic = 1 -- 54
 changedMaterial.roughness = 0.15 -- 55
 changedMaterial.alphaMode = 0 -- 56
 changedMaterial.alphaCutoff = 0.45 -- 57
-changedMaterial:setNormalTexture(nil) -- 58
+changedMaterial:clearNormalTexture() -- 58
 local copyOnWriteValid = changed.materialCount == 1 and original.materialCount == 1 and changedMaterial.baseColor:toARGB() == 4294918208 and math.abs(changedMaterial.metallic - 1) < 0.001 and math.abs(changedMaterial.roughness - 0.15) < 0.001 and originalMaterial.baseColor:toARGB() == originalColor and math.abs(originalMaterial.metallic - originalMetallic) < 0.001 and math.abs(originalMaterial.roughness - originalRoughness) < 0.001 -- 60
 local elapsed = 0 -- 69
 local status = "Pending" -- 70

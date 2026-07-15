@@ -6,7 +6,7 @@ import {
 	CharacterController3DType,
 	Color3,
 	Constraint3D,
-Constraint3DType,
+	Constraint3DType,
 	DirectionalLight3D,
 	Director,
 	Model3D,
@@ -73,7 +73,9 @@ let physicsDebug = false;
 function rebuildActor() {
 	if (actorGeneration > 0) {
 		actorConstraint.destroy();
+		actorBody.removeChild(actorNode, false);
 		actorBody.removeFromParent(true);
+		view.addChild(actorNode);
 	}
 	actorGeneration += 1;
 	actorNode.position = Vec3(1.8, 2.2, 0);
@@ -82,7 +84,7 @@ function rebuildActor() {
 	actorConstraint = Constraint3D.hinge(
 		anchorBody,
 		actorBody,
-		anchorNode.position,
+		anchorBody.position,
 		Vec3(0, 0, 1),
 		-85,
 		85

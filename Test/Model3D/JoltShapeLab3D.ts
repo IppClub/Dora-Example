@@ -1,8 +1,10 @@
-import { makeBody3D, makeBoxBody3D, makeCapsuleBody3D, makeSphereBody3D } from "PhysicsBody3D";
+import { makeBody3D, makeBoxBody3D } from "PhysicsBody3D";
 // @preview-file on clear
 import {
 	App,
+	Body3D,
 	Body3DType,
+	BodyDef3D,
 	Camera3D,
 	Color3,
 	DirectionalLight3D,
@@ -91,21 +93,33 @@ let meshBody: Body3DType | undefined;
 let meshState = "Not loaded";
 let meshLoadTime = 0;
 let cacheHit = false;
-let kinematicMesh = false;
-let moveMesh = false;
 let dynamicRejected = false;
 let elapsed = 0;
 let physicsDebug = false;
 
+const kinematicNode = Node3D();
+kinematicNode.position = Vec3(3.2, 3.0, 0);
+view.addChild(kinematicNode);
+const kinematicPlatform = Model3D("Test/Model3D/Assets/Model/Ground.gltf");
+kinematicPlatform.scale = Vec3(0.28, 0.12, 0.28);
+kinematicNode.addChild(kinematicPlatform);
+const kinematicBody = makeBoxBody3D(
+	world,
+	kinematicNode,
+	Vec3(1.8, 0.2, 1.0),
+	PhysicsWorld3D.Kinematic
+);
+let moveKinematic = true;
+
 function createMeshBody() {
 	if (!meshShape) return;
-	if (kinematicMesh) {
-		kinematicMesh = false;
-		moveMesh = false;
-		meshState = "Mesh colliders must be static";
-		return;
+	if (meshBody) {
+		const position = meshBody.position;
+		meshBody.removeChild(meshNode, false);
+		meshBody.removeFromParent(true);
+		view.addChild(meshNode);
+		meshNode.position = position;
 	}
-	meshBody?.removeFromParent(true);
 	meshBody = makeBody3D(world,
 		meshNode,
 		meshShape,
@@ -136,7 +150,10 @@ function testDynamicRejection() {
 	const probe = Node3D();
 	probe.position = Vec3(0, -20, 0);
 	view.addChild(probe);
-	const rejected = makeBody3D(world, probe, meshShape, PhysicsWorld3D.Dynamic);
+	const def = BodyDef3D();
+	def.type = PhysicsWorld3D.Dynamic;
+	def.attach(meshShape);
+	const rejected = Body3D(def, world, probe.position, probe.angles);
 	dynamicRejected = rejected === undefined;
 	if (rejected !== undefined) rejected.removeFromParent(true);
 	probe.removeFromParent(true);
@@ -148,7 +165,9 @@ print("JOLT_SHAPE_LAB_READY");
 
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	if (moveMesh && kinematicMesh) meshNode.position = Vec3(3.2, 1.2 + Math.sin(elapsed * 1.5) * 0.7, 0);
+	if (moveKinematic) {
+		kinematicBody.position = Vec3(3.2, 3.0 + Math.sin(elapsed * 1.5) * 0.7, 0);
+	}
 
 	ImGui.SetNextWindowPos(Vec2(12, 12), SetCond.Always);
 	ImGui.SetNextWindowSize(Vec2(390, 0), SetCond.Always);
@@ -168,9 +187,7 @@ threadLoop(() => {
 		ImGui.Text(`Cache hit: ${cacheHit}`);
 		ImGui.Text(`Dynamic rejected: ${dynamicRejected}`);
 		let changed = false;
-		[changed, kinematicMesh] = ImGui.Checkbox("Kinematic Mesh (unsupported)", kinematicMesh);
-		if (changed && meshShape) createMeshBody();
-		[changed, moveMesh] = ImGui.Checkbox("Move Kinematic", moveMesh);
+		[changed, moveKinematic] = ImGui.Checkbox("Move Kinematic Platform", moveKinematic);
 		[changed, physicsDebug] = ImGui.Checkbox("Physics Debug", physicsDebug);
 		if (changed) world.showDebug = physicsDebug;
 		if (ImGui.Button("Reload Cached", Vec2(175, 30))) loadMesh();

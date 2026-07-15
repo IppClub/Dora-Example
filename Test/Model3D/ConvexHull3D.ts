@@ -93,7 +93,9 @@ FixtureDef3D.loadConvexHullAsync(modelPath, (shape) => {
 print("CONVEX_HULL3D_READY");
 threadLoop(() => {
 	elapsed += App.deltaTime;
-	rotated = rotated || Math.abs(hullNode.angles.y) > 5 || Math.abs(hullNode.angles.x) > 5;
+	if (hullBody) {
+		rotated = rotated || Math.abs(hullBody.angles.y) > 5 || Math.abs(hullBody.angles.x) > 5;
+	}
 	if (
 		!completed
 		&& hullBody !== undefined

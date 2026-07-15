@@ -77,102 +77,97 @@ makeBoxBody3D( -- 70
 	PhysicsWorld3D.Static -- 70
 ) -- 70
 local function runPhase(count, ____debug) -- 72
-	local nodes = {} -- 73
-	local bodies = {} -- 74
-	local side = math.ceil(math.sqrt(count)) -- 75
-	do -- 75
-		local index = 0 -- 76
-		while index < count do -- 76
-			local node = Node3D() -- 77
-			local column = index % side -- 78
-			local row = math.floor(index / side) -- 79
-			node.position = Vec3((column - (side - 1) * 0.5) * 1.15, 1.2 + index % 7 * 1.05, (row - (side - 1) * 0.5) * 1.15) -- 80
-			view:addChild(node) -- 85
-			local body -- 86
-			repeat -- 86
-				local ____switch12 = index % 3 -- 86
-				local ____cond12 = ____switch12 == 1 -- 86
-				if ____cond12 then -- 86
-					body = makeSphereBody3D(world, node, 0.42) -- 89
-					break -- 90
-				end -- 90
-				____cond12 = ____cond12 or ____switch12 == 2 -- 90
-				if ____cond12 then -- 90
-					body = makeCapsuleBody3D(world, node, 0.32, 0.3) -- 92
-					break -- 93
-				end -- 93
-				do -- 93
-					body = makeBoxBody3D( -- 95
-						world, -- 95
-						node, -- 95
-						Vec3(0.4, 0.4, 0.4) -- 95
-					) -- 95
-					break -- 96
-				end -- 96
-			until true -- 96
-			nodes[#nodes + 1] = node -- 98
-			bodies[#bodies + 1] = body -- 99
-			index = index + 1 -- 76
-		end -- 76
-	end -- 76
-	world.showDebug = ____debug -- 102
-	Content:save( -- 103
-		phasePath, -- 103
-		(tostring(count) .. ":") .. (____debug and "debug" or "plain") -- 103
-	) -- 103
-	waitFrames(warmupFrames) -- 104
-	local frame = {} -- 106
-	local collect = {} -- 107
-	local submit = {} -- 108
-	do -- 108
-		local index = 0 -- 109
-		while index < sampleFrames do -- 109
-			sleep() -- 110
-			local stats = view.stats -- 111
-			frame[#frame + 1] = App.deltaTime * 1000 -- 112
-			collect[#collect + 1] = stats.collectMicros -- 113
-			submit[#submit + 1] = stats.submitMicros -- 114
-			index = index + 1 -- 109
-		end -- 109
-	end -- 109
-	local sample = { -- 117
-		count = count, -- 118
-		debug = ____debug, -- 119
-		frameP50 = percentile(frame, 0.5), -- 120
-		frameP95 = percentile(frame, 0.95), -- 121
-		collectP95 = percentile(collect, 0.95), -- 122
-		submitP95 = percentile(submit, 0.95) -- 123
-	} -- 123
-	emit(((((("JOLT_PROFILE count=" .. tostring(count)) .. " debug=") .. tostring(____debug)) .. " ") .. ((("frameP50Ms=" .. __TS__NumberToFixed(sample.frameP50, 3)) .. " frameP95Ms=") .. __TS__NumberToFixed(sample.frameP95, 3)) .. " ") .. (("collectP95Us=" .. tostring(sample.collectP95)) .. " submitP95Us=") .. tostring(sample.submitP95)) -- 125
-	world.showDebug = false -- 131
-	for ____, body in ipairs(bodies) do -- 132
-		body:removeFromParent(true) -- 132
-	end -- 132
-	for ____, node in ipairs(nodes) do -- 133
-		node:removeFromParent(true) -- 133
-	end -- 133
-	waitFrames(5) -- 134
-	return sample -- 135
+	local bodies = {} -- 73
+	local side = math.ceil(math.sqrt(count)) -- 74
+	do -- 74
+		local index = 0 -- 75
+		while index < count do -- 75
+			local node = Node3D() -- 76
+			local column = index % side -- 77
+			local row = math.floor(index / side) -- 78
+			node.position = Vec3((column - (side - 1) * 0.5) * 1.15, 1.2 + index % 7 * 1.05, (row - (side - 1) * 0.5) * 1.15) -- 79
+			view:addChild(node) -- 84
+			local body -- 85
+			repeat -- 85
+				local ____switch12 = index % 3 -- 85
+				local ____cond12 = ____switch12 == 1 -- 85
+				if ____cond12 then -- 85
+					body = makeSphereBody3D(world, node, 0.42) -- 88
+					break -- 89
+				end -- 89
+				____cond12 = ____cond12 or ____switch12 == 2 -- 89
+				if ____cond12 then -- 89
+					body = makeCapsuleBody3D(world, node, 0.32, 0.3) -- 91
+					break -- 92
+				end -- 92
+				do -- 92
+					body = makeBoxBody3D( -- 94
+						world, -- 94
+						node, -- 94
+						Vec3(0.4, 0.4, 0.4) -- 94
+					) -- 94
+					break -- 95
+				end -- 95
+			until true -- 95
+			bodies[#bodies + 1] = body -- 97
+			index = index + 1 -- 75
+		end -- 75
+	end -- 75
+	world.showDebug = ____debug -- 100
+	Content:save( -- 101
+		phasePath, -- 101
+		(tostring(count) .. ":") .. (____debug and "debug" or "plain") -- 101
+	) -- 101
+	waitFrames(warmupFrames) -- 102
+	local frame = {} -- 104
+	local collect = {} -- 105
+	local submit = {} -- 106
+	do -- 106
+		local index = 0 -- 107
+		while index < sampleFrames do -- 107
+			sleep() -- 108
+			local stats = view.stats -- 109
+			frame[#frame + 1] = App.deltaTime * 1000 -- 110
+			collect[#collect + 1] = stats.collectMicros -- 111
+			submit[#submit + 1] = stats.submitMicros -- 112
+			index = index + 1 -- 107
+		end -- 107
+	end -- 107
+	local sample = { -- 115
+		count = count, -- 116
+		debug = ____debug, -- 117
+		frameP50 = percentile(frame, 0.5), -- 118
+		frameP95 = percentile(frame, 0.95), -- 119
+		collectP95 = percentile(collect, 0.95), -- 120
+		submitP95 = percentile(submit, 0.95) -- 121
+	} -- 121
+	emit(((((("JOLT_PROFILE count=" .. tostring(count)) .. " debug=") .. tostring(____debug)) .. " ") .. ((("frameP50Ms=" .. __TS__NumberToFixed(sample.frameP50, 3)) .. " frameP95Ms=") .. __TS__NumberToFixed(sample.frameP95, 3)) .. " ") .. (("collectP95Us=" .. tostring(sample.collectP95)) .. " submitP95Us=") .. tostring(sample.submitP95)) -- 123
+	world.showDebug = false -- 129
+	for ____, body in ipairs(bodies) do -- 130
+		body:removeFromParent(true) -- 130
+	end -- 130
+	waitFrames(5) -- 131
+	return sample -- 132
 end -- 72
-Content:remove(resultPath) -- 138
-Content:remove(phasePath) -- 139
-thread(function() -- 140
-	for ____, count in ipairs(counts) do -- 141
-		runPhase(count, false) -- 142
-		runPhase(count, true) -- 143
-	end -- 143
-	Content:save(phasePath, "cleanup") -- 145
-	waitFrames(5) -- 146
-	local stats = view.stats -- 147
-	if stats.modelInstanceCount ~= 0 or stats.visualCount ~= 0 then -- 147
-		fail((("cleanup_registry_models_" .. tostring(stats.modelInstanceCount)) .. "_visuals_") .. tostring(stats.visualCount)) -- 149
-	end -- 149
-	emit("JOLT_PROFILE_SUMMARY status=PASS") -- 151
-	Content:save( -- 152
-		resultPath, -- 152
-		table.concat(results, "\n") .. "\n" -- 152
-	) -- 152
-	App.devMode = false -- 153
-	App:shutdown() -- 154
-end) -- 140
-return ____exports -- 140
+Content:remove(resultPath) -- 135
+Content:remove(phasePath) -- 136
+thread(function() -- 137
+	for ____, count in ipairs(counts) do -- 138
+		runPhase(count, false) -- 139
+		runPhase(count, true) -- 140
+	end -- 140
+	Content:save(phasePath, "cleanup") -- 142
+	waitFrames(5) -- 143
+	local stats = view.stats -- 144
+	if stats.modelInstanceCount ~= 0 or stats.visualCount ~= 0 then -- 144
+		fail((("cleanup_registry_models_" .. tostring(stats.modelInstanceCount)) .. "_visuals_") .. tostring(stats.visualCount)) -- 146
+	end -- 146
+	emit("JOLT_PROFILE_SUMMARY status=PASS") -- 148
+	Content:save( -- 149
+		resultPath, -- 149
+		table.concat(results, "\n") .. "\n" -- 149
+	) -- 149
+	App.devMode = false -- 150
+	App:shutdown() -- 151
+end) -- 137
+return ____exports -- 137

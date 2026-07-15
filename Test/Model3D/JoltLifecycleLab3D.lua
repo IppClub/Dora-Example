@@ -76,144 +76,146 @@ local physicsDebug = false -- 71
 local function rebuildActor() -- 73
 	if actorGeneration > 0 then -- 73
 		actorConstraint:destroy() -- 75
-		actorBody:removeFromParent(true) -- 76
-	end -- 76
-	actorGeneration = actorGeneration + 1 -- 78
-	actorNode.position = Vec3(1.8, 2.2, 0) -- 79
-	actorNode.angles = Vec3(0, 0, 0) -- 80
-	actorBody = makeBoxBody3D( -- 81
-		world, -- 81
-		actorNode, -- 81
-		Vec3(0.6, 0.55, 0.6) -- 81
-	) -- 81
-	actorConstraint = Constraint3D:hinge( -- 82
-		anchorBody, -- 83
-		actorBody, -- 84
-		anchorNode.position, -- 85
-		Vec3(0, 0, 1), -- 86
-		-85, -- 86
-		85 -- 88
-	) -- 88
+		actorBody:removeChild(actorNode, false) -- 76
+		actorBody:removeFromParent(true) -- 77
+		view:addChild(actorNode) -- 78
+	end -- 78
+	actorGeneration = actorGeneration + 1 -- 80
+	actorNode.position = Vec3(1.8, 2.2, 0) -- 81
+	actorNode.angles = Vec3(0, 0, 0) -- 82
+	actorBody = makeBoxBody3D( -- 83
+		world, -- 83
+		actorNode, -- 83
+		Vec3(0.6, 0.55, 0.6) -- 83
+	) -- 83
+	actorConstraint = Constraint3D:hinge( -- 84
+		anchorBody, -- 85
+		actorBody, -- 86
+		anchorBody.position, -- 87
+		Vec3(0, 0, 1), -- 88
+		-85, -- 88
+		85 -- 90
+	) -- 90
 end -- 73
-local function destroyBodyCascade() -- 92
-	actorBody:removeFromParent(true) -- 93
-	bodyCascadePass = actorBody.world == nil and actorConstraint.world == nil and actorConstraint.firstBody == nil -- 94
-end -- 92
-local function runWorldCleanupCycle() -- 99
-	local cycleWorld = PhysicsWorld3D() -- 100
-	view:addChild(cycleWorld) -- 101
-	local firstNode = Node3D() -- 102
-	firstNode.position = Vec3(0, -20, 0) -- 103
-	view:addChild(firstNode) -- 104
-	local secondNode = Node3D() -- 105
-	secondNode.position = Vec3(1, -20, 0) -- 106
-	view:addChild(secondNode) -- 107
-	local characterNode = Node3D() -- 108
-	characterNode.position = Vec3(0, -20, 2) -- 109
-	view:addChild(characterNode) -- 110
-	local first = makeBoxBody3D( -- 112
-		cycleWorld, -- 112
-		firstNode, -- 112
-		Vec3(0.2, 0.2, 0.2), -- 112
-		PhysicsWorld3D.Static -- 112
-	) -- 112
-	local second = makeSphereBody3D(cycleWorld, secondNode, 0.2) -- 113
-	local constraint = Constraint3D:fixed( -- 114
-		first, -- 114
-		second, -- 114
-		Vec3(0.5, -20, 0) -- 114
+local function destroyBodyCascade() -- 94
+	actorBody:removeFromParent(true) -- 95
+	bodyCascadePass = actorBody.world == nil and actorConstraint.world == nil and actorConstraint.firstBody == nil -- 96
+end -- 94
+local function runWorldCleanupCycle() -- 101
+	local cycleWorld = PhysicsWorld3D() -- 102
+	view:addChild(cycleWorld) -- 103
+	local firstNode = Node3D() -- 104
+	firstNode.position = Vec3(0, -20, 0) -- 105
+	view:addChild(firstNode) -- 106
+	local secondNode = Node3D() -- 107
+	secondNode.position = Vec3(1, -20, 0) -- 108
+	view:addChild(secondNode) -- 109
+	local characterNode = Node3D() -- 110
+	characterNode.position = Vec3(0, -20, 2) -- 111
+	view:addChild(characterNode) -- 112
+	local first = makeBoxBody3D( -- 114
+		cycleWorld, -- 114
+		firstNode, -- 114
+		Vec3(0.2, 0.2, 0.2), -- 114
+		PhysicsWorld3D.Static -- 114
 	) -- 114
-	local character = cycleWorld:createCharacter(characterNode, 0.45, 0.25) -- 115
-	cycleWorld:removeFromParent(true) -- 117
-	worldCleanupPass = first.world == nil and second.world == nil and constraint.world == nil and character.world == nil -- 118
-	lastCharacterEmpty = character.node == nil -- 122
-	if not worldCleanupPass or not lastCharacterEmpty then -- 122
-		stressFailures = stressFailures + 1 -- 123
-	end -- 123
-	stressCycles = stressCycles + 1 -- 124
-	firstNode:removeFromParent(true) -- 125
-	secondNode:removeFromParent(true) -- 126
-	characterNode:removeFromParent(true) -- 127
-end -- 99
-local function beginStress(count) -- 130
-	stressTarget = stressCycles + count -- 131
-	stressRunning = true -- 132
-end -- 130
-rebuildActor() -- 135
-runWorldCleanupCycle() -- 136
-print("JOLT_LIFECYCLE_LAB_READY") -- 137
-threadLoop(function() -- 139
-	if stressRunning then -- 139
-		do -- 139
-			local i = 0 -- 141
-			while i < 4 and stressCycles < stressTarget do -- 141
-				runWorldCleanupCycle() -- 141
-				i = i + 1 -- 141
-			end -- 141
-		end -- 141
-		if stressCycles >= stressTarget then -- 141
-			stressRunning = false -- 142
-		end -- 142
-	end -- 142
-	ImGui.SetNextWindowPos( -- 145
-		Vec2(12, 12), -- 145
-		"Always" -- 145
-	) -- 145
-	ImGui.SetNextWindowSize( -- 146
-		Vec2(410, 0), -- 146
-		"Always" -- 146
-	) -- 146
-	ImGui.SetNextWindowBgAlpha(0.82) -- 147
-	ImGui.Begin( -- 148
-		"JOLT Lifecycle Lab", -- 148
-		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 148
-		function() -- 148
-			ImGui.Text("Visible generation: " .. tostring(actorGeneration)) -- 149
-			ImGui.Text("Body cascade cleanup: " .. tostring(bodyCascadePass)) -- 150
-			ImGui.Text("World cleanup: " .. tostring(worldCleanupPass)) -- 151
-			ImGui.Text("Character cleanup: " .. tostring(lastCharacterEmpty)) -- 152
-			ImGui.Text((("Stress cycles / failures: " .. tostring(stressCycles)) .. " / ") .. tostring(stressFailures)) -- 153
-			ImGui.Text("Stress state: " .. (stressRunning and "Running" or "Idle")) -- 154
-			local changed = false -- 155
-			changed, physicsDebug = ImGui.Checkbox("Physics Debug", physicsDebug) -- 156
-			if changed then -- 156
-				world.showDebug = physicsDebug -- 157
-			end -- 157
-			if ImGui.Button( -- 157
-				"Destroy Body", -- 159
-				Vec2(185, 30) -- 159
-			) then -- 159
-				destroyBodyCascade() -- 159
+	local second = makeSphereBody3D(cycleWorld, secondNode, 0.2) -- 115
+	local constraint = Constraint3D:fixed( -- 116
+		first, -- 116
+		second, -- 116
+		Vec3(0.5, -20, 0) -- 116
+	) -- 116
+	local character = cycleWorld:createCharacter(characterNode, 0.45, 0.25) -- 117
+	cycleWorld:removeFromParent(true) -- 119
+	worldCleanupPass = first.world == nil and second.world == nil and constraint.world == nil and character.world == nil -- 120
+	lastCharacterEmpty = character.node == nil -- 124
+	if not worldCleanupPass or not lastCharacterEmpty then -- 124
+		stressFailures = stressFailures + 1 -- 125
+	end -- 125
+	stressCycles = stressCycles + 1 -- 126
+	firstNode:removeFromParent(true) -- 127
+	secondNode:removeFromParent(true) -- 128
+	characterNode:removeFromParent(true) -- 129
+end -- 101
+local function beginStress(count) -- 132
+	stressTarget = stressCycles + count -- 133
+	stressRunning = true -- 134
+end -- 132
+rebuildActor() -- 137
+runWorldCleanupCycle() -- 138
+print("JOLT_LIFECYCLE_LAB_READY") -- 139
+threadLoop(function() -- 141
+	if stressRunning then -- 141
+		do -- 141
+			local i = 0 -- 143
+			while i < 4 and stressCycles < stressTarget do -- 143
+				runWorldCleanupCycle() -- 143
+				i = i + 1 -- 143
+			end -- 143
+		end -- 143
+		if stressCycles >= stressTarget then -- 143
+			stressRunning = false -- 144
+		end -- 144
+	end -- 144
+	ImGui.SetNextWindowPos( -- 147
+		Vec2(12, 12), -- 147
+		"Always" -- 147
+	) -- 147
+	ImGui.SetNextWindowSize( -- 148
+		Vec2(410, 0), -- 148
+		"Always" -- 148
+	) -- 148
+	ImGui.SetNextWindowBgAlpha(0.82) -- 149
+	ImGui.Begin( -- 150
+		"JOLT Lifecycle Lab", -- 150
+		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 150
+		function() -- 150
+			ImGui.Text("Visible generation: " .. tostring(actorGeneration)) -- 151
+			ImGui.Text("Body cascade cleanup: " .. tostring(bodyCascadePass)) -- 152
+			ImGui.Text("World cleanup: " .. tostring(worldCleanupPass)) -- 153
+			ImGui.Text("Character cleanup: " .. tostring(lastCharacterEmpty)) -- 154
+			ImGui.Text((("Stress cycles / failures: " .. tostring(stressCycles)) .. " / ") .. tostring(stressFailures)) -- 155
+			ImGui.Text("Stress state: " .. (stressRunning and "Running" or "Idle")) -- 156
+			local changed = false -- 157
+			changed, physicsDebug = ImGui.Checkbox("Physics Debug", physicsDebug) -- 158
+			if changed then -- 158
+				world.showDebug = physicsDebug -- 159
 			end -- 159
-			ImGui.SameLine() -- 160
-			if ImGui.Button( -- 160
-				"Rebuild Actor", -- 161
+			if ImGui.Button( -- 159
+				"Destroy Body", -- 161
 				Vec2(185, 30) -- 161
 			) then -- 161
-				rebuildActor() -- 161
+				destroyBodyCascade() -- 161
 			end -- 161
-			if ImGui.Button( -- 161
-				"World Cycle", -- 163
-				Vec2(120, 30) -- 163
+			ImGui.SameLine() -- 162
+			if ImGui.Button( -- 162
+				"Rebuild Actor", -- 163
+				Vec2(185, 30) -- 163
 			) then -- 163
-				runWorldCleanupCycle() -- 163
+				rebuildActor() -- 163
 			end -- 163
-			ImGui.SameLine() -- 164
-			if ImGui.Button( -- 164
-				"Stress 100", -- 165
+			if ImGui.Button( -- 163
+				"World Cycle", -- 165
 				Vec2(120, 30) -- 165
 			) then -- 165
-				beginStress(100) -- 165
+				runWorldCleanupCycle() -- 165
 			end -- 165
 			ImGui.SameLine() -- 166
 			if ImGui.Button( -- 166
-				"Stress 1000", -- 167
+				"Stress 100", -- 167
 				Vec2(120, 30) -- 167
 			) then -- 167
-				beginStress(1000) -- 167
+				beginStress(100) -- 167
 			end -- 167
-		end -- 148
-	) -- 148
-	return false -- 169
-end) -- 139
-return ____exports -- 139
+			ImGui.SameLine() -- 168
+			if ImGui.Button( -- 168
+				"Stress 1000", -- 169
+				Vec2(120, 30) -- 169
+			) then -- 169
+				beginStress(1000) -- 169
+			end -- 169
+		end -- 150
+	) -- 150
+	return false -- 171
+end) -- 141
+return ____exports -- 141

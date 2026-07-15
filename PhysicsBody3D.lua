@@ -13,7 +13,7 @@ local Body3D = ____Dora.Body3D -- 2
 local BodyDef3D = ____Dora.BodyDef3D -- 4
 local FixtureDef3D = ____Dora.FixtureDef3D -- 5
 local Vec3 = ____Dora.Vec3 -- 9
-function ____exports.makeBody3D(world, node, fixture, ____type) -- 12
+local function tryMakeBody3D(world, node, fixture, ____type) -- 12
 	if ____type == nil then -- 12
 		____type = 2 -- 16
 	end -- 16
@@ -26,49 +26,72 @@ function ____exports.makeBody3D(world, node, fixture, ____type) -- 12
 	local def = BodyDef3D() -- 24
 	def.type = ____type -- 25
 	if not def:attach(fixture) then -- 25
-		error( -- 26
-			__TS__New(Error, "failed to attach FixtureDef3D"), -- 26
-			0 -- 26
-		) -- 26
-	end -- 26
-	local body = Body3D(def, world, position, angles) -- 27
-	body:addChild(node) -- 28
-	if parent ~= nil then -- 28
-		parent:addChild(body) -- 29
-	end -- 29
-	return body -- 30
-end -- 12
-function ____exports.makeBoxBody3D(world, node, halfExtent, ____type) -- 33
-	if ____type == nil then -- 33
-		____type = 2 -- 33
-	end -- 33
-	return ____exports.makeBody3D( -- 34
-		world, -- 34
-		node, -- 34
-		FixtureDef3D:box(halfExtent), -- 34
-		____type -- 34
-	) -- 34
-end -- 33
-function ____exports.makeSphereBody3D(world, node, radius, ____type) -- 37
-	if ____type == nil then -- 37
-		____type = 2 -- 37
+		node.position = position -- 27
+		node.angles = angles -- 28
+		if parent ~= nil then -- 28
+			parent:addChild(node) -- 29
+		end -- 29
+		return nil -- 30
+	end -- 30
+	local body = Body3D(def, world, position, angles) -- 32
+	if not body then -- 32
+		node.position = position -- 34
+		node.angles = angles -- 35
+		if parent ~= nil then -- 35
+			parent:addChild(node) -- 36
+		end -- 36
+		return nil -- 37
 	end -- 37
-	return ____exports.makeBody3D( -- 38
-		world, -- 38
-		node, -- 38
-		FixtureDef3D:sphere(radius), -- 38
-		____type -- 38
-	) -- 38
-end -- 37
-function ____exports.makeCapsuleBody3D(world, node, halfHeight, radius, ____type) -- 41
-	if ____type == nil then -- 41
-		____type = 2 -- 46
-	end -- 46
-	return ____exports.makeBody3D( -- 48
-		world, -- 48
-		node, -- 48
-		FixtureDef3D:capsule(halfHeight, radius), -- 48
-		____type -- 48
-	) -- 48
-end -- 41
-return ____exports -- 41
+	body:addChild(node) -- 39
+	if parent ~= nil then -- 39
+		parent:addChild(body) -- 40
+	end -- 40
+	return body -- 41
+end -- 12
+function ____exports.makeBody3D(world, node, fixture, ____type) -- 44
+	if ____type == nil then -- 44
+		____type = 2 -- 48
+	end -- 48
+	local body = tryMakeBody3D(world, node, fixture, ____type) -- 50
+	if not body then -- 50
+		error( -- 51
+			__TS__New(Error, "failed to create Body3D"), -- 51
+			0 -- 51
+		) -- 51
+	end -- 51
+	return body -- 52
+end -- 44
+function ____exports.makeBoxBody3D(world, node, halfExtent, ____type) -- 55
+	if ____type == nil then -- 55
+		____type = 2 -- 55
+	end -- 55
+	return ____exports.makeBody3D( -- 56
+		world, -- 56
+		node, -- 56
+		FixtureDef3D:box(halfExtent), -- 56
+		____type -- 56
+	) -- 56
+end -- 55
+function ____exports.makeSphereBody3D(world, node, radius, ____type) -- 59
+	if ____type == nil then -- 59
+		____type = 2 -- 59
+	end -- 59
+	return ____exports.makeBody3D( -- 60
+		world, -- 60
+		node, -- 60
+		FixtureDef3D:sphere(radius), -- 60
+		____type -- 60
+	) -- 60
+end -- 59
+function ____exports.makeCapsuleBody3D(world, node, halfHeight, radius, ____type) -- 63
+	if ____type == nil then -- 63
+		____type = 2 -- 68
+	end -- 68
+	return ____exports.makeBody3D( -- 70
+		world, -- 70
+		node, -- 70
+		FixtureDef3D:capsule(halfHeight, radius), -- 70
+		____type -- 70
+	) -- 70
+end -- 63
+return ____exports -- 63

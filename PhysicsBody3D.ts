@@ -9,12 +9,12 @@ import {
 	Vec3,
 } from "Dora";
 
-export function makeBody3D(
+function tryMakeBody3D(
 	world: PhysicsWorld3DType,
 	node: Node3DType,
 	fixture: FixtureDef3DType,
 	type = 2
-): Body3DType {
+): Body3DType | undefined {
 	const parent = node.parent;
 	const position = node.position;
 	const angles = node.angles;
@@ -23,10 +23,32 @@ export function makeBody3D(
 	node.angles = Vec3(0, 0, 0);
 	const def = BodyDef3D();
 	def.type = type;
-	if (!def.attach(fixture)) throw new Error("failed to attach FixtureDef3D");
-	const body = Body3D(def, world, position, angles);
+	if (!def.attach(fixture)) {
+		node.position = position;
+		node.angles = angles;
+		parent?.addChild(node);
+		return undefined;
+	}
+	const body = Body3D(def, world, position, angles) as Body3DType | undefined;
+	if (!body) {
+		node.position = position;
+		node.angles = angles;
+		parent?.addChild(node);
+		return undefined;
+	}
 	body.addChild(node);
 	parent?.addChild(body);
+	return body;
+}
+
+export function makeBody3D(
+	world: PhysicsWorld3DType,
+	node: Node3DType,
+	fixture: FixtureDef3DType,
+	type = 2
+): Body3DType {
+	const body = tryMakeBody3D(world, node, fixture, type);
+	if (!body) throw new Error("failed to create Body3D");
 	return body;
 }
 

@@ -223,7 +223,7 @@ print("JOLT_DYNAMICS_LAB_READY") -- 179
 threadLoop(function() -- 181
 	elapsed = elapsed + App.deltaTime -- 182
 	if platformMotion then -- 182
-		platformNode.position = Vec3( -- 183
+		platformBody.position = Vec3( -- 183
 			math.sin(elapsed * 1.2) * 2.8, -- 183
 			1, -- 183
 			-1.2 -- 183

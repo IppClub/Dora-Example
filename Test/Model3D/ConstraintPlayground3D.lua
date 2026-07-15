@@ -91,181 +91,183 @@ local function rebuild() -- 82
 		constraint:destroy() -- 83
 	end -- 83
 	constraint = nil -- 84
-	body:removeFromParent(true) -- 85
-	local start = mode == 0 and Vec3(1.8, 2.4, 0) or (mode == 1 and Vec3(ropeLength * 0.72, 4.5 - ropeLength * 0.69, 0) or Vec3(1.8, 2.4, 0)) -- 87
-	dynamicNode.position = start -- 92
-	dynamicNode.angles = Vec3(0, 0, 0) -- 93
-	body = makeBoxBody3D( -- 94
-		world, -- 94
-		dynamicNode, -- 94
-		Vec3(0.65, 0.55, 0.65) -- 94
-	) -- 94
-	if mode == 0 then -- 94
-		constraint = Constraint3D:fixed( -- 97
-			anchorBody, -- 97
-			body, -- 97
-			Vec3(0.9, 3.45, 0) -- 97
-		) -- 97
-	elseif mode == 1 then -- 97
-		constraint = Constraint3D:distance( -- 99
-			anchorBody, -- 100
-			body, -- 101
-			anchorNode.position, -- 102
-			dynamicNode.position, -- 103
-			ropeLength, -- 104
-			ropeLength -- 105
-		) -- 105
-	else -- 105
-		constraint = Constraint3D:hinge( -- 108
-			anchorBody, -- 109
-			body, -- 110
-			anchorNode.position, -- 111
-			Vec3(0, 0, 1), -- 112
-			-hingeLimit, -- 112
-			hingeLimit -- 114
-		) -- 114
-	end -- 114
-	state = "Connected" -- 117
-	peakSpeed = 0 -- 118
+	body:removeChild(dynamicNode, false) -- 85
+	body:removeFromParent(true) -- 86
+	view:addChild(dynamicNode) -- 87
+	local start = mode == 0 and Vec3(1.8, 2.4, 0) or (mode == 1 and Vec3(ropeLength * 0.72, 4.5 - ropeLength * 0.69, 0) or Vec3(1.8, 2.4, 0)) -- 89
+	dynamicNode.position = start -- 94
+	dynamicNode.angles = Vec3(0, 0, 0) -- 95
+	body = makeBoxBody3D( -- 96
+		world, -- 96
+		dynamicNode, -- 96
+		Vec3(0.65, 0.55, 0.65) -- 96
+	) -- 96
+	if mode == 0 then -- 96
+		constraint = Constraint3D:fixed( -- 99
+			anchorBody, -- 99
+			body, -- 99
+			Vec3(0.9, 3.45, 0) -- 99
+		) -- 99
+	elseif mode == 1 then -- 99
+		constraint = Constraint3D:distance( -- 101
+			anchorBody, -- 102
+			body, -- 103
+			anchorBody.position, -- 104
+			body.position, -- 105
+			ropeLength, -- 106
+			ropeLength -- 107
+		) -- 107
+	else -- 107
+		constraint = Constraint3D:hinge( -- 110
+			anchorBody, -- 111
+			body, -- 112
+			anchorBody.position, -- 113
+			Vec3(0, 0, 1), -- 114
+			-hingeLimit, -- 114
+			hingeLimit -- 116
+		) -- 116
+	end -- 116
+	state = "Connected" -- 119
+	peakSpeed = 0 -- 120
 end -- 82
-local function push(x, y) -- 121
-	body:applyLinearImpulse(Vec3(x * impulse, y * impulse, 0)) -- 122
-end -- 121
-view:onTapBegan(function(touch) -- 125
-	selected = view:pick(touch.viewLocation) == dynamicModel -- 126
-	dynamicModel.scale = selected and Vec3(0.92, 0.92, 0.92) or Vec3(0.8, 0.8, 0.8) -- 127
-end) -- 125
-view:onTapMoved(function(touch) -- 130
-	if not selected then -- 130
-		return -- 131
-	end -- 131
-	local velocity = body.linearVelocity -- 132
-	body.linearVelocity = Vec3(velocity.x - touch.delta.x * dragGain, velocity.y + touch.delta.y * dragGain, 0) -- 133
-end) -- 130
-view:onTapEnded(function() -- 140
-	selected = false -- 141
-	dynamicModel.scale = Vec3(0.8, 0.8, 0.8) -- 142
-end) -- 140
-rebuild() -- 145
-print("CONSTRAINT_PLAYGROUND3D_READY") -- 146
-threadLoop(function() -- 148
-	peakSpeed = math.max( -- 149
-		peakSpeed, -- 149
-		vecLength(body.linearVelocity) -- 149
-	) -- 149
-	ImGui.SetNextWindowPos( -- 151
-		Vec2(12, 12), -- 151
-		"Always" -- 151
+local function push(x, y) -- 123
+	body:applyLinearImpulse(Vec3(x * impulse, y * impulse, 0)) -- 124
+end -- 123
+view:onTapBegan(function(touch) -- 127
+	selected = view:pick(touch.viewLocation) == dynamicModel -- 128
+	dynamicModel.scale = selected and Vec3(0.92, 0.92, 0.92) or Vec3(0.8, 0.8, 0.8) -- 129
+end) -- 127
+view:onTapMoved(function(touch) -- 132
+	if not selected then -- 132
+		return -- 133
+	end -- 133
+	local velocity = body.linearVelocity -- 134
+	body.linearVelocity = Vec3(velocity.x - touch.delta.x * dragGain, velocity.y + touch.delta.y * dragGain, 0) -- 135
+end) -- 132
+view:onTapEnded(function() -- 142
+	selected = false -- 143
+	dynamicModel.scale = Vec3(0.8, 0.8, 0.8) -- 144
+end) -- 142
+rebuild() -- 147
+print("CONSTRAINT_PLAYGROUND3D_READY") -- 148
+threadLoop(function() -- 150
+	peakSpeed = math.max( -- 151
+		peakSpeed, -- 151
+		vecLength(body.linearVelocity) -- 151
 	) -- 151
-	ImGui.SetNextWindowSize( -- 152
-		Vec2(350, 0), -- 152
-		"Always" -- 152
-	) -- 152
-	ImGui.SetNextWindowBgAlpha(0.82) -- 153
-	ImGui.Begin( -- 154
-		"Constraint Playground", -- 154
-		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 154
-		function() -- 154
-			local changed = false -- 155
-			changed, mode = ImGui.Combo("Constraint", mode, modeNames) -- 156
-			if changed then -- 156
-				rebuild() -- 157
-			end -- 157
-			if mode == 1 then -- 157
-				changed, ropeLength = ImGui.DragFloat( -- 160
-					"Length", -- 160
-					ropeLength, -- 160
-					0.05, -- 160
-					1.5, -- 160
-					4, -- 160
-					"%.2f" -- 160
-				) -- 160
-				if changed then -- 160
-					rebuild() -- 161
-				end -- 161
-			elseif mode == 2 then -- 161
-				changed, hingeLimit = ImGui.DragFloat( -- 163
-					"Limit", -- 163
-					hingeLimit, -- 163
-					1, -- 163
-					10, -- 163
-					170, -- 163
-					"%.0f deg" -- 163
-				) -- 163
-				if changed then -- 163
-					rebuild() -- 164
-				end -- 164
-			end -- 164
-			changed, impulse = ImGui.DragFloat( -- 167
-				"Impulse", -- 167
-				impulse, -- 167
-				0.1, -- 167
-				0.5, -- 167
-				12, -- 167
-				"%.1f" -- 167
-			) -- 167
-			changed, dragGain = ImGui.DragFloat( -- 168
-				"Drag Gain", -- 168
-				dragGain, -- 168
-				0.05, -- 168
-				0.2, -- 168
-				2.5, -- 168
-				"%.2f" -- 168
-			) -- 168
-			changed, showAABB = ImGui.Checkbox("Show AABB", showAABB) -- 169
-			if changed then -- 169
-				view.showAABB = showAABB -- 170
-			end -- 170
-			changed, physicsDebug = ImGui.Checkbox("Physics Debug", physicsDebug) -- 171
+	ImGui.SetNextWindowPos( -- 153
+		Vec2(12, 12), -- 153
+		"Always" -- 153
+	) -- 153
+	ImGui.SetNextWindowSize( -- 154
+		Vec2(350, 0), -- 154
+		"Always" -- 154
+	) -- 154
+	ImGui.SetNextWindowBgAlpha(0.82) -- 155
+	ImGui.Begin( -- 156
+		"Constraint Playground", -- 156
+		{"NoSavedSettings", "NoFocusOnAppearing"}, -- 156
+		function() -- 156
+			local changed = false -- 157
+			changed, mode = ImGui.Combo("Constraint", mode, modeNames) -- 158
+			if changed then -- 158
+				rebuild() -- 159
+			end -- 159
+			if mode == 1 then -- 159
+				changed, ropeLength = ImGui.DragFloat( -- 162
+					"Length", -- 162
+					ropeLength, -- 162
+					0.05, -- 162
+					1.5, -- 162
+					4, -- 162
+					"%.2f" -- 162
+				) -- 162
+				if changed then -- 162
+					rebuild() -- 163
+				end -- 163
+			elseif mode == 2 then -- 163
+				changed, hingeLimit = ImGui.DragFloat( -- 165
+					"Limit", -- 165
+					hingeLimit, -- 165
+					1, -- 165
+					10, -- 165
+					170, -- 165
+					"%.0f deg" -- 165
+				) -- 165
+				if changed then -- 165
+					rebuild() -- 166
+				end -- 166
+			end -- 166
+			changed, impulse = ImGui.DragFloat( -- 169
+				"Impulse", -- 169
+				impulse, -- 169
+				0.1, -- 169
+				0.5, -- 169
+				12, -- 169
+				"%.1f" -- 169
+			) -- 169
+			changed, dragGain = ImGui.DragFloat( -- 170
+				"Drag Gain", -- 170
+				dragGain, -- 170
+				0.05, -- 170
+				0.2, -- 170
+				2.5, -- 170
+				"%.2f" -- 170
+			) -- 170
+			changed, showAABB = ImGui.Checkbox("Show AABB", showAABB) -- 171
 			if changed then -- 171
-				world.showDebug = physicsDebug -- 172
+				view.showAABB = showAABB -- 172
 			end -- 172
-			ImGui.Separator() -- 174
-			ImGui.Text("State: " .. state) -- 175
-			ImGui.Text("Selected: " .. tostring(selected)) -- 176
-			ImGui.Text("Speed: " .. __TS__NumberToFixed( -- 177
-				vecLength(body.linearVelocity), -- 177
-				2 -- 177
-			)) -- 177
-			ImGui.Text("Peak speed: " .. __TS__NumberToFixed(peakSpeed, 2)) -- 178
-			ImGui.Text((("Position: " .. __TS__NumberToFixed(dynamicNode.position.x, 2)) .. ", ") .. __TS__NumberToFixed(dynamicNode.position.y, 2)) -- 179
-			if ImGui.Button( -- 179
-				"Left", -- 181
-				Vec2(100, 30) -- 181
-			) then -- 181
-				push(-1, 0) -- 181
-			end -- 181
-			ImGui.SameLine() -- 182
-			if ImGui.Button( -- 182
-				"Up", -- 183
+			changed, physicsDebug = ImGui.Checkbox("Physics Debug", physicsDebug) -- 173
+			if changed then -- 173
+				world.showDebug = physicsDebug -- 174
+			end -- 174
+			ImGui.Separator() -- 176
+			ImGui.Text("State: " .. state) -- 177
+			ImGui.Text("Selected: " .. tostring(selected)) -- 178
+			ImGui.Text("Speed: " .. __TS__NumberToFixed( -- 179
+				vecLength(body.linearVelocity), -- 179
+				2 -- 179
+			)) -- 179
+			ImGui.Text("Peak speed: " .. __TS__NumberToFixed(peakSpeed, 2)) -- 180
+			ImGui.Text((("Position: " .. __TS__NumberToFixed(body.position.x, 2)) .. ", ") .. __TS__NumberToFixed(body.position.y, 2)) -- 181
+			if ImGui.Button( -- 181
+				"Left", -- 183
 				Vec2(100, 30) -- 183
 			) then -- 183
-				push(0, 1) -- 183
+				push(-1, 0) -- 183
 			end -- 183
 			ImGui.SameLine() -- 184
 			if ImGui.Button( -- 184
-				"Right", -- 185
+				"Up", -- 185
 				Vec2(100, 30) -- 185
 			) then -- 185
-				push(1, 0) -- 185
+				push(0, 1) -- 185
 			end -- 185
-			if ImGui.Button( -- 185
-				"Break", -- 187
-				Vec2(150, 30) -- 187
-			) and constraint then -- 187
-				constraint:destroy() -- 188
-				constraint = nil -- 189
-				state = "Broken" -- 190
-			end -- 190
-			ImGui.SameLine() -- 192
-			if ImGui.Button( -- 192
-				"Rebuild", -- 193
-				Vec2(150, 30) -- 193
-			) then -- 193
-				rebuild() -- 193
-			end -- 193
-		end -- 154
-	) -- 154
-	return false -- 195
-end) -- 148
-return ____exports -- 148
+			ImGui.SameLine() -- 186
+			if ImGui.Button( -- 186
+				"Right", -- 187
+				Vec2(100, 30) -- 187
+			) then -- 187
+				push(1, 0) -- 187
+			end -- 187
+			if ImGui.Button( -- 187
+				"Break", -- 189
+				Vec2(150, 30) -- 189
+			) and constraint then -- 189
+				constraint:destroy() -- 190
+				constraint = nil -- 191
+				state = "Broken" -- 192
+			end -- 192
+			ImGui.SameLine() -- 194
+			if ImGui.Button( -- 194
+				"Rebuild", -- 195
+				Vec2(150, 30) -- 195
+			) then -- 195
+				rebuild() -- 195
+			end -- 195
+		end -- 156
+	) -- 156
+	return false -- 197
+end) -- 150
+return ____exports -- 150

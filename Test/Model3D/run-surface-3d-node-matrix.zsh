@@ -4,7 +4,6 @@ set -euo pipefail
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY no_proxy
 
 SCRIPT_DIR=${0:A:h}
-STAGE=${DORA_3D_STAGE:-/tmp/dora-3d-test}
 
 source ~/.zshrc >/dev/null 2>&1 || true
 if (( $+aliases[dora] )); then
@@ -19,13 +18,11 @@ run_dora() {
 
 source "${SCRIPT_DIR}/runner-common.zsh"
 close_external_web_ide_tabs
-pkill -x Dora >/dev/null 2>&1 || true
 run_dora cli doctor --fix
 sleep 2
-run_dora cli build -f "${SCRIPT_DIR}/ConstraintPlayground3D.ts"
-rm -rf "${STAGE}"
-mkdir -p "${STAGE}/Test/Model3D"
-stage_physics_body_3d
-rsync -a "${SCRIPT_DIR}/Assets/" "${STAGE}/Test/Model3D/Assets/"
-cp "${SCRIPT_DIR}/ConstraintPlayground3D.lua" "${STAGE}/init.lua"
-run_dora cli run -p "${STAGE}"
+run_dora cli build -f "${SCRIPT_DIR}/Surface3DNodeMatrixUserTest.ts"
+run_dora cli run -p "${SCRIPT_DIR}/../.." --entry Test/Model3D/Surface3DNodeMatrixUserTest.lua
+
+print "Surface3D 2D-node matrix started."
+print "Use Previous/Rebuild/Next or Auto advance to inspect every single-node and tree scenario."
+print "Each scenario reports expected/actual backend, resource state, rebuild count, and draw calls."

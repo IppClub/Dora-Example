@@ -15,6 +15,7 @@ sleep 2
 run_dora cli build -f "${SCRIPT_DIR}/JoltLifecycleLab3D.ts"
 rm -rf "${STAGE}"
 mkdir -p "${STAGE}/Test/Model3D"
+stage_physics_body_3d
 rsync -a "${SCRIPT_DIR}/Assets/" "${STAGE}/Test/Model3D/Assets/"
 cp "${SCRIPT_DIR}/JoltLifecycleLab3D.lua" "${STAGE}/init.lua"
 run_dora cli run -p "${STAGE}"

@@ -27,6 +27,7 @@ run_dora cli build -f "${SCRIPT_DIR}/JoltScaleProfile.ts"
 
 rm -rf "${OUTPUT}" "${STAGE}"
 mkdir -p "${OUTPUT}" "${STAGE}/Test/Model3D"
+stage_physics_body_3d
 cp "${SCRIPT_DIR}/JoltScaleProfile.lua" "${STAGE}/init.lua"
 run_dora cli run -p "${STAGE}"
 

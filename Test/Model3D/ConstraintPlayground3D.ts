@@ -6,7 +6,7 @@ import {
 	Camera3D,
 	Color3,
 	Constraint3D,
-Constraint3DType,
+	Constraint3DType,
 	DirectionalLight3D,
 	Director,
 	Model3D,
@@ -82,7 +82,9 @@ const vecLength = (value: Vec3.Type) => Math.sqrt(
 function rebuild() {
 	constraint?.destroy();
 	constraint = undefined;
+	body.removeChild(dynamicNode, false);
 	body.removeFromParent(true);
+	view.addChild(dynamicNode);
 
 	const start = mode === 0
 		? Vec3(1.8, 2.4, 0)
@@ -99,8 +101,8 @@ function rebuild() {
 		constraint = Constraint3D.distance(
 			anchorBody,
 			body,
-			anchorNode.position,
-			dynamicNode.position,
+			anchorBody.position,
+			body.position,
 			ropeLength,
 			ropeLength
 		);
@@ -108,7 +110,7 @@ function rebuild() {
 		constraint = Constraint3D.hinge(
 			anchorBody,
 			body,
-			anchorNode.position,
+			anchorBody.position,
 			Vec3(0, 0, 1),
 			-hingeLimit,
 			hingeLimit
@@ -176,7 +178,7 @@ threadLoop(() => {
 		ImGui.Text(`Selected: ${selected}`);
 		ImGui.Text(`Speed: ${vecLength(body.linearVelocity).toFixed(2)}`);
 		ImGui.Text(`Peak speed: ${peakSpeed.toFixed(2)}`);
-		ImGui.Text(`Position: ${dynamicNode.position.x.toFixed(2)}, ${dynamicNode.position.y.toFixed(2)}`);
+		ImGui.Text(`Position: ${body.position.x.toFixed(2)}, ${body.position.y.toFixed(2)}`);
 
 		if (ImGui.Button("Left", Vec2(100, 30))) push(-1, 0);
 		ImGui.SameLine();

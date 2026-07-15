@@ -70,7 +70,6 @@ view.addChild(floor);
 makeBoxBody3D(world, floor, Vec3(30, 0.5, 30), PhysicsWorld3D.Static);
 
 function runPhase(count: number, debug: boolean): Sample {
-	const nodes: Node3D.Type[] = [];
 	const bodies: Body3DType[] = [];
 	const side = math.ceil(math.sqrt(count));
 	for (let index = 0; index < count; index += 1) {
@@ -95,7 +94,6 @@ function runPhase(count: number, debug: boolean): Sample {
 				body = makeBoxBody3D(world, node, Vec3(0.4, 0.4, 0.4));
 				break;
 		}
-		nodes.push(node);
 		bodies.push(body);
 	}
 
@@ -130,7 +128,6 @@ function runPhase(count: number, debug: boolean): Sample {
 
 	world.showDebug = false;
 	for (const body of bodies) body.removeFromParent(true);
-	for (const node of nodes) node.removeFromParent(true);
 	waitFrames(5);
 	return sample;
 }

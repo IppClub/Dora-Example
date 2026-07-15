@@ -173,7 +173,7 @@ threadLoop(function() -- 114
 		local expectedHingeRadius = vecDistance(hingeStart, hingeAnchorBody.position) -- 124
 		local fixedPass = math.abs(fixedDistance - 1.4) < 0.12 -- 125
 		local distancePass = math.abs(ropeDistance - 2) < 0.08 -- 126
-		local hingePass = math.abs(hingeRadius - expectedHingeRadius) < 0.1 and math.abs(hingeNode.position.z) < 0.03 and maxHingeMovement > 0.15 -- 127
+		local hingePass = math.abs(hingeRadius - expectedHingeRadius) < 0.1 and math.abs(hingeBody.position.z) < 0.03 and maxHingeMovement > 0.15 -- 127
 		phase = fixedPass and distancePass and hingePass and endpointRefs and destroyPass and "PASS" or "FAIL" -- 132
 		completed = true -- 133
 		screenshot = App:saveScreenshot(output .. "/constraint-3d") -- 134
@@ -203,11 +203,11 @@ threadLoop(function() -- 114
 		function() -- 151
 			ImGui.Text("Phase: " .. phase) -- 152
 			ImGui.Text("Fixed distance: " .. __TS__NumberToFixed( -- 153
-				vecDistance(fixedNode.position, fixedAnchorNode.position), -- 153
+				vecDistance(fixedBody.position, fixedAnchorBody.position), -- 153
 				3 -- 153
 			)) -- 153
 			ImGui.Text("Rope distance: " .. __TS__NumberToFixed( -- 154
-				vecDistance(distanceNode.position, distanceAnchorNode.position), -- 154
+				vecDistance(distanceBody.position, distanceAnchorBody.position), -- 154
 				3 -- 154
 			)) -- 154
 			ImGui.Text("Hinge movement: " .. __TS__NumberToFixed(maxHingeMovement, 3)) -- 155
