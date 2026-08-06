@@ -149,6 +149,10 @@ requireCount(loveCMake, loveCMakePath, '"${DORA_SOURCE_ROOT}/3rdParty/ogg/OggSou
 requireCount(loveCMake, loveCMakePath, '"${DORA_THEORA_ROOT}/TheoraSources.c"', 1);
 requireCount(loveCMake, loveCMakePath, "Source/Audio/OggSources.c", 0);
 
+const loveApiParityPath = "Dora-Example/Test/Love/LoveApiParityTests.mjs";
+const loveApiParity = fs.readFileSync(path.join(testRoot, "LoveApiParityTests.mjs"), "utf8");
+requireContains(loveApiParity, loveApiParityPath, '.replace(/\\r\\n?/g, "\\n")');
+
 const bimgImagePath = "Source/3rdParty/bimg/src/image.cpp";
 const bimgImage = read(bimgImagePath);
 for (const [name, value, format] of [

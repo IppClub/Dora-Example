@@ -7,8 +7,9 @@ import {doraSSRRoot} from "./TestPaths.mjs";
 
 const require = createRequire(import.meta.url);
 const ts = require(nodePath.join(doraSSRRoot, "Tools/dora-dora/node_modules/typescript"));
-const runtime = readFileSync(nodePath.join(doraSSRRoot, "Source/Love/LoveRuntime.cpp"), "utf8");
-const loveNode = readFileSync(nodePath.join(doraSSRRoot, "Source/Love/LoveNode.cpp"), "utf8");
+const readSource = path => readFileSync(path, "utf8").replace(/\r\n?/g, "\n");
+const runtime = readSource(nodePath.join(doraSSRRoot, "Source/Love/LoveRuntime.cpp"));
+const loveNode = readSource(nodePath.join(doraSSRRoot, "Source/Love/LoveNode.cpp"));
 
 function upstreamMethods(path) {
 	const source = readFileSync(nodePath.join(doraSSRRoot, "Source/3rdParty/Love/src/modules", path), "utf8");
