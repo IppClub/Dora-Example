@@ -49,10 +49,12 @@ for (const source of loveAdapterSources)
 	requireCount(linux, linuxPath, `../../Source/Love/${source}`, 1);
 requireContains(linux, linuxPath, "add_library(LOVE-lib STATIC IMPORTED)");
 requireContains(linux, linuxPath, "${DORA_LOVE_BUILD_DIR}/liblove.a");
-requireContains(linux, linuxPath, "LOVE-lib BGFX-lib");
+requireContains(linux, linuxPath, "add_library(THEORA-lib STATIC IMPORTED)");
+requireContains(linux, linuxPath, "3rdParty/theora/Lib/Linux/${DORA_RUNTIME_ARCH}");
+requireContains(linux, linuxPath, "LOVE-lib THEORA-lib BGFX-lib");
 requireCount(linux, linuxPath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(linux, linuxPath, `../../${oggSource}`, 1);
-requireCount(linux, linuxPath, `../../${theoraSource}`, 1);
+requireCount(linux, linuxPath, `../../${theoraSource}`, 0);
 requireCount(linux, linuxPath, "h264bsd", 0);
 
 const windowsPath = "Projects/Windows/Dora/Dora.vcxproj";
@@ -62,9 +64,11 @@ for (const source of loveAdapterSources)
 	requireCount(windows, windowsPath, `..\\..\\..\\Source\\Love\\${source}`, 1);
 requireAtLeast(windows, windowsPath, "Source\\3rdParty\\Love\\Artifacts\\Windows", 2);
 requireAtLeast(windows, windowsPath, "love.lib;", 2);
+requireAtLeast(windows, windowsPath, "Source\\3rdParty\\theora\\Lib\\Windows", 2);
+requireAtLeast(windows, windowsPath, "theoradec.lib;", 2);
 requireCount(windows, windowsPath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(windows, windowsPath, "..\\..\\..\\Source\\3rdParty\\ogg\\OggSources.c", 1);
-requireCount(windows, windowsPath, "..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 1);
+requireCount(windows, windowsPath, "..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 0);
 requireCount(windows, windowsPath, "h264bsd", 0);
 for (const source of ["LoveRuntime.cpp", "LoveDataAlgorithms.cpp", "LoveLZ4.c", "LoveLZ4HC.c"]) {
 	const start = windows.indexOf(`<ClCompile Include="..\\..\\..\\Source\\Love\\${source}">`);
@@ -93,7 +97,9 @@ const doraCSWindows = read(doraCSWindowsPath);
 requireCount(doraCSWindows, doraCSWindowsPath,
 	"..\\..\\..\\Source\\3rdParty\\ogg\\OggSources.c", 1);
 requireCount(doraCSWindows, doraCSWindowsPath,
-	"..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 1);
+	"..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 0);
+requireAtLeast(doraCSWindows, doraCSWindowsPath, "Source\\3rdParty\\theora\\Lib\\Windows", 2);
+requireAtLeast(doraCSWindows, doraCSWindowsPath, "theoradec.lib;", 2);
 requireCount(doraCSWindows, doraCSWindowsPath, "h264bsd", 0);
 
 const doraCSWindowsFiltersPath = "Tools/dora-cs/Dora/Dora.vcxproj.filters";
@@ -101,7 +107,7 @@ const doraCSWindowsFilters = read(doraCSWindowsFiltersPath);
 requireCount(doraCSWindowsFilters, doraCSWindowsFiltersPath,
 	"..\\..\\..\\Source\\3rdParty\\ogg\\OggSources.c", 1);
 requireCount(doraCSWindowsFilters, doraCSWindowsFiltersPath,
-	"..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 1);
+	"..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 0);
 requireCount(doraCSWindowsFilters, doraCSWindowsFiltersPath, "h264bsd", 0);
 
 const androidPath = "Projects/Android/Dora/app/CMakeLists.txt";
@@ -111,15 +117,20 @@ for (const source of loveAdapterSources)
 	requireCount(android, androidPath, `src/main/cpp/Love/${source}`, 1);
 requireContains(android, androidPath, "add_library(LOVE-lib STATIC IMPORTED)");
 requireContains(android, androidPath, "Artifacts/Android/${ANDROID_ABI}/liblove.a");
-requireContains(android, androidPath, "LOVE-lib BGFX-lib");
+requireContains(android, androidPath, "add_library(THEORA-lib STATIC IMPORTED)");
+requireContains(android, androidPath, "theora/Lib/Android/${ANDROID_ABI}/libtheoradec.a");
+requireContains(android, androidPath, "LOVE-lib THEORA-lib BGFX-lib");
 requireCount(android, androidPath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(android, androidPath, "src/main/cpp/3rdParty/ogg/OggSources.c", 1);
-requireCount(android, androidPath, "src/main/cpp/3rdParty/theora/TheoraSources.c", 1);
+requireCount(android, androidPath, "src/main/cpp/3rdParty/theora/TheoraSources.c", 0);
 requireCount(android, androidPath, "h264bsd", 0);
 
-for (const projectPath of [
-	"Projects/macOS/Dora.xcodeproj/project.pbxproj",
-	"Projects/iOS/Dora.xcodeproj/project.pbxproj",
+for (const [projectPath, theoraSearchPaths] of [
+	["Projects/macOS/Dora.xcodeproj/project.pbxproj", ["Source/3rdParty/theora/Lib/macOS"]],
+	["Projects/iOS/Dora.xcodeproj/project.pbxproj", [
+		"Source/3rdParty/theora/Lib/iOS-Simulator",
+		"Source/3rdParty/theora/Lib/iOS",
+	]],
 ]) {
 	const project = read(projectPath);
 	requireContains(project, projectPath, "Source/3rdParty/Love/src");
@@ -132,7 +143,10 @@ for (const projectPath of [
 			throw new Error(`${projectPath} ${source} must add Lua as an angle-bracket include path`);
 	}
 	requireContains(project, projectPath, "OggSources.c in Sources");
-	requireContains(project, projectPath, "TheoraSources.c in Sources");
+	requireCount(project, projectPath, "TheoraSources.c in Sources", 0);
+	requireContains(project, projectPath, "libtheoradec.a in Frameworks");
+	for (const searchPath of theoraSearchPaths)
+		requireContains(project, projectPath, searchPath);
 	requireContains(project, projectPath, "liblove.a in Frameworks");
 	requireContains(project, projectPath, "Source/3rdParty/Love/Artifacts/");
 	requireCount(project, projectPath, "LoveObjectRuntimeSupport.cpp", 0);
@@ -147,6 +161,7 @@ requireContains(loveCMake, loveCMakePath, "LOVE_PROXY_USERVALUES=5");
 requireCount(loveCMake, loveCMakePath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(loveCMake, loveCMakePath, '"${DORA_SOURCE_ROOT}/3rdParty/ogg/OggSources.c"', 1);
 requireCount(loveCMake, loveCMakePath, '"${DORA_THEORA_ROOT}/TheoraSources.c"', 1);
+requireContains(loveCMake, loveCMakePath, '"${DORA_THEORA_ROOT}/Source"');
 requireCount(loveCMake, loveCMakePath, "Source/Audio/OggSources.c", 0);
 
 const loveApiParityPath = "Dora-Example/Test/Love/LoveApiParityTests.mjs";
@@ -225,26 +240,42 @@ for (const source of ["Object.cpp", "types.cpp", "Reference.cpp", "Module.cpp", 
 for (const rejected of ["Box2D", "modules/physics", "platform/", "src/love.cpp"])
 	requireCount(loveXmake, loveXmakePath, rejected, rejected === "Box2D" ? 1 : 0);
 
+const theoraXmakePath = "Source/3rdParty/theora/xmake.lua";
+const theoraXmake = read(theoraXmakePath);
+requireContains(theoraXmake, theoraXmakePath, 'target("theoradec")');
+requireContains(theoraXmake, theoraXmakePath, 'set_kind("static")');
+requireContains(theoraXmake, theoraXmakePath, 'add_files("TheoraSources.c")');
+requireContains(theoraXmake, theoraXmakePath, '"Source"');
+requireCount(theoraXmake, theoraXmakePath, '"lib"', 0);
+
 for (const buildScriptPath of [
 	"Tools/build-scripts/build_lib_macos.sh",
 	"Tools/build-scripts/build_lib_ios.sh",
 	"Tools/build-scripts/build_lib_android.sh",
 	"Tools/build-scripts/build_lib_linux.sh",
 ]) requireContains(read(buildScriptPath), buildScriptPath, "build_lib_love.sh");
+for (const buildScriptPath of [
+	"Tools/build-scripts/build_lib_macos.sh",
+	"Tools/build-scripts/build_lib_ios.sh",
+	"Tools/build-scripts/build_lib_android.sh",
+	"Tools/build-scripts/build_lib_linux.sh",
+]) requireContains(read(buildScriptPath), buildScriptPath, "build_lib_theora.sh");
 requireContains(read("Tools/build-scripts/build_lib_windows.bat"),
 	"Tools/build-scripts/build_lib_windows.bat", "build_lib_love_windows.bat");
+requireContains(read("Tools/build-scripts/build_lib_windows.bat"),
+	"Tools/build-scripts/build_lib_windows.bat", "build_lib_theora_windows.bat");
 
 const theoraBuildScriptPath = "Tools/build-scripts/build_lib_theora.sh";
 const theoraBuildScript = read(theoraBuildScriptPath);
 requireContains(theoraBuildScript, theoraBuildScriptPath,
 	"libogg is already built by Source/3rdParty/ogg/OggSources.c");
-requireContains(theoraBuildScript, theoraBuildScriptPath, "$THEORA_DIR/Artifacts");
-requireCount(theoraBuildScript, theoraBuildScriptPath, "$THEORA_DIR/Lib", 0);
+requireContains(theoraBuildScript, theoraBuildScriptPath, "$THEORA_DIR/Lib");
+requireCount(theoraBuildScript, theoraBuildScriptPath, "$THEORA_DIR/Artifacts", 0);
 
 const theoraWindowsBuildScriptPath = "Tools/build-scripts/build_lib_theora_windows.bat";
 const theoraWindowsBuildScript = read(theoraWindowsBuildScriptPath);
-requireContains(theoraWindowsBuildScript, theoraWindowsBuildScriptPath, "Artifacts\\Windows");
-requireCount(theoraWindowsBuildScript, theoraWindowsBuildScriptPath, "Lib\\Windows", 0);
+requireContains(theoraWindowsBuildScript, theoraWindowsBuildScriptPath, "Lib\\Windows");
+requireCount(theoraWindowsBuildScript, theoraWindowsBuildScriptPath, "Artifacts\\Windows", 0);
 
 const windowsCrossToolchainPath = "Dora-Example/Test/Love/Toolchains/ZigWindowsX86.cmake";
 const windowsCrossToolchain = fs.readFileSync(path.join(testRoot, "Toolchains/ZigWindowsX86.cmake"), "utf8");
@@ -405,4 +436,4 @@ const linuxRendererBoundary = application.match(
 if (!linuxRendererBoundary)
 	throw new Error(`${applicationPath} changed the documented Linux renderer selection boundary`);
 
-console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+theora ogg=shared+xmake theora=portable bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");
+console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+linked-theora ogg=shared+xmake theora=portable+xmake+linked bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");

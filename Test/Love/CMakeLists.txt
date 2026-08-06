@@ -70,7 +70,7 @@ add_library(dora_love_theoradec STATIC
 target_include_directories(dora_love_theoradec PUBLIC
 	"${DORA_SOURCE_ROOT}/3rdParty"
 	"${DORA_THEORA_ROOT}/include"
-	"${DORA_THEORA_ROOT}/lib"
+	"${DORA_THEORA_ROOT}/Source"
 )
 target_link_libraries(dora_love_theoradec PUBLIC dora_love_ogg)
 
