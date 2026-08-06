@@ -2,3 +2,4 @@
 .DS_Store
 *.swp
 .agent/
+/Test/Love/build*/

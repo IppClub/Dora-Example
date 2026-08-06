@@ -1,0 +1,16 @@
+love = require "love"
+import "src.Game"
+
+game = nil
+
+love.load = () ->
+    game = Game.Game!
+
+love.keypressed = (key, scancode, isrepeat) ->
+    game\keypressed(key, scancode, isrepeat)
+
+love.update = (dt) ->
+    game\update(dt)
+
+love.draw = (dt) ->
+    game\draw(dt)

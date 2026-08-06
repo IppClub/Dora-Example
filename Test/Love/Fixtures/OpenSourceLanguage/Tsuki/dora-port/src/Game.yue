@@ -1,0 +1,18 @@
+love = require "love"
+import "src.Player"
+
+{event: le} = love
+
+export class Game
+    new: () =>
+        @player = Player.Player!
+
+    keypressed: (key) =>
+        if @player and key == "escape"
+            le.quit!
+
+    update: (dt) =>
+        @player\update(dt)
+
+    draw: (dt) =>
+        @player\draw(dt)

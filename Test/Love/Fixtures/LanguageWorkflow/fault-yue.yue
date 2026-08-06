@@ -1,0 +1,4 @@
+love = require "love"
+
+love.update = ->
+	error "LOVE_YUE_SOURCE_MAP_FAILURE"

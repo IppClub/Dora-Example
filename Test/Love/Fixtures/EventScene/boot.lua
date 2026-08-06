@@ -1,0 +1,7 @@
+local event = require("love.event")
+assert(event == love.event)
+assert(type(event.pump) == "function")
+assert(type(event.poll) == "function")
+assert(type(event.wait) == "function")
+assert(type(event.push) == "function")
+assert(type(event.clear) == "function")
