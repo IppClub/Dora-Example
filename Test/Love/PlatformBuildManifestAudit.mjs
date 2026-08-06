@@ -212,6 +212,9 @@ const loveXmakePath = "Source/3rdParty/Love/xmake.lua";
 const loveXmake = read(loveXmakePath);
 requireContains(loveXmake, loveXmakePath, 'target("love")');
 requireContains(loveXmake, loveXmakePath, 'set_kind("static")');
+requireContains(loveXmake, loveXmakePath, 'add_defines("_ITERATOR_DEBUG_LEVEL=0")');
+requireContains(windows, windowsPath, "_ITERATOR_DEBUG_LEVEL=0");
+requireContains(doraCSWindows, doraCSWindowsPath, "_ITERATOR_DEBUG_LEVEL=0");
 requireContains(loveXmake, loveXmakePath, 'add_defines("LOVE_PROXY_USERVALUES=5")');
 for (const source of ["Object.cpp", "types.cpp", "Reference.cpp", "Module.cpp", "Exception.cpp", "deprecation.cpp", "runtime.cpp"])
 	requireCount(loveXmake, loveXmakePath, `"src/common/${source}"`, 1);
