@@ -264,11 +264,16 @@ for (const executable of [
 const windowsWorkflowPath = ".github/workflows/windows.yml";
 const windowsWorkflow = read(windowsWorkflowPath);
 requireContains(windowsWorkflow, windowsWorkflowPath, "repository: ippclub/Dora-Example");
+requireContains(windowsWorkflow, windowsWorkflowPath, "pnpm --dir Tools/dora-dora install --frozen-lockfile");
 requireContains(windowsWorkflow, windowsWorkflowPath, "cmake -S Dora-Example\\Test\\Love");
 requireContains(windowsWorkflow, windowsWorkflowPath,
 	"ctest --test-dir Dora-Example\\Test\\Love\\build-windows-tests -C Debug --output-on-failure");
 requireContains(windowsWorkflow, windowsWorkflowPath,
 	"ctest --test-dir Dora-Example\\Test\\Love\\build-windows-tests -C Release --output-on-failure");
+
+const exampleAttributesPath = "Dora-Example/.gitattributes";
+const exampleAttributes = fs.readFileSync(path.join(testRoot, "../../.gitattributes"), "utf8");
+requireContains(exampleAttributes, exampleAttributesPath, "*.mock binary");
 
 const shadercHeaderPath = "Source/3rdParty/bgfx/dora/DoraShaderc.h";
 const shadercHeader = read(shadercHeaderPath);
