@@ -1,0 +1,13 @@
+love = require "love"
+elapsed = 0
+
+love.load = ->
+	elapsed = 0
+
+love.update = (deltaTime) ->
+	elapsed += deltaTime
+
+love.draw = ->
+	love.graphics.clear 0, 0, 0, 1
+	love.graphics.setColor 1, 0.5, 0.25, 1
+	love.graphics.rectangle "fill", 10, 20, 100, 50

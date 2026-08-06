@@ -1,0 +1,1 @@
+-- Standard Love boot entry for the Dora LoveNode physics acceptance scene.

@@ -1,0 +1,1 @@
+-- Constructor-only fixture used by the pinned upstream love.thread.newThread test.
