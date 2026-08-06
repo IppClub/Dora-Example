@@ -267,13 +267,12 @@ for (const executable of [
 
 const windowsWorkflowPath = ".github/workflows/windows.yml";
 const windowsWorkflow = read(windowsWorkflowPath);
-requireContains(windowsWorkflow, windowsWorkflowPath, "repository: ippclub/Dora-Example");
-requireContains(windowsWorkflow, windowsWorkflowPath, "pnpm --dir Tools/dora-dora install --frozen-lockfile");
-requireContains(windowsWorkflow, windowsWorkflowPath, "cmake -S Dora-Example\\Test\\Love");
-requireContains(windowsWorkflow, windowsWorkflowPath,
-	"ctest --test-dir Dora-Example\\Test\\Love\\build-windows-tests -C Debug --output-on-failure");
-requireContains(windowsWorkflow, windowsWorkflowPath,
-	"ctest --test-dir Dora-Example\\Test\\Love\\build-windows-tests -C Release --output-on-failure");
+for (const removedLoveTestContract of [
+	"repository: ippclub/Dora-Example",
+	"pnpm --dir Tools/dora-dora install --frozen-lockfile",
+	"cmake -S Dora-Example\\Test\\Love",
+	"ctest --test-dir Dora-Example\\Test\\Love",
+]) requireCount(windowsWorkflow, windowsWorkflowPath, removedLoveTestContract, 0);
 
 const exampleAttributesPath = "Dora-Example/.gitattributes";
 const exampleAttributes = fs.readFileSync(path.join(testRoot, "../../.gitattributes"), "utf8");
@@ -406,4 +405,4 @@ const linuxRendererBoundary = application.match(
 if (!linuxRendererBoundary)
 	throw new Error(`${applicationPath} changed the documented Linux renderer selection boundary`);
 
-console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+5-platform-artifacts adapters=6-per-platform windows=msvc-tests+zig-x86+direct3d-full dora-cs=ogg+theora ogg=shared+xmake theora=portable bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");
+console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+theora ogg=shared+xmake theora=portable bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");
