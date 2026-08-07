@@ -982,12 +982,43 @@ public:
 		error.clear();
 		return handle;
 	}
+	FontHandle newBMFont(std::span<const BMFontPage> pages, std::span<const BMFontGlyph> glyphs,
+		int lineHeight, int baseline, float dpiScale, TextureFilter filter, std::string &error) override
+	{
+		if (pages.empty() || glyphs.empty() || lineHeight <= 0 || !std::isfinite(dpiScale) || dpiScale <= 0.0f)
+		{
+			error = "invalid mock BMFont";
+			return 0;
+		}
+		for (const auto &page : pages)
+			if (page.width <= 0 || page.height <= 0
+				|| page.rgba8.size() != static_cast<std::size_t>(page.width) * page.height * 4)
+			{
+				error = "invalid mock BMFont page";
+				return 0;
+			}
+		const FontHandle handle = nextFontHandle++;
+		fontSizes.emplace(handle, static_cast<int>(std::floor(lineHeight / dpiScale + 0.5f)));
+		imageFontDPIScales.emplace(handle, dpiScale);
+		imageFontBaselines.emplace(handle, static_cast<float>(baseline) / dpiScale);
+		auto &stored = imageFontGlyphs[handle];
+		for (const auto &glyph : glyphs)
+			stored.emplace(glyph.codepoint, ImageFontGlyph{glyph.codepoint, glyph.x, glyph.width, glyph.advance});
+		lastBMFontPageCount = static_cast<int>(pages.size());
+		lastBMFontGlyphCount = static_cast<int>(glyphs.size());
+		lastBMFontFilter = filter;
+		++bmFontsCreated;
+		++fontsCreated;
+		error.clear();
+		return handle;
+	}
 	void releaseFont(FontHandle font) override
 	{
 		fontLineHeights.erase(font);
 		fontFallbacks.erase(font);
 		imageFontGlyphs.erase(font);
 		imageFontDPIScales.erase(font);
+		imageFontBaselines.erase(font);
 		if (fontSizes.erase(font) != 0)
 			++fontsReleased;
 	}
@@ -1032,9 +1063,13 @@ public:
 		return found == fontSizes.end() ? 0.0f : static_cast<float>(found->second);
 	}
 	float getFontBaseline(FontHandle font) const override
-	{ return imageFontGlyphs.contains(font) ? 0.0f : getFontHeight(font) * 0.8f; }
+	{
+		if (const auto baseline = imageFontBaselines.find(font); baseline != imageFontBaselines.end())
+			return baseline->second;
+		return imageFontGlyphs.contains(font) ? 0.0f : getFontHeight(font) * 0.8f;
+	}
 	float getFontAscent(FontHandle font) const override
-	{ return imageFontGlyphs.contains(font) ? 0.0f : getFontHeight(font) * 0.8f; }
+	{ return getFontBaseline(font); }
 	float getFontDescent(FontHandle font) const override
 	{ return imageFontGlyphs.contains(font) ? 0.0f : -getFontHeight(font) * 0.2f; }
 	bool hasFontGlyph(FontHandle font, std::uint32_t codepoint) const override
@@ -1393,6 +1428,7 @@ public:
 	std::unordered_map<FontHandle, int> fontSizes;
 	std::unordered_map<FontHandle, std::unordered_map<std::uint32_t, ImageFontGlyph>> imageFontGlyphs;
 	std::unordered_map<FontHandle, float> imageFontDPIScales;
+	std::unordered_map<FontHandle, float> imageFontBaselines;
 	std::unordered_map<FontHandle, float> fontLineHeights;
 	std::unordered_map<FontHandle, std::vector<FontHandle>> fontFallbacks;
 	std::vector<FontHandle> lastFontFallbacks;
@@ -1402,6 +1438,10 @@ public:
 	int lastImageFontHeight = 0;
 	std::vector<std::uint8_t> lastImageFontPixels;
 	TextureFilter lastImageFontFilter = TextureFilter::Linear;
+	int bmFontsCreated = 0;
+	int lastBMFontPageCount = 0;
+	int lastBMFontGlyphCount = 0;
+	TextureFilter lastBMFontFilter = TextureFilter::Linear;
 	FontHandle lastTextFont = 0;
 	std::string lastText;
 	float lastTextWrapLimit = -1.0f;
@@ -4411,11 +4451,15 @@ int main()
 		"local bmMultiText = 'info unicode=1\\ncommon lineHeight=1 base=1 pages=2\\npage id=0 file=\"zero.png\"\\npage id=1 file=\"one.png\"\\nchars count=2\\nchar id=65 x=0 y=0 width=1 height=1 xadvance=1 page=0\\nchar id=66 x=0 y=0 width=1 height=1 xadvance=1 page=1\\n'\n"
 		"local bmMulti = fontModule.newBMFontRasterizer(filesystem.newFileData(bmMultiText, 'fonts/multi.fnt'), {bmPage0, bmPage1})\n"
 		"assert(bmMulti:getGlyphCount() == 2 and bmMulti:hasGlyphs('AB')); c1, c2, c3, c4 = string.byte(bmMulti:getGlyphData('B'):getString(), 1, 4); assert(c1 == 0 and c2 == 255 and c3 == 0 and c4 == 255)\n"
+		"bmFont = graphics.newFont(bm); assert(bmFont:typeOf('Font') and bmFont:getWidth('A猫') == 5 and bmFont:getHeight() == 2 and bmFont:getBaseline() > 1)\n"
+		"bmMultiFont = graphics.newFont(bmMulti); assert(bmMultiFont:hasGlyphs('AB') and bmMultiFont:getWidth('AB') == 2)\n"
 		"local bmGeneric = fontModule.newRasterizer(bmFile, {bmAtlas2}, 1); assert(bmGeneric:hasGlyphs('A猫'))\n"
 		"assert(filesystem.createDirectory('pagefont') and filesystem.write('pagefont/fixture.png', 'encoded-image'))\n"
 		"local autoText = 'info size=12 unicode=1\\ncommon lineHeight=1 base=1\\npage id=0 file=\"fixture.png\"\\nchar id=65 x=0 y=0 width=1 height=1 xadvance=1 page=0\\n'\n"
+		"assert(filesystem.write('pagefont/auto.fnt', autoText))\n"
 		"local autoBM = fontModule.newBMFontRasterizer(filesystem.newFileData(autoText, 'pagefont/auto.fnt')); assert(autoBM:getGlyphData('A'):getSize() == 4)\n"
 		"local autoGeneric = fontModule.newRasterizer(filesystem.newFileData(autoText, 'pagefont/auto.fnt')); assert(autoGeneric:hasGlyphs('A'))\n"
+		"autoFont = graphics.newFont('pagefont/auto.fnt'); assert(autoFont:hasGlyphs('A') and autoFont:getWidth('A') == 1)\n"
 		"assert(not pcall(fontModule.newBMFontRasterizer, filesystem.newFileData('info unicode=1', 'bad.fnt'), bmAtlas2))\n"
 		"local badRect = bmText:gsub('width=2', 'width=20', 1); assert(not pcall(fontModule.newBMFontRasterizer, filesystem.newFileData(badRect, 'bad.fnt'), bmAtlas2))\n"
 		"local badAscii = bmText:gsub('unicode=1', 'unicode=0', 1); assert(not pcall(fontModule.newBMFontRasterizer, filesystem.newFileData(badAscii, 'bad.fnt'), bmAtlas2))\n"
@@ -5017,7 +5061,7 @@ int main()
 		&& graphics.canvasSource[1] == 2.0f && graphics.canvasSource[2] == 24.0f
 		&& graphics.canvasSource[3] == 12.0f,
 		"Canvas Quad source rectangle was not dispatched");
-	require(graphics.imageDataDecodes == 12,
+	require(graphics.imageDataDecodes == 13,
 		"ImageData and auto-loaded BMFont page decode calls did not reach the injected backend");
 	require(graphics.compressedImageDecodes == 11,
 		"CompressedImageData probes did not reach the injected backend");
@@ -5106,7 +5150,10 @@ int main()
 	requireNear(graphics.imageMatrix[1], std::sin(0.5f) * 2.0f, "Image matrix b");
 	requireNear(graphics.imageMatrix[4], 300.0f, "Image matrix tx");
 	requireNear(graphics.imageMatrix[5], 200.0f, "Image matrix ty");
-	require(graphics.fontsCreated == 7 && graphics.textDraws == 3 && graphics.lastTextFont == 16,
+	require(graphics.fontsCreated == 10 && graphics.bmFontsCreated == 3
+		&& graphics.lastBMFontPageCount == 1 && graphics.lastBMFontGlyphCount == 1
+		&& graphics.lastBMFontFilter == Dora::Love::GraphicsBackend::TextureFilter::Linear
+		&& graphics.textDraws == 3 && graphics.lastTextFont == 19,
 		"Font creation/current font/text dispatch mismatch");
 	require(graphics.lastImageFontWidth == 8 && graphics.lastImageFontHeight == 2
 		&& graphics.lastImageFontPixels.size() == 64
@@ -5115,7 +5162,7 @@ int main()
 		&& graphics.lastImageFontPixels[4] == 255
 		&& graphics.lastImageFontFilter == Dora::Love::GraphicsBackend::TextureFilter::Linear,
 		"ImageFont atlas transparency, dimensions, or default filter mismatch");
-	require(graphics.lastFontFallbacks.size() == 1 && graphics.lastFontFallbacks.front() == 15,
+	require(graphics.lastFontFallbacks.size() == 1 && graphics.lastFontFallbacks.front() == 18,
 		"Font fallback list did not reach the graphics backend");
 	require(graphics.lastText == "wrapped text" && graphics.lastTextWrapLimit == 120.0f
 		&& graphics.lastTextAlign == "center", "printf arguments mismatch");
@@ -5135,7 +5182,7 @@ int main()
 		"Image userdata did not release its backend resources on state close");
 	require(graphics.canvasesReleased == 13 && graphics.canvases.empty() && graphics.canvasSettings.empty(),
 		"Canvas userdata did not release its backend RenderTarget on state close");
-	require(graphics.fontsReleased == 7 && graphics.fontSizes.empty(),
+	require(graphics.fontsReleased == 10 && graphics.fontSizes.empty(),
 		"Font backend resources were not released on state close");
 
 	MockGraphics handleGraphics;
