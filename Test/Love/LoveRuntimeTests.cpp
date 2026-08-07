@@ -3436,7 +3436,12 @@ int main()
 	require(configured.open(error), error);
 	execute(configured,
 		"function love.conf(t) assert(t.version == '11.5' and t.window.width == 800 and t.window.height == 600); "
-		"assert(type(t.audio) == 'table' and t.audio.mixwithsystem == true); t.audio.mixwithsystem = false; "
+		"assert(type(t.modules) == 'table' and t.modules.data and t.modules.graphics and t.modules.thread and t.modules.video); "
+		"t.modules.touch = false; "
+		"assert(type(t.audio) == 'table' and t.audio.mixwithsystem == true and t.audio.mic == false); t.audio.mixwithsystem = false; "
+		"assert(t.identity == false and t.console == false and t.appendidentity == false and t.accelerometerjoystick == true); "
+		"assert(t.window.minwidth == 1 and t.window.minheight == 1 and t.window.fullscreentype == 'desktop' "
+		"and t.window.msaa == 0 and t.window.centered and t.window.usedpiscale); "
 		"assert(not t.window.fullscreen and t.window.display == 1 and not t.window.highdpi and not t.window.resizable); "
 		"t.window.width = 640; t.window.height = 360; t.window.resizable = true; configured = true end\n"
 		"function love.load() assert(configured == true); standard_boot_loaded = true end\n",
@@ -3464,11 +3469,16 @@ int main()
 	Dora::Love::LoveRuntime unsupportedWindowConfiguration;
 	require(unsupportedWindowConfiguration.open(error), error);
 	execute(unsupportedWindowConfiguration,
-		"function love.conf(t) t.window.fullscreen = true end\n", "@unsupported-window-conf.lua");
-	require(!unsupportedWindowConfiguration.configure(error),
-		"embedded fullscreen love.conf unexpectedly succeeded");
-	require(error.find("fullscreen=false") != std::string::npos,
-		"unsupported embedded window error omitted the required mode");
+		"function love.conf(t) t.window.fullscreen = true; t.window.highdpi = true; "
+		"t.window.display = 2 end\n", "@unsupported-window-conf.lua");
+	require(unsupportedWindowConfiguration.configure(error), error);
+	require(unsupportedWindowConfiguration.getConfigurationWarnings().find("ignoring unsupported")
+		!= std::string::npos,
+		"unsupported embedded window settings did not produce a warning");
+	execute(unsupportedWindowConfiguration,
+		"local _, _, settings = love.window.getMode(); "
+		"assert(not settings.fullscreen and not settings.highdpi and settings.display == 1)\n",
+		"@verify-unsupported-window-conf.lua");
 	unsupportedWindowConfiguration.close();
 
 	Dora::Love::LoveRuntime invalidAudioConfiguration;
