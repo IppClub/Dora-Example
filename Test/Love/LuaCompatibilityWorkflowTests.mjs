@@ -48,8 +48,8 @@ try {
 		log: true,
 	});
 	assert(command.success, `failed to queue Lua compatibility workflow: ${command.message ?? ""}`);
-	await waitForContent(statusFile, "function=pass stack=pass isolation=pass");
-	console.log("LOVE_LUA55_FENV_WORKFLOW_PASS function=pass stack=pass isolation=pass");
+	await waitForContent(statusFile, "function=pass stack=pass isolation=pass randomseed=pass atan2=pass");
+	console.log("LOVE_LUA55_FENV_WORKFLOW_PASS function=pass stack=pass isolation=pass randomseed=pass atan2=pass");
 } finally {
 	await post("/command", {
 		code: `Content\\removeSearchPath ${JSON.stringify(fixtureRoot)}`,

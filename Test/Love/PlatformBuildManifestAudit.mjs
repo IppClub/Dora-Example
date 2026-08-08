@@ -14,6 +14,20 @@ const loveAdapterSources = [
 const oggSource = "Source/3rdParty/ogg/OggSources.c";
 const theoraSource = "Source/3rdParty/theora/TheoraSources.c";
 
+function findNamedFiles(root, names, result = []) {
+	for (const entry of fs.readdirSync(root, {withFileTypes: true})) {
+		const filename = path.join(root, entry.name);
+		if (entry.isDirectory()) findNamedFiles(filename, names, result);
+		else if (names.has(entry.name.toLowerCase())) result.push(path.relative(repositoryRoot, filename));
+	}
+	return result;
+}
+
+const minizSources = findNamedFiles(path.join(repositoryRoot, "Source"), new Set(["miniz.c", "miniz.h"])).sort();
+const canonicalMinizSources = ["Source/3rdParty/Zip/miniz.c", "Source/3rdParty/Zip/miniz.h"];
+if (JSON.stringify(minizSources) !== JSON.stringify(canonicalMinizSources))
+	throw new Error(`Dora must contain one canonical miniz source pair: ${minizSources.join(", ")}`);
+
 if (fs.existsSync(path.join(repositoryRoot, "Source/Audio/OggSources.c")))
 	throw new Error("legacy Source/Audio/OggSources.c must stay removed; libogg belongs to Source/3rdParty/ogg");
 
@@ -235,10 +249,24 @@ requireContains(loveXmake, loveXmakePath, 'add_defines("_ITERATOR_DEBUG_LEVEL=0"
 requireContains(windows, windowsPath, "_ITERATOR_DEBUG_LEVEL=0");
 requireContains(doraCSWindows, doraCSWindowsPath, "_ITERATOR_DEBUG_LEVEL=0");
 requireContains(loveXmake, loveXmakePath, 'add_defines("LOVE_PROXY_USERVALUES=5")');
+requireContains(loveXmake, loveXmakePath, 'target("openmpt")');
+requireContains(loveXmake, loveXmakePath, 'add_deps("openmpt")');
+requireContains(loveXmake, loveXmakePath, 'add_files("../soloud/audiosource/openmpt/soloud_openmpt.cpp")');
+requireContains(loveXmake, loveXmakePath, 'add_defines("LIBOPENMPT_BUILD", "MPT_BUILD_DORA", "MPT_WITH_MINIZ")');
+requireContains(loveXmake, loveXmakePath, '"../libopenmpt/libopenmpt/libopenmpt_impl.cpp"');
+requireContains(loveXmake, loveXmakePath, '"../Zip"');
+requireCount(loveXmake, loveXmakePath, "include/miniz/miniz.c", 0);
 for (const source of ["Object.cpp", "types.cpp", "Reference.cpp", "Module.cpp", "Exception.cpp", "deprecation.cpp", "runtime.cpp"])
 	requireCount(loveXmake, loveXmakePath, `"src/common/${source}"`, 1);
 for (const rejected of ["Box2D", "modules/physics", "platform/", "src/love.cpp"])
 	requireCount(loveXmake, loveXmakePath, rejected, rejected === "Box2D" ? 1 : 0);
+
+const bgfxXmakePath = "Source/3rdParty/bgfx/xmake.lua";
+const bgfxXmake = read(bgfxXmakePath);
+requireContains(bgfxXmake, bgfxXmakePath, 'local MINIZ_DIR = path.join(BGFX_DIR, "../Zip")');
+requireContains(bgfxXmake, bgfxXmakePath, "add_includedirs(MINIZ_DIR)");
+requireCount(bgfxXmake, bgfxXmakePath, "tinyexr/deps/miniz", 0);
+requireCount(bgfxXmake, bgfxXmakePath, 'add_files(path.join(MINIZ_DIR, "miniz.c"))', 1);
 
 const theoraXmakePath = "Source/3rdParty/theora/xmake.lua";
 const theoraXmake = read(theoraXmakePath);
@@ -436,4 +464,4 @@ const linuxRendererBoundary = application.match(
 if (!linuxRendererBoundary)
 	throw new Error(`${applicationPath} changed the documented Linux renderer selection boundary`);
 
-console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+linked-theora ogg=shared+xmake theora=portable+xmake+linked bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");
+console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+upstream-soloud-openmpt+libopenmpt+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+linked-theora ogg=shared+xmake theora=portable+xmake+linked bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");

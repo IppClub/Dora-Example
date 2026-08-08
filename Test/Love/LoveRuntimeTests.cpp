@@ -2843,7 +2843,18 @@ int main()
 		"@pure-love.lua");
 	execute(first,
 		"assert(unpack == table.unpack and loadstring == load and package.loaders == package.searchers)\n"
+		"local major, minor, revision, codename = love.getVersion()\n"
+		"assert(major == 11 and minor == 5 and revision == 0 and codename == 'Mysterious Mysteries')\n"
+		"assert(type(love.handlers) == 'table' and type(love.handlers.keypressed) == 'function')\n"
+		"assert(select('#', require('love')) == 1)\n"
+		"local loop = {}; for key, value in pairs({answer = 42, second = 7}) do key = key:upper(); loop[key] = value end\n"
+		"assert(loop.ANSWER == 42 and loop.SECOND == 7)\n"
+		"local dynamic = assert(loadstring('local char = string.char; return char(65)'))\n"
+		"assert(dynamic() == 'A')\n"
+		"assert(type(table.getn) == 'function' and table.getn({10, 20, 30}) == 3)\n"
+		"assert(math.random(0.2, 0.4) == 0 and math.random(1.2, 1.9) == 1)\n"
 		"assert(math.pow(2, 8) == 256)\n"
+		"assert(math.abs(math.atan2(1, 0) - math.pi / 2) < 0.000001)\n"
 		"local bit = require('bit')\n"
 		"assert(bit.band(0xf0, 0x3c) == 0x30)\n"
 		"assert(bit.bor(0x10, 0x03) == 0x13)\n"
@@ -2863,6 +2874,12 @@ int main()
 		"loader, loadError = load(string.char(0x1b) .. 'LJ' .. string.char(2) .. 'legacy')\n"
 		"assert(loader == nil and loadError:find('LuaJIT bytecode', 1, true) and loadError:find('Lua 5.5', 1, true))\n",
 		"@lua55-compat.lua");
+	lua_State *strictLua55 = luaL_newstate();
+	require(strictLua55 != nullptr, "failed to create strict Lua 5.5 control state");
+	require(luaL_loadstring(strictLua55,
+		"for key in pairs({answer = 42}) do key = key:upper() end") == LUA_ERRSYNTAX,
+		"Love loop-variable compatibility leaked into an ordinary Lua 5.5 state");
+	lua_close(strictLua55);
 	execute(first,
 		"assert(type(getfenv) == 'function' and type(setfenv) == 'function')\n"
 		"assert(getfenv(0) == _G and getfenv(print) == _G)\n"
@@ -3058,8 +3075,8 @@ int main()
 		"assert(Width == 800 and Height == 600)\n"
 		"print('LOVE_OPEN_SOURCE_GAME_TIMER_PASS', Width, Height, timeFormat(0.5))\n",
 		"@verify-open-source-game-timer.lua");
-	require(openSourceGraphics.begins == 1 && openSourceGraphics.ends == 1,
-		"open-source Game Timer draw was not bracketed by one frame");
+	require(openSourceGraphics.begins == 2 && openSourceGraphics.ends == 2,
+		"open-source Game Timer load and draw were not bracketed by graphics frames");
 	require(openSourceGraphics.textDrawRecords.size() == 3
 		&& openSourceGraphics.textDrawRecords[0].text == "0.500"
 		&& openSourceGraphics.textDrawRecords[2].text == "Press 'spacebar' to start/stop the timer",
@@ -3481,6 +3498,25 @@ int main()
 		"@verify-unsupported-window-conf.lua");
 	unsupportedWindowConfiguration.close();
 
+	Dora::Love::LoveRuntime legacyWindowConfiguration;
+	require(legacyWindowConfiguration.open(error), error);
+	execute(legacyWindowConfiguration,
+		"function love.conf(t) t.window.vsync = true end\n", "@legacy-vsync-conf.lua");
+	require(legacyWindowConfiguration.configure(error), error);
+	legacyWindowConfiguration.close();
+
+	Dora::Love::LoveRuntime disabledWindowConfiguration;
+	require(disabledWindowConfiguration.open(error), error);
+	execute(disabledWindowConfiguration,
+		"function love.conf(t) t.window = nil end\n", "@disabled-window-conf.lua");
+	require(disabledWindowConfiguration.configure(error), error);
+	require(disabledWindowConfiguration.getConfigurationWarnings().find("window module is disabled")
+		!= std::string::npos, "disabled Love window did not produce an embedded-surface warning");
+	require(disabledWindowConfiguration.getConfiguredWidth() == 800
+		&& disabledWindowConfiguration.getConfiguredHeight() == 600,
+		"disabled Love window did not retain the virtual surface defaults");
+	disabledWindowConfiguration.close();
+
 	Dora::Love::LoveRuntime invalidAudioConfiguration;
 	require(invalidAudioConfiguration.open(error), error);
 	execute(invalidAudioConfiguration,
@@ -3549,6 +3585,9 @@ int main()
 		"assert(sourceReal == filesystem.getSource())\n"
 		"local sourceModule, sourceSize = filesystem.read('shared/module.lua')\n"
 		"assert(sourceModule:find('owner = \"first\"', 1, true) and sourceSize == #sourceModule)\n"
+		"local rootedModule = assert(filesystem.read('/shared/module.lua'))\n"
+		"assert(rootedModule == sourceModule)\n"
+		"local sharedItems = filesystem.getDirectoryItems('shared/'); assert(#sharedItems == 1 and sharedItems[1] == 'module.lua')\n"
 		"assert(filesystem.createDirectory('shared'))\n"
 		"assert(filesystem.write('shared/module.lua', \"return {owner = 'save-first'}\\n\"))\n"
 		"assert(filesystem.getRealDirectory('shared/module.lua') == filesystem.getSaveDirectory())\n"
@@ -4199,7 +4238,7 @@ int main()
 		"ok,message=pcall(queueSource.queue,queueSource,love.sound.newSoundData(1,11025,16,1)); assert(not ok and message:find('format mismatch',1,true))\n"
 		"ok,message=pcall(queueSource.queue,queueSource,queueData,7,2); assert(not ok and message:find('out of bounds',1,true))\n"
 		"ok,message=pcall(pcmSource.queue,pcmSource,queueData); assert(not ok and message:find('Only queueable Sources',1,true))\n"
-		"assert(queueSource:play()); queueSource:stop(); assert(queueSource:getFreeBufferCount()==2 and queueSource:getDuration('samples')==0 and not queueSource:isPlaying())\n"
+		"assert(queueSource:play()); queueSource:stop(); assert(queueSource:getFreeBufferCount()==2 and queueSource:getDuration('samples')==0 and not queueSource:isPlaying() and queueSource:isStopped())\n"
 		"source = audio.newSource('pig.png', 'static')\n"
 		"stream = audio.newSource('pig.png', 'stream')\n"
 		"assert(audio.isEffectsSupported() and audio.getMaxSceneEffects()==64 and audio.getMaxSourceEffects()==3)\n"
@@ -4591,7 +4630,7 @@ int main()
 		"local iw, ih = image:getDimensions(); assert(iw == 32 and ih == 16)\n"
 		"local min, mag, anisotropy = image:getFilter(); assert(min == 'linear' and mag == 'linear' and anisotropy == 1)\n"
 		"image:setFilter('nearest'); min, mag, anisotropy = image:getFilter(); assert(min == 'nearest' and mag == 'nearest' and anisotropy == 1)\n"
-		"assert(not pcall(image.setFilter, image, 'nearest', 'linear'))\n"
+		"image:setFilter('nearest', 'linear'); assert(select(1, image:getFilter()) == 'nearest' and select(2, image:getFilter()) == 'linear')\n"
 		"assert(not pcall(image.setFilter, image, 'invalid'))\n"
 		"image:setFilter('linear', 'linear', 4); min, mag, anisotropy = image:getFilter(); assert(min == 'linear' and mag == 'linear' and anisotropy == 4)\n"
 		"assert(not pcall(image.setFilter, image, 'linear', 'linear', 0))\n"
@@ -4691,7 +4730,7 @@ int main()
 		"extern vec2 packedVecs[2]; extern mat2 packedMatrices[2]; extern uint imageWord; extern bool soundWord;\n"
 		"vec4 effect(vec4 color, Image texture, vec2 uv, vec2 screen) { return Texel(mask, uv) * Texel(overlay, uv) * Texel(layers[mode + 1], uv) * color * tint; }]]\n"
 		"shader = graphics.newShader(pixelShaderCode); assert(shader:getWarnings():find('mock Shader warning', 1, true))\n"
-		"assert(shader:hasUniform('tint') and shader:hasUniform('mask') and shader:hasUniform('overlay') and shader:hasUniform('layers') and not shader:hasUniform('missing')); shader:send('tint', {1, 0.5, 0.25, 1})\n"
+		"assert(shader:hasUniform('tint') and shader:hasUniform('mask') and shader:hasUniform('overlay') and shader:hasUniform('layers') and not shader:hasUniform('missing')); assert(shader:getExternVariable('tint') and not shader:getExternVariable('missing')); shader:send('tint', {1, 0.5, 0.25, 1})\n"
 		"shader:sendColor('tint', {2, -1, 0.75, 1}); assert(not pcall(shader.send, shader, 'missing', 1))\n"
 		"local samplerImage = graphics.newImage('fixture.png'); samplerImage:setFilter('nearest'); samplerImage:setWrap('repeat', 'mirroredrepeat')\n"
 		"local arrayOnlyImage = graphics.newImage('fixture.png')\n"

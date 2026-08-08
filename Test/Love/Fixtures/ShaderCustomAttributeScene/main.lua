@@ -260,7 +260,8 @@ function love.load()
 	manyPixel[#manyPixel + 1] = "vec4 effect(vec4 c, Image t, vec2 uv, vec2 p) { return vec4(V11); }"
 	valid, message = love.graphics.validateShader(false,
 		table.concat(manyVertex, "\n"), table.concat(manyPixel, "\n"))
-	assert(not valid and message:find("more custom varying semantic slots", 1, true))
+	assert(valid and message == nil,
+		"unused vertex varyings should not consume linked pixel semantic slots: " .. tostring(message))
 	valid, message = love.graphics.validateShader(false, [[
 		varying float CustomValue;
 		vec4 position(mat4 transform, vec4 vertex) { CustomValue = 0.5; return transform * vertex; }
@@ -304,7 +305,8 @@ function love.draw()
 	love.graphics.draw(vertexIDMesh)
 
 	love.graphics.setShader(mismatchShader)
-	assert(not pcall(love.graphics.draw, attachedMesh), "attribute component mismatch should reject draw")
+	assert(pcall(love.graphics.draw, attachedMesh),
+		"attribute component mismatch should use OpenGL-compatible truncate/fill conversion")
 	love.graphics.setShader(unusedShader)
 	love.graphics.draw(missing)
 	love.graphics.setShader()

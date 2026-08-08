@@ -780,6 +780,37 @@ function love.load()
 	]])
 	assert(not valid and message:find("duplicate Love Shader struct member", 1, true),
 		"inline anonymous struct duplicate member needs a directed diagnostic")
+	valid, message = love.graphics.validateShader(false, [[
+#ifdef VERTEX
+		varying vec4 StageColor;
+		vec4 stagePosition;
+		uniform mediump float time;
+		float clock(float time) { return time; }
+		vec4 position(mat4 transform, vec4 vertex) {
+			stagePosition = transform * vertex;
+			StageColor = vec4(clock(time) * 0.0 + love_ScreenSize.x * 0.0 + 1.0);
+			return stagePosition;
+		}
+#endif
+#ifdef PIXEL
+		varying vec4 StageColor;
+		vec4 stageColor = vec4(1.0);
+		vec4 effect(vec4 color, Image texture, vec2 uv, vec2 screen) {
+			stageColor = StageColor != vec4(0.0) ? color : vec4(0.0);
+			return stageColor + vec4(love_PixelCoord, 0.0, 0.0) * 0.0;
+		}
+#endif
+	]])
+	assert(valid and message == nil,
+		"combined-stage globals, macros, precision uniforms, shadowed parameters and vector comparisons should compile: "
+			.. tostring(message))
+	valid, message = love.graphics.validateShader(false, [[
+		void effect() {
+			love_PixelColor = vec4(love_PixelCoord, 0.0, 1.0) * 0.0 + vec4(1.0);
+		}
+	]])
+	assert(valid and message == nil,
+		"custom void effect should receive love_PixelCoord across bgfx backends: " .. tostring(message))
 end
 
 function love.draw()

@@ -40,6 +40,13 @@ function love.load()
 	local ok, message = pcall(setfenv, 0, {})
 	assert(not ok and message:find("Lua 5.5", 1, true))
 	assert(getfenv(0) == _G)
+	math.randomseed(1234.75)
+	local firstRandom = math.random()
+	math.randomseed(1234.75)
+	assert(math.random() == firstRandom)
+	math.randomseed(-1234.75)
+	assert(type(math.random()) == "number")
+	assert(math.abs(math.atan2(1, 0) - math.pi / 2) < 0.000001)
 	print("LOVE_LUA55_FENV_PASS", isolated(), untouched(), value, outerValue)
 end
 

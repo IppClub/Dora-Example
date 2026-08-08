@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import {doraSSRRoot, testRoot} from "./TestPaths.mjs";
 
 function read(relativePath) {
@@ -16,6 +17,17 @@ function requireText(relativePath, needles) {
 		if (!content.includes(needle)) {
 			throw new Error(`${relativePath} is missing required notice: ${needle}`);
 		}
+	}
+}
+
+function requireSha256(relativePath, expected) {
+	const filename = path.join(doraSSRRoot, relativePath);
+	if (!fs.existsSync(filename)) {
+		throw new Error(`missing required upstream source: ${relativePath}`);
+	}
+	const actual = crypto.createHash("sha256").update(fs.readFileSync(filename)).digest("hex");
+	if (actual !== expected) {
+		throw new Error(`${relativePath} differs from the pinned upstream source: ${actual}`);
 	}
 }
 
@@ -37,6 +49,8 @@ requireText("LICENSES.3rdparty.md", [
 	"Source/3rdParty/ogg/COPYING",
 	"[libtheora](https://gitlab.xiph.org/xiph/theora)",
 	"Source/3rdParty/theora/COPYING",
+	"[libopenmpt](https://lib.openmpt.org/libopenmpt/)",
+	"Source/3rdParty/libopenmpt/LICENSE",
 ]);
 requireText("Source/3rdParty/ogg/COPYING", [
 	"Copyright (c) 2002, Xiph.org Foundation",
@@ -46,9 +60,39 @@ requireText("Source/3rdParty/theora/COPYING", [
 	"Copyright (C) 2002-2009 Xiph.org Foundation",
 	"Redistribution and use in source and binary forms",
 ]);
+requireText("Source/3rdParty/libopenmpt/README.dora.md", [
+	"libopenmpt 0.4.11",
+	"a5c90100dcbb95cfee1ebe90bb5a74f9ce562e3c4da848386c2001ef567ecba6",
+	"<stdexcept>",
+	"current MSVC",
+	"canonical `miniz.h`",
+]);
+requireText("Source/3rdParty/libopenmpt/LICENSE", [
+	"Copyright (c) 2004-2019, OpenMPT contributors",
+	"Copyright (c) 1997-2003, Olivier Lapicque",
+	"Redistribution and use in source and binary forms",
+]);
+requireText("Source/3rdParty/soloud/README.dora.md", [
+	"RELEASE_20200207",
+	"c8e339fdce5c7107bdb3e64bbf707c8fd3449beb",
+	"engine-side `AudioFile` wrapper",
+]);
+requireSha256("Source/3rdParty/soloud/audiosource/openmpt/soloud_openmpt.cpp",
+	"6e9bae78a3b3c7715d625159357e40d4237b19d19962bcac89428dbfeab6fe2d");
+requireSha256("Source/3rdParty/libopenmpt/libopenmpt/libopenmpt_impl.cpp",
+	"83d7be464643d11b79b965b2ec3b68faf273f47696ed922b3c1459e6e7c71e7f");
+requireSha256("Source/3rdParty/Zip/miniz.c",
+	"0fcdc9888cb3a29ca8f176bac087e5fe6c7258a6ab06b1c271c1e109a11d3740");
+requireText("Source/3rdParty/Zip/README-miniz.dora.md", [
+	"single canonical miniz source copy",
+	"final Dora application target compiles `miniz.c` exactly once",
+	"libopenmpt",
+	"TinyEXR",
+]);
 requireText("NOTICE.txt", [
 	"libogg: 3-clause BSD License",
 	"libtheora: 3-clause BSD License",
+	"libopenmpt: BSD 3-Clause License",
 ]);
 requireText("Assets/LICENSES", [
 	"LOVE: zlib License",
@@ -57,6 +101,7 @@ requireText("Assets/LICENSES", [
 	"Copyright (C) 2011-2017, Yann Collet",
 	"libogg and aoTuV/libvorbis: BSD-3-Clause License",
 	"libtheora: BSD-3-Clause License",
+	"libopenmpt: BSD 3-Clause License",
 ]);
 requireText("Source/Love/LoveDataAlgorithms.cpp", [
 	"3rdParty/Love/src/modules/data/HashFunction.cpp",

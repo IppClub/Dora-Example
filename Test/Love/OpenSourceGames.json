@@ -1,0 +1,22 @@
+[
+	{"name":"SNKRX","repository":"a327ex/SNKRX","commit":"6b93a64d694d59472375467648868ae4521d6706","license":"MIT","entry":"SNKRX/main.lua"},
+	{"name":"Love2D Arkanoid","repository":"noooway/love2d_arkanoid_tutorial","commit":"a45067a9024b304310522e31d72316f4f2bc3452","license":"MIT","entry":"love2d_arkanoid_tutorial/3-17_Packaging/main.lua"},
+	{"name":"Emoji Merge","repository":"a327ex/emoji-merge","commit":"3b63aaa6b174f59cbcc3423ffafd558d60c876a5","license":"MIT","entry":"emoji-merge/main.lua"},
+	{"name":"Gravity Wars","repository":"whyboris/Gravity-Wars","commit":"e66964fc33a37cc8d2a824ec4fad255d38c0d54f","license":"MIT","entry":"Gravity-Wars/main.lua"},
+	{"name":"GoldMiner Rebirth","repository":"zzxzzk115/GoldMiner-Rebirth","commit":"5ace977fb5770004009ec7b089c95ffa95240efa","license":"MIT","entry":"GoldMiner-Rebirth/main.lua"},
+	{"name":"Tiny Boatball","repository":"sacemakesgame/Tiny-Boatball","commit":"7db3ab30d5e49166de7d751989c08c880ce46dfc","license":"MIT","entry":"Tiny-Boatball/main.lua"},
+	{"name":"openSMB2","repository":"Matriks404/openSMB2","commit":"b0e706cefe0946f4eda8a5f16035d6ba4dfa6bbc","license":"GPL-3.0","entry":"openSMB2/main.lua"},
+	{"name":"LOVE Chess","repository":"badduck32/LOVEchess","commit":"c2964b62ce6c0d006ee894861ba16dd3e5a46691","license":"MIT","entry":"LOVEchess/main.lua"},
+	{"name":"Tiny Chess","repository":"Naereen/Love-2D-tiny-Chess-game","commit":"ab795eeaac91de31586099bd6ac4b3ba16632e95","license":"MIT","entry":"Love-2D-tiny-Chess-game/main.lua"},
+	{"name":"Tux Swimmer","repository":"nicolas-sabbatini/tux-swimmer","commit":"d90c5bdd0484475abaf4171b8ed11bf4df247d06","license":"MIT","entry":"tux-swimmer/src/main.lua"},
+	{"name":"Aim++","repository":"thejeme/Aimplusplus","commit":"d2c36e59e1b27b25d89307cad10de4441a306df4","license":"MIT","entry":"Aimplusplus/Aim++/main.lua"},
+	{"name":"Flash Blip","repository":"plinkr/flash-blip","commit":"0b06b2fa71dd9037935b931db2be47843d4f2d92","license":"MIT","entry":"flash-blip/game/main.lua"},
+	{"name":"Shmonkey","repository":"D0NM/Shmonkey","commit":"543632b453aac1903601da32c002cd6d5ad8bbb4","license":"MIT","entry":"Shmonkey/main.lua"},
+	{"name":"Small Valley","repository":"Anas-says-hi/small-valley","commit":"dc0387b6f0d399e08a29d35bfbdeb18d3ab3a759","license":"MIT","entry":"small-valley/main.lua"},
+	{"name":"DoomCar","repository":"ttwings/DoomCar","commit":"765ec3fdb8d5f70675428f6779a97bd46b2923f6","license":"MIT","entry":"DoomCar/src/main.lua"},
+	{"name":"Papap","repository":"SwooshyCueb/papap","commit":"d256c59681525e87c98371958f718b7c7a9cd8ad","license":"MPL-2.0","entry":"papap/src/main.lua"},
+	{"name":"Match 4 Gravity","repository":"Spex130/Love2DMatch4Gravity","commit":"e13b266d8de3813da2ec4b3ddc19fda29ca562ee","license":"MIT","entry":"Love2DMatch4Gravity/main.lua"},
+	{"name":"Swan Skateboarder","repository":"limafresh/swan-skateboarder","commit":"7db5f92926a81e874bbc28f84ed62410bfaf6426","license":"MIT","entry":"swan-skateboarder/main.lua"},
+	{"name":"Snake Simple","repository":"dryyun/love2d-micro-games","commit":"49d7d5d1bc61962b183adc0dab786a8a00b38295","license":"MIT","entry":"love2d-micro-games/SnakeSimple/main.lua"},
+	{"name":"Max Downforce","repository":"Foppygames/max-downforce","commit":"29c73b4602ca4a06313c5e2da622854962925712","license":"GPL-3.0","entry":"max-downforce/main.lua"}
+]

@@ -358,7 +358,7 @@ const upstreamObjectFiles = new Map([
 
 const intentionalModuleGaps = new Map([
 	["Filesystem", new Set(["areSymlinksEnabled", "getCRequirePath", "setCRequirePath", "setSymlinksEnabled"])],
-	["Window", new Set(["close", "maximize", "minimize", "requestAttention", "restore", "setIcon", "setPosition", "showMessageBox"])],
+	["Window", new Set(["close", "maximize", "minimize", "requestAttention", "restore", "setPosition", "showMessageBox"])],
 ]);
 const internalUpstreamModuleMethods = new Map([
 	["Event", new Set(["poll_i"])],
