@@ -250,7 +250,7 @@ requireContains(windows, windowsPath, "_ITERATOR_DEBUG_LEVEL=0");
 requireContains(doraCSWindows, doraCSWindowsPath, "_ITERATOR_DEBUG_LEVEL=0");
 requireContains(loveXmake, loveXmakePath, 'add_defines("LOVE_PROXY_USERVALUES=5")');
 requireContains(loveXmake, loveXmakePath, 'target("openmpt")');
-requireContains(loveXmake, loveXmakePath, 'add_deps("openmpt")');
+requireContains(loveXmake, loveXmakePath, 'add_deps("openmpt", "luasocket-objects")');
 requireContains(loveXmake, loveXmakePath, 'add_files("../soloud/audiosource/openmpt/soloud_openmpt.cpp")');
 requireContains(loveXmake, loveXmakePath, 'add_defines("LIBOPENMPT_BUILD", "MPT_BUILD_DORA", "MPT_WITH_MINIZ")');
 requireContains(loveXmake, loveXmakePath, '"../libopenmpt/libopenmpt/libopenmpt_impl.cpp"');

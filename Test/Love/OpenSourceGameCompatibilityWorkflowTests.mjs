@@ -39,7 +39,7 @@ async function waitForContent(path, timeoutMs) {
 }
 
 assert(corpusRoot, "pass the corpus root as argv[3] or DORA_LOVE_CORPUS_ROOT");
-assert(manifest.length === 20, `expected exactly 20 games, got ${manifest.length}`);
+assert(manifest.length === 100, `expected exactly 100 games, got ${manifest.length}`);
 const cases = [];
 for (const game of manifest) {
 	assert(/^[0-9a-f]{40}$/.test(game.commit), `${game.name} does not pin a full commit`);

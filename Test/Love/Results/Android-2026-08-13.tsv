@@ -1,0 +1,101 @@
+index	game	status	detail
+1	SNKRX	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-001/001.love] boot failed: dora-love-compat.lua:16: module 'luasteam' not found
+2	Love2D Arkanoid	pass	
+3	Emoji Merge	pass	
+4	Gravity Wars	pass	
+5	GoldMiner Rebirth	pass	
+6	Tiny Boatball	pass	
+7	openSMB2	pass	
+8	LOVE Chess	pass	
+9	Tiny Chess	pass	
+10	Tux Swimmer	pass	
+11	Aim++	pass	
+12	Flash Blip	pass	
+13	Shmonkey	pass	
+14	Small Valley	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-014/014.love] love.load failed: ...ata/org.ippclub.dorassr/files/LovePackages/1-1/utils.lua:109: Love Image 'assets/Sunflower.png' creation failed: Love filesystem file does not exist: assets/Sunflower.png
+15	DoomCar	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-015/015.love] boot failed: Dora Love runtime uses Lua 5.5 and does not support LuaJIT ffi
+16	Papap	pass	
+17	Match 4 Gravity	pass	
+18	Swan Skateboarder	pass	
+19	Snake Simple	pass	
+20	Max Downforce	pass	
+21	Antonin-Deniau/love2d_cellular_automata	pass	
+22	ArticOff/BeeTycoon	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-022/022.love] boot failed: dora-love-compat.lua:16: module 'src.json' not found:
+23	Binomica-Labs/Microgue	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-023/023.love] boot failed: dora-love-compat.lua:16: module 'testLevel' not found:
+24	Bowuigi/TimeShip	pass	
+25	Cathetus/Solitaire-Chess	pass	
+26	ClavoSophame/love2d-undertale-template	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-026/026.love] love.load failed: ...r/files/.download/love-corpus-100-026/026.love!/main.lua:90: ...es/LovePackages/1-1/Scripts/Libraries/SpritesManager.lua:147: Love Image 'Resources/Sprites/Logo.png' creation failed: Love filesystem file does not exist: Resources/Sprites/Logo.png
+27	Cod-e-Codes/CardGame	pass	
+28	DOGamedev5/Needs-Light-in-Head-	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-028/028.love] love.load failed: ...files/LovePackages/1-1/src/ocean/effects/waterEffect.lua:10: bad argument #1 to 'send' (Shader uniform does not exist or is not active)
+29	EndeyshentLabs/MinPapers	runtime-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-029/029.love] draw failed: ...r/files/.download/love-corpus-100-029/029.love!/main.lua:92: bad argument #2 to 'print' (number expected, got Font)
+30	Foppygames/robo-house	pass	
+31	Germanunkol/GridCars	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-031/031.love] love.load failed: ...dorassr/files/LovePackages/1-1/lib/punchUI/textBlock.lua:218: bad argument #1 to 'newCanvas' (number has no integer representation)
+32	Hor1zonDev/desolation-legacy	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-032/032.love] love.conf failed: ...data/org.ippclub.dorassr/files/LovePackages/1-1/conf.lua:13: bad argument #1 to 'for iterator' (table expected, got nil)
+33	Janglee123/Boxlee	pass	
+34	KINGTUT10101/JustAnotherSandGameClassic	pass	
+35	KaffeDiem/TowerDefence	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-035/035.love] love.load failed: ...r/files/.download/love-corpus-100-035/035.love!/main.lua:54: Love Font 'fonts/iflash.ttf' resolution failed: Love filesystem file does not exist: fonts/iflash.ttf
+36	Kitcodail/Pong	pass	
+37	Kyrremann/GlobalGameJam2015	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-037/037.love] love.load failed: ...ata/org.ippclub.dorassr/files/LovePackages/1-1/setup.lua:17: bad argument #1 to 'setKeyRepeat' (boolean expected, got number)
+38	LuizH-Queiroz/CannonSurvive	runtime-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-038/038.love] draw failed: ...ub.dorassr/files/LovePackages/1-1/src/game/PlayState.lua:149: bad argument #2 to 'format' (number has no integer representation)
+39	MarvelWild/WildWorld	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-039/039.love] boot failed: ...r/files/.download/love-corpus-100-039/039.love!/main.lua:2: attempt to get length of a nil value (global 'arg')
+40	MattRoelle/lisp-jam-2022	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-040/040.love] boot failed: ...org.ippclub.dorassr/files/LovePackages/1-1/lib/stdio.lua:16: attempt to call a nil value (method 'demand')
+41	NO411/offline	pass	
+42	Nadelio/Ares-RPG	pass	
+43	Nemesis-12/pong-love2d	pass	
+44	Nuthen/Grav	runtime-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-044/044.love] draw failed: ...g.ippclub.dorassr/files/LovePackages/1-1/states/menu.lua:31: attempt to call a nil value (field 'getWidth')
+45	PSEMO/Tic-Tac-Toe-with-Love2d-and-Lua	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-045/045.love] love.conf failed: Love filesystem identity must be 1 to 128 characters and cannot contain path separators
+46	Pawel-Kranzberg/The-Real-Liberator-prototype	pass	
+47	PistolRcks/luatris	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-047/047.love] love.load failed: dora-love-compat.lua:16: module 'util.util' not found:
+48	Sasszem/crossfire	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-048/048.love] boot failed: dora-love-compat.lua:16: module 'lib.flux.flux' not found:
+49	Sewerbird/blooming-suns	pass	
+50	Wild-League/game	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-050/050.love] boot failed: dora-love-compat.lua:16: module 'https' not found:
+51	WonUpped/FlamingRed	pass	
+52	ZReC/TetraMino	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-052/052.love] love.load failed: ...r/files/.download/love-corpus-100-052/052.love!/main.lua:22: bad argument #2 to 'newFont' (number has no integer representation)
+53	Zakru/opencrypt	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-053/053.love] boot failed: dora-love-compat.lua:16: module 'engine/tilemap' not found:
+54	adrijshikhar/kill-zee	pass	
+55	andriadze/Love2D_Platformer_Example	pass	
+56	ane/mudrally	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-056/056.love] boot failed: dora-love-compat.lua:16: module 'wrap' not found:
+57	arjav0703/Twilight-Paradox	pass	
+58	bblodget/LoveToType	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-058/058.love] boot failed: ...a/org.ippclub.dorassr/files/LovePackages/1-1/data_1a.lua:20: attempt to call a nil value (global 'module')
+59	bkuolt/papa-noel	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-059/059.love] boot failed: ...ta/org.ippclub.dorassr/files/LovePackages/1-1/Sprite.lua:63: bad argument #1 to 'newCanvas' (Canvas width must be between 1 and 8192 pixels)
+60	bubu07codes/HangmanLua	pass	
+61	buntine/necroblaster	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-061/061.love] love.conf failed: love.conf t.window.width must be an integer from 1 to 8192
+62	camchenry/super_shooter	pass	
+63	catman85/Love2d-Point-And-Click	pass	
+64	chadpaulson/missile-command	pass	
+65	challacade/legend-of-lua	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-065/065.love] love.load failed: ...assr/files/LovePackages/1-1/libraries/windfield/init.lua:207: attempt to call a nil value (method 'getBodies')
+66	challacade/udemy-love2d	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-066/066.love] love.load failed: .../LovePackages/1-1/libraries/windfield/windfield/init.lua:207: attempt to call a nil value (method 'getBodies')
+67	chandler-latour/Physics_free	pass	
+68	codemonsters/dizzy-balloon	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-068/068.love] boot failed: dora-love-compat.lua:16: module '/libraries/bitser/bitser' not found:
+69	d3finit/SpaceInvadersLove2d	pass	
+70	divin/kanji-match	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-070/070.love] boot failed: Dora Love runtime uses Lua 5.5 and does not support LuaJIT ffi
+71	elennick/luan0va	pass	
+72	g3rley/SnakeDay	pass	
+73	gvx/space	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-073/073.love] love.load failed: ...data/org.ippclub.dorassr/files/LovePackages/1-1/file.lua:3: attempt to call a nil value (field 'mkdir')
+74	hypnoscope/let-s-code-an-indie-game	workflow-failed	le:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:52  throw new Error(`timed out waiting for ${path}`);        ^  Error: timed out waiting for /data/data/org.ippclub.dorassr/files/.download/love-corpus-100-074/runtime-status.tsv     at waitForContent (file:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:52:8)     at async file:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:77:18  Node.js v25.9.0 
+75	inv41idu53rn4m3/neon	pass	
+76	kno3comma14/three-raiders	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-076/076.love] boot failed: ...org.ippclub.dorassr/files/LovePackages/1-1/lib/stdio.lua:16: attempt to call a nil value (method 'demand')
+77	magic-snail/magic-snail	pass	
+78	mapised/MiniStacker	pass	
+79	maxxcan/love2d-game	pass	
+80	mratnikov2/lua-quest	pass	
+81	muellerberndt/ladybug-love2d	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-081/081.love] love.load failed: ...org.ippclub.dorassr/files/LovePackages/1-1/util/Util.lua:78: attempt to index a nil value (local 'file')
+82	nguyenquan-2510/Lua-Click-Game	pass	
+83	nirokay/FloppyBird	pass	
+84	noisesmith/energize	pass	
+85	nununoisy/tetris-love	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-085/085.love] love.load failed: ...r/files/.download/love-corpus-100-085/085.love!/main.lua:206: attempt to index a nil value (local 'arg')
+86	omrawaley/Moon-Pong	pass	
+87	pellway/LOVE-Game	pass	
+88	peppercat10/tetris-love-ecs	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-088/088.love] boot failed: dora-love-compat.lua:16: module 'modules.Concord' not found:
+89	redsled84/youtube-demo	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-089/089.love] boot failed: ....dorassr/files/LovePackages/1-1/lib/light/postshader.lua:37: Love pixel Shader source line 9:
+90	retropipes/fantastle-reboot	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-090/090.love] love.load failed: ...pclub.dorassr/files/LovePackages/1-1/lib/luven/luven.lua:374: Love Image '/data/data/org.ippclub.dorassr/files/LovePackages/1-1/lib/luven/lights/round.png' creation failed: Love filesystem file does not exist: /data/data/org.ippclub.dorassr/files/LovePackages/1-1/lib/luven/lights/round.png
+91	savegame/FlappyLinda	runtime-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-091/091.love] update failed: dora-love-compat.lua:87: bad argument #1 to 'compatibility_native_random' (interval is empty)
+92	sleepycharlyy/fly_swatter.love	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-092/092.love] love.load failed: ...r/files/.download/love-corpus-100-092/092.love!/main.lua:35: bad argument #3 to 'setDefaultFilter' (anisotropy must be a finite number greater than or equal to 1)
+93	slemonide/lost	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-093/093.love] love.load failed: ...data/org.ippclub.dorassr/files/LovePackages/1-1/menu.lua:22: assets/menu/main_menu: No such file or directory
+94	tboydston/supremetictactoe	runtime-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-094/094.love] draw failed: ...dorassr/files/LovePackages/1-1/entities/userNameForm.lua:60: bad argument #2 to 'setNewFont' (number has no integer representation)
+95	thejeme/Eity	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-095/095.love] boot failed: Dora Love runtime uses Lua 5.5 and does not support LuaJIT ffi
+96	tredfern/terminus	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-096/096.love] boot failed: dora-love-compat.lua:16: module 'moonpie' not found:
+97	tredfern/witchcraft_invention	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-097/097.love] boot failed: dora-love-compat.lua:16: module 'ext.artemis.src.list' not found:
+98	ttwings/Dwarf-Survival	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-098/098.love] boot failed: dora-love-compat.lua:16: module 'lib.input' not found:
+99	unternehmen/lonoma	pass	
+100	vanillaiice/flappybird-love2d	pass	

@@ -1,22 +1,702 @@
 [
-	{"name":"SNKRX","repository":"a327ex/SNKRX","commit":"6b93a64d694d59472375467648868ae4521d6706","license":"MIT","entry":"SNKRX/main.lua"},
-	{"name":"Love2D Arkanoid","repository":"noooway/love2d_arkanoid_tutorial","commit":"a45067a9024b304310522e31d72316f4f2bc3452","license":"MIT","entry":"love2d_arkanoid_tutorial/3-17_Packaging/main.lua"},
-	{"name":"Emoji Merge","repository":"a327ex/emoji-merge","commit":"3b63aaa6b174f59cbcc3423ffafd558d60c876a5","license":"MIT","entry":"emoji-merge/main.lua"},
-	{"name":"Gravity Wars","repository":"whyboris/Gravity-Wars","commit":"e66964fc33a37cc8d2a824ec4fad255d38c0d54f","license":"MIT","entry":"Gravity-Wars/main.lua"},
-	{"name":"GoldMiner Rebirth","repository":"zzxzzk115/GoldMiner-Rebirth","commit":"5ace977fb5770004009ec7b089c95ffa95240efa","license":"MIT","entry":"GoldMiner-Rebirth/main.lua"},
-	{"name":"Tiny Boatball","repository":"sacemakesgame/Tiny-Boatball","commit":"7db3ab30d5e49166de7d751989c08c880ce46dfc","license":"MIT","entry":"Tiny-Boatball/main.lua"},
-	{"name":"openSMB2","repository":"Matriks404/openSMB2","commit":"b0e706cefe0946f4eda8a5f16035d6ba4dfa6bbc","license":"GPL-3.0","entry":"openSMB2/main.lua"},
-	{"name":"LOVE Chess","repository":"badduck32/LOVEchess","commit":"c2964b62ce6c0d006ee894861ba16dd3e5a46691","license":"MIT","entry":"LOVEchess/main.lua"},
-	{"name":"Tiny Chess","repository":"Naereen/Love-2D-tiny-Chess-game","commit":"ab795eeaac91de31586099bd6ac4b3ba16632e95","license":"MIT","entry":"Love-2D-tiny-Chess-game/main.lua"},
-	{"name":"Tux Swimmer","repository":"nicolas-sabbatini/tux-swimmer","commit":"d90c5bdd0484475abaf4171b8ed11bf4df247d06","license":"MIT","entry":"tux-swimmer/src/main.lua"},
-	{"name":"Aim++","repository":"thejeme/Aimplusplus","commit":"d2c36e59e1b27b25d89307cad10de4441a306df4","license":"MIT","entry":"Aimplusplus/Aim++/main.lua"},
-	{"name":"Flash Blip","repository":"plinkr/flash-blip","commit":"0b06b2fa71dd9037935b931db2be47843d4f2d92","license":"MIT","entry":"flash-blip/game/main.lua"},
-	{"name":"Shmonkey","repository":"D0NM/Shmonkey","commit":"543632b453aac1903601da32c002cd6d5ad8bbb4","license":"MIT","entry":"Shmonkey/main.lua"},
-	{"name":"Small Valley","repository":"Anas-says-hi/small-valley","commit":"dc0387b6f0d399e08a29d35bfbdeb18d3ab3a759","license":"MIT","entry":"small-valley/main.lua"},
-	{"name":"DoomCar","repository":"ttwings/DoomCar","commit":"765ec3fdb8d5f70675428f6779a97bd46b2923f6","license":"MIT","entry":"DoomCar/src/main.lua"},
-	{"name":"Papap","repository":"SwooshyCueb/papap","commit":"d256c59681525e87c98371958f718b7c7a9cd8ad","license":"MPL-2.0","entry":"papap/src/main.lua"},
-	{"name":"Match 4 Gravity","repository":"Spex130/Love2DMatch4Gravity","commit":"e13b266d8de3813da2ec4b3ddc19fda29ca562ee","license":"MIT","entry":"Love2DMatch4Gravity/main.lua"},
-	{"name":"Swan Skateboarder","repository":"limafresh/swan-skateboarder","commit":"7db5f92926a81e874bbc28f84ed62410bfaf6426","license":"MIT","entry":"swan-skateboarder/main.lua"},
-	{"name":"Snake Simple","repository":"dryyun/love2d-micro-games","commit":"49d7d5d1bc61962b183adc0dab786a8a00b38295","license":"MIT","entry":"love2d-micro-games/SnakeSimple/main.lua"},
-	{"name":"Max Downforce","repository":"Foppygames/max-downforce","commit":"29c73b4602ca4a06313c5e2da622854962925712","license":"GPL-3.0","entry":"max-downforce/main.lua"}
+	{
+		"name": "SNKRX",
+		"repository": "a327ex/SNKRX",
+		"commit": "6b93a64d694d59472375467648868ae4521d6706",
+		"license": "MIT",
+		"entry": "SNKRX/main.lua"
+	},
+	{
+		"name": "Love2D Arkanoid",
+		"repository": "noooway/love2d_arkanoid_tutorial",
+		"commit": "a45067a9024b304310522e31d72316f4f2bc3452",
+		"license": "MIT",
+		"entry": "love2d_arkanoid_tutorial/3-17_Packaging/main.lua"
+	},
+	{
+		"name": "Emoji Merge",
+		"repository": "a327ex/emoji-merge",
+		"commit": "3b63aaa6b174f59cbcc3423ffafd558d60c876a5",
+		"license": "MIT",
+		"entry": "emoji-merge/main.lua"
+	},
+	{
+		"name": "Gravity Wars",
+		"repository": "whyboris/Gravity-Wars",
+		"commit": "e66964fc33a37cc8d2a824ec4fad255d38c0d54f",
+		"license": "MIT",
+		"entry": "Gravity-Wars/main.lua"
+	},
+	{
+		"name": "GoldMiner Rebirth",
+		"repository": "zzxzzk115/GoldMiner-Rebirth",
+		"commit": "5ace977fb5770004009ec7b089c95ffa95240efa",
+		"license": "MIT",
+		"entry": "GoldMiner-Rebirth/main.lua"
+	},
+	{
+		"name": "Tiny Boatball",
+		"repository": "sacemakesgame/Tiny-Boatball",
+		"commit": "7db3ab30d5e49166de7d751989c08c880ce46dfc",
+		"license": "MIT",
+		"entry": "Tiny-Boatball/main.lua"
+	},
+	{
+		"name": "openSMB2",
+		"repository": "Matriks404/openSMB2",
+		"commit": "b0e706cefe0946f4eda8a5f16035d6ba4dfa6bbc",
+		"license": "GPL-3.0",
+		"entry": "openSMB2/main.lua"
+	},
+	{
+		"name": "LOVE Chess",
+		"repository": "badduck32/LOVEchess",
+		"commit": "c2964b62ce6c0d006ee894861ba16dd3e5a46691",
+		"license": "MIT",
+		"entry": "LOVEchess/main.lua"
+	},
+	{
+		"name": "Tiny Chess",
+		"repository": "Naereen/Love-2D-tiny-Chess-game",
+		"commit": "ab795eeaac91de31586099bd6ac4b3ba16632e95",
+		"license": "MIT",
+		"entry": "Love-2D-tiny-Chess-game/main.lua"
+	},
+	{
+		"name": "Tux Swimmer",
+		"repository": "nicolas-sabbatini/tux-swimmer",
+		"commit": "d90c5bdd0484475abaf4171b8ed11bf4df247d06",
+		"license": "MIT",
+		"entry": "tux-swimmer/src/main.lua"
+	},
+	{
+		"name": "Aim++",
+		"repository": "thejeme/Aimplusplus",
+		"commit": "d2c36e59e1b27b25d89307cad10de4441a306df4",
+		"license": "MIT",
+		"entry": "Aimplusplus/Aim++/main.lua"
+	},
+	{
+		"name": "Flash Blip",
+		"repository": "plinkr/flash-blip",
+		"commit": "0b06b2fa71dd9037935b931db2be47843d4f2d92",
+		"license": "MIT",
+		"entry": "flash-blip/game/main.lua"
+	},
+	{
+		"name": "Shmonkey",
+		"repository": "D0NM/Shmonkey",
+		"commit": "543632b453aac1903601da32c002cd6d5ad8bbb4",
+		"license": "MIT",
+		"entry": "Shmonkey/main.lua"
+	},
+	{
+		"name": "Small Valley",
+		"repository": "Anas-says-hi/small-valley",
+		"commit": "dc0387b6f0d399e08a29d35bfbdeb18d3ab3a759",
+		"license": "MIT",
+		"entry": "small-valley/main.lua"
+	},
+	{
+		"name": "DoomCar",
+		"repository": "ttwings/DoomCar",
+		"commit": "765ec3fdb8d5f70675428f6779a97bd46b2923f6",
+		"license": "MIT",
+		"entry": "DoomCar/src/main.lua"
+	},
+	{
+		"name": "Papap",
+		"repository": "SwooshyCueb/papap",
+		"commit": "d256c59681525e87c98371958f718b7c7a9cd8ad",
+		"license": "MPL-2.0",
+		"entry": "papap/src/main.lua"
+	},
+	{
+		"name": "Match 4 Gravity",
+		"repository": "Spex130/Love2DMatch4Gravity",
+		"commit": "e13b266d8de3813da2ec4b3ddc19fda29ca562ee",
+		"license": "MIT",
+		"entry": "Love2DMatch4Gravity/main.lua"
+	},
+	{
+		"name": "Swan Skateboarder",
+		"repository": "limafresh/swan-skateboarder",
+		"commit": "7db5f92926a81e874bbc28f84ed62410bfaf6426",
+		"license": "MIT",
+		"entry": "swan-skateboarder/main.lua"
+	},
+	{
+		"name": "Snake Simple",
+		"repository": "dryyun/love2d-micro-games",
+		"commit": "49d7d5d1bc61962b183adc0dab786a8a00b38295",
+		"license": "MIT",
+		"entry": "love2d-micro-games/SnakeSimple/main.lua"
+	},
+	{
+		"name": "Max Downforce",
+		"repository": "Foppygames/max-downforce",
+		"commit": "29c73b4602ca4a06313c5e2da622854962925712",
+		"license": "GPL-3.0",
+		"entry": "max-downforce/main.lua"
+	},
+	{
+		"name": "Antonin-Deniau/love2d_cellular_automata",
+		"repository": "Antonin-Deniau/love2d_cellular_automata",
+		"commit": "da68825a7516e875ba57bba9346ffedb3de66d97",
+		"license": "GPL-3.0",
+		"entry": "Antonin-Deniau_love2d_cellular_automata/main.lua"
+	},
+	{
+		"name": "ArticOff/BeeTycoon",
+		"repository": "ArticOff/BeeTycoon",
+		"commit": "6188b441c59f7060ff76af419c0797c77ced418f",
+		"license": "GPL-3.0",
+		"entry": "ArticOff_BeeTycoon/src/main.lua"
+	},
+	{
+		"name": "Binomica-Labs/Microgue",
+		"repository": "Binomica-Labs/Microgue",
+		"commit": "6ac41661c89a6cb0a30602a89ee0acb1daa1d746",
+		"license": "MIT",
+		"entry": "Binomica-Labs_Microgue/main.lua"
+	},
+	{
+		"name": "Bowuigi/TimeShip",
+		"repository": "Bowuigi/TimeShip",
+		"commit": "ba3ca08508c47e3ea7b1f389899cdbea31ede297",
+		"license": "GPL-3.0",
+		"entry": "Bowuigi_TimeShip/main.lua"
+	},
+	{
+		"name": "Cathetus/Solitaire-Chess",
+		"repository": "Cathetus/Solitaire-Chess",
+		"commit": "0b0ecc84becf95e29286b5fb87c689cecbefe5e6",
+		"license": "GPL-3.0",
+		"entry": "Cathetus_Solitaire-Chess/main.lua"
+	},
+	{
+		"name": "ClavoSophame/love2d-undertale-template",
+		"repository": "ClavoSophame/love2d-undertale-template",
+		"commit": "0154ce4c3ce5b5e29d1d109eb4495c89512c43f0",
+		"license": "GPL-3.0",
+		"entry": "ClavoSophame_love2d-undertale-template/main.lua"
+	},
+	{
+		"name": "Cod-e-Codes/CardGame",
+		"repository": "Cod-e-Codes/CardGame",
+		"commit": "43167f4aef4314d011bfdfe5989423dddca1f1f9",
+		"license": "MIT",
+		"entry": "Cod-e-Codes_CardGame/main.lua"
+	},
+	{
+		"name": "DOGamedev5/Needs-Light-in-Head-",
+		"repository": "DOGamedev5/Needs-Light-in-Head-",
+		"commit": "d31a9ce137b0bbc13ed700a8bfff6a00f3761ac0",
+		"license": "GPL-3.0",
+		"entry": "DOGamedev5_Needs-Light-in-Head-/main.lua"
+	},
+	{
+		"name": "EndeyshentLabs/MinPapers",
+		"repository": "EndeyshentLabs/MinPapers",
+		"commit": "ae071a005fb9597e3156a0722016618009549363",
+		"license": "GPL-3.0",
+		"entry": "EndeyshentLabs_MinPapers/main.lua"
+	},
+	{
+		"name": "Foppygames/robo-house",
+		"repository": "Foppygames/robo-house",
+		"commit": "a84da633322284c8335c6857ca0a93430b347504",
+		"license": "GPL-3.0",
+		"entry": "Foppygames_robo-house/main.lua"
+	},
+	{
+		"name": "Germanunkol/GridCars",
+		"repository": "Germanunkol/GridCars",
+		"commit": "f0fe6efe02e252043a80975007a32d0b9af03b65",
+		"license": "MIT",
+		"entry": "Germanunkol_GridCars/main.lua"
+	},
+	{
+		"name": "Hor1zonDev/desolation-legacy",
+		"repository": "Hor1zonDev/desolation-legacy",
+		"commit": "59ae363c86a410d728e5c8fccb32c1f85d05b03c",
+		"license": "MIT",
+		"entry": "Hor1zonDev_desolation-legacy/main.lua"
+	},
+	{
+		"name": "Janglee123/Boxlee",
+		"repository": "Janglee123/Boxlee",
+		"commit": "c8c1f87d028f18825179fd104d4e0728e7ef6d17",
+		"license": "GPL-3.0",
+		"entry": "Janglee123_Boxlee/main.lua"
+	},
+	{
+		"name": "KINGTUT10101/JustAnotherSandGameClassic",
+		"repository": "KINGTUT10101/JustAnotherSandGameClassic",
+		"commit": "890b52708ea4f9d8096802dace605714100bed13",
+		"license": "GPL-3.0",
+		"entry": "KINGTUT10101_JustAnotherSandGameClassic/main.lua"
+	},
+	{
+		"name": "KaffeDiem/TowerDefence",
+		"repository": "KaffeDiem/TowerDefence",
+		"commit": "ba988ff530fd218cc3356ce9ccfea705475cbdb7",
+		"license": "GPL-3.0",
+		"entry": "KaffeDiem_TowerDefence/main.lua"
+	},
+	{
+		"name": "Kitcodail/Pong",
+		"repository": "Kitcodail/Pong",
+		"commit": "60101ab719ba2a047a788cfdf2e0e19fe7b811fb",
+		"license": "GPL-3.0",
+		"entry": "Kitcodail_Pong/main.lua"
+	},
+	{
+		"name": "Kyrremann/GlobalGameJam2015",
+		"repository": "Kyrremann/GlobalGameJam2015",
+		"commit": "051fd9e2af4d50e55303573b32441dfd00643024",
+		"license": "GPL-3.0",
+		"entry": "Kyrremann_GlobalGameJam2015/main.lua"
+	},
+	{
+		"name": "LuizH-Queiroz/CannonSurvive",
+		"repository": "LuizH-Queiroz/CannonSurvive",
+		"commit": "dd3e02480a616a013be4ae6be3d2013a4b8d3abc",
+		"license": "MIT",
+		"entry": "LuizH-Queiroz_CannonSurvive/main.lua"
+	},
+	{
+		"name": "MarvelWild/WildWorld",
+		"repository": "MarvelWild/WildWorld",
+		"commit": "f0dc290ccc710b4d87f72721c1efa03ec69e2790",
+		"license": "MIT",
+		"entry": "MarvelWild_WildWorld/generation3/main.lua"
+	},
+	{
+		"name": "MattRoelle/lisp-jam-2022",
+		"repository": "MattRoelle/lisp-jam-2022",
+		"commit": "d48d5091d7b1a7e483b542965007e8b6408bf798",
+		"license": "GPL-3.0",
+		"entry": "MattRoelle_lisp-jam-2022/main.lua"
+	},
+	{
+		"name": "NO411/offline",
+		"repository": "NO411/offline",
+		"commit": "3bc039d5e46a2b484984e0bd206ca5d4eb645663",
+		"license": "GPL-3.0",
+		"entry": "NO411_offline/main.lua"
+	},
+	{
+		"name": "Nadelio/Ares-RPG",
+		"repository": "Nadelio/Ares-RPG",
+		"commit": "15db1719ada545517766bf227364ccb6962ea10b",
+		"license": "MIT",
+		"entry": "Nadelio_Ares-RPG/main.lua"
+	},
+	{
+		"name": "Nemesis-12/pong-love2d",
+		"repository": "Nemesis-12/pong-love2d",
+		"commit": "8f9a73d47e73840fd065256a3e481d3b3eb9379c",
+		"license": "MIT",
+		"entry": "Nemesis-12_pong-love2d/main.lua"
+	},
+	{
+		"name": "Nuthen/Grav",
+		"repository": "Nuthen/Grav",
+		"commit": "9e9a5a1b821dbe91e181bb100950f131146636ba",
+		"license": "GPL-3.0",
+		"entry": "Nuthen_Grav/main.lua"
+	},
+	{
+		"name": "PSEMO/Tic-Tac-Toe-with-Love2d-and-Lua",
+		"repository": "PSEMO/Tic-Tac-Toe-with-Love2d-and-Lua",
+		"commit": "2dfc637504da6758249278b8138936addf24b41e",
+		"license": "MIT",
+		"entry": "PSEMO_Tic-Tac-Toe-with-Love2d-and-Lua/main.lua"
+	},
+	{
+		"name": "Pawel-Kranzberg/The-Real-Liberator-prototype",
+		"repository": "Pawel-Kranzberg/The-Real-Liberator-prototype",
+		"commit": "d43c36e08501457219e42c31264ed715ebed58a7",
+		"license": "GPL-3.0",
+		"entry": "Pawel-Kranzberg_The-Real-Liberator-prototype/main.lua"
+	},
+	{
+		"name": "PistolRcks/luatris",
+		"repository": "PistolRcks/luatris",
+		"commit": "888c64b322e7d67ee1bf0ae8021b616f5a7843a1",
+		"license": "GPL-3.0",
+		"entry": "PistolRcks_luatris/game/main.lua"
+	},
+	{
+		"name": "Sasszem/crossfire",
+		"repository": "Sasszem/crossfire",
+		"commit": "7b63bd2f723b553ccd10fe383a21131ec742a650",
+		"license": "GPL-3.0",
+		"entry": "Sasszem_crossfire/main.lua"
+	},
+	{
+		"name": "Sewerbird/blooming-suns",
+		"repository": "Sewerbird/blooming-suns",
+		"commit": "6a16ee0ed193336c80ea84a9d6c151c78bc39f04",
+		"license": "GPL-3.0",
+		"entry": "Sewerbird_blooming-suns/main.lua"
+	},
+	{
+		"name": "Wild-League/game",
+		"repository": "Wild-League/game",
+		"commit": "3b7add7ac5da8c74ff6cb1d30f043c4d01ed937c",
+		"license": "GPL-3.0",
+		"entry": "Wild-League_game/main.lua"
+	},
+	{
+		"name": "WonUpped/FlamingRed",
+		"repository": "WonUpped/FlamingRed",
+		"commit": "ebed677dacc81d42a033c547498e57217c74df74",
+		"license": "GPL-3.0",
+		"entry": "WonUpped_FlamingRed/main.lua"
+	},
+	{
+		"name": "ZReC/TetraMino",
+		"repository": "ZReC/TetraMino",
+		"commit": "386d2d199feb4ac675e2c1d3eb554b844ef12490",
+		"license": "GPL-3.0",
+		"entry": "ZReC_TetraMino/src/main.lua"
+	},
+	{
+		"name": "Zakru/opencrypt",
+		"repository": "Zakru/opencrypt",
+		"commit": "dce661b799e274df4173d4ce9f497e400f7254c5",
+		"license": "GPL-3.0",
+		"entry": "Zakru_opencrypt/main.lua"
+	},
+	{
+		"name": "adrijshikhar/kill-zee",
+		"repository": "adrijshikhar/kill-zee",
+		"commit": "59cff15d3e2a79d408e17c5929a9b7ed087c1f60",
+		"license": "GPL-3.0",
+		"entry": "adrijshikhar_kill-zee/main.lua"
+	},
+	{
+		"name": "andriadze/Love2D_Platformer_Example",
+		"repository": "andriadze/Love2D_Platformer_Example",
+		"commit": "476c71a12e7aaa4d70e044b8d95cdeef34025809",
+		"license": "MIT",
+		"entry": "andriadze_Love2D_Platformer_Example/main.lua"
+	},
+	{
+		"name": "ane/mudrally",
+		"repository": "ane/mudrally",
+		"commit": "9064cbbe7d235b1f092a3c24d3a6f3b0e4d4dee1",
+		"license": "GPL-3.0",
+		"entry": "ane_mudrally/main.lua"
+	},
+	{
+		"name": "arjav0703/Twilight-Paradox",
+		"repository": "arjav0703/Twilight-Paradox",
+		"commit": "5b5a96e97cb28787a2a880d96e65dea0ad7772b1",
+		"license": "MIT",
+		"entry": "arjav0703_Twilight-Paradox/main.lua"
+	},
+	{
+		"name": "bblodget/LoveToType",
+		"repository": "bblodget/LoveToType",
+		"commit": "29db8f4258ffaf5573e1819c1d816aeb3368db5a",
+		"license": "GPL-3.0",
+		"entry": "bblodget_LoveToType/main.lua"
+	},
+	{
+		"name": "bkuolt/papa-noel",
+		"repository": "bkuolt/papa-noel",
+		"commit": "4ddd80dd39c81eb0ac10b42f240a0fe65bf659a8",
+		"license": "GPL-3.0",
+		"entry": "bkuolt_papa-noel/source/main.lua"
+	},
+	{
+		"name": "bubu07codes/HangmanLua",
+		"repository": "bubu07codes/HangmanLua",
+		"commit": "411e29f7c05bbdee17f9177eee612b7bb7ddcb60",
+		"license": "MIT",
+		"entry": "bubu07codes_HangmanLua/main.lua"
+	},
+	{
+		"name": "buntine/necroblaster",
+		"repository": "buntine/necroblaster",
+		"commit": "03195b46d172bc2bd3649865d0256fc78b729441",
+		"license": "GPL-3.0",
+		"entry": "buntine_necroblaster/main.lua"
+	},
+	{
+		"name": "camchenry/super_shooter",
+		"repository": "camchenry/super_shooter",
+		"commit": "7cced5001ebf833c7db8e7cb7cd6fb29b144955c",
+		"license": "MIT",
+		"entry": "camchenry_super_shooter/main.lua"
+	},
+	{
+		"name": "catman85/Love2d-Point-And-Click",
+		"repository": "catman85/Love2d-Point-And-Click",
+		"commit": "b76853c09edb4cb953d71aa8c2be250292e4b11f",
+		"license": "GPL-3.0",
+		"entry": "catman85_Love2d-Point-And-Click/main.lua"
+	},
+	{
+		"name": "chadpaulson/missile-command",
+		"repository": "chadpaulson/missile-command",
+		"commit": "9e4dc758e35b7369da5db6dd372ed3ca9f54940d",
+		"license": "GPL-3.0",
+		"entry": "chadpaulson_missile-command/main.lua"
+	},
+	{
+		"name": "challacade/legend-of-lua",
+		"repository": "challacade/legend-of-lua",
+		"commit": "351f245653eed9649c7daef34fa1c8b9b7e055f1",
+		"license": "MIT",
+		"entry": "challacade_legend-of-lua/main.lua"
+	},
+	{
+		"name": "challacade/udemy-love2d",
+		"repository": "challacade/udemy-love2d",
+		"commit": "f6a780a2ff7fb5767b67d59e1b1395c816ac166f",
+		"license": "MIT",
+		"entry": "challacade_udemy-love2d/Platformer/main.lua"
+	},
+	{
+		"name": "chandler-latour/Physics_free",
+		"repository": "chandler-latour/Physics_free",
+		"commit": "7474497929be6c4fe9c146f0d4f600e781cb1608",
+		"license": "GPL-3.0",
+		"entry": "chandler-latour_Physics_free/game/main.lua"
+	},
+	{
+		"name": "codemonsters/dizzy-balloon",
+		"repository": "codemonsters/dizzy-balloon",
+		"commit": "0aaff6c7a4e649ea7e8f45f304f032545f17ace1",
+		"license": "GPL-3.0",
+		"entry": "codemonsters_dizzy-balloon/src/main.lua"
+	},
+	{
+		"name": "d3finit/SpaceInvadersLove2d",
+		"repository": "d3finit/SpaceInvadersLove2d",
+		"commit": "cd4548779ad0c539c1fe508a0bc27ee23610ce0d",
+		"license": "GPL-3.0",
+		"entry": "d3finit_SpaceInvadersLove2d/main.lua"
+	},
+	{
+		"name": "divin/kanji-match",
+		"repository": "divin/kanji-match",
+		"commit": "0de214e8a9bf63bb523e7ff929e9828c449d4e93",
+		"license": "GPL-3.0",
+		"entry": "divin_kanji-match/src/main.lua"
+	},
+	{
+		"name": "elennick/luan0va",
+		"repository": "elennick/luan0va",
+		"commit": "1d6aa862de57c86a8f8148003538c8b6681ec814",
+		"license": "GPL-3.0",
+		"entry": "elennick_luan0va/main.lua"
+	},
+	{
+		"name": "g3rley/SnakeDay",
+		"repository": "g3rley/SnakeDay",
+		"commit": "20ba97b83b0f16569535ee1eaf3b5eaf3edce684",
+		"license": "MIT",
+		"entry": "g3rley_SnakeDay/main.lua"
+	},
+	{
+		"name": "gvx/space",
+		"repository": "gvx/space",
+		"commit": "5c3ddca940907ab0e072ddfa021827cd9d73cc81",
+		"license": "MIT",
+		"entry": "gvx_space/main.lua"
+	},
+	{
+		"name": "hypnoscope/let-s-code-an-indie-game",
+		"repository": "hypnoscope/let-s-code-an-indie-game",
+		"commit": "3001959e3f99cde77768396f4874e4fc5658c153",
+		"license": "MIT",
+		"entry": "hypnoscope_let-s-code-an-indie-game/episode_39/main.lua"
+	},
+	{
+		"name": "inv41idu53rn4m3/neon",
+		"repository": "inv41idu53rn4m3/neon",
+		"commit": "90ed5786276928478d57e4a338327a5cef3e610a",
+		"license": "MIT",
+		"entry": "inv41idu53rn4m3_neon/main.lua"
+	},
+	{
+		"name": "kno3comma14/three-raiders",
+		"repository": "kno3comma14/three-raiders",
+		"commit": "93032c3089aede1c02dd6811aadd2b80dcf70479",
+		"license": "GPL-3.0",
+		"entry": "kno3comma14_three-raiders/main.lua"
+	},
+	{
+		"name": "magic-snail/magic-snail",
+		"repository": "magic-snail/magic-snail",
+		"commit": "37250cdc2fd26cd62d8bf4f2cada7efc5f600a20",
+		"license": "AGPL-3.0",
+		"entry": "magic-snail_magic-snail/main.lua"
+	},
+	{
+		"name": "mapised/MiniStacker",
+		"repository": "mapised/MiniStacker",
+		"commit": "29972a0dba84f5127752b7ca976db1343f7d0164",
+		"license": "GPL-3.0",
+		"entry": "mapised_MiniStacker/MiniStacker/main.lua"
+	},
+	{
+		"name": "maxxcan/love2d-game",
+		"repository": "maxxcan/love2d-game",
+		"commit": "192a40e20b0a8395f78e4b3a5cc1757ac051c899",
+		"license": "GPL-3.0",
+		"entry": "maxxcan_love2d-game/game/main.lua"
+	},
+	{
+		"name": "mratnikov2/lua-quest",
+		"repository": "mratnikov2/lua-quest",
+		"commit": "f910c34c0efe6cea4bba3c9dd289589a4e879406",
+		"license": "MIT",
+		"entry": "mratnikov2_lua-quest/main.lua"
+	},
+	{
+		"name": "muellerberndt/ladybug-love2d",
+		"repository": "muellerberndt/ladybug-love2d",
+		"commit": "64b88a2329d48902df5f23b85a1e17b3ffd6b27c",
+		"license": "MIT",
+		"entry": "muellerberndt_ladybug-love2d/main.lua"
+	},
+	{
+		"name": "nguyenquan-2510/Lua-Click-Game",
+		"repository": "nguyenquan-2510/Lua-Click-Game",
+		"commit": "ae13a33a700615504b068c436b6b1b54177d9d9b",
+		"license": "GPL-3.0",
+		"entry": "nguyenquan-2510_Lua-Click-Game/main.lua"
+	},
+	{
+		"name": "nirokay/FloppyBird",
+		"repository": "nirokay/FloppyBird",
+		"commit": "3a88bb9f9950aa333aa7cc366b897d2e098c2bf1",
+		"license": "GPL-3.0",
+		"entry": "nirokay_FloppyBird/main.lua"
+	},
+	{
+		"name": "noisesmith/energize",
+		"repository": "noisesmith/energize",
+		"commit": "0d69cde45ba809a49e8879b0f32a43351c8999a7",
+		"license": "GPL-3.0",
+		"entry": "noisesmith_energize/main.lua"
+	},
+	{
+		"name": "nununoisy/tetris-love",
+		"repository": "nununoisy/tetris-love",
+		"commit": "4e22c01c11359f4b43d14a30099e55cb5bf93bd9",
+		"license": "MIT",
+		"entry": "nununoisy_tetris-love/main.lua"
+	},
+	{
+		"name": "omrawaley/Moon-Pong",
+		"repository": "omrawaley/Moon-Pong",
+		"commit": "ea35ba83cb68dc543d7c362d12e3ff74837f6083",
+		"license": "Apache-2.0",
+		"entry": "omrawaley_Moon-Pong/MoonPong/main.lua"
+	},
+	{
+		"name": "pellway/LOVE-Game",
+		"repository": "pellway/LOVE-Game",
+		"commit": "5fb3a369ffe1cacfc3b5f715cd3ac70cdda56658",
+		"license": "GPL-3.0",
+		"entry": "pellway_LOVE-Game/main.lua"
+	},
+	{
+		"name": "peppercat10/tetris-love-ecs",
+		"repository": "peppercat10/tetris-love-ecs",
+		"commit": "04375944ccb37d6b7c75d83be5165ce6bf735cd5",
+		"license": "GPL-3.0",
+		"entry": "peppercat10_tetris-love-ecs/main.lua"
+	},
+	{
+		"name": "redsled84/youtube-demo",
+		"repository": "redsled84/youtube-demo",
+		"commit": "0278e6bcefeffa64c78fc9b002c19827321a6ec5",
+		"license": "MIT",
+		"entry": "redsled84_youtube-demo/main.lua"
+	},
+	{
+		"name": "retropipes/fantastle-reboot",
+		"repository": "retropipes/fantastle-reboot",
+		"commit": "7b0a1f3b84e14d91f52ae4e90ebb20694315768f",
+		"license": "GPL-3.0",
+		"entry": "retropipes_fantastle-reboot/fantastle-reboot/main.lua"
+	},
+	{
+		"name": "savegame/FlappyLinda",
+		"repository": "savegame/FlappyLinda",
+		"commit": "94315070ccd201c7cea746a5df5defa196ac3f6e",
+		"license": "GPL-3.0",
+		"entry": "savegame_FlappyLinda/main.lua"
+	},
+	{
+		"name": "sleepycharlyy/fly_swatter.love",
+		"repository": "sleepycharlyy/fly_swatter.love",
+		"commit": "3f8a07117776e5bd32b9fc56fca7bab539f69292",
+		"license": "GPL-3.0",
+		"entry": "sleepycharlyy_fly_swatter.love/src/main.lua"
+	},
+	{
+		"name": "slemonide/lost",
+		"repository": "slemonide/lost",
+		"commit": "4bb533673d258b98721c3e9d54d854232d06de91",
+		"license": "GPL-3.0",
+		"entry": "slemonide_lost/main.lua"
+	},
+	{
+		"name": "tboydston/supremetictactoe",
+		"repository": "tboydston/supremetictactoe",
+		"commit": "ce66d575717d68bbff047b1a109416b200b95439",
+		"license": "GPL-3.0",
+		"entry": "tboydston_supremetictactoe/main.lua"
+	},
+	{
+		"name": "thejeme/Eity",
+		"repository": "thejeme/Eity",
+		"commit": "9063f4adc3220d21678ab2b7eeb80da6a6740073",
+		"license": "MIT",
+		"entry": "thejeme_Eity/Eity/main.lua"
+	},
+	{
+		"name": "tredfern/terminus",
+		"repository": "tredfern/terminus",
+		"commit": "69f7313ecf2363978d72507295645a0982923617",
+		"license": "MIT",
+		"entry": "tredfern_terminus/main.lua"
+	},
+	{
+		"name": "tredfern/witchcraft_invention",
+		"repository": "tredfern/witchcraft_invention",
+		"commit": "c1b987160e222aba2c3951cb4ba2e0fe3d14524b",
+		"license": "MIT",
+		"entry": "tredfern_witchcraft_invention/main.lua"
+	},
+	{
+		"name": "ttwings/Dwarf-Survival",
+		"repository": "ttwings/Dwarf-Survival",
+		"commit": "888bf221c19551b0aa8599e2a48bdbb7e2bd95a5",
+		"license": "MIT",
+		"entry": "ttwings_Dwarf-Survival/src/main.lua"
+	},
+	{
+		"name": "unternehmen/lonoma",
+		"repository": "unternehmen/lonoma",
+		"commit": "cc763a7e348bd5ae73039c919ff0eb9dfd249506",
+		"license": "GPL-3.0",
+		"entry": "unternehmen_lonoma/main.lua"
+	},
+	{
+		"name": "vanillaiice/flappybird-love2d",
+		"repository": "vanillaiice/flappybird-love2d",
+		"commit": "fa0334ac621253026c28850563de9ee6a590c410",
+		"license": "GPL-3.0",
+		"entry": "vanillaiice_flappybird-love2d/main.lua"
+	}
 ]

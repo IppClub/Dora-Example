@@ -25,6 +25,21 @@ extern "C"
 #include "lualib.h"
 }
 
+namespace Dora
+{
+
+// LoveRuntime is linked without the rest of the engine in this standalone
+// suite. Supply the two engine integration hooks used during runtime startup.
+void LogInfoThreaded(const std::string &) { }
+
+bool dora_open_builtin_modules(lua_State *, std::string &error)
+{
+	error.clear();
+	return true;
+}
+
+} // namespace Dora
+
 namespace
 {
 

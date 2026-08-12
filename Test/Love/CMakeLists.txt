@@ -187,6 +187,8 @@ add_test(NAME dora_soloud_voice_budget_tests COMMAND dora_soloud_voice_budget_te
 
 find_program(DORA_NODE_EXECUTABLE node)
 if(DORA_NODE_EXECUTABLE)
+	add_test(NAME dora_love_open_source_game_manifest
+		COMMAND "${DORA_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/OpenSourceGameManifestTests.mjs")
 	add_test(NAME dora_love_license_audit
 		COMMAND "${DORA_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/LicenseAudit.mjs")
 	add_test(NAME dora_love_api_parity
