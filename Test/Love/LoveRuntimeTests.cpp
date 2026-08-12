@@ -2711,12 +2711,28 @@ int main()
 	execute(first,
 		"local video = require('love.video')\n"
 		"assert(video == love.video and type(video.newVideoStream) == 'function')\n"
-		"assert(type(love.graphics.newVideo) == 'function' and type(love.graphics._newVideo) == 'function')\n",
+		"assert(type(love.graphics.newVideo) == 'function' and type(love.graphics._newVideo) == 'function')\n"
+		"assert(type(arg) == 'table' and string.format('%d/%02x', 3.9, 15.8) == '3/0f')\n"
+		"for _ = 1, 20 do local value = math.random(64, 0); assert(value >= 0 and value <= 64) end\n"
+		"local numericLoop = {}; for i = 2, 4 do i = i * 2; numericLoop[#numericLoop + 1] = i end\n"
+		"assert(table.concat(numericLoop, ',') == '4,6,8', table.concat(numericLoop, ','))\n"
+		"table.insert(package.searchers, 1, function(name) if name == 'loader_arg_compat' then return function(moduleName, loaderData) assert(moduleName == name and loaderData == nil); return {ok=true} end, '/virtual/loader.lua' end end)\n"
+		"assert(require('loader_arg_compat').ok)\n"
+		"package.preload.legacy_compat = function(...) module(..., package.seeall); answer = 42 end\n"
+		"local legacy = require('legacy_compat'); assert(legacy.answer == 42 and _G.legacy_compat == legacy)\n",
 		"@video-module-surface.lua");
+	Dora::Love::LoveRuntime loadArgumentRuntime;
+	require(loadArgumentRuntime.open(error), error);
+	require(loadArgumentRuntime.boot(
+		"function love.load(arguments) assert(arguments == arg and type(arguments) == 'table') end\n",
+		"@load-argument-compat.lua", error), error);
+	loadArgumentRuntime.close();
 
 	Dora::Love::LoveRuntime threadRuntime;
 	TestFilesystemBackend threadFilesystem;
+	MockGraphics threadImageBackend;
 	threadRuntime.setFilesystemBackend(&threadFilesystem);
+	threadRuntime.setImageBackend(&threadImageBackend);
 	require(threadRuntime.open(error), error);
 	require(threadRuntime.setSourceRoot(std::string(DORA_LOVE_TEST_FIXTURES)
 		+ "/RuntimeScene", error), error);
@@ -2750,6 +2766,13 @@ int main()
 		"local fileObjectResult = fileObjectChannel:demand(1); fileObjectThread:wait()\n"
 		"assert(fileObjectResult.value == 'from-file-object' and fileObjectResult.worker\n"
 		"  and fileObjectThread:getError() == nil)\n"
+		"local moduleChannel = threadModule.newChannel()\n"
+		"local moduleThread = threadModule.newThread([[module(..., package.seeall)\nlocal event, channel = ...\nchannel:push(type(channel.demand))\n]])\n"
+		"assert(moduleThread:start('eval', moduleChannel)); assert(moduleChannel:demand(1) == 'function'); moduleThread:wait(); assert(moduleThread:getError() == nil)\n"
+		"local imageChannel = threadModule.newChannel()\n"
+		"local imageThread = threadModule.newThread([[local channel = ...\nlocal bytes = love.filesystem.newFileData('encoded-image', 'mock.png')\nchannel:push(love.image.newImageData(bytes))\n]])\n"
+		"assert(imageThread:start(imageChannel)); local threadImage = imageChannel:demand(1); imageThread:wait()\n"
+		"assert(threadImage:getWidth() == 2 and threadImage:getHeight() == 1 and imageThread:getError() == nil)\n"
 		"local timeoutChannel = threadModule.newChannel()\n"
 		"assert(timeoutChannel:demand(0.001) == nil and timeoutChannel:supply('unread', 0.001) == false)\n"
 		"assert(timeoutChannel:getCount() == 1 and timeoutChannel:pop() == 'unread')\n"
@@ -3366,7 +3389,7 @@ int main()
 
 	Dora::Love::LoveRuntime eventRuntime;
 	require(eventRuntime.open(error), error);
-	execute(eventRuntime, "love.keyboard.setKeyRepeat(true); assert(love.keyboard.hasKeyRepeat())",
+	execute(eventRuntime, "love.keyboard.setKeyRepeat(1); assert(love.keyboard.hasKeyRepeat())",
 		"@enable-event-key-repeat.lua");
 	eventRuntime.queueKeyPressed("e", "e", true);
 	execute(eventRuntime,
@@ -3566,7 +3589,7 @@ int main()
 		"local ok, message = pcall(require, '../RuntimeSceneSecond/shared/module')\n"
 		"assert(not ok and message:find('invalid Love module name'))\n"
 		"for _, invalidName in ipairs({\n"
-		"  '/shared/module', 'shared//module', 'shared/./module',\n"
+		"  'shared//module', 'shared/./module',\n"
 		"  'shared/../module', 'shared\\\\module', 'C:/shared/module'\n"
 		"}) do\n"
 		"  local accepted, invalidMessage = pcall(require, invalidName)\n"
@@ -3628,6 +3651,7 @@ int main()
 		"filesystem.setRequirePath('?.lua;?/init.lua')\n"
 		"assert(filesystem.append('journal.txt', 'one'))\n"
 		"assert(filesystem.append('journal.txt', '-two'))\n"
+		"local nativeFile = assert(io.open('./native-io.txt', 'w')); nativeFile:write('native-line\\n'); nativeFile:close(); local nativeLine; for line in io.lines('./native-io.txt') do nativeLine = line end; assert(nativeLine == 'native-line')\n"
 		"local journal, journalSize = filesystem.read('journal.txt')\n"
 		"assert(journal == 'one-two' and journalSize == 7)\n"
 		"local journalData, dataSize = filesystem.read('data', 'journal.txt')\n"
@@ -4648,13 +4672,13 @@ int main()
 		"image:setFilter('nearest', 'linear'); assert(select(1, image:getFilter()) == 'nearest' and select(2, image:getFilter()) == 'linear')\n"
 		"assert(not pcall(image.setFilter, image, 'invalid'))\n"
 		"image:setFilter('linear', 'linear', 4); min, mag, anisotropy = image:getFilter(); assert(min == 'linear' and mag == 'linear' and anisotropy == 4)\n"
-		"assert(not pcall(image.setFilter, image, 'linear', 'linear', 0))\n"
+		"image:setFilter('linear', 'linear', 0); min, mag, anisotropy = image:getFilter(); assert(min == 'linear' and mag == 'linear' and anisotropy == 1); image:setFilter('linear', 'linear', 4)\n"
 		"local wrapU, wrapV, wrapW = image:getWrap(); assert(wrapU == 'clamp' and wrapV == 'clamp' and wrapW == 'clamp')\n"
 		"assert(image:setWrap('repeat', 'mirroredrepeat', 'clampzero'))\n"
 		"wrapU, wrapV, wrapW = image:getWrap(); assert(wrapU == 'repeat' and wrapV == 'mirroredrepeat' and wrapW == 'clampzero')\n"
 		"assert(not pcall(image.setWrap, image, 'invalid'))\n"
 		"local defaultFont = graphics.getFont(); assert(defaultFont:getHeight() == 12); assert(not pcall(imageFont.setFallbacks, imageFont, defaultFont))\n"
-		"local font = graphics.newFont(24); graphics.setFont(font); assert(graphics.getFont():getWidth('abcd') == 48)\n"
+		"local font = graphics.newFont(24.9); graphics.setFont(font); assert(graphics.getFont():getWidth('abcd') == 48)\n"
 		"assert(font:getHeight() == 24 and math.abs(font:getBaseline() - 19.2) < 0.001)\n"
 		"assert(math.abs(font:getAscent() - 19.2) < 0.001 and math.abs(font:getDescent() + 4.8) < 0.001)\n"
 		"assert(font:hasGlyphs('AV', 65) and not font:hasGlyphs(0x10ffff))\n"
@@ -4667,7 +4691,8 @@ int main()
 		"assert(graphics.getCanvas() == nil)\n"
 		"local canvasFormats = graphics.getCanvasFormats(); assert(canvasFormats.rgba8 and canvasFormats.hdr and canvasFormats.depth24 and canvasFormats.depth24stencil8 and not canvasFormats.depth32fstencil8 and not canvasFormats.la8)\n"
 		"local suppliedFormats = {sentinel = true}; assert(graphics.getCanvasFormats(false, suppliedFormats) == suppliedFormats and suppliedFormats.r8 and suppliedFormats.sentinel)\n"
-		"local canvas = graphics.newCanvas(128, 64, {dpiscale = 1, msaa = 0, format = 'rgba8', type = '2d', readable = true, mipmaps = 'none'})\n"
+		"graphics.setDefaultFilter('linear', 'linear', 0); dfmin, dfmag, dfanisotropy = graphics.getDefaultFilter(); assert(dfmin == 'linear' and dfmag == 'linear' and dfanisotropy == 1)\n"
+		"local canvas = graphics.newCanvas(128.9, 64.9, {dpiscale = 1, msaa = 0, format = 'rgba8', type = '2d', readable = true, mipmaps = 'none'})\n"
 		"mipCanvas = graphics.newCanvas(8, 4, {dpiscale = 2, mipmaps = 'manual'}); assert(mipCanvas:getPixelWidth() == 8 and mipCanvas:getWidth() == 4 and mipCanvas:getHeight() == 2 and mipCanvas:getMipmapCount() == 4 and mipCanvas:getMipmapMode() == 'manual', 'mip Canvas metadata')\n"
 		"arrayCanvas = graphics.newCanvas(8, 4, 3, {type = 'array', mipmaps = 'auto'}); assert(arrayCanvas:getTextureType() == 'array' and arrayCanvas:getLayerCount() == 3 and arrayCanvas:getMipmapCount() == 4 and arrayCanvas:getMipmapMode() == 'auto', 'array Canvas metadata')\n"
 		"cubeCanvas = graphics.newCanvas(4, 4, {type = 'cube', mipmaps = 'manual'}); assert(cubeCanvas:getTextureType() == 'cube' and cubeCanvas:getMipmapCount() == 3, 'cube Canvas metadata')\n"
@@ -4856,6 +4881,7 @@ int main()
 		"  graphics.setPointSize(9)\n"
 		"  graphics.setBlendMode('screen', 'premultiplied')\n"
 		"  graphics.setScissor()\n"
+		"  graphics.setScissor(nil, nil, nil, nil); assert(graphics.getScissor() == nil)\n"
 		"  graphics.pop()\n"
 		"  local r, g, b, a = graphics.getColor()\n"
 		"  assert(r == 1 and g == 0.5 and b == 0.25 and a == 0.75)\n"
@@ -4875,7 +4901,7 @@ int main()
 		"  graphics.draw(unormMesh); graphics.draw(custom, 30, 40); graphics.setShader()\n"
 		"  graphics.setDepthMode(); graphics.setMeshCullMode('none'); graphics.setFrontFaceWinding('ccw'); graphics.setWireframe(false)\n"
 		"  graphics.setFont(imageFont); graphics.print('A猫', 1, 2); graphics.setFont(font)\n"
-		"  graphics.print('plain', 15, 25)\n"
+		"  graphics.print('plain', 15, 25); graphics.print('font overload', font, 16, 26)\n"
 		"  graphics.printf('wrapped text', 30, 40, 120, 'center', 0.25, 2, 3)\n"
 		"  graphics.setCanvas(canvas); assert(graphics.getCanvas() == canvas)\n"
 		"  w, h = graphics.getDimensions(); assert(w == 640 and h == 360)\n"
@@ -5203,7 +5229,7 @@ int main()
 	requireNear(graphics.imageSources[2][2], 32.0f, "full Image source width");
 	require(graphics.blendChanges == 14 && graphics.lastBlendMode == "multiply"
 		&& graphics.lastBlendAlphaMode == "premultiplied", "blend mode state/restore mismatch");
-	require(graphics.scissorChanges == 14 && graphics.scissorEnabled && graphics.lastScissor.size() == 4,
+	require(graphics.scissorChanges == 15 && graphics.scissorEnabled && graphics.lastScissor.size() == 4,
 		"scissor state/restore mismatch");
 	require(graphics.colorMaskChanges >= 5 && graphics.colorMask == std::array<bool, 4>{true, true, true, true},
 		"color mask state/restore mismatch");
@@ -5217,7 +5243,7 @@ int main()
 	require(graphics.fontsCreated == 10 && graphics.bmFontsCreated == 3
 		&& graphics.lastBMFontPageCount == 1 && graphics.lastBMFontGlyphCount == 1
 		&& graphics.lastBMFontFilter == Dora::Love::GraphicsBackend::TextureFilter::Linear
-		&& graphics.textDraws == 3 && graphics.lastTextFont == 19,
+		&& graphics.textDraws == 4 && graphics.lastTextFont == 19,
 		"Font creation/current font/text dispatch mismatch");
 	require(graphics.lastImageFontWidth == 8 && graphics.lastImageFontHeight == 2
 		&& graphics.lastImageFontPixels.size() == 64
@@ -5598,6 +5624,7 @@ int main()
 		"loopChain=p.newChainShape(true,0,0,20,0,10,15); assert(loopChain:getVertexCount()==4); local lx,ly=loopChain:getPoint(4); assert(lx==0 and ly==0); local lpx,lpy=loopChain:getPreviousVertex(); local lnx,lny=loopChain:getNextVertex(); assert(lpx==10 and lpy==15 and lnx==20 and lny==0); loopEdge=loopChain:getChildEdge(3); local epx,epy=loopEdge:getPreviousVertex(); local elx,ely=loopEdge:getNextVertex(); assert(epx==20 and epy==0 and elx==20 and ely==0)\n"
 		"assert(not pcall(p.newPolygonShape,0,0,10,0)); assert(not pcall(p.newPolygonShape,0,0,10,0,10,10,0,10,5,5,3,4,2,3,1,2,9,9)); assert(not pcall(p.newEdgeShape,0,0,0,0)); assert(not pcall(p.newChainShape,true,0,0,10,0))\n"
 		"fixture=p.newFixture(bodyA,circle,2); fixtureB=p.newFixture(bodyB,rectangle,0); fixture:setFriction(0.6); fixture:setRestitution(0.4); fixture:setSensor(true)\n"
+		"bodies=world:getBodies(); assert(#bodies==2 and ((bodies[1]==bodyA and bodies[2]==bodyB) or (bodies[1]==bodyB and bodies[2]==bodyA))); fixtures=bodyA:getFixtures(); assert(#fixtures==1 and fixtures[1]==fixture)\n"
 		"assert(math.abs(fixture:getFriction()-0.6)<1e-5 and math.abs(fixture:getRestitution()-0.4)<1e-5 and fixture:isSensor())\n"
 		"assert(fixture:getType()=='circle' and fixture:getBody()==bodyA and fixture:getShape()==circle and fixture:getDensity()==2); fixture:setDensity(3); assert(fixture:getDensity()==3 and fixture:testPoint(13,24) and not fixture:testPoint(30,40))\n"
 		"local fnx,fny,ff=fixture:rayCast(0,24,30,24,1); assert(fnx==-1 and fny==0 and ff==0.25 and select('#',fixture:rayCast(0,24,30,24,0.2))==0); local fbx1,fby1,fbx2,fby2=fixture:getBoundingBox(); assert(fbx1==5 and fby1==16 and fbx2==21 and fby2==32); local fmx,fmy,fmm,fmi=fixture:getMassData(); assert(fmx==3 and fmy==4 and fmm==6 and fmi==9)\n"
