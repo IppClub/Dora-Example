@@ -1,4 +1,5 @@
 #include "Love/LoveRuntime.h"
+#include "Love/LoveTextLayout.h"
 #include "3rdParty/soloud/soloud_distance_model.h"
 #include "3rdParty/soloud/soloud_spatial_gain.h"
 
@@ -1084,6 +1085,27 @@ public:
 		}
 		const auto found = fontSizes.find(font);
 		return found == fontSizes.end() ? 0.0f : static_cast<float>(text.size() * found->second) * 0.5f;
+	}
+	float getFontGlyphSpacing(FontHandle font, std::uint32_t codepoint) const override
+	{
+		if (const auto image = imageFontGlyphs.find(font); image != imageFontGlyphs.end())
+		{
+			auto findGlyph = [&](FontHandle candidate) -> const ImageFontGlyph * {
+				const auto candidateGlyphs = imageFontGlyphs.find(candidate);
+				if (candidateGlyphs == imageFontGlyphs.end()) return nullptr;
+				const auto glyph = candidateGlyphs->second.find(codepoint);
+				return glyph == candidateGlyphs->second.end() ? nullptr : &glyph->second;
+			};
+			if (const auto *glyph = findGlyph(font))
+				return std::floor(glyph->advance / imageFontDPIScales.at(font) + 0.5f);
+			if (const auto fallbacks = fontFallbacks.find(font); fallbacks != fontFallbacks.end())
+				for (const auto fallback : fallbacks->second)
+					if (const auto *glyph = findGlyph(fallback))
+						return std::floor(glyph->advance / imageFontDPIScales.at(fallback) + 0.5f);
+			return 0.0f;
+		}
+		const auto found = fontSizes.find(font);
+		return found == fontSizes.end() ? 0.0f : static_cast<float>(found->second) * 0.5f;
 	}
 	float getFontHeight(FontHandle font) const override
 	{
@@ -2622,6 +2644,40 @@ void requireNear(float actual, float expected, const std::string &message)
 		fail(message + ": expected " + std::to_string(expected) + ", got " + std::to_string(actual));
 }
 
+void testLoveTextLayoutParity()
+{
+	const std::string text = "AB  V AB\nA B ";
+	std::vector<Dora::LoveTextLayout::Codepoint> codepoints;
+	for (std::size_t index = 0; index < text.size(); ++index)
+		codepoints.push_back({static_cast<std::uint32_t>(text[index]), index, index + 1, 0});
+	auto spacing = [](std::uint32_t value) {
+		switch (value)
+		{
+			case 'A': return 4.0f;
+			case 'B': return 6.0f;
+			case 'V': return 7.0f;
+			default: return 0.0f;
+		}
+	};
+	auto kerning = [](std::uint32_t, std::uint32_t) { return 0.0f; };
+	require(Dora::LoveTextLayout::measure(codepoints, spacing, kerning) == 27.0f,
+		"LÖVE text measurement state machine diverged");
+	const auto wrapped = Dora::LoveTextLayout::wrap(codepoints, 10.0f, spacing, kerning);
+	const std::vector<std::string> expected{"AB  ", "V ", "AB", "A B "};
+	require(wrapped.size() == expected.size(), "LÖVE text wrap line count diverged");
+	for (std::size_t lineIndex = 0; lineIndex < wrapped.size(); ++lineIndex)
+	{
+		std::string line;
+		for (const auto &codepoint : wrapped[lineIndex].codepoints)
+			line.push_back(static_cast<char>(codepoint.value));
+		require(line == expected[lineIndex], "LÖVE text wrap content diverged");
+	}
+	const std::vector<Dora::LoveTextLayout::Codepoint> overwide{{'V', 0, 1, 0}};
+	const auto skipped = Dora::LoveTextLayout::wrap(overwide, 0.0f, spacing, kerning);
+	require(skipped.size() == 2 && skipped[0].codepoints.empty()
+		&& skipped[1].codepoints.empty(), "LÖVE over-wide first glyph behavior diverged");
+}
+
 void execute(Dora::Love::LoveRuntime &runtime, const char *code, const char *name)
 {
 	std::string error;
@@ -2644,6 +2700,7 @@ std::string readFixture(const char *relativePath)
 int main()
 {
 	static_assert(LUA_VERSION_NUM == 505, "LoveRuntime tests must use Dora Lua 5.5");
+	testLoveTextLayoutParity();
 
 	using namespace SoLoud;
 	requireNear(calculateDistanceAttenuation(DISTANCE_NONE, 18.0f, 2.0f, 10.0f, 0.5f),
@@ -5318,6 +5375,11 @@ int main()
 		&& graphics.lastTextAlign == "center", "printf arguments mismatch");
 	requireNear(graphics.textMatrix[0], std::cos(0.25f) * 2.0f, "Text matrix a");
 	requireNear(graphics.textMatrix[1], std::sin(0.25f) * 2.0f, "Text matrix b");
+	execute(graphical,
+		"love.graphics.printf('negative wrap', 0, 0, -5, 'left')\n",
+		"@negative-printf-wrap.lua");
+	require(graphics.lastTextWrapLimit == 0.0f,
+		"printf did not clamp a negative wrap limit like LÖVE");
 	execute(graphical,
 		"function love.draw() love.graphics.polygon('fill', 0, 0, 10, 0, 0, 10) end\n",
 		"@graphics-reset.lua");
