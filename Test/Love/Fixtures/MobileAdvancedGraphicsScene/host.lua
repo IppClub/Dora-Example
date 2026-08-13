@@ -120,7 +120,7 @@ function workflow.run(statusFile)
 			return true
 		end
 		local platform = string.lower(App.platform)
-		local renderer = App.platform == "iOS" and "metal"
+		local renderer = (App.platform == "macOS" or App.platform == "iOS") and "metal"
 			or App.platform == "Windows" and "direct3d" or "opengles"
 		assert(Content:save(statusFile,
 			("platform=%s renderer=%s shaders=glsl3-interpolation-layout-matrix mrt=2 depth=pass mesh=pass msaa=4 formats=pass compressed=dxt1-layered-capability batch=sprite-array-particle text=retained-imagefont array=maintex-layers window=virtual-queries pixels=pass scenes=13 content=pass")

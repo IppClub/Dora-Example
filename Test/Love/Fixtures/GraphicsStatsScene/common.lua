@@ -45,8 +45,12 @@ local function configure(resourceCount)
 		graphics.setShader(shader)
 		graphics.rectangle("fill", 1, 1, 2, 2)
 		graphics.setShader()
+		graphics.push("all")
 		graphics.draw(images[1], 20, 2)
+		graphics.pop()
+		graphics.push("all")
 		graphics.draw(images[1], 26, 2)
+		graphics.pop()
 
 		local target = {sentinel = true}
 		local stats = graphics.getStats(target)

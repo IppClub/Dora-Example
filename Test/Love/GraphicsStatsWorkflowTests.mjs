@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import {readFile} from "node:fs/promises";
+import {basename, join} from "node:path";
 import {fileURLToPath} from "node:url";
 
 const baseUrl = (process.argv[2] ?? "http://127.0.0.1:8866").replace(/\/$/, "");
@@ -18,6 +20,16 @@ async function post(path, body = {}) {
 	});
 	assert(response.ok, `${path} returned HTTP ${response.status}`);
 	return response.json();
+}
+
+async function upload(root, localPath) {
+	const form = new FormData();
+	form.append("file", new Blob([await readFile(localPath)]), basename(localPath));
+	const response = await fetch(`${baseUrl}/upload?path=${encodeURIComponent(root)}`, {
+		method: "POST",
+		body: form,
+	});
+	assert(response.ok, `upload ${basename(localPath)} returned HTTP ${response.status}`);
 }
 
 async function waitForContent(path, timeoutMs = 30000) {
@@ -41,8 +53,10 @@ await post("/delete", {path: root});
 try {
 	const created = await post("/new", {path: root, content: "", folder: true});
 	assert(created.success, `failed to create workflow directory: ${created.message ?? ""}`);
+	for (const filename of ["host.lua", "common.lua", "first.lua", "second.lua", "conf.lua"])
+		await upload(root, join(fixtureRoot, filename));
 	const command = await post("/command", {
-		code: `Content\\insertSearchPath 1, ${JSON.stringify(fixtureRoot)}\npackage.loaded.host = nil\ngraphicsStatsWorkflow = require "host"\ngraphicsStatsWorkflow.run ${JSON.stringify(statusFile)}`,
+		code: `Content\\insertSearchPath 1, ${JSON.stringify(root)}\npackage.loaded.host = nil\ngraphicsStatsWorkflow = require "host"\ngraphicsStatsWorkflow.run ${JSON.stringify(statusFile)}`,
 		log: true,
 	});
 	assert(command.success, `failed to queue graphics stats workflow: ${command.message ?? ""}`);
@@ -50,7 +64,7 @@ try {
 	console.log(`LOVE_GRAPHICS_STATS_WORKFLOW_PASS ${expected}`);
 } finally {
 	await post("/command", {
-		code: `Content\\removeSearchPath ${JSON.stringify(fixtureRoot)}`,
+		code: `Content\\removeSearchPath ${JSON.stringify(root)}`,
 		log: false,
 	});
 	await post("/delete", {path: root});

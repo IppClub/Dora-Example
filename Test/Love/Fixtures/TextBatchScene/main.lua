@@ -51,7 +51,8 @@ function love.load()
 		{0.18, 0.45, 1, 1}, "BLUE",
 	})
 	local firstWidth, firstHeight = staticText:getDimensions()
-	assert(firstWidth > 150 and firstHeight == font24:getHeight())
+	assert(math.abs(firstWidth - font24:getWidth("RED GREEN BLUE")) < 0.01
+		and firstHeight == font24:getHeight())
 	assert(staticText:add("APPENDED ENTRY", 0, 55) == 2)
 	local transform = love.math.newTransform(0, 100)
 	assert(staticText:addf("JUSTIFY GAP", 300, "justify", transform) == 3)

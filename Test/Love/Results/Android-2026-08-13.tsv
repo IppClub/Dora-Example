@@ -71,7 +71,7 @@
 71	elennick/luan0va	pass
 72	g3rley/SnakeDay	pass
 73	gvx/space	init-failed	[error] LoveNode [/data/data/org.ippclub.dorassr/files/.download/love-corpus-100-073/073.love] love.load failed: file.lua:3: attempt to call a nil value (field 'mkdir')
-74	hypnoscope/let-s-code-an-indie-game	workflow-failed	le:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:52  throw new Error(`timed out waiting for ${path}`);        ^  Error: timed out waiting for /data/data/org.ippclub.dorassr/files/.download/love-corpus-100-074/runtime-status.tsv     at waitForContent (file:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:52:8)     at async file:///Users/Jin/Workspace/Dora/Dora-Example/Test/Love/AndroidOpenSourceGameCase.mjs:77:18  Node.js v25.9.0 
+74	hypnoscope/let-s-code-an-indie-game	pass
 75	inv41idu53rn4m3/neon	pass
 76	kno3comma14/three-raiders	pass
 77	magic-snail/magic-snail	pass

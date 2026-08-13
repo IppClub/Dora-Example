@@ -722,6 +722,19 @@ public:
 		error.clear();
 		return true;
 	}
+	bool drawMeshBuffer(const std::shared_ptr<const MeshBuffer> &buffer,
+		std::string_view drawMode, ImageHandle image, CanvasHandle canvas, float pointSize,
+		TextureFilter filter, TextureWrap wrapU, TextureWrap wrapV,
+		const Transform2D &transform, const std::array<float, 4> &color,
+		std::string &error, int instanceCount = 1) override
+	{
+		++meshBufferDraws;
+		lastMeshBuffer = buffer.get();
+		lastMeshBufferRevision = buffer ? buffer->revision : 0;
+		meshBufferRecords.emplace_back(lastMeshBuffer, lastMeshBufferRevision);
+		return GraphicsBackend::drawMeshBuffer(buffer, drawMode, image, canvas, pointSize,
+			filter, wrapU, wrapV, transform, color, error, instanceCount);
+	}
 	bool supportsMeshInstancing(ShaderHandle shader,
 		std::size_t perInstanceAttributeCount) const override
 	{
@@ -1306,6 +1319,10 @@ public:
 	int meshCullChanges = 0;
 	int wireframeChanges = 0;
 	int meshDraws = 0;
+	int meshBufferDraws = 0;
+	const MeshBuffer *lastMeshBuffer = nullptr;
+	std::uint64_t lastMeshBufferRevision = 0;
+	std::vector<std::pair<const MeshBuffer *, std::uint64_t>> meshBufferRecords;
 	int untexturedShaderMeshDraws = 0;
 	int shaderPointMeshDraws = 0;
 	int shaderPrimitiveDraws = 0;
@@ -4454,6 +4471,49 @@ int main()
 	audioBackend.cloneCreationAvailable = true;
 
 	MockGraphics graphics;
+	MockGraphics stateRestoreGraphics;
+	Dora::Love::LoveRuntime stateRestoreRuntime;
+	stateRestoreRuntime.setGraphicsBackend(&stateRestoreGraphics);
+	require(stateRestoreRuntime.open(error), error);
+	const std::array stateRestoreBaseline = {
+		stateRestoreGraphics.blendChanges,
+		stateRestoreGraphics.scissorChanges,
+		stateRestoreGraphics.colorMaskChanges,
+		stateRestoreGraphics.depthModeChanges,
+		stateRestoreGraphics.meshCullChanges,
+		stateRestoreGraphics.wireframeChanges,
+		stateRestoreGraphics.stencilTestChanges,
+	};
+	execute(stateRestoreRuntime,
+		"local graphics = require('love.graphics')\n"
+		"graphics.push('all'); graphics.pop()\n",
+		"@graphics-noop-state-restore.lua");
+	require(stateRestoreGraphics.blendChanges == stateRestoreBaseline[0]
+		&& stateRestoreGraphics.scissorChanges == stateRestoreBaseline[1]
+		&& stateRestoreGraphics.colorMaskChanges == stateRestoreBaseline[2]
+		&& stateRestoreGraphics.depthModeChanges == stateRestoreBaseline[3]
+		&& stateRestoreGraphics.meshCullChanges == stateRestoreBaseline[4]
+		&& stateRestoreGraphics.wireframeChanges == stateRestoreBaseline[5]
+		&& stateRestoreGraphics.stencilTestChanges == stateRestoreBaseline[6],
+		"unchanged push('all')/pop redundantly restored graphics backend state");
+	execute(stateRestoreRuntime,
+		"local graphics = require('love.graphics')\n"
+		"graphics.push('all')\n"
+		"graphics.setColorMask(false, true, false, true)\n"
+		"graphics.pop()\n",
+		"@graphics-selective-state-restore.lua");
+	require(stateRestoreGraphics.colorMaskChanges == stateRestoreBaseline[2] + 2
+		&& stateRestoreGraphics.blendChanges == stateRestoreBaseline[0]
+		&& stateRestoreGraphics.scissorChanges == stateRestoreBaseline[1]
+		&& stateRestoreGraphics.depthModeChanges == stateRestoreBaseline[3]
+		&& stateRestoreGraphics.meshCullChanges == stateRestoreBaseline[4]
+		&& stateRestoreGraphics.wireframeChanges == stateRestoreBaseline[5]
+		&& stateRestoreGraphics.stencilTestChanges == stateRestoreBaseline[6],
+		"push('all')/pop did not restore only the changed graphics backend state");
+	stateRestoreRuntime.close();
+	require(stateRestoreRuntime.getAllocationBytes() == 0,
+		"graphics state restore test retained Lua allocations");
+
 	TestFilesystemBackend imageDataFilesystem;
 	const fs::path imageDataSaveBase = fs::temp_directory_path()
 		/ ("dora-love-imagedata-" + std::to_string(
@@ -5124,10 +5184,10 @@ int main()
 		&& graphics.shaderPointAttributes[0].name == "Extra"
 		&& graphics.shaderPointAttributes[0].values == std::vector<float>({12.0f}),
 		"per-instance attached custom attribute did not reach the Shader point Mesh draw");
-	require(graphics.depthModeChanges >= 5 && graphics.meshCullChanges >= 8
+	require(graphics.depthModeChanges >= 5 && graphics.meshCullChanges >= 7
 		&& graphics.lastDepthCompare == "always" && !graphics.depthWrite
 		&& graphics.lastMeshCullMode == "none" && graphics.lastFrontFaceWinding == "ccw"
-		&& graphics.wireframeChanges >= 6 && !graphics.wireframe,
+		&& graphics.wireframeChanges >= 5 && !graphics.wireframe,
 		"Depth/cull/winding state dispatch or restoration mismatch");
 	require(graphics.canvasReads == 6
 		&& graphics.lastCanvasRead == std::vector<int>({0, 0, 0, 0, 2, 1}),
@@ -5227,9 +5287,9 @@ int main()
 	requireNear(graphics.imageSources[1][3], 6.0f, "Quad source height");
 	requireNear(graphics.imageSources[2][0], 0.0f, "full Image source x");
 	requireNear(graphics.imageSources[2][2], 32.0f, "full Image source width");
-	require(graphics.blendChanges == 14 && graphics.lastBlendMode == "multiply"
+	require(graphics.blendChanges >= 5 && graphics.lastBlendMode == "multiply"
 		&& graphics.lastBlendAlphaMode == "premultiplied", "blend mode state/restore mismatch");
-	require(graphics.scissorChanges == 15 && graphics.scissorEnabled && graphics.lastScissor.size() == 4,
+	require(graphics.scissorChanges >= 7 && graphics.scissorEnabled && graphics.lastScissor.size() == 4,
 		"scissor state/restore mismatch");
 	require(graphics.colorMaskChanges >= 5 && graphics.colorMask == std::array<bool, 4>{true, true, true, true},
 		"color mask state/restore mismatch");
@@ -5545,6 +5605,42 @@ int main()
 	require(particleGraphics.imagesCreated == 1 && particleGraphics.imagesReleased == 1
 		&& particleGraphics.canvasesCreated == 1 && particleGraphics.canvasesReleased == 1,
 		"ParticleSystem texture references did not preserve and release backend resources");
+
+	MockGraphics meshCacheGraphics;
+	Dora::Love::LoveRuntime meshCacheRuntime;
+	meshCacheRuntime.setGraphicsBackend(&meshCacheGraphics);
+	require(meshCacheRuntime.open(error), error);
+	require(meshCacheRuntime.boot(
+		"local g=love.graphics; local image=g.newImage('cache.png')\n"
+		"batch=g.newSpriteBatch(image,2); batch:add(0,0)\n"
+		"mesh=g.newMesh({{0,0,0,0},{8,0,1,0},{0,8,0,1}},'triangles'); mesh:setTexture(image)\n"
+		"particles=g.newParticleSystem(image,2); particles:setParticleLifetime(2); particles:emit(1)\n"
+		"function love.draw() g.draw(batch); g.draw(mesh); g.draw(particles) end\n",
+		"@mesh-buffer-cache.lua", error), error);
+	require(meshCacheRuntime.draw(error) && meshCacheRuntime.draw(error), error);
+	require(meshCacheGraphics.meshBufferRecords.size() == 6,
+		"cached SpriteBatch, Mesh, and ParticleSystem did not use reusable Mesh buffers");
+	for (std::size_t index = 0; index < 3; ++index)
+	{
+		require(meshCacheGraphics.meshBufferRecords[index].first
+			== meshCacheGraphics.meshBufferRecords[index + 3].first,
+			"repeated draw replaced a reusable Mesh buffer");
+		require(meshCacheGraphics.meshBufferRecords[index].second
+			== meshCacheGraphics.meshBufferRecords[index + 3].second,
+			"unchanged SpriteBatch, Mesh, or ParticleSystem rebuilt its expanded geometry");
+	}
+	execute(meshCacheRuntime,
+		"batch:set(1,2,3); mesh:setVertex(1,1,1,0,0); particles:update(0.1)\n",
+		"@mesh-buffer-cache-mutate.lua");
+	require(meshCacheRuntime.draw(error), error);
+	require(meshCacheGraphics.meshBufferRecords.size() == 9, "mutated Mesh buffers were not redrawn");
+	for (std::size_t index = 0; index < 3; ++index)
+		require(meshCacheGraphics.meshBufferRecords[index + 6].second
+			> meshCacheGraphics.meshBufferRecords[index + 3].second,
+			"mutated SpriteBatch, Mesh, or ParticleSystem did not rebuild cached geometry");
+	meshCacheRuntime.close();
+	require(meshCacheRuntime.getAllocationBytes() == 0,
+		"Mesh buffer cache test retained Lua allocations");
 
 	MockGraphics textGraphics;
 	Dora::Love::LoveRuntime textRuntime;

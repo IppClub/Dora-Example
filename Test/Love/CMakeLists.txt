@@ -201,4 +201,6 @@ if(DORA_NODE_EXECUTABLE)
 		COMMAND "${DORA_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/PlatformBuildManifestAudit.mjs")
 	add_test(NAME dora_love_upstream_source_subset_audit
 		COMMAND "${DORA_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/UpstreamSourceSubsetAudit.mjs")
+	add_test(NAME dora_love_render_allocation_audit
+		COMMAND "${DORA_NODE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/LoveRenderAllocationAuditTests.mjs")
 endif()

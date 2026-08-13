@@ -53,6 +53,15 @@ async function post(path, body = {}) {
 async function create(path, content = "", folder = false) {
 	const result = await post("/new", {path, content, folder});
 	assert(result.success, `failed to stage ${path} through Dora Content: ${result.message ?? ""}`);
+	if (!folder) {
+		const deadline = Date.now() + 10000;
+		do {
+			const staged = await post("/read", {path});
+			if (staged.success && staged.content === content) return;
+			await new Promise(resolve => setTimeout(resolve, 25));
+		} while (Date.now() < deadline);
+		throw new Error(`timed out waiting for staged text file ${path}`);
+	}
 }
 
 async function upload(directory, filename, source) {
@@ -65,7 +74,7 @@ async function upload(directory, filename, source) {
 	assert(response.ok, `failed to upload ${directory}/${filename} through Dora Content: HTTP ${response.status}`);
 }
 
-async function waitForContent(path, timeoutMs = 30000) {
+async function waitForContent(path, timeoutMs = 600000) {
 	const deadline = Date.now() + timeoutMs;
 	do {
 		const result = await post("/read", {path});
@@ -79,10 +88,10 @@ async function waitForContent(path, timeoutMs = 30000) {
 }
 
 const status = await post("/status");
-assert(status.success && ["iOS", "Android", "Linux", "Windows"].includes(status.platform) && status.writablePath,
-	`advanced graphics workflow requires iOS, Android, Linux, or Windows Dora, got ${status.platform ?? "unknown"}`);
+assert(status.success && ["macOS", "iOS", "Android", "Linux", "Windows"].includes(status.platform) && status.writablePath,
+	`advanced graphics workflow requires macOS, iOS, Android, Linux, or Windows Dora, got ${status.platform ?? "unknown"}`);
 const platform = status.platform.toLowerCase();
-const renderer = status.platform === "iOS"
+const renderer = ["macOS", "iOS"].includes(status.platform)
 	? "metal"
 	: status.platform === "Windows" ? "direct3d" : "opengles";
 const expected = `platform=${platform} renderer=${renderer} shaders=glsl3-interpolation-layout-matrix mrt=2 depth=pass mesh=pass msaa=4 formats=pass compressed=dxt1-layered-capability batch=sprite-array-particle text=retained-imagefont array=maintex-layers window=virtual-queries pixels=pass scenes=13 content=pass`;

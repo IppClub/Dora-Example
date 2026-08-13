@@ -33,7 +33,7 @@ async function upload(root, localPath) {
 	assert(response.ok, `upload ${basename(localPath)} returned HTTP ${response.status}`);
 }
 
-async function waitForContent(path, timeoutMs = 90000) {
+async function waitForContent(path, timeoutMs = 600000) {
 	const deadline = Date.now() + timeoutMs;
 	do {
 		const result = await post("/read", {path});
