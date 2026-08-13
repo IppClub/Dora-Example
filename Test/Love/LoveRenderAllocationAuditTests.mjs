@@ -42,6 +42,12 @@ assert(loveNodeHeader.includes("std::vector<std::unique_ptr<LoveRenderCommand>> 
 	&& loveNodeHeader.includes("LoveRenderCommand *_imageBatchCommand = nullptr")
 	&& !loveNodeHeader.includes("std::shared_ptr<LoveRenderCommand>"),
 	"flat Love commands must retain single ownership without scene-style shared nodes");
+assert(loveNode.includes("bool appendBatch(std::vector<SpriteVertex>& vertices")
+	&& loveNode.includes("hasCompatibleState(scissor, stencil, renderState, commandSegment)")
+	&& loveNode.includes("_batchedVertexCount + vertices.size()")
+	&& loveNode.includes("_graphicsStats.drawCallsBatched")
+	&& loveNode.includes("_renderPasses.back().commands.back().get()"),
+	"adjacent compatible Love text must batch without crossing render-state or 16-bit index boundaries");
 assert(loveNodeHeader.includes("class LoveNode : public Sprite")
 	&& loveNode.includes("setTexture(_renderTarget->getTexture())")
 	&& audioBoundary >= 0
@@ -70,6 +76,13 @@ assert(loveRuntimeHeader.includes("mutable std::shared_ptr<void> gpuBuffer")
 	&& !loveNode.includes("bgfx::allocTransientBuffers")
 	&& !loveNode.includes("not enough transient buffer for Love buffered Mesh"),
 	"Love cached Mesh geometry no longer owns persistent bgfx buffers");
+assert(loveNode.includes("static constexpr std::size_t FrameArenaCount = 4")
+	&& loveNode.includes("if (_hostFrame == hostFrame) return")
+	&& loveNode.includes("_arenaIndex = hostFrame % FrameArenaCount")
+	&& loveNode.includes("beginFrame(SharedApplication.getFrame())")
+	&& loveNode.includes("slot.vertexCapacity < vertexCount")
+	&& loveNode.includes("slot.indexCapacity < indexCount"),
+	"Love GPU buffers may be reused while an in-flight Dora/bgfx frame still references them");
 assert(renderTarget.includes("case bgfx::RendererType::OpenGLES:")
 	&& renderTarget.includes("caps->supported & BGFX_CAPS_TEXTURE_BLIT")
 	&& renderTarget.includes("caps->supported & BGFX_CAPS_TEXTURE_READ_BACK")
