@@ -1,7 +1,7 @@
 // @preview-file off clear
-import { areAgentToolParamsEqual, cloneAgentToolParams, coalesceCompatibleAgentToolCalls, partitionAgentToolCalls } from 'Agent/AgentToolBatch';
-import type { AgentToolBatchItem } from 'Agent/AgentToolBatch';
-import type { AgentToolName } from 'Agent/AgentToolTypes';
+import { areAgentToolParamsEqual, cloneAgentToolParams, coalesceCompatibleAgentToolCalls, partitionAgentToolCalls } from 'Agent/Tool/Batch';
+import type { AgentToolBatchItem } from 'Agent/Tool/Batch';
+import type { AgentToolName } from 'Agent/Tool/Types';
 import { planTruncatedEditRecovery } from 'Agent/Tools';
 
 export interface AgentToolBatchTestResult { success: boolean; passed: number; total: number; failures: string[] }

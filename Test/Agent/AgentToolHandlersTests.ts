@@ -1,9 +1,9 @@
 // @preview-file off clear
 import { Content, Path } from 'Dora';
-import { executeRegisteredAgentTool } from 'Agent/AgentToolExecutor';
-import { getToolDefinition } from 'Agent/AgentToolRegistry';
+import { executeRegisteredAgentTool } from 'Agent/Tool/Executor';
+import { getToolDefinition } from 'Agent/Tool/Registry';
 import * as Tools from 'Agent/Tools';
-import type { AgentToolExecutionContext, AgentToolName } from 'Agent/AgentToolTypes';
+import type { AgentToolExecutionContext, AgentToolName } from 'Agent/Tool/Types';
 
 export interface AgentToolHandlersTestResult {
 	success: boolean;

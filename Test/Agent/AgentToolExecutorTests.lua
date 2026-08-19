@@ -12,9 +12,9 @@ local TypeError = ____lualib.TypeError -- 1
 local URIError = ____lualib.URIError -- 1
 local __TS__New = ____lualib.__TS__New -- 1
 local ____exports = {} -- 1
-local ____AgentToolExecutor = require("Agent.AgentToolExecutor") -- 2
-local executeAgentToolDefinition = ____AgentToolExecutor.executeAgentToolDefinition -- 2
-local executeRegisteredAgentTool = ____AgentToolExecutor.executeRegisteredAgentTool -- 2
+local ____Executor = require("Agent.Tool.Executor") -- 2
+local executeAgentToolDefinition = ____Executor.executeAgentToolDefinition -- 2
+local executeRegisteredAgentTool = ____Executor.executeRegisteredAgentTool -- 2
 function ____exports.runAgentToolExecutorTests() -- 19
 	return __TS__AsyncAwaiter(function(____awaiter_resolve) -- 19
 		local passed = 0 -- 20

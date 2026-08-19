@@ -2,11 +2,11 @@
 local ____lualib = require("lualib_bundle") -- 1
 local __TS__ArrayMap = ____lualib.__TS__ArrayMap -- 1
 local ____exports = {} -- 1
-local ____AgentToolBatch = require("Agent.AgentToolBatch") -- 2
-local areAgentToolParamsEqual = ____AgentToolBatch.areAgentToolParamsEqual -- 2
-local cloneAgentToolParams = ____AgentToolBatch.cloneAgentToolParams -- 2
-local coalesceCompatibleAgentToolCalls = ____AgentToolBatch.coalesceCompatibleAgentToolCalls -- 2
-local partitionAgentToolCalls = ____AgentToolBatch.partitionAgentToolCalls -- 2
+local ____Batch = require("Agent.Tool.Batch") -- 2
+local areAgentToolParamsEqual = ____Batch.areAgentToolParamsEqual -- 2
+local cloneAgentToolParams = ____Batch.cloneAgentToolParams -- 2
+local coalesceCompatibleAgentToolCalls = ____Batch.coalesceCompatibleAgentToolCalls -- 2
+local partitionAgentToolCalls = ____Batch.partitionAgentToolCalls -- 2
 local ____Tools = require("Agent.Tools") -- 5
 local planTruncatedEditRecovery = ____Tools.planTruncatedEditRecovery -- 5
 function ____exports.runAgentToolBatchTests() -- 9

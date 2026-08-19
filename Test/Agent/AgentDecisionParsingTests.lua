@@ -2,15 +2,15 @@
 local ____lualib = require("lualib_bundle") -- 1
 local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
 local ____exports = {} -- 1
-local ____AgentDecisionParsing = require("Agent.AgentDecisionParsing") -- 2
-local classifyToolCallingTurnWithoutCalls = ____AgentDecisionParsing.classifyToolCallingTurnWithoutCalls -- 3
-local getDecisionPath = ____AgentDecisionParsing.getDecisionPath -- 4
-local parseDSMLToolCallObjectFromText = ____AgentDecisionParsing.parseDSMLToolCallObjectFromText -- 5
-local parseDecisionObject = ____AgentDecisionParsing.parseDecisionObject -- 6
-local parseToolCallArguments = ____AgentDecisionParsing.parseToolCallArguments -- 7
-local parseXMLToolCallObjectFromText = ____AgentDecisionParsing.parseXMLToolCallObjectFromText -- 8
-local validateCompletionForRole = ____AgentDecisionParsing.validateCompletionForRole -- 9
-local validateDecision = ____AgentDecisionParsing.validateDecision -- 10
+local ____DecisionParsing = require("Agent.Runtime.DecisionParsing") -- 2
+local classifyToolCallingTurnWithoutCalls = ____DecisionParsing.classifyToolCallingTurnWithoutCalls -- 3
+local getDecisionPath = ____DecisionParsing.getDecisionPath -- 4
+local parseDSMLToolCallObjectFromText = ____DecisionParsing.parseDSMLToolCallObjectFromText -- 5
+local parseDecisionObject = ____DecisionParsing.parseDecisionObject -- 6
+local parseToolCallArguments = ____DecisionParsing.parseToolCallArguments -- 7
+local parseXMLToolCallObjectFromText = ____DecisionParsing.parseXMLToolCallObjectFromText -- 8
+local validateCompletionForRole = ____DecisionParsing.validateCompletionForRole -- 9
+local validateDecision = ____DecisionParsing.validateDecision -- 10
 function ____exports.runAgentDecisionParsingTests() -- 20
 	local passed = 0 -- 21
 	local total = 0 -- 22

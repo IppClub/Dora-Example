@@ -8,7 +8,7 @@ import {
 	parseXMLToolCallObjectFromText,
 	validateCompletionForRole,
 	validateDecision,
-} from 'Agent/AgentDecisionParsing';
+} from 'Agent/Runtime/DecisionParsing';
 
 export interface AgentDecisionParsingTestResult {
 	success: boolean;

@@ -5,7 +5,7 @@ local __TS__ArrayFilter = ____lualib.__TS__ArrayFilter -- 1
 local __TS__ArrayFind = ____lualib.__TS__ArrayFind -- 1
 local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
 local ____exports = {} -- 1
-local Registry = require("Agent.AgentToolRegistry") -- 2
+local Registry = require("Agent.Tool.Registry") -- 2
 local ____JsonSchema = require("Agent.JsonSchema") -- 3
 local compileJsonSchema = ____JsonSchema.compileJsonSchema -- 3
 function ____exports.runAgentToolRegistryTests() -- 13

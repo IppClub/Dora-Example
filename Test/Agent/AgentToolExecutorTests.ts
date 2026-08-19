@@ -1,12 +1,12 @@
 // @preview-file off clear
-import { executeAgentToolDefinition, executeRegisteredAgentTool } from 'Agent/AgentToolExecutor';
-import type { AgentToolGuard } from 'Agent/AgentToolGuards';
+import { executeAgentToolDefinition, executeRegisteredAgentTool } from 'Agent/Tool/Executor';
+import type { AgentToolGuard } from 'Agent/Tool/Guards';
 import type {
 	AgentToolDefinition,
 	AgentToolExecutionContext,
 	AgentToolHandler,
 	AgentToolName,
-} from 'Agent/AgentToolTypes';
+} from 'Agent/Tool/Types';
 import type { StopToken } from 'Agent/Utils';
 
 export interface AgentToolExecutorTestResult {

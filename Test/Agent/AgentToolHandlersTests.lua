@@ -8,10 +8,10 @@ local ____exports = {} -- 1
 local ____Dora = require("Dora") -- 2
 local Content = ____Dora.Content -- 2
 local Path = ____Dora.Path -- 2
-local ____AgentToolExecutor = require("Agent.AgentToolExecutor") -- 3
-local executeRegisteredAgentTool = ____AgentToolExecutor.executeRegisteredAgentTool -- 3
-local ____AgentToolRegistry = require("Agent.AgentToolRegistry") -- 4
-local getToolDefinition = ____AgentToolRegistry.getToolDefinition -- 4
+local ____Executor = require("Agent.Tool.Executor") -- 3
+local executeRegisteredAgentTool = ____Executor.executeRegisteredAgentTool -- 3
+local ____Registry = require("Agent.Tool.Registry") -- 4
+local getToolDefinition = ____Registry.getToolDefinition -- 4
 local Tools = require("Agent.Tools") -- 5
 function ____exports.runAgentToolHandlersTests(workDir, runNestedCommandTests) -- 15
 	if runNestedCommandTests == nil then -- 15

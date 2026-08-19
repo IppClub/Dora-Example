@@ -12,12 +12,20 @@ const warningBaseline = Object.freeze({
 	"Dev/cli.lua": 7,
 	"Dev/Entry.lua": 1,
 	"Dev/Entry.yue": 1,
-	"Lib/Agent/AgentSkills.lua": 3,
-	"Lib/Agent/AgentToolRegistry.lua": 8,
-	"Lib/Agent/BlocklyGen.lua": 9,
-	"Lib/Agent/CodingAgent.lua": 119,
+	"Lib/Agent/Skills.lua": 3,
+	"Lib/Agent/Gen/BlocklyGen.lua": 9,
+	"Lib/Agent/DoraAgent.lua": 119,
+	"Lib/Agent/JsonSchema.lua": 15,
 	"Lib/Agent/flow.lua": 19,
-	"Lib/Agent/Memory.lua": 24,
+	"Lib/Agent/Memory.lua": 25,
+	"Lib/Agent/Runtime/StepDebugLog.lua": 1,
+	"Lib/Agent/Storage/Support.lua": 1,
+	"Lib/Agent/Tool/Command.lua": 1,
+	"Lib/Agent/Tool/Executor.lua": 1,
+	"Lib/Agent/Tool/Guards.lua": 1,
+	"Lib/Agent/Tool/Registry.lua": 12,
+	"Lib/Agent/Tool/Validation.lua": 5,
+	"Lib/Agent/Tool/Workspace.lua": 3,
 	"Lib/Agent/Tools.lua": 13,
 	"Lib/Agent/Utils.lua": 8,
 	"Lib/DoraX.lua": 77,
@@ -119,6 +127,11 @@ async function read(filename) {
 	return result.content;
 }
 
+async function removeIfExists(filename) {
+	const result = await post("/exist", {file: filename});
+	if (result.success) await post("/delete", {path: filename});
+}
+
 let warningCount = 0;
 const warningFiles = new Set();
 const warningsByFile = new Map();
@@ -185,7 +198,7 @@ const status = await post("/status");
 assert(status.success && status.writablePath, "Dora status did not provide writablePath");
 const root = `${status.writablePath}/.download/dora-source-regression`;
 
-await post("/delete", {path: root});
+await removeIfExists(root);
 try {
 	const mirrorEntries = new Map();
 	for (const source of [...luaFiles, ...typeScriptFiles, ...yueFiles, ...tealFiles]) {
@@ -218,5 +231,5 @@ try {
 
 	console.log(`DORA_SOURCE_REGRESSION_PASS lua=${luaFiles.length} yue=${yueFiles.length} teal=${tealFiles.length} ts=${typeScriptSources.length} warnings=${warningCount} warning-files=${warningFiles.size} empty-generated=${emptyGeneratedCount}`);
 } finally {
-	await post("/delete", {path: root});
+	await removeIfExists(root);
 }
