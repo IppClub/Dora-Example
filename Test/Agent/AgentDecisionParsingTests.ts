@@ -93,15 +93,27 @@ export function runAgentDecisionParsingTests(): AgentDecisionParsingTestResult {
 	const brokenArgs = parseToolCallArguments("grep_files", "{\"pattern\":");
 	check("success" in brokenArgs && brokenArgs.success === false && brokenArgs.raw !== undefined, "retain invalid argument source");
 
-	const validRead = validateDecision("read_file", { reads: [{ path: "a.ts", startLine: 2, endLine: 4 }] });
+	const validRead = validateDecision("read_file", { path: "a.ts", startLine: 2, endLine: 4 });
 	check(
 		validRead.success
-		&& Array.isArray(validRead.params.reads)
-		&& (validRead.params.reads as Record<string, unknown>[])[0].path === "a.ts",
+		&& validRead.params.path === "a.ts"
+		&& validRead.params.startLine === 2
+		&& validRead.params.endLine === 4,
 		"validate and normalize decision through registry"
 	);
-	const legacyRead = validateDecision("read_file", { path: "a.ts" });
-	check(!legacyRead.success, "reject legacy read decision shape");
+	const batchRead = validateDecision("read_file", { reads: [{ path: "a.ts" }, { path: "b.ts", startLine: -2 }] });
+	check(
+		batchRead.success
+		&& Array.isArray(batchRead.params.reads)
+		&& (batchRead.params.reads as Record<string, unknown>[]).length === 2,
+		"accept and normalize batch read decision"
+	);
+	const mixedRead = validateDecision("read_file", { path: "a.ts", reads: [{ path: "b.ts" }] });
+	check(
+		mixedRead.success
+		&& (mixedRead.params.reads as Record<string, unknown>[]).map(item => item.path).join(",") === "a.ts,b.ts",
+		"accept and normalize mixed read decision forms"
+	);
 
 	check(!validateCompletionForRole("main", "finish", { message: "done" }).success, "finish is reserved for sub agents");
 	check(

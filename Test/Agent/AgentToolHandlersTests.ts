@@ -1,5 +1,6 @@
 // @preview-file off clear
 import { Content, Path } from 'Dora';
+import { sanitizeReadResultForHistory } from 'Agent/Runtime/HistoryProjection';
 import { executeRegisteredAgentTool } from 'Agent/Tool/Executor';
 import { getToolDefinition } from 'Agent/Tool/Registry';
 import * as Tools from 'Agent/Tools';
@@ -58,22 +59,20 @@ export async function runAgentToolHandlersTests(workDir: string, runNestedComman
 
 	const read = await executeRegisteredAgentTool({
 		tool: "read_file",
-		input: { reads: [{ path: "README.md", startLine: 1, endLine: 3 }] },
+		input: { path: "README.md", startLine: 1, endLine: 3 },
 		context,
 		schemaContext,
 	});
-	const readResults = read.output.results as Record<string, unknown>[] | undefined;
-	check(read.output.success === true && typeof readResults?.[0]?.content === "string", "read_file returns one-item batch content");
+	check(read.output.success === true && typeof read.output.content === "string", "read_file returns content");
 
 	context.workflow.resumeNarrowReadMode = true;
 	const narrowRead = await executeRegisteredAgentTool({
 		tool: "read_file",
-		input: { reads: [{ path: "Test/Agent/AgentToolHandlersTests.ts", startLine: 1, endLine: 300 }] },
+		input: { path: "Test/Agent/AgentToolHandlersTests.ts", startLine: 1, endLine: 300 },
 		context,
 		schemaContext,
 	});
-	const narrowResults = narrowRead.output.results as Record<string, unknown>[] | undefined;
-	check(narrowRead.output.success === true && narrowResults?.[0]?.clipped === true && narrowResults?.[0]?.endLine === 160, "read_file preserves post-compression clipping");
+	check(narrowRead.output.success === true && narrowRead.output.clipped === true && narrowRead.output.endLine === 160, "read_file preserves post-compression clipping");
 	context.workflow.resumeNarrowReadMode = false;
 	const batchRead = await executeRegisteredAgentTool({
 		tool: "read_file",
@@ -85,7 +84,14 @@ export async function runAgentToolHandlersTests(workDir: string, runNestedComman
 		schemaContext,
 	});
 	const batchReadResults = batchRead.output.results as Record<string, unknown>[] | undefined;
-	check(batchRead.output.success === true && batchRead.output.readCount === 2 && batchReadResults?.length === 2, "read_file batch returns independent ordered results");
+	check(
+		batchRead.output.success === true
+		&& batchRead.output.mode === "batch"
+		&& batchRead.output.readCount === 2
+		&& batchReadResults?.length === 2
+		&& typeof batchReadResults[0].content === "string",
+		"read_file batch returns independent ordered results"
+	);
 	const partialBatchRead = await executeRegisteredAgentTool({
 		tool: "read_file",
 		input: { reads: [
@@ -95,7 +101,19 @@ export async function runAgentToolHandlersTests(workDir: string, runNestedComman
 		context,
 		schemaContext,
 	});
-	check(partialBatchRead.output.success === false && partialBatchRead.output.partial === true && partialBatchRead.output.succeededReadCount === 1, "read_file batch preserves successful reads after a failure");
+	check(
+		partialBatchRead.output.success === false
+		&& partialBatchRead.output.partial === true
+		&& partialBatchRead.output.succeededReadCount === 1,
+		"read_file batch preserves successful reads after a failure"
+	);
+	const sanitizedBatchRead = sanitizeReadResultForHistory("read_file", {
+		success: true,
+		mode: "batch",
+		results: [{ success: true, path: "large.ts", startLine: 1, endLine: 1, totalLines: 1, content: string.rep("x", 20000) }],
+	});
+	const sanitizedResults = sanitizedBatchRead.results as Record<string, unknown>[];
+	check(sanitizedResults[0].historyContentTruncated === true, "read_file batch history truncates each successful result");
 
 	const glob = await executeRegisteredAgentTool({
 		tool: "glob_files",
@@ -142,14 +160,31 @@ export async function runAgentToolHandlersTests(workDir: string, runNestedComman
 		&& !isTrue(context.workflow.freshProjectBuildPending),
 		"build updates workflow state"
 	);
+	const singlePathBuild = await executeRegisteredAgentTool({
+		tool: "build",
+		input: { path: "Test/Agent/AgentToolBatchTests.ts" },
+		context,
+		schemaContext,
+	});
+	check(
+		singlePathBuild.output.success === true
+		&& singlePathBuild.output.mode === "batch"
+		&& singlePathBuild.output.buildCount === 1,
+		"build normalizes a historical single path into the batch executor"
+	);
 	const batchBuild = await executeRegisteredAgentTool({
 		tool: "build",
 		input: { paths: ["Test/Agent/AgentToolBatchTests.ts", "Test/Agent/AgentToolRegistryTests.ts"] },
 		context,
 		schemaContext,
 	});
-	check(batchBuild.output.success === true && batchBuild.output.buildCount === 2 && batchBuild.output.succeededBuildCount === 2, "build batch compiles independent targets in one call");
-
+	check(
+		batchBuild.output.success === true
+		&& batchBuild.output.mode === "batch"
+		&& batchBuild.output.buildCount === 2
+		&& batchBuild.output.succeededBuildCount === 2,
+		"build runs ordered targets and returns per-target results"
+	);
 	const rejectedFetch = await executeRegisteredAgentTool({
 		tool: "fetch_url",
 		input: { url: "ftp://example.invalid/file", target: ".agent/invalid-fetch" },

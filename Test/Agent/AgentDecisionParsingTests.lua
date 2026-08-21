@@ -1,6 +1,8 @@
 -- [ts]: AgentDecisionParsingTests.ts
 local ____lualib = require("lualib_bundle") -- 1
 local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
+local __TS__ArrayMap = ____lualib.__TS__ArrayMap -- 1
+local __TS__ArrayJoin = ____lualib.__TS__ArrayJoin -- 1
 local ____exports = {} -- 1
 local ____DecisionParsing = require("Agent.Runtime.DecisionParsing") -- 2
 local classifyToolCallingTurnWithoutCalls = ____DecisionParsing.classifyToolCallingTurnWithoutCalls -- 3
@@ -54,57 +56,68 @@ function ____exports.runAgentDecisionParsingTests() -- 20
 	check(arrayArgs.success ~= nil and arrayArgs.success == false, "reject array tool-call arguments") -- 92
 	local brokenArgs = parseToolCallArguments("grep_files", "{\"pattern\":") -- 93
 	check(brokenArgs.success ~= nil and brokenArgs.success == false and brokenArgs.raw ~= nil, "retain invalid argument source") -- 94
-	local validRead = validateDecision("read_file", {reads = {{path = "a.ts", startLine = 2, endLine = 4}}}) -- 96
-	check( -- 97
-		validRead.success and __TS__ArrayIsArray(validRead.params.reads) and validRead.params.reads[1].path == "a.ts", -- 98
-		"validate and normalize decision through registry" -- 101
-	) -- 101
-	local legacyRead = validateDecision("read_file", {path = "a.ts"}) -- 103
-	check(not legacyRead.success, "reject legacy read decision shape") -- 104
-	check( -- 106
-		not validateCompletionForRole("main", "finish", {message = "done"}).success, -- 106
-		"finish is reserved for sub agents" -- 106
-	) -- 106
-	check( -- 107
-		not validateCompletionForRole("sub", "finish", {message = "done"}).success, -- 107
-		"sub-agent finish requires structured handoff" -- 109
+	local validRead = validateDecision("read_file", {path = "a.ts", startLine = 2, endLine = 4}) -- 96
+	check(validRead.success and validRead.params.path == "a.ts" and validRead.params.startLine == 2 and validRead.params.endLine == 4, "validate and normalize decision through registry") -- 97
+	local batchRead = validateDecision("read_file", {reads = {{path = "a.ts"}, {path = "b.ts", startLine = -2}}}) -- 104
+	check( -- 105
+		batchRead.success and __TS__ArrayIsArray(batchRead.params.reads) and #batchRead.params.reads == 2, -- 106
+		"accept and normalize batch read decision" -- 109
 	) -- 109
-	check( -- 111
-		validateCompletionForRole("sub", "finish", { -- 112
-			message = "done", -- 113
-			outcome = "completed", -- 114
-			validation = {}, -- 115
-			knownIssues = {}, -- 116
-			assumptions = {}, -- 117
-			learningCandidates = {} -- 118
-		}).success, -- 118
-		"accept complete sub-agent handoff" -- 120
-	) -- 120
+	local mixedRead = validateDecision("read_file", {path = "a.ts", reads = {{path = "b.ts"}}}) -- 111
+	check( -- 112
+		mixedRead.success and __TS__ArrayJoin( -- 113
+			__TS__ArrayMap( -- 114
+				mixedRead.params.reads, -- 114
+				function(____, item) return item.path end -- 114
+			), -- 114
+			"," -- 114
+		) == "a.ts,b.ts", -- 114
+		"accept and normalize mixed read decision forms" -- 115
+	) -- 115
+	check( -- 118
+		not validateCompletionForRole("main", "finish", {message = "done"}).success, -- 118
+		"finish is reserved for sub agents" -- 118
+	) -- 118
+	check( -- 119
+		not validateCompletionForRole("sub", "finish", {message = "done"}).success, -- 119
+		"sub-agent finish requires structured handoff" -- 121
+	) -- 121
 	check( -- 123
-		getDecisionPath({path = " a.ts "}) == "a.ts", -- 123
-		"read decision path" -- 123
-	) -- 123
-	check( -- 124
-		getDecisionPath({target_file = " old.ts "}) == "old.ts", -- 124
-		"delete decision path" -- 124
-	) -- 124
-	local lengthTurn = classifyToolCallingTurnWithoutCalls("main", "length", "partial output", "reasoning") -- 126
-	check((lengthTurn and lengthTurn.success) == true and lengthTurn.kind == "continue" and lengthTurn.content == "partial output", "treat length as a successful loop continuation") -- 127
-	local plainTextCompletion = classifyToolCallingTurnWithoutCalls("main", "stop", "  final answer  ", "reasoning") -- 131
-	check((plainTextCompletion and plainTextCompletion.success) == true and plainTextCompletion.kind == "plain_text_completion" and plainTextCompletion.content == "final answer", "accept plain text completion") -- 132
+		validateCompletionForRole("sub", "finish", { -- 124
+			message = "done", -- 125
+			outcome = "completed", -- 126
+			validation = {}, -- 127
+			knownIssues = {}, -- 128
+			assumptions = {}, -- 129
+			learningCandidates = {} -- 130
+		}).success, -- 130
+		"accept complete sub-agent handoff" -- 132
+	) -- 132
+	check( -- 135
+		getDecisionPath({path = " a.ts "}) == "a.ts", -- 135
+		"read decision path" -- 135
+	) -- 135
 	check( -- 136
-		classifyToolCallingTurnWithoutCalls("main", "stop", "  ") == nil, -- 137
-		"reject empty completion without a tool call" -- 138
-	) -- 138
-	local subPlainText = classifyToolCallingTurnWithoutCalls("sub", "stop", "done") -- 140
-	check( -- 141
-		(subPlainText and subPlainText.success) == false and (string.find(subPlainText.message, "must call finish", nil, true) or 0) - 1 >= 0, -- 142
-		"reject sub-agent plain text completion" -- 143
-	) -- 143
-	return {success = #failures == 0, passed = passed, total = total, failures = failures} -- 146
+		getDecisionPath({target_file = " old.ts "}) == "old.ts", -- 136
+		"delete decision path" -- 136
+	) -- 136
+	local lengthTurn = classifyToolCallingTurnWithoutCalls("main", "length", "partial output", "reasoning") -- 138
+	check((lengthTurn and lengthTurn.success) == true and lengthTurn.kind == "continue" and lengthTurn.content == "partial output", "treat length as a successful loop continuation") -- 139
+	local plainTextCompletion = classifyToolCallingTurnWithoutCalls("main", "stop", "  final answer  ", "reasoning") -- 143
+	check((plainTextCompletion and plainTextCompletion.success) == true and plainTextCompletion.kind == "plain_text_completion" and plainTextCompletion.content == "final answer", "accept plain text completion") -- 144
+	check( -- 148
+		classifyToolCallingTurnWithoutCalls("main", "stop", "  ") == nil, -- 149
+		"reject empty completion without a tool call" -- 150
+	) -- 150
+	local subPlainText = classifyToolCallingTurnWithoutCalls("sub", "stop", "done") -- 152
+	check( -- 153
+		(subPlainText and subPlainText.success) == false and (string.find(subPlainText.message, "must call finish", nil, true) or 0) - 1 >= 0, -- 154
+		"reject sub-agent plain text completion" -- 155
+	) -- 155
+	return {success = #failures == 0, passed = passed, total = total, failures = failures} -- 158
 end -- 20
-function ____exports.printAgentDecisionParsingTestResult() -- 149
-	local result = ____exports.runAgentDecisionParsingTests() -- 150
-	print((((((("AGENT_DECISION_PARSING_TEST success=" .. tostring(result.success)) .. " passed=") .. tostring(result.passed)) .. " total=") .. tostring(result.total)) .. " failures=") .. table.concat(result.failures, "|")) -- 151
-end -- 149
-return ____exports -- 149
+function ____exports.printAgentDecisionParsingTestResult() -- 161
+	local result = ____exports.runAgentDecisionParsingTests() -- 162
+	print((((((("AGENT_DECISION_PARSING_TEST success=" .. tostring(result.success)) .. " passed=") .. tostring(result.passed)) .. " total=") .. tostring(result.total)) .. " failures=") .. table.concat(result.failures, "|")) -- 163
+end -- 161
+return ____exports -- 161

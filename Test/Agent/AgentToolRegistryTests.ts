@@ -1,6 +1,7 @@
 // @preview-file off clear
 import * as Registry from 'Agent/Tool/Registry';
 import { compileJsonSchema } from 'Agent/JsonSchema';
+import type { JsonSchema } from 'Agent/JsonSchema';
 import type { AgentRole, AgentToolName, AgentWorkMode } from 'Agent/Tool/Types';
 
 export interface AgentToolRegistryTestResult {
@@ -61,20 +62,63 @@ export function runAgentToolRegistryTests(): AgentToolRegistryTestResult {
 	check(mainSchemas.length === 11, "main code function schema count");
 	const readSchema = mainSchemas.find(item => item.function.name === "read_file");
 	const readParams = readSchema?.function.parameters as Record<string, unknown> | undefined;
-	const readProperties = readParams?.properties as Record<string, unknown> | undefined;
-	const readBatchSchema = readProperties?.reads as Record<string, unknown> | undefined;
-	check(Array.isArray(readParams?.required) && (readParams.required as string[]).join(",") === "reads" && readBatchSchema?.minItems === 1 && readBatchSchema.maxItems === undefined, "read_file requires an unbounded reads array");
+	check(Array.isArray(readParams?.anyOf) && (readParams.anyOf as unknown[]).length === 2, "read_file schema exposes composable single and batch forms");
+	const compiledReadSchema = compileJsonSchema(readParams as JsonSchema);
+	check(
+		compiledReadSchema.success
+		&& compiledReadSchema.validator.validate({ path: "a.ts" }).valid
+		&& compiledReadSchema.validator.validate({ reads: [{ path: "a.ts" }, { path: "b.ts", startLine: -2 }] }).valid
+		&& compiledReadSchema.validator.validate({ path: "a.ts", reads: [{ path: "b.ts" }] }).valid,
+		"read_file schema accepts single, batch, and mixed input"
+	);
 	const readValidator = Registry.getToolDefinition("read_file")?.validateInput;
-	const batchRead = readValidator?.({ reads: [{ path: "a.ts", startLine: 1, endLine: 2 }, { path: "b.ts", startLine: -2 }] });
-	const legacyRead = readValidator?.({ path: "a.ts", startLine: 1, endLine: 2 });
-	const emptyRead = readValidator?.({ reads: [] });
-	check(batchRead?.success === true && (batchRead.value.reads as unknown[]).length === 2, "read_file validator accepts and normalizes reads");
-	check(legacyRead?.success === false && emptyRead?.success === false, "read_file validator rejects legacy and empty forms");
+	const singleRead = readValidator?.({ path: "a.ts", startLine: 1, endLine: 2 });
+	const arrayRead = readValidator?.({ reads: [{ path: "a.ts" }] });
+	const mixedRead = readValidator?.({ path: "a.ts", startLine: 2, reads: [{ path: "b.ts", startLine: 3 }] });
+	check(singleRead?.success === true && singleRead.value.path === "a.ts", "read_file validator accepts and normalizes the single form");
+	check(arrayRead?.success === true && (arrayRead.value.reads as Record<string, unknown>[])[0].path === "a.ts", "read_file validator accepts and normalizes the batch form");
+	check(
+		mixedRead?.success === true
+		&& (mixedRead.value.reads as Record<string, unknown>[]).map(item => item.path).join(",") === "a.ts,b.ts"
+		&& mixedRead.value.path === undefined,
+		"read_file validator prepends the top-level range to batch reads"
+	);
+	check(
+		readValidator?.({ reads: [] }).success === false
+		&& readValidator?.({ path: "" }).success === false,
+		"read_file validator requires at least one non-empty form"
+	);
 	const buildSchema = mainSchemas.find(item => item.function.name === "build")?.function.parameters as Record<string, unknown> | undefined;
 	const buildValidator = Registry.getToolDefinition("build")?.validateInput;
-	check(Array.isArray(buildSchema?.required) && (buildSchema.required as string[]).join(",") === "paths", "build schema requires paths");
-	check(buildValidator?.({ paths: ["a.ts", "b.ts"] }).success === true, "build validator accepts paths");
-	check(buildValidator?.({ path: "a.ts" }).success === false && buildValidator?.({ paths: [] }).success === false, "build validator rejects legacy and empty forms");
+	check(Array.isArray(buildSchema?.anyOf) && (buildSchema.anyOf as unknown[]).length === 2, "build schema exposes composable paths and path forms");
+	const compiledBuildSchema = compileJsonSchema(buildSchema as JsonSchema);
+	check(
+		compiledBuildSchema.success
+		&& compiledBuildSchema.validator.validate({ paths: ["a.ts", "b.ts"] }).valid
+		&& compiledBuildSchema.validator.validate({ path: "a.ts" }).valid
+		&& compiledBuildSchema.validator.validate({ path: "a.ts", paths: ["b.ts"] }).valid,
+		"build schema accepts single, batch, and mixed input"
+	);
+	const arrayBuild = buildValidator?.({ paths: ["a.ts", "b.ts"] });
+	const singleBuild = buildValidator?.({ path: "a.ts" });
+	const mixedBuild = buildValidator?.({ path: "a.ts", paths: ["b.ts", "c.ts"] });
+	check(arrayBuild?.success === true && (arrayBuild.value.paths as string[]).length === 2, "build validator accepts ordered targets");
+	check(
+		singleBuild?.success === true
+		&& (singleBuild.value.paths as string[])[0] === "a.ts"
+		&& singleBuild.value.path === undefined,
+		"build validator normalizes single path to paths"
+	);
+	check(
+		mixedBuild?.success === true
+		&& (mixedBuild.value.paths as string[]).join(",") === "a.ts,b.ts,c.ts"
+		&& mixedBuild.value.path === undefined,
+		"build validator prepends the top-level path to paths"
+	);
+	check(
+		buildValidator?.({ paths: [] }).success === false,
+		"build validator rejects empty forms"
+	);
 	const editSchema = mainSchemas.find(item => item.function.name === "edit_file")?.function.parameters as Record<string, unknown> | undefined;
 	const editProperties = editSchema?.properties as Record<string, unknown> | undefined;
 	const editBatchSchema = editProperties?.edits as Record<string, unknown> | undefined;
