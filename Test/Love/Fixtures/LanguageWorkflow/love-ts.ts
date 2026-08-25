@@ -154,7 +154,7 @@ const typedTextDimensions: LuaMultiReturn<[number, number]> = typedText.getDimen
 typedText.setFont(typedFont);
 love.graphics.draw(typedText, 10, 20, 0, 1, 1, 0, 0, 0.1, 0);
 void typedTextDimensions;
-const typedBatchImage: Love.Image = love.graphics.newImage("pig.png");
+const typedBatchImage: Love.Image = love.graphics.newImage(love.image.newImageData(16, 16));
 const typedBatch: Love.SpriteBatch = love.graphics.newSpriteBatch(typedBatchImage, 8, "dynamic");
 const typedBatchIndex: number = typedBatch.add(4, 8);
 typedBatch.set(typedBatchIndex, love.graphics.newQuad(0, 0, 8, 8, typedBatchImage), 12, 16);

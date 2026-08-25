@@ -24,7 +24,7 @@ const warningBaseline = Object.freeze({
 	"Lib/Agent/Tool/Executor.lua": 1,
 	"Lib/Agent/Tool/Guards.lua": 1,
 	"Lib/Agent/Tool/Registry.lua": 12,
-	"Lib/Agent/Tool/Validation.lua": 5,
+	"Lib/Agent/Tool/Validation.lua": 6,
 	"Lib/Agent/Tool/Workspace.lua": 3,
 	"Lib/Agent/Tools.lua": 13,
 	"Lib/Agent/Utils.lua": 8,

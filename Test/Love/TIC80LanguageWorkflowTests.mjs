@@ -109,7 +109,8 @@ try {
 	assert(tsBuild.success && tsBuild.messages?.length === 1 && tsBuild.messages[0].success,
 		`TypeScript TIC-80 build failed: ${JSON.stringify(tsBuild)}`);
 	const tsLua = await read(`${root}/game-ts.lua`);
-	assert(tsLua.startsWith(`-- [ts]: ${files.ts}\n`), "TypeScript TIC-80 build lost its source header");
+	assert(tsLua.startsWith("-- [ts]: game-ts.ts\n"),
+		`TypeScript TIC-80 build lost its source header: ${JSON.stringify(tsLua.slice(0, 160))}`);
 	assert(!tsLua.includes('require("tic80")'), "TypeScript TIC-80 import was not rewritten to _G");
 	assert(!tsLua.includes('require("lualib_bundle")'), "TypeScript TIC-80 helpers were not inlined");
 	assert(tsLua.includes("__TS__ArrayMap"), "TypeScript TIC-80 Array.map helper was not emitted");

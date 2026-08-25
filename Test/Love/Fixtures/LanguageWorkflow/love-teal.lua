@@ -68,7 +68,7 @@ local typedTextIndex = typedText:addf("justified text", 160, "justify", love.mat
 local typedTextWidth, typedTextHeight = typedText:getDimensions(typedTextIndex)
 typedText:setFont(typedFont)
 love.graphics.draw(typedText, 10, 20)
-local typedBatchImage = love.graphics.newImage("pig.png")
+local typedBatchImage = love.graphics.newImage(love.image.newImageData(16, 16))
 local typedBatch = love.graphics.newSpriteBatch(typedBatchImage, 8, "dynamic")
 local typedBatchIndex = typedBatch:add(4, 8)
 typedBatch:set(typedBatchIndex, love.graphics.newQuad(0, 0, 8, 8, typedBatchImage), 12, 16)
@@ -234,7 +234,7 @@ local function checkDataTypes()
 end
 
 local function checkQuadTypes()
-	local image = love.graphics.newImage("pig.png")
+	local image = love.graphics.newImage(love.image.newImageData(16, 16))
 	local canvas = love.graphics.newCanvas(64, 32, {
 		dpiscale = 1,
 		msaa = 0,

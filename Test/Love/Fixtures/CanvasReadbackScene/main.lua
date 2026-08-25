@@ -54,7 +54,10 @@ function love.load()
 	cubeCanvas = love.graphics.newCanvas(16, 16, {type = "cube", mipmaps = "manual"})
 	volumeCanvas = love.graphics.newCanvas(16, 16, 4, {type = "volume", mipmaps = "manual"})
 	assert(not pcall(writeOnlyCanvas.newImageData, writeOnlyCanvas))
-	assert(not pcall(canvas.newImageData, canvas, 2))
+	-- Love 11.5's original wrapper ignores the slice argument for 2D Canvases;
+	-- the following therefore reads mipmap 1 rather than rejecting slice 2.
+	local ignoredSlice = canvas:newImageData(2)
+	assert(ignoredSlice:getWidth() == 32 and ignoredSlice:getHeight() == 24)
 	assert(not pcall(canvas.newImageData, canvas, 1, 2))
 	assert(not pcall(canvas.newImageData, canvas, 1, 1, -1, 0, 1, 1))
 end

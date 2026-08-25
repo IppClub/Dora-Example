@@ -133,8 +133,9 @@ for (const lang of ["tl", "lua"]) {
 		row: 2,
 	});
 	assert(signature.success, `${lang} Love signature lookup failed`);
-	assert(signature.signatures?.[0]?.desc === "function(string, number, number, number, number)",
-		`${lang} Love signature lost the compiler-provided function type`);
+	assert(signature.signatures?.[0]?.desc
+		=== "function(mode: DrawMode, x: number, y: number, width: number, height: number)",
+		`${lang} Love signature lost the documented compiler-provided function type`);
 
 	const ordinaryFile = `${fixtureRoot}/ordinary-service.${lang}`;
 	const ordinaryCompletion = await post("/complete", {
@@ -222,7 +223,8 @@ const yueSignature = await post("/signature", {
 	row: 2,
 });
 assert(yueSignature.success &&
-	yueSignature.signatures?.[0]?.desc === "function(string, number, number, number, number)",
+	yueSignature.signatures?.[0]?.desc
+		=== "function(mode: DrawMode, x: number, y: number, width: number, height: number)",
 	"Yue Love signature did not preserve the compiler-provided function type");
 
 for (const [path, line, content] of [

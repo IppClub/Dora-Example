@@ -452,8 +452,8 @@ const imported = diagnosticsFor("/main.ts", `
 		contact.setFriction(contact.getFriction()); contact.resetFriction();
 		contact.setRestitution(contact.getRestitution()); contact.resetRestitution();
 		contact.setTangentSpeed(contact.getTangentSpeed()); contact.setEnabled(contact.isEnabled());
-		const valid: boolean = contact.isValid(); const touching: boolean = contact.isTouching();
-		void fixtureA; void fixtureB; void fixtures; void children; void positions; void normal; void valid; void touching;
+		const destroyed: boolean = contact.isDestroyed(); const touching: boolean = contact.isTouching();
+		void fixtureA; void fixtureB; void fixtures; void children; void positions; void normal; void destroyed; void touching;
 	};
 	const postSolve: Love.PostSolveCallback = (fixtureA, fixtureB, contact, ...impulses) => {
 		void fixtureA; void fixtureB; void contact; void impulses;
