@@ -103,14 +103,10 @@ requireText("Assets/LICENSES", [
 	"libtheora: BSD-3-Clause License",
 	"libopenmpt: BSD 3-Clause License",
 ]);
-requireText("Source/Love/LoveDataAlgorithms.cpp", [
-	"3rdParty/Love/src/modules/data/HashFunction.cpp",
-]);
-requireText("Source/Love/LoveLZ4.c", [
-	"3rdParty/Love/src/libraries/lz4/lz4.c",
-]);
-requireText("Source/Love/LoveLZ4HC.c", [
-	"3rdParty/Love/src/libraries/lz4/lz4hc.c",
+requireText("Source/3rdParty/Love/xmake.lua", [
+	"src/modules/data/HashFunction.cpp",
+	"src/libraries/lz4/lz4.c",
+	"src/libraries/lz4/lz4hc.c",
 ]);
 requireText("Assets/Shader/Love/varying.def.sc", [
 	"v_color0 : COLOR0",

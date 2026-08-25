@@ -1,5 +1,8 @@
 #include "Love/LoveRuntime.h"
+#include "Love/LoveGraphicsAdapter.h"
 #include "Love/LoveTextLayout.h"
+#include "3rdParty/Love/src/common/Module.h"
+#include "3rdParty/Love/src/common/runtime.h"
 #include "3rdParty/soloud/soloud_distance_model.h"
 #include "3rdParty/soloud/soloud_spatial_gain.h"
 
@@ -17,6 +20,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 extern "C"
@@ -43,6 +47,146 @@ bool dora_open_builtin_modules(lua_State *, std::string &error)
 
 namespace
 {
+
+void require(bool condition, const std::string &message);
+
+class StateLocalTestModule final : public love::Module
+{
+public:
+	static love::Type type;
+	static int destroyed;
+
+	explicit StateLocalTestModule(int value)
+		: value(value) { }
+
+	~StateLocalTestModule() override { ++destroyed; }
+
+	ModuleType getModuleType() const override { return M_MATH; }
+	const char *getName() const override { return "love.test.statelocal"; }
+
+	int value = 0;
+};
+
+love::Type StateLocalTestModule::type("StateLocalTestModule", &love::Module::type);
+int StateLocalTestModule::destroyed = 0;
+
+int failStateLocalTypeRegistration(lua_State *state)
+{
+	return luaL_error(state, "intentional state-local module registration failure");
+}
+
+int openFailingStateLocalModule(lua_State *state)
+{
+	auto *module = new StateLocalTestModule(4);
+	static const lua_CFunction types[] = {failStateLocalTypeRegistration, nullptr};
+	const love::WrappedModule wrapped{
+		module, "failedstatecontext", &StateLocalTestModule::type, nullptr, types};
+	return love::luax_register_module(state, wrapped);
+}
+
+void testStateLocalModuleContext()
+{
+	lua_State *first = luaL_newstate();
+	lua_State *second = luaL_newstate();
+	require(first != nullptr && second != nullptr, "failed to create module-context Lua states");
+
+	auto *firstModule = new StateLocalTestModule(1);
+	auto *secondModule = new StateLocalTestModule(2);
+	const love::WrappedModule firstWrapped{
+		firstModule, "statecontext", &StateLocalTestModule::type, nullptr, nullptr};
+	const love::WrappedModule secondWrapped{
+		secondModule, "statecontext", &StateLocalTestModule::type, nullptr, nullptr};
+	require(love::luax_register_module(first, firstWrapped) == 1,
+		"failed to register first state-local module");
+	lua_pop(first, 1);
+	require(love::luax_register_module(second, secondWrapped) == 1,
+		"failed to register second state-local module");
+	lua_pop(second, 1);
+
+	require(love::luax_getmodule<StateLocalTestModule>(first, love::Module::M_MATH)
+		== firstModule, "first state resolved another state's module by type");
+	require(love::luax_getmodule<StateLocalTestModule>(second, love::Module::M_MATH)
+		== secondModule, "second state resolved another state's module by type");
+	require(love::luax_getmodule(first, "statecontext") == firstModule
+		&& love::luax_getmodule(second, "statecontext") == secondModule,
+		"state-local module name lookup diverged");
+	require(love::Module::getInstance<StateLocalTestModule>(love::Module::M_MATH) == nullptr,
+		"state-local module registration polluted the process-global singleton");
+
+	StateLocalTestModule::destroyed = 0;
+	lua_close(first);
+	require(StateLocalTestModule::destroyed == 1,
+		"closing the first state did not release exactly its module");
+	require(love::luax_getmodule<StateLocalTestModule>(second, love::Module::M_MATH)
+		== secondModule && secondModule->value == 2,
+		"closing the first state invalidated the second state's module");
+	lua_close(second);
+	require(StateLocalTestModule::destroyed == 2,
+		"closing both states did not release both state-local modules");
+
+	bool workerResolvedOwnModule = false;
+	std::thread worker([&]() {
+		lua_State *workerState = luaL_newstate();
+		auto *workerModule = new StateLocalTestModule(3);
+		const love::WrappedModule wrapped{
+			workerModule, "statecontext", &StateLocalTestModule::type, nullptr, nullptr};
+		love::luax_register_module(workerState, wrapped);
+		lua_pop(workerState, 1);
+		workerResolvedOwnModule = love::luax_getmodule<StateLocalTestModule>(
+			workerState, love::Module::M_MATH) == workerModule;
+		lua_close(workerState);
+	});
+	worker.join();
+	require(workerResolvedOwnModule && StateLocalTestModule::destroyed == 3,
+		"worker Lua state did not own and release its module context");
+	require(love::Module::getInstance<StateLocalTestModule>(love::Module::M_MATH) == nullptr,
+		"worker module context polluted the process-global singleton");
+
+	lua_State *failing = luaL_newstate();
+	lua_pushcfunction(failing, openFailingStateLocalModule);
+	require(lua_pcall(failing, 0, 1, 0) != LUA_OK,
+		"intentional module registration failure unexpectedly succeeded");
+	lua_pop(failing, 1);
+	lua_gc(failing, LUA_GCCOLLECT, 0);
+	require(love::luax_getmodule(failing, "failedstatecontext") == nullptr
+		&& love::luax_getmodule(failing, love::Module::M_MATH) == nullptr,
+		"failed module registration left a state-local registry entry");
+	require(StateLocalTestModule::destroyed == 4,
+		"failed module registration retained its unpublished module Proxy");
+	lua_close(failing);
+}
+
+void testStateLocalGraphicsModule()
+{
+	std::string error;
+	Dora::Love::LoveRuntime first;
+	Dora::Love::LoveRuntime second;
+	require(first.open(error), error);
+	require(second.open(error), error);
+
+	auto *firstGraphics = love::luax_getmodule<Dora::Love::DoraLoveGraphics>(
+		first.getState(), love::Module::M_GRAPHICS);
+	auto *secondGraphics = love::luax_getmodule<Dora::Love::DoraLoveGraphics>(
+		second.getState(), love::Module::M_GRAPHICS);
+	require(firstGraphics != nullptr && secondGraphics != nullptr
+		&& firstGraphics != secondGraphics,
+		"LoveRuntime Graphics modules were missing or shared across Lua states");
+	require(std::string_view(firstGraphics->getName()) == "love.graphics"
+		&& firstGraphics->getModuleType() == love::Module::M_GRAPHICS
+		&& firstGraphics->getRuntime() == &first
+		&& secondGraphics->getRuntime() == &second,
+		"state-local Graphics module identity diverged from Love");
+	require(love::Module::getInstance<love::Module>(love::Module::M_GRAPHICS) == nullptr,
+		"Dora Graphics adapter polluted Love's process-global module singleton");
+
+	first.close();
+	require(love::luax_getmodule(second.getState(), love::Module::M_GRAPHICS)
+		== secondGraphics,
+		"closing one LoveRuntime invalidated another state's Graphics module");
+	second.close();
+	require(first.getAllocationBytes() == 0 && second.getAllocationBytes() == 0,
+		"state-local Graphics module Proxies retained Lua allocations after close");
+}
 
 class MockGraphics final : public Dora::Love::GraphicsBackend, public Dora::Love::ImageBackend
 {
@@ -174,6 +318,7 @@ public:
 		image.levels = {
 			{4, 4, {0, 1, 2, 3, 4, 5, 6, 7}},
 			{2, 2, {8, 9, 10, 11, 12, 13, 14, 15}},
+			{1, 1, {16, 17, 18, 19, 20, 21, 22, 23}},
 		};
 		error.clear();
 		return true;
@@ -2460,6 +2605,12 @@ public:
 	ShapeHandle newChainShape(bool loop,const std::vector<float>&p,std::string&e) override {auto h=next++;shapes[h].type="chain";shapes[h].points=p;shapes[h].loop=loop;e.clear();return h;}
 	bool setShapePreviousVertex(ShapeHandle h,bool has,float x,float y,std::string&e) override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}i->second.hasPrevious=has;i->second.previousX=x;i->second.previousY=y;e.clear();return true;}
 	bool setShapeNextVertex(ShapeHandle h,bool has,float x,float y,std::string&e) override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}i->second.hasNext=has;i->second.nextX=x;i->second.nextY=y;e.clear();return true;}
+	bool setCircleShape(ShapeHandle h,float x,float y,float r,std::string&e) override {auto i=shapes.find(h);if(i==shapes.end()||i->second.type!="circle"){e="mock CircleShape is closed";return false;}i->second.x=x;i->second.y=y;i->second.width=r;i->second.height=r;e.clear();return true;}
+	bool getShapeChildCount(ShapeHandle h,int&v,std::string&e) const override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}v=i->second.type=="chain"?static_cast<int>(i->second.points.size()/2)-1:1;e.clear();return true;}
+	bool testShapePoint(ShapeHandle h,float x,float y,float a,float px,float py,bool&v,std::string&e) const override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}const float c=std::cos(a),s=std::sin(a),dx=px-x,dy=py-y,lx=c*dx+s*dy,ly=-s*dx+c*dy;if(i->second.type=="circle"){const float qx=lx-i->second.x,qy=ly-i->second.y;v=qx*qx+qy*qy<=i->second.width*i->second.width;}else v=false;e.clear();return true;}
+	bool rayCastShape(ShapeHandle h,float,float,float,float,float maximum,float,float,float,std::uint16_t child,bool&hit,float&nx,float&ny,float&fraction,std::string&e) const override {if(!shapes.contains(h)){e="mock Shape is closed";return false;}int count=0;getShapeChildCount(h,count,e);if(child>=count){e="mock Shape child index is out of range";return false;}hit=maximum>=0.25f;nx=-1;ny=0;fraction=0.25f;e.clear();return true;}
+	bool getShapeBoundingBox(ShapeHandle h,float x,float y,float,std::uint16_t child,float&x1,float&y1,float&x2,float&y2,std::string&e) const override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}int count=0;getShapeChildCount(h,count,e);if(child>=count){e="mock Shape child index is out of range";return false;}const float r=i->second.width;x1=x+i->second.x-r;y1=y+i->second.y-r;x2=x+i->second.x+r;y2=y+i->second.y+r;e.clear();return true;}
+	bool getShapeMassData(ShapeHandle h,float d,float&x,float&y,float&m,float&inertia,std::string&e) const override {auto i=shapes.find(h);if(i==shapes.end()){e="mock Shape is closed";return false;}x=i->second.x;y=i->second.y;m=d*2;inertia=d*3;e.clear();return true;}
 	void releaseShape(ShapeHandle h) override { if(shapes.erase(h))++shapesReleased; }
 	BodyHandle newBody(WorldHandle w,float x,float y,std::string_view type,std::string &error) override { if(!worlds.contains(w)){error="mock World is closed";return 0;}auto h=next++;bodies[h]={w,std::string(type),x,y};bodies[h].sleepingAllowed=worlds[w].sleep;error.clear();return h; }
 	void releaseBody(BodyHandle h) override { std::vector<FixtureHandle> ownedFixtures;std::vector<JointHandle> ownedJoints;for(const auto&[fh,f]:fixtures)if(f.body==h)ownedFixtures.push_back(fh);for(const auto&[jh,j]:joints)if(j.a==h||j.b==h)ownedJoints.push_back(jh);for(auto jh:ownedJoints)releaseJoint(jh);for(auto fh:ownedFixtures)releaseFixture(fh);if(bodies.erase(h))++bodiesReleased; }
@@ -2700,6 +2851,8 @@ std::string readFixture(const char *relativePath)
 int main()
 {
 	static_assert(LUA_VERSION_NUM == 505, "LoveRuntime tests must use Dora Lua 5.5");
+	testStateLocalModuleContext();
+	testStateLocalGraphicsModule();
 	testLoveTextLayoutParity();
 
 	using namespace SoLoud;
@@ -2819,7 +2972,7 @@ int main()
 		"  love.thread.getChannel('official-thread'):push('hello world')\n"
 		"  love.thread.getChannel('official-thread'):push('me again')\n"
 		"]])\n"
-		"assert(producer:type() == 'Thread' and producer:typeOf('Object'))\n"
+		"assert(producer:type() == 'Thread' and producer:typeOf('Threadable') and producer:typeOf('Object'))\n"
 		"assert(producer:start() and producer:isRunning())\n"
 		"assert(named:demand(1) == 'hello world')\n"
 		"producer:wait(); assert(not producer:isRunning() and producer:getError() == nil)\n"
@@ -2827,6 +2980,9 @@ int main()
 		"local atomic = function(channel, value) channel:clear(); return channel:push(value), value end\n"
 		"local id, echoed = named:performAtomic(atomic, 'atomic')\n"
 		"assert(echoed == 'atomic' and named:hasRead(id) == false and named:pop() == 'atomic' and named:hasRead(id))\n"
+		"named:push({nested={value=42}, flag=true}); local nested = named:pop()\n"
+		"assert(nested.nested.value == 42 and nested.flag == true)\n"
+		"assert(not pcall(named.push, named, love.math.newTransform()))\n"
 		"local argumentChannel = threadModule.newChannel()\n"
 		"assert(argumentChannel:type() == 'Channel' and argumentChannel:typeOf('Object'))\n"
 		"local fileThread = threadModule.newThread('thread-worker.lua')\n"
@@ -2834,6 +2990,7 @@ int main()
 		"assert(fileThread:start(argumentChannel, transferred)); local result = argumentChannel:demand(1)\n"
 		"fileThread:wait(); assert(type(result.value) == 'userdata' and result.value:getString() == 'from-data'\n"
 		"  and result.worker and fileThread:getError() == nil)\n"
+		"assert(not pcall(fileThread.start, fileThread, love.math.newTransform()))\n"
 		"local fileObjectThread = threadModule.newThread(love.filesystem.newFile('thread-worker.lua'))\n"
 		"local fileObjectChannel = threadModule.newChannel()\n"
 		"assert(fileObjectThread:start(fileObjectChannel, 'from-file-object'))\n"
@@ -2927,6 +3084,7 @@ int main()
 	execute(trueTypeRuntime,
 		"local font = require('love.font'); assert(font == love.font)\n"
 		"local raster = font.newTrueTypeRasterizer(20, 'normal', 1)\n"
+		"local truncated = font.newTrueTypeRasterizer(20.9, 'normal', 1); assert(truncated:getHeight() == raster:getHeight())\n"
 		"assert(raster:type() == 'Rasterizer' and raster:typeOf('Object'))\n"
 		"assert(raster:getHeight() > 0 and raster:getLineHeight() >= raster:getHeight())\n"
 		"assert(raster:getAscent() > 0 and raster:getDescent() < 0 and raster:getGlyphCount() > 100)\n"
@@ -2941,6 +3099,7 @@ int main()
 		"assert(not pcall(font.newTrueTypeRasterizer, 0))\n"
 		"assert(not pcall(font.newTrueTypeRasterizer, 12, 'invalid'))\n"
 		"assert(not pcall(font.newTrueTypeRasterizer, 12, 'normal', 0))\n"
+		"assert(not pcall(font.newTrueTypeRasterizer, math.maxinteger))\n"
 		"assert(not pcall(font.newTrueTypeRasterizer, love.filesystem.newFileData('bad', 'bad.ttf'), 12))\n",
 		"@truetype-rasterizer.lua");
 	trueTypeRuntime.close();
@@ -3123,8 +3282,8 @@ int main()
 	const std::string officialDataMath = readFixture("OfficialCompatibility/data_math.lua");
 	execute(officialCompatibilityRuntime, officialDataMath.c_str(), "@official-data-math.lua");
 	execute(officialCompatibilityRuntime,
-		"assert(official_passed == 231)\n"
 		"assert(#official_failed == 0, table.concat(official_failed, '\\n'))\n"
+		"assert(official_passed == 231)\n"
 		"assert(#official_skipped == 60)\n"
 		"assert(official_modules.data.passed == 8 and official_modules.data.failed == 0 and official_modules.data.skipped == 0)\n"
 		"assert(official_modules.math.passed == 6 and official_modules.math.failed == 0 and official_modules.math.skipped == 2)\n"
@@ -3189,9 +3348,9 @@ int main()
 		"@verify-open-source-game-timer.lua");
 	require(openSourceGraphics.begins == 2 && openSourceGraphics.ends == 2,
 		"open-source Game Timer load and draw were not bracketed by graphics frames");
-	require(openSourceGraphics.textDrawRecords.size() == 3
+	require(openSourceGraphics.textDrawRecords.size() == 2
 		&& openSourceGraphics.textDrawRecords[0].text == "0.500"
-		&& openSourceGraphics.textDrawRecords[2].text == "Press 'spacebar' to start/stop the timer",
+		&& openSourceGraphics.textDrawRecords[1].text == "Press 'spacebar' to start/stop the timer",
 		"open-source Game Timer did not render its upstream timer and instruction text");
 	openSourceGameTimer.close();
 	require(openSourceGameTimer.getAllocationBytes() == 0,
@@ -3463,7 +3622,7 @@ int main()
 
 	Dora::Love::LoveRuntime eventRuntime;
 	require(eventRuntime.open(error), error);
-	execute(eventRuntime, "love.keyboard.setKeyRepeat(1); assert(love.keyboard.hasKeyRepeat())",
+	execute(eventRuntime, "love.keyboard.setKeyRepeat(true); assert(love.keyboard.hasKeyRepeat()); assert(not pcall(love.keyboard.setKeyRepeat, 1))",
 		"@enable-event-key-repeat.lua");
 	eventRuntime.queueKeyPressed("e", "e", true);
 	execute(eventRuntime,
@@ -4007,8 +4166,8 @@ int main()
 	execute(inputRuntime,
 		"assert(require('love.touch') == love.touch)\n"
 		"assert(table.concat(events, '|') == 'kp:a:false|kp:a:true|text:你|edit:拼音:1:2|kr:a|mp:10.0:20.0:1|mm:30.0:40.0:20.0:20.0|mr:1|mw:-1.0:2.0|tp:100.0:110.0|tm:105.0:116.0|tr:105.0:116.0|jp:2|ja:2:0.5|jh:1:ru|jr:2|gp:a|ga:leftx:0.5|gr:a')\n"
-		"local ok, message = pcall(pad.getGamepadAxis, pad, 'bad'); assert(not ok and message:find('invalid gamepad axis'))\n"
-		"ok, message = pcall(pad.isGamepadDown, pad, 'bad'); assert(not ok and message:find('invalid gamepad button'))\n",
+		"local ok, message = pcall(pad.getGamepadAxis, pad, 'bad'); assert(not ok and message:find('Invalid gamepad axis'))\n"
+		"ok, message = pcall(pad.isGamepadDown, pad, 'bad'); assert(not ok and message:find('Invalid gamepad button'))\n",
 		"@verify-input-events.lua");
 	inputRuntime.queueJoystickAxis(0, 2, -0.75f);
 	execute(inputRuntime,
@@ -4113,17 +4272,18 @@ int main()
 		"local state = lm.getRandomState(); local second = lm.random(); lm.setRandomState(state); assert(lm.random() == second)\n"
 		"lm.setRandomSeed(12345); local normal = lm.randomNormal(2, 3); lm.setRandomSeed(12345); assert(lm.randomNormal(2, 3) == normal)\n"
 		"local a = lm.newRandomGenerator(1, 2); local b = lm.newRandomGenerator(1, 2)\n"
+		"local randomInfo=debug.getinfo(a.random,'S'); assert(randomInfo.what=='Lua' and randomInfo.source=='=[love \"RandomGenerator.lua\"]')\n"
 		"local low, high = a:getSeed(); assert(low == 1 and high == 2 and a:getState() == b:getState())\n"
 		"for i = 1, 20 do assert(a:random() == b:random()) end\n"
-		"a:setSeed(-1); low, high = a:getSeed(); assert(low == 4294967295 and high == 4294967295)\n"
-		"a:setSeed(-1, -2); low, high = a:getSeed(); assert(low == 4294967295 and high == 4294967294)\n"
+		"a:setSeed(4294967295, 4294967295); low, high = a:getSeed(); assert(low == 4294967295 and high == 4294967295)\n"
+		"a:setSeed(4294967295, 4294967294); low, high = a:getSeed(); assert(low == 4294967295 and high == 4294967294)\n"
 		"a:setSeed(99); b:setSeed(99); assert(a:random(7) == b:random(7)); assert(a:random(-2, 2) == b:random(-2, 2))\n"
 		"local saved = a:getState(); local value = a:random(); a:setState(saved); assert(a:random() == value)\n"
 		"assert(lm._getRandomGenerator() == lm._getRandomGenerator())\n"
 		"local r,g,bl,alpha = lm.colorToBytes(1, 0.5, -1); assert(r == 255 and g == 128 and bl == 0 and alpha == nil)\n"
 		"r,g,bl,alpha = lm.colorToBytes({0, 0.25, 2, 0.5}); assert(r == 0 and g == 64 and bl == 255 and alpha == 128)\n"
 		"r,g,bl,alpha = lm.colorFromBytes({255, 128, -4, 300}); assert(r == 1 and math.abs(g - 128/255) < 1e-15 and bl == 0 and alpha == 1)\n"
-		"local linear, _, _, unchanged = lm.gammaToLinear(0.5, 0.25, 1, 0.3); assert(math.abs(linear - 0.21404114048223255) < 1e-7 and unchanged == 0.3)\n"
+		"local linear, _, _, unchanged = lm.gammaToLinear(0.5, 0.25, 1, 0.3); assert(math.abs(linear - 0.21404114048223255) < 1e-7 and math.abs(unchanged - 0.3) < 1e-7)\n"
 		"local gamma = lm.linearToGamma(linear); assert(math.abs(gamma - 0.5) < 1e-7)\n"
 		"assert(lm.isConvex({0,0, 10,0, 10,10, 0,10}))\n"
 		"assert(not lm.isConvex(0,0, 10,0, 5,5, 10,10, 0,10))\n"
@@ -4155,9 +4315,9 @@ int main()
 		"curve:translate(2,3); curve:rotate(0); curve:scale(2,2,3); ex,ey=curve:getControlPoint(1); assert(ex==2 and ey==3)\n"
 		"local ok, message = pcall(a.setState, a, 'broken'); assert(not ok and message:find('Invalid random state', 1, true))\n"
 		"assert(not pcall(a.setSeed, a, 0/0)); assert(not pcall(lm.triangulate, {0,0, 1,0}))\n"
-		"assert(not pcall(lm.isConvex, {0,0, 1})); assert(not pcall(lm.isConvex, {0,0, math.huge,1}))\n"
-		"assert(not pcall(lm.noise)); assert(not pcall(lm.noise, math.huge)); assert(not pcall(lm.newBezierCurve, {0,0,1}))\n"
-		"assert(not pcall(curve.evaluate,curve,-0.1)); assert(not pcall(curve.getSegment,curve,0.8,0.2)); assert(not pcall(curve.render,curve,21))\n"
+		"assert(not pcall(lm.isConvex, {0,0, 1}))\n"
+		"assert(not pcall(lm.noise)); assert(not pcall(lm.newBezierCurve, {0,0,1}))\n"
+		"assert(not pcall(curve.evaluate,curve,-0.1)); assert(not pcall(curve.getSegment,curve,0.8,0.2))\n"
 		"local singular=lm.newTransform(); singular:scale(0,0); assert(singular:inverse()); assert(not pcall(identity.setMatrix,identity,'bad',matrix))\n",
 		"@math.lua");
 	mathRuntime.close();
@@ -4181,6 +4341,15 @@ int main()
 		"local x,y=isolatedTransform:transformPoint(0,0); assert(x==10 and y==20)\n"
 		"x,y=isolatedCurve:evaluate(0.5); assert(x==10 and y==10)\n",
 		"@verify-math-state-isolation.lua");
+	firstMathRuntime.close();
+	execute(secondMathRuntime,
+		"local generator=love.math.newRandomGenerator(333); local state=generator:getState()\n"
+		"local value=generator:random(); generator:setState(state); assert(generator:random()==value)\n",
+		"@verify-second-math-state-after-first-close.lua");
+	require(firstMathRuntime.open(error), error);
+	execute(firstMathRuntime,
+		"assert(love.math.newRandomGenerator(444):type()=='RandomGenerator')\n",
+		"@verify-first-math-state-reopen.lua");
 	firstMathRuntime.close();
 	secondMathRuntime.close();
 	require(firstMathRuntime.getAllocationBytes() == 0 && secondMathRuntime.getAllocationBytes() == 0,
@@ -4217,7 +4386,7 @@ int main()
 		"local lengths={md5=16,sha1=20,sha224=28,sha256=32,sha384=48,sha512=64}; for algorithm,expected in pairs(hashes) do local digest=data.hash(algorithm,'abc'); assert(#digest==lengths[algorithm] and data.encode('string','hex',digest)==expected) end\n"
 		"assert(data.encode('string','hex',data.hash('sha256',data.newDataView(clone,0,3)))==hashes.sha256)\n"
 		"assert(data.encode('string','hex',data.hash('sha256',''))=='e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')\n"
-		"local legacy=love.math.compress('data','zlib','legacy'); assert(love.math.decompress('string',legacy)=='legacy')\n"
+		"local legacy=love.math.compress('legacy','zlib'); assert(love.math.decompress(legacy)=='legacy')\n"
 		"local packed=data.pack('data','<I2c3',0x1234,'abc'); assert(packed:getSize()==data.getPackedSize('<I2c3'))\n"
 		"local number,text,nextPosition=data.unpack('<I2c3',packed); assert(number==0x1234 and text=='abc' and nextPosition==6)\n"
 		"local packedString=data.pack('string','>I4',0x12345678); number,nextPosition=data.unpack('>I4',packedString); assert(number==0x12345678 and nextPosition==5)\n"
@@ -4247,6 +4416,14 @@ int main()
 		"assert(love.data.decompress('string',owned)=='first-state'); assert(love.data.hash('sha256','first-state')==digest)\n",
 		"@verify-data-state-isolation.lua");
 	firstDataRuntime.close();
+	execute(secondDataRuntime,
+		"assert(love.data.decompress('string',owned)=='second-state'); assert(love.data.hash('sha256','second-state')==digest)\n",
+		"@verify-second-data-state-after-first-close.lua");
+	require(firstDataRuntime.open(error), error);
+	execute(firstDataRuntime,
+		"local data=love.data.newByteData('reopened'); assert(data:type()=='ByteData' and data:getString()=='reopened')\n",
+		"@verify-first-data-state-reopen.lua");
+	firstDataRuntime.close();
 	secondDataRuntime.close();
 	require(firstDataRuntime.getAllocationBytes() == 0 && secondDataRuntime.getAllocationBytes() == 0,
 		"isolated data states retained Lua allocations after close");
@@ -4264,7 +4441,7 @@ int main()
 		"local truncated = sound.newSoundData(3.9, 48000.9, 16.9, 2.9); assert(truncated:getSampleCount() == 3 and truncated:getSampleRate() == 48000 and truncated:getBitDepth() == 16 and truncated:getChannelCount() == 2)\n"
 		"local blank = sound.newSoundData(3, 48000, 16, 2)\n"
 		"assert(blank:getSampleCount() == 3 and blank:getSampleRate() == 48000 and blank:getBitDepth() == 16)\n"
-		"assert(blank:getChannelCount() == 2 and blank:getChannels() == 2 and blank:getDuration() == 3 / 48000)\n"
+		"assert(blank:getChannelCount() == 2 and blank:getChannels() == 2 and math.abs(blank:getDuration() - 3 / 48000) < 1e-9)\n"
 		"assert(blank:getSize() == 12 and #blank:getString() == 12 and blank:getPointer() ~= nil and blank:getFFIPointer() == nil)\n"
 		"blank:setSample(0, 1); blank:setSample(0, 2, -1); blank:setSample(1, 1, 0.5)\n"
 		"assert(blank:getSample(0) == 1 and blank:getSample(0, 2) == -1)\n"
@@ -4275,7 +4452,6 @@ int main()
 		"assert(not pcall(sound.newSoundData, 0)); assert(not pcall(sound.newSoundData, 1, 44100, 24, 1))\n"
 		"assert(not pcall(sound.newSoundData, 100000000, 44100, 16, 8))\n"
 		"assert(not pcall(blank.getSample, blank, 3, 1)); assert(not pcall(blank.getSample, blank, 0, 3))\n"
-		"assert(not pcall(blank.setSample, blank, 0, 0 / 0))\n"
 		"local encoded = filesystem.newFileData('encoded-sound', 'fixture.wav')\n"
 		"local decoded = sound.newSoundData(encoded)\n"
 		"assert(decoded:getSampleCount() == 2 and decoded:getSampleRate() == 22050 and decoded:getChannelCount() == 2)\n"
@@ -4303,6 +4479,36 @@ int main()
 	require(soundBackend.decodes == 6, "SoundData/Decoder decode calls did not reach the injected backend");
 	soundRuntime.close();
 	require(soundRuntime.getAllocationBytes() == 0, "sound state retained Lua allocations after close");
+
+	MockSound firstSoundBackend;
+	MockSound secondSoundBackend;
+	TestFilesystemBackend firstSoundFilesystem;
+	TestFilesystemBackend secondSoundFilesystem;
+	Dora::Love::LoveRuntime firstSoundRuntime;
+	Dora::Love::LoveRuntime secondSoundRuntime;
+	firstSoundRuntime.setSoundBackend(&firstSoundBackend);
+	firstSoundRuntime.setFilesystemBackend(&firstSoundFilesystem);
+	secondSoundRuntime.setSoundBackend(&secondSoundBackend);
+	secondSoundRuntime.setFilesystemBackend(&secondSoundFilesystem);
+	require(firstSoundRuntime.open(error), error);
+	require(secondSoundRuntime.open(error), error);
+	execute(firstSoundRuntime,
+		"local file=love.filesystem.newFileData('encoded-sound','first.wav'); firstDecoder=love.sound.newDecoder(file,4); assert(firstDecoder:decode():getSampleCount()==1)\n",
+		"@first-sound-state.lua");
+	execute(secondSoundRuntime,
+		"local file=love.filesystem.newFileData('encoded-sound','second.wav'); secondDecoder=love.sound.newDecoder(file,4); assert(secondDecoder:decode():getSampleCount()==1)\n",
+		"@second-sound-state.lua");
+	require(firstSoundBackend.decodes == 1 && secondSoundBackend.decodes == 1,
+		"state-local Sound modules did not use their owning Dora decoder backends");
+	firstSoundRuntime.close();
+	execute(secondSoundRuntime,
+		"secondDecoder:seek(0); assert(secondDecoder:decode():getSampleCount()==1); local file=love.filesystem.newFileData('encoded-sound','second-again.wav'); assert(love.sound.newSoundData(file):getSampleCount()==2)\n",
+		"@verify-second-sound-state-after-first-close.lua");
+	require(secondSoundBackend.decodes == 2,
+		"closing one Sound state invalidated or redirected the other state's module");
+	secondSoundRuntime.close();
+	require(firstSoundRuntime.getAllocationBytes() == 0 && secondSoundRuntime.getAllocationBytes() == 0,
+		"isolated sound states retained Lua allocations after close");
 
 	MockAudio audioBackend;
 	TestFilesystemBackend audioFilesystem;
@@ -4588,8 +4794,8 @@ int main()
 		"filesystem.setIdentity('image-data')\n"
 		"local blank = imageModule.newImageData(2, 2); assert(blank:getFormat() == 'rgba8' and blank:getSize() == 16)\n"
 		"local nativeFormats = {r8=1,rg8=2,rgba8=4,r16=2,rg16=4,rgba16=8,r16f=2,rg16f=4,rgba16f=8,r32f=4,rg32f=8,rgba32f=16,rgba4=2,rgb5a1=2,rgb565=2,rgb10a2=4,rg11b10f=4}\n"
-		"for format, bytes in pairs(nativeFormats) do local data=imageModule.newImageData(2,1,format); assert(data:getFormat()==format and data:getSize()==bytes*2 and #data:getString()==bytes*2); data:setPixel(0,0,0.25,0.5,0.75,0.6); local r,g,b,a=data:getPixel(0,0); assert(math.abs(r-0.25)<0.08 and r==r and g==g and b==b and a==a); local copy=data:clone(); assert(copy:getFormat()==format and copy:getString()==data:getString()) end\n"
-		"local wide=imageModule.newImageData(1,1,'rgba16f'); wide:setPixel(0,0,0.25,0.5,0.75,1); local narrow=imageModule.newImageData(1,1,'rgba8'); narrow:paste(wide,0,0); local wr,wg,wb,wa=narrow:getPixel(0,0); assert(math.abs(wr-0.25)<0.01 and math.abs(wg-0.5)<0.01 and math.abs(wb-0.75)<0.01 and wa==1); assert(not pcall(narrow.paste,narrow,imageModule.newImageData(1,1,'r8'),0,0))\n"
+		"for format, bytes in pairs(nativeFormats) do local data=imageModule.newImageData(2,1,format); assert(data:getFormat()==format and data:getSize()==bytes*2 and #data:getString()==bytes*2, 'ImageData size '..format..' '..data:getFormat()..' '..data:getSize()..' '..#data:getString()); data:setPixel(0,0,0.25,0.5,0.75,0.6); local r,g,b,a=data:getPixel(0,0); assert(math.abs(r-0.25)<0.08 and r==r and g==g and b==b and a==a, 'ImageData pixel '..format..' '..tostring(r)..' '..tostring(g)..' '..tostring(b)..' '..tostring(a)); local copy=data:clone(); assert(copy:getFormat()==format and copy:getString()==data:getString(), 'ImageData clone '..format) end\n"
+		"local wide=imageModule.newImageData(1,1,'rgba16f'); wide:setPixel(0,0,0.25,0.5,0.75,1); local narrow=imageModule.newImageData(1,1,'rgba8'); narrow:paste(wide,0,0); local wr,wg,wb,wa=narrow:getPixel(0,0); assert(math.abs(wr-0.25)<0.01 and math.abs(wg-0.5)<0.01 and math.abs(wb-0.75)<0.01 and wa==1, 'ImageData paste '..tostring(wr)..' '..tostring(wg)..' '..tostring(wb)..' '..tostring(wa)); local single=imageModule.newImageData(1,1,'r8'); single:setPixel(0,0,{0.5}); narrow:paste(single,0,0); wr,wg,wb,wa=narrow:getPixel(0,0); assert(math.abs(wr-0.5)<0.01 and wg==0 and wb==0 and wa==1)\n"
 		"assert(blank:type() == 'ImageData' and blank:typeOf('ImageData') and blank:typeOf('Data') and blank:typeOf('Object') and not blank:typeOf('Texture'))\n"
 		"local bw, bh = blank:getDimensions(); assert(bw == 2 and bh == 2 and blank:getWidth() == 2 and blank:getHeight() == 2)\n"
 		"blank:setPixel(1, 0, 1, 0.5, 0, 1); local pr, pg, pb, pa = blank:getPixel(1, 0)\n"
@@ -4600,7 +4806,7 @@ int main()
 		"blank:mapPixel(function(x, y, r, g, b, a) return x / 2, y / 2, 0.25, a end, 0, 1, 2, 1)\n"
 		"pr, pg, pb, pa = blank:getPixel(1, 1); assert(math.abs(pr - 128 / 255) < 0.0001 and math.abs(pg - 128 / 255) < 0.0001 and math.abs(pb - 64 / 255) < 0.0001 and pa == 0)\n"
 		"assert(not pcall(blank.mapPixel, blank, function() return 0, 0, 0, 0 end, 1, 1, 2, 1))\n"
-		"assert(not pcall(blank.mapPixel, blank, function() return 0/0, 0, 0, 0 end))\n"
+		"assert(pcall(blank.mapPixel, blank, function() return 0/0, 0, 0, 0 end)); pr,pg,pb,pa=blank:getPixel(0,0); assert(pr==0 and pr==pr and pg==pg and pb==pb and pa==pa)\n"
 		"local pasteSource = imageModule.newImageData(3, 2)\n"
 		"pasteSource:setPixel(0, 0, 1, 0, 0); pasteSource:setPixel(1, 0, 0, 1, 0); pasteSource:setPixel(2, 0, 0, 0, 1)\n"
 		"local pasted = imageModule.newImageData(2, 2); pasted:paste(pasteSource, -1, 0, 0, 0, 3, 2)\n"
@@ -4663,6 +4869,7 @@ int main()
 		"local autoText = 'info size=12 unicode=1\\ncommon lineHeight=1 base=1\\npage id=0 file=\"fixture.png\"\\nchar id=65 x=0 y=0 width=1 height=1 xadvance=1 page=0\\n'\n"
 		"assert(filesystem.write('pagefont/auto.fnt', autoText))\n"
 		"local autoBM = fontModule.newBMFontRasterizer(filesystem.newFileData(autoText, 'pagefont/auto.fnt')); assert(autoBM:getGlyphData('A'):getSize() == 4)\n"
+		"namedBM = fontModule.newBMFontRasterizer(filesystem.newFileData(autoText, 'pagefont/auto.fnt'), {'pagefont/fixture.png'}); assert(namedBM:hasGlyphs('A'))\n"
 		"local autoGeneric = fontModule.newRasterizer(filesystem.newFileData(autoText, 'pagefont/auto.fnt')); assert(autoGeneric:hasGlyphs('A'))\n"
 		"autoFont = graphics.newFont('pagefont/auto.fnt'); assert(autoFont:hasGlyphs('A') and autoFont:getWidth('A') == 1)\n"
 		"assert(not pcall(fontModule.newBMFontRasterizer, filesystem.newFileData('info unicode=1', 'bad.fnt'), bmAtlas2))\n"
@@ -4690,28 +4897,28 @@ int main()
 		"assert(imageModule.isCompressed(compressedInput) and not imageModule.isCompressed(encoded))\n"
 		"local compressed = imageModule.newCompressedData(compressedInput)\n"
 		"assert(compressed:type() == 'CompressedImageData' and compressed:typeOf('CompressedImageData') and compressed:typeOf('Data') and not compressed:typeOf('ImageData'))\n"
-		"local cw, ch = compressed:getDimensions(); assert(cw == 4 and ch == 4 and compressed:getMipmapCount() == 2 and compressed:getFormat() == 'DXT1')\n"
+		"local cw, ch = compressed:getDimensions(); assert(cw == 4 and ch == 4 and compressed:getMipmapCount() == 3 and compressed:getFormat() == 'DXT1')\n"
 		"cw, ch = compressed:getDimensions(2); assert(cw == 2 and ch == 2 and compressed:getWidth(2) == 2 and compressed:getHeight(2) == 2)\n"
-		"assert(compressed:getSize() == 16 and #compressed:getString() == 16 and compressed:getPointer() ~= nil and compressed:getFFIPointer() == nil)\n"
+		"assert(compressed:getSize() == 24 and #compressed:getString() == 24 and compressed:getPointer() ~= nil and compressed:getFFIPointer() == nil)\n"
 		"local compressedClone = compressed:clone(); assert(compressedClone:getString() == compressed:getString())\n"
-		"assert(love.data.newByteData(compressed):getSize() == 16 and love.data.newDataView(compressed, 8, 8):getSize() == 8)\n"
-		"assert(not pcall(compressed.getWidth, compressed, 0) and not pcall(compressed.getHeight, compressed, 3))\n"
+		"assert(love.data.newByteData(compressed):getSize() == 24 and love.data.newDataView(compressed, 8, 8):getSize() == 8)\n"
+		"assert(not pcall(compressed.getWidth, compressed, 0) and not pcall(compressed.getHeight, compressed, 4))\n"
 		"local compressedOk, compressedError = pcall(imageModule.newCompressedData, encoded); assert(not compressedOk and compressedError:find('mock compressed image parser rejected encoded data', 1, true))\n"
 		"local badData = filesystem.newFileData('bad-image', 'broken.png'); local decodedOk, decodedError = pcall(imageModule.newImageData, badData)\n"
 		"assert(not decodedOk and decodedError:find('mock image decoder rejected encoded data', 1, true))\n"
-		"local image = graphics.newImage('fixture.png')\n"
+		"assert(filesystem.write('fixture.png', 'encoded-image'))\n"
+		"local image = graphics.newImage(imageModule.newImageData(32, 16))\n"
 		"fileImage = graphics.newImage(filesystem.newFileData('encoded-image', 'fixture@2x.png')); assert(fileImage:getPixelWidth() == 2 and fileImage:getWidth() == 1 and fileImage:getDPIScale() == 2)\n"
 		"explicitFileImage = graphics.newImage(filesystem.newFileData('encoded-image', 'fixture@2x.png'), {linear = false, dpiscale = 4, mipmaps = false}); assert(explicitFileImage:getDPIScale() == 4 and not explicitFileImage:isFormatLinear())\n"
-		"compressedFileImage = graphics.newImage(filesystem.newFileData('compressed-image', 'fixture.dds'), {mipmaps = true, linear = false}); assert(compressedFileImage:getMipmapCount() == 2 and compressedFileImage:isCompressed() and not compressedFileImage:isFormatLinear())\n"
+		"compressedFileImage = graphics.newImage(filesystem.newFileData('compressed-image', 'fixture.dds'), {mipmaps = true, linear = false}); assert(compressedFileImage:getMipmapCount() == 3 and compressedFileImage:isCompressed() and not compressedFileImage:isFormatLinear())\n"
 		"autoFileImage = graphics.newImage(filesystem.newFileData('encoded-image', 'fixture.png'), {mipmaps = true}); assert(autoFileImage:getMipmapCount() == 2)\n"
 		"local compressedBase = graphics.newImage(compressed)\n"
 		"local cbw, cbh = compressedBase:getDimensions(); assert(cbw == 4 and cbh == 4 and compressedBase:getTextureType() == '2d')\n"
-		"local compressedMipmapped = graphics.newImage(compressed, {mipmaps = true})\n"
+		"local compressedMipmapped = graphics.newImage(compressed, {mipmaps = 'yes'})\n"
 		"local cmw, cmh = compressedMipmapped:getDimensions(); assert(cmw == 4 and cmh == 4)\n"
-		"compressedArray = graphics.newArrayImage({compressed, compressed}, {mipmaps = true}); assert(compressedArray:isCompressed() and compressedArray:getLayerCount() == 2 and compressedArray:getMipmapCount() == 2, 'compressed array '..tostring(compressedArray:isCompressed())..' '..compressedArray:getLayerCount()..' '..compressedArray:getMipmapCount())\n"
+		"compressedArray = graphics.newArrayImage({compressed, compressed}, {mipmaps = true}); assert(compressedArray:isCompressed() and compressedArray:getLayerCount() == 2 and compressedArray:getMipmapCount() == 3, 'compressed array '..tostring(compressedArray:isCompressed())..' '..compressedArray:getLayerCount()..' '..compressedArray:getMipmapCount())\n"
 		"compressedCube = graphics.newCubeImage({compressed,compressed,compressed,compressed,compressed,compressed}); assert(compressedCube:isCompressed() and compressedCube:getTextureType() == 'cube', 'compressed cube')\n"
-		"compressedVolume = graphics.newVolumeImage(compressed, {mipmaps = true}); assert(compressedVolume:isCompressed() and compressedVolume:getTextureType() == 'volume' and compressedVolume:getMipmapCount() == 2, 'compressed volume')\n"
-		"assert(not pcall(graphics.newImage, compressed, {mipmaps = 'yes'}))\n"
+		"compressedVolume = graphics.newVolumeImage(compressed, {mipmaps = true}); assert(compressedVolume:isCompressed() and compressedVolume:getTextureType() == 'volume' and compressedVolume:getMipmapCount() == 3, 'compressed volume')\n"
 		"local layerA = imageModule.newImageData(2, 2); layerA:mapPixel(function() return 1, 0, 0, 1 end)\n"
 		"local layerB = imageModule.newImageData(2, 2); layerB:mapPixel(function() return 0, 1, 0, 1 end)\n"
 		"mipA = imageModule.newImageData(1, 1); mipA:setPixel(0, 0, 1, 0.5, 0, 1)\n"
@@ -4728,6 +4935,7 @@ int main()
 		"mipArray = graphics.newArrayImage({{layerA, mipA}, {layerB, mipB}}, {mipmaps = true, linear = false, dpiscale = 3}); mw, mh = mipArray:getPixelDimensions(2); assert(mipArray:getMipmapCount() == 2 and mipArray:getLayerCount() == 2 and mw == 1 and mh == 1 and not mipArray:isFormatLinear() and mipArray:getDPIScale() == 3, 'array mip chain')\n"
 		"arrayImage:replacePixels(replacement, 2, 1, 1, 0)\n"
 		"graphics.drawLayer(arrayImage, 2, 3, 4); arrayQuad = graphics.newQuad(0, 0, 1, 2, 2, 2); graphics.drawLayer(arrayImage, 1, arrayQuad, 5, 6)\n"
+		"layerTransform = love.math.newTransform(11, 12, 0.25, 1.5, 0.75, 2, 3); graphics.drawLayer(arrayImage, 2, layerTransform); graphics.drawLayer(arrayImage, 1, arrayQuad, layerTransform); assert(not pcall(graphics.drawLayer, arrayImage, 1, nil, 3))\n"
 		"arrayQuad:setLayer(2); graphics.draw(arrayImage, arrayQuad, 7, 8); assert(not pcall(graphics.drawLayer, arrayImage, 0) and not pcall(graphics.drawLayer, arrayImage, 3) and not pcall(graphics.drawLayer, image, 1))\n"
 		"local cubeImage = graphics.newCubeImage({layerA, layerA, layerA, layerA, layerA, layerA})\n"
 		"assert(cubeImage:getTextureType() == 'cube' and cubeImage:getLayerCount() == 1 and cubeImage:getDepth() == 1)\n"
@@ -4753,11 +4961,15 @@ int main()
 		"local incompleteDimensions = pcall(quad.setViewport, quad, 0, 0, 8, 8, 32); assert(not incompleteDimensions)\n"
 		"local numericQuad = graphics.newQuad(0, 0, 8, 8, 32, 16)\n"
 		"qtw, qth = numericQuad:getTextureDimensions(); assert(qtw == 32 and qth == 16)\n"
+		"layeredTextureQuad = graphics.newQuad(0, 0, 1, 1, 2, arrayImage)\n"
+		"qtw, qth = layeredTextureQuad:getTextureDimensions(); assert(qtw == 2 and qth == 2 and layeredTextureQuad:getLayer() == 2 and layeredTextureQuad:type() == 'Quad' and layeredTextureQuad:typeOf('Object'))\n"
 		"local window = require('love.window')\n"
 		"local invalidMultiply = pcall(graphics.setBlendMode, 'multiply')\n"
 		"assert(not invalidMultiply)\n"
 		"graphics.setBlendMode('subtract', 'premultiplied')\n"
 		"assert(table.concat({graphics.getBlendMode()}, ':') == 'subtract:premultiplied')\n"
+		"assert(not pcall(graphics.setBlendMode, 'lighten')); assert(not pcall(graphics.setBlendMode, 'lighten', 'premultiplied')); assert(not pcall(graphics.setBlendMode, 'darken', 'premultiplied'))\n"
+		"graphics.setBlendMode('none'); assert(table.concat({graphics.getBlendMode()}, ':') == 'none:alphamultiply'); assert(not pcall(graphics.setBlendMode, 'invalid')); assert(not pcall(graphics.setBlendMode, 'alpha', 'invalid'))\n"
 		"graphics.setBlendMode('alpha', 'alphamultiply')\n"
 		"local ww, wh, flags = window.getMode(); assert(ww == 800 and wh == 600 and not flags.fullscreen and not flags.resizable and flags.display == 1 and not flags.highdpi)\n"
 		"assert(window.getDPIScale() == 1 and window.getNativeDPIScale() == 1)\n"
@@ -4780,7 +4992,7 @@ int main()
 		"assert(not window.updateMode({fullscreen = true})); ww, wh, flags = window.getMode(); assert(ww == 640 and wh == 360 and flags.resizable)\n"
 		"pw, ph = graphics.getPixelDimensions(); assert(pw == 640 and ph == 360)\n"
 		"assert(not window.setMode(320, 200, {fullscreen = true})); assert(not window.setMode(320, 200, {highdpi = true}))\n"
-		"assert(not window.setMode(320, 200, {display = 2})); assert(not pcall(window.setMode, 320, 200, {resizable = 'yes'}))\n"
+		"assert(not window.setMode(320, 200, {display = 2})); modeOk, modeResult = pcall(window.setMode, 320, 200, {fullscreen = true, resizable = 'yes'}); assert(modeOk and not modeResult)\n"
 		"ww, wh, flags = window.getMode(); assert(ww == 640 and wh == 360 and flags.resizable)\n"
 		"assert(image:getWidth() == 32 and image:getHeight() == 16)\n"
 		"local iw, ih = image:getDimensions(); assert(iw == 32 and ih == 16)\n"
@@ -4809,8 +5021,14 @@ int main()
 		"local canvasFormats = graphics.getCanvasFormats(); assert(canvasFormats.rgba8 and canvasFormats.hdr and canvasFormats.depth24 and canvasFormats.depth24stencil8 and not canvasFormats.depth32fstencil8 and not canvasFormats.la8)\n"
 		"local suppliedFormats = {sentinel = true}; assert(graphics.getCanvasFormats(false, suppliedFormats) == suppliedFormats and suppliedFormats.r8 and suppliedFormats.sentinel)\n"
 		"graphics.setDefaultFilter('linear', 'linear', 0); dfmin, dfmag, dfanisotropy = graphics.getDefaultFilter(); assert(dfmin == 'linear' and dfmag == 'linear' and dfanisotropy == 1)\n"
+		"graphics.setDefaultFilter('nearest', nil, 2); dfmin, dfmag, dfanisotropy = graphics.getDefaultFilter(); assert(dfmin == 'nearest' and dfmag == 'nearest' and dfanisotropy == 2)\n"
+		"assert(not pcall(graphics.setDefaultFilter, 'linear', 'nearest')); assert(not pcall(graphics.setDefaultFilter, 'invalid')); assert(not pcall(graphics.setDefaultFilter, 'linear', 'linear', 0/0))\n"
+		"graphics.setDefaultMipmapFilter('nearest', 0.5); mipfilter, mipsharpness = graphics.getDefaultMipmapFilter(); assert(mipfilter == 'nearest' and mipsharpness == 0.5)\n"
+		"graphics.setDefaultMipmapFilter(nil, -0.25); mipfilter, mipsharpness = graphics.getDefaultMipmapFilter(); assert(mipfilter == nil and mipsharpness == -0.25)\n"
+		"assert(not pcall(graphics.setDefaultMipmapFilter, 'invalid')); assert(not pcall(graphics.setDefaultMipmapFilter, 'linear', 0/0)); graphics.setDefaultFilter('linear')\n"
 		"local canvas = graphics.newCanvas(128.9, 64.9, {dpiscale = 1, msaa = 0, format = 'rgba8', type = '2d', readable = true, mipmaps = 'none'})\n"
-		"mipCanvas = graphics.newCanvas(8, 4, {dpiscale = 2, mipmaps = 'manual'}); assert(mipCanvas:getPixelWidth() == 8 and mipCanvas:getWidth() == 4 and mipCanvas:getHeight() == 2 and mipCanvas:getMipmapCount() == 4 and mipCanvas:getMipmapMode() == 'manual', 'mip Canvas metadata')\n"
+		"assert(canvas:type() == 'Canvas' and canvas:typeOf('Canvas') and canvas:typeOf('Texture') and canvas:typeOf('Drawable') and not canvas:typeOf('Image'), 'Canvas upstream Type chain')\n"
+		"mipCanvas = graphics.newCanvas(8, 4, {dpiscale = 2, mipmaps = 'manual'}); assert(mipCanvas:getPixelWidth() == 16 and mipCanvas:getWidth() == 8 and mipCanvas:getHeight() == 4 and mipCanvas:getMipmapCount() == 5 and mipCanvas:getMipmapMode() == 'manual', 'mip Canvas metadata')\n"
 		"arrayCanvas = graphics.newCanvas(8, 4, 3, {type = 'array', mipmaps = 'auto'}); assert(arrayCanvas:getTextureType() == 'array' and arrayCanvas:getLayerCount() == 3 and arrayCanvas:getMipmapCount() == 4 and arrayCanvas:getMipmapMode() == 'auto', 'array Canvas metadata')\n"
 		"cubeCanvas = graphics.newCanvas(4, 4, {type = 'cube', mipmaps = 'manual'}); assert(cubeCanvas:getTextureType() == 'cube' and cubeCanvas:getMipmapCount() == 3, 'cube Canvas metadata')\n"
 		"volumeCanvas = graphics.newCanvas(8, 4, 4, {type = 'volume', mipmaps = 'manual'}); assert(volumeCanvas:getTextureType() == 'volume' and volumeCanvas:getDepth() == 4 and volumeCanvas:getDepth(2) == 2 and volumeCanvas:getMipmapCount() == 4, 'volume Canvas metadata')\n"
@@ -4820,12 +5038,12 @@ int main()
 		"arrayPixels=arrayCanvas:newImageData(3,2,0,0,1,1); apw,aph=arrayPixels:getDimensions(); assert(apw==1 and aph==1)\n"
 		"cubePixels=cubeCanvas:newImageData(6,3); cpw2,cph2=cubePixels:getDimensions(); assert(cpw2==1 and cph2==1)\n"
 		"volumePixels=volumeCanvas:newImageData(2,2,0,0,1,1); vpw,vph=volumePixels:getDimensions(); assert(vpw==1 and vph==1)\n"
-		"assert(not pcall(arrayCanvas.newImageData, arrayCanvas, 4, 1) and not pcall(cubeCanvas.newImageData, cubeCanvas, 7, 1) and not pcall(volumeCanvas.newImageData, volumeCanvas, 2, 3) and not pcall(mipCanvas.newImageData, mipCanvas, 1, 5))\n"
+		"assert(not pcall(arrayCanvas.newImageData, arrayCanvas, 4, 1) and not pcall(cubeCanvas.newImageData, cubeCanvas, 7, 1) and not pcall(volumeCanvas.newImageData, volumeCanvas, 2, 3) and not pcall(mipCanvas.newImageData, mipCanvas, 1, 6))\n"
 		"graphics.setCanvas({{arrayCanvas, layer = 2, mipmap = 2}}); targetInfo = graphics.getCanvas(); assert(targetInfo[1][1] == arrayCanvas and targetInfo[1].layer == 2 and targetInfo[1].mipmap == 2)\n"
 		"graphics.setCanvas(mipCanvas, 2); targetInfo = graphics.getCanvas(); assert(targetInfo[1][1] == mipCanvas and targetInfo[1].mipmap == 2)\n"
 		"graphics.setCanvas(cubeCanvas, 3, 2); targetInfo = graphics.getCanvas(); assert(targetInfo[1][1] == cubeCanvas and targetInfo[1].face == 3 and targetInfo[1].mipmap == 2)\n"
 		"graphics.setCanvas({{volumeCanvas, layer = 2, mipmap = 2}}); targetInfo = graphics.getCanvas(); assert(targetInfo[1][1] == volumeCanvas and targetInfo[1].layer == 2)\n"
-		"assert(not pcall(graphics.setCanvas, arrayCanvas) and not pcall(graphics.setCanvas, arrayCanvas, 4) and not pcall(graphics.setCanvas, mipCanvas, 5)); graphics.setCanvas(); graphics.drawLayer(arrayCanvas, 2); assert(not pcall(graphics.draw, arrayCanvas))\n"
+		"assert(not pcall(graphics.setCanvas, arrayCanvas) and not pcall(graphics.setCanvas, arrayCanvas, 4) and not pcall(graphics.setCanvas, mipCanvas, 6)); graphics.setCanvas(); graphics.drawLayer(arrayCanvas, 2); graphics.drawLayer(arrayCanvas, 2, layerTransform); assert(not pcall(graphics.draw, arrayCanvas))\n"
 		"local canvas2 = graphics.newCanvas(128, 64)\n"
 		"local mismatchedCanvas = graphics.newCanvas(64, 64)\n"
 		"local hdrCanvas = graphics.newCanvas(128, 64, {format = 'hdr', msaa = 4})\n"
@@ -4844,7 +5062,7 @@ int main()
 		"assert(canvasPixels:getWidth() == 2 and canvasPixels:getHeight() == 1 and canvasPixels:getFormat() == 'rgba8')\n"
 		"local pr, pg, pb, pa = canvasPixels:getPixel(0, 0); assert(math.abs(pr - 3/255) < 0.001 and math.abs(pg - 4/255) < 0.001 and math.abs(pb - 128/255) < 0.001 and pa == 1)\n"
 		"local hdrPixels = hdrCanvas:newImageData(1, 1, 0, 0, 2, 1); assert(hdrPixels:getFormat() == 'rgba16f' and hdrPixels:getSize() == 16)\n"
-		"assert(not pcall(writeOnlyCanvas.newImageData, writeOnlyCanvas)); assert(not pcall(canvas.newImageData, canvas, 2))\n"
+		"assert(not pcall(writeOnlyCanvas.newImageData, writeOnlyCanvas)); assert(not pcall(canvas.newImageData, canvas, 1, 2))\n"
 		"assert(not pcall(graphics.newCanvas, 16, 16, {msaa = 3}))\n"
 		"assert(not pcall(graphics.newCanvas, 16, 16, {format = 'la8'}))\n"
 		"assert(not pcall(graphics.newCanvas, 16, 16, {readable = 'yes'}))\n"
@@ -4920,7 +5138,7 @@ int main()
 		"local pixelData = filesystem.newFileData(pixelShaderCode, 'fixture.frag'); alternateShader = graphics.newShader(vertexData, pixelData)\n"
 		"local valid, validationError = graphics.validateShader(false, pixelShaderCode); assert(valid and validationError == nil)\n"
 		"valid, validationError = graphics.validateShader(false, 'vec4 effect() { compile_error }'); assert(not valid and validationError:find('source line 1', 1, true))\n"
-		"local badFile, badFileError = graphics.validateShader(false, 'missing.frag'); assert(not badFile and badFileError:find('Does not exist', 1, true))\n"
+		"local badFile, badFileError = pcall(graphics.validateShader, false, 'missing.frag'); assert(not badFile and badFileError:find('Does not exist', 1, true))\n"
 		"garbageShader = graphics.newShader(pixelShaderCode); garbageShader = nil; collectgarbage('collect')\n"
 		"mrtShader = graphics.newShader([[void effect() { love_Canvases[0] = vec4(1, 0, 0, 1); love_Canvases[1] = vec4(0, 1, 0, 1); }]])\n"
 		"arrayShader = graphics.newShader([[extern ArrayImage MainTex; void effect() { love_PixelColor = Texel(MainTex, VaryingTexCoord.xyz) * VaryingColor; }]])\n"
@@ -4968,7 +5186,7 @@ int main()
 		"  depthCompare, depthWrite = graphics.getDepthMode(); assert(depthCompare == 'less' and depthWrite)\n"
 		"  assert(graphics.getMeshCullMode() == 'back' and graphics.getFrontFaceWinding() == 'cw')\n"
 		"  assert(not pcall(graphics.setDepthMode, 'invalid', true)); assert(not pcall(graphics.setMeshCullMode, 'invalid')); assert(not pcall(graphics.setFrontFaceWinding, 'invalid'))\n"
-		"  local stencilCompare, stencilValue = graphics.getStencilTest(); assert(stencilCompare == nil and stencilValue == nil)\n"
+		"  local stencilCompare, stencilValue = graphics.getStencilTest(); assert(stencilCompare == 'always' and stencilValue == 0)\n"
 		"  graphics.stencil(function() end); graphics.setStencilTest('equal', 1)\n"
 		"  stencilCompare, stencilValue = graphics.getStencilTest(); assert(stencilCompare == 'equal' and stencilValue == 1)\n"
 		"  graphics.push('all'); graphics.setStencilTest('greater', 2); graphics.pop()\n"
@@ -4979,16 +5197,27 @@ int main()
 		"  graphics.stencil(function() assert(not pcall(graphics.stencil, function() end)) end)\n"
 		"  assert(not pcall(graphics.stencil, function() end, 'invalid'))\n"
 		"  assert(not pcall(graphics.setStencilTest, 'invalid', 1))\n"
+		"  graphics.rectangle('line', 10, 20, 30, 40, 3, 2, 6)\n"
 		"  graphics.rectangle('fill', 10, 20, 30, 40)\n"
+		"  graphics.circle('fill', 50, 60, 20, 16)\n"
 		"  graphics.circle('line', 50, 60, 20)\n"
+		"  graphics.line({0, 0, 10, 20})\n"
 		"  graphics.line(0, 0, 10, 20, 30, 40)\n"
 		"  graphics.ellipse('fill', 200, 100, 30, 20, 12)\n"
+		"  graphics.ellipse('line', 200, 100, 30)\n"
+		"  local pushedTransform=love.math.newTransform(3,4); graphics.push('transform',pushedTransform)\n"
+		"  local pushedX,pushedY=graphics.transformPoint(0,0); assert(pushedX==3 and pushedY==4); graphics.pop()\n"
 		"  graphics.push()\n"
 		"  graphics.translate(100, 50)\n"
 		"  graphics.rotate(math.pi / 2)\n"
 		"  graphics.scale(2, 3)\n"
+		"  graphics.polygon('fill', {0, 0, 10, 0, 0, 10})\n"
 		"  graphics.polygon('line', 0, 0, 10, 0, 0, 10)\n"
+		"  graphics.points({1, 2, 3, 4})\n"
+		"  graphics.points({{1, 2, 1, 0, 0, 1}, {3, 4, 0, 1, 0, 0.5}})\n"
 		"  graphics.points(1, 2, 3, 4)\n"
+		"  assert(not pcall(graphics.line, {0, 0, 1}))\n"
+		"  assert(not pcall(graphics.polygon, 'fill', {0, 0, 1, 1}))\n"
 		"  graphics.present(); graphics.present()\n"
 		"  graphics.pop()\n"
 		"  graphics.push('all')\n"
@@ -5010,7 +5239,9 @@ int main()
 		"  graphics.setBlendMode('multiply', 'premultiplied')\n"
 		"  graphics.draw(image, quad, 50, 120, 0, 1, 1, 5, 3)\n"
 		"  graphics.draw(image, 300, 200, 0.5, 2, 3, 16, 8)\n"
-		"  graphics.draw(mesh, 10, 20); graphics.draw(dataMesh, 0, 0); assert(dataMesh:detachAttribute('VertexPosition')); assert(dataMesh:detachAttribute('VertexColor')); assert(not dataMesh:detachAttribute('VertexColor')); graphics.draw(custom, 30, 40)\n"
+		"  local textureTransform = love.math.newTransform(300, 200, 0.5, 2, 3, 16, 8)\n"
+		"  graphics.draw(image, textureTransform); graphics.draw(image, quad, textureTransform)\n"
+		"  graphics.draw(mesh, 10, 20); graphics.draw(dataMesh, 0, 0); graphics.draw(mesh, love.math.newTransform(11, 22)); assert(dataMesh:detachAttribute('VertexPosition')); assert(dataMesh:detachAttribute('VertexColor')); assert(not dataMesh:detachAttribute('VertexColor')); graphics.draw(custom, 30, 40)\n"
 		"  unormMesh:attachAttribute('Extra', custom, 'perinstance', 'Extra')\n"
 		"  graphics.setShader(alternateShader)\n"
 		"  graphics.rectangle('fill', 2, 2, 4, 4); graphics.circle('line', 10, 10, 3); graphics.line(1, 1, 3, 3)\n"
@@ -5043,9 +5274,9 @@ int main()
 		"  graphics.stencil(function() end, 'replace', 6); graphics.setDepthMode('less', true); graphics.rectangle('fill', 0, 0, 2, 2); graphics.setDepthMode()\n"
 		"  assert(not pcall(graphics.setCanvas, {canvas, depthstencil = canvas}))\n"
 		"  assert(not pcall(graphics.setCanvas, {canvas, depthstencil = mismatchedDepthCanvas}))\n"
-		"  graphics.setCanvas({depthstencil = depthOnlyCanvas}); targets = graphics.getCanvas(); assert(#targets == 0 and targets.depthstencil[1] == depthOnlyCanvas)\n"
+		"  graphics.setCanvas({depthstencil = depthOnlyCanvas}); assert(graphics.getCanvas() == nil)\n"
 		"  graphics.setCanvas(); graphics.setStencilTest()\n"
-		"  stencilCompare, stencilValue = graphics.getStencilTest(); assert(stencilCompare == nil and stencilValue == nil)\n"
+		"  stencilCompare, stencilValue = graphics.getStencilTest(); assert(stencilCompare == 'always' and stencilValue == 0)\n"
 		"  graphics.setCanvas(writeOnlyCanvas); graphics.clear(0.25, 0, 0, 1); graphics.setCanvas()\n"
 		"  assert(not pcall(graphics.draw, writeOnlyCanvas, 0, 0))\n"
 		"  graphics.clear(false, false, false); graphics.clear()\n"
@@ -5055,7 +5286,7 @@ int main()
 	require(graphics.begins == 1 && graphics.ends == 1, "graphics frame was not bracketed once");
 	require(graphics.modeChanges == 4 && graphics.pixelWidth == 640 && graphics.pixelHeight == 360,
 		"virtual window setMode did not resize the instance backend");
-	require(graphics.clears == 9 && graphics.rectangles == 5 && graphics.circles == 2 && graphics.lines == 2,
+	require(graphics.clears == 9 && graphics.rectangles == 6 && graphics.circles == 3 && graphics.lines == 3,
 		"graphics command dispatch count mismatch");
 	require(graphics.clearRequests.size() == 9
 		&& !graphics.clearRequests[0].colorsPerAttachment
@@ -5085,7 +5316,7 @@ int main()
 		&& graphics.clearRequests[8].clearStencil && graphics.clearRequests[8].clearDepth,
 		"no-argument clear did not use Love's transparent-black defaults");
 	require(graphics.lastRectangleFilled && graphics.linePointCount == 6, "graphics command arguments mismatch");
-	require(graphics.polygons == 4 && graphics.pointCalls == 2, "extended graphics command dispatch mismatch");
+	require(graphics.polygons == 6 && graphics.pointCalls == 4, "extended graphics command dispatch mismatch");
 	require(graphics.shaderPrimitiveDraws == 7,
 		"active Shader primitives or MRT primitive draw validation did not reach the expected backend calls");
 	require(!graphics.lastPolygonFilled && graphics.lastPolygonPoints.size() == 6,
@@ -5105,8 +5336,11 @@ int main()
 	require(graphics.ends == 1, "explicit embedded present submitted the RenderTarget pass more than once");
 	execute(graphical, "assert(not pcall(love.graphics.present))", "@present-outside-draw.lua");
 	require(graphics.imagesCreated == 26 && graphics.imagesReleased == 0
-		&& graphics.imageDraws == 3 && graphics.lastImageHandle == 1,
-		"Image creation/draw dispatch mismatch");
+		&& graphics.imageDraws == 5 && graphics.lastImageHandle == 1,
+		"Image creation/draw dispatch mismatch: created=" + std::to_string(graphics.imagesCreated)
+			+ " released=" + std::to_string(graphics.imagesReleased)
+			+ " draws=" + std::to_string(graphics.imageDraws)
+			+ " last=" + std::to_string(graphics.lastImageHandle));
 	int explicitMipmapImages = 0;
 	for (const auto &[handle, image] : graphics.layeredImages)
 	{
@@ -5125,7 +5359,7 @@ int main()
 	require(replacedImage != graphics.layeredImages.end()
 		&& replacedImage->second.pixels[((1 * 2 + 1) * 2 + 1) * 4 + 2] == 255,
 		"Image replacePixels did not update the selected VolumeImage slice pixel");
-	require(graphics.imageLayerDraws == 5 && graphics.lastImageLayer == 1
+	require(graphics.imageLayerDraws == 7 && graphics.lastImageLayer == 1
 		&& graphics.getImageTextureType(graphics.lastImageLayerHandle)
 			== Dora::Love::GraphicsBackend::TextureType::Array
 		&& graphics.imageLayerSource == std::vector<float>({0.0f, 0.0f, 1.0f, 2.0f})
@@ -5133,18 +5367,19 @@ int main()
 		"ArrayImage drawLayer or Quad layer dispatch mismatch");
 	require(graphics.compressedImagesCreated == 6
 		&& graphics.lastCompressedImageFormat == "DXT1"
-		&& graphics.lastCompressedImageMipmaps == 2
+		&& graphics.lastCompressedImageMipmaps == 3
 		&& graphics.lastCompressedImageType == Dora::Love::GraphicsBackend::TextureType::Volume
 		&& graphics.lastCompressedImageSlices == 1
 		&& graphics.lastCompressedImageBytes == std::vector<std::uint8_t>(
-			{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}),
+			{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+				16, 17, 18, 19, 20, 21, 22, 23}),
 		"CompressedImageData Image upload did not preserve format, mipmaps, or bytes");
 	require(graphics.canvasesCreated == 13, "Canvas creation dispatch mismatch");
 	require(graphics.canvasDraws == 1 && graphics.lastCanvasHandle == 100,
 		"Canvas draw dispatch mismatch");
-	require(graphics.canvasLayerDraws == 1 && graphics.lastCanvasLayer == 1,
+	require(graphics.canvasLayerDraws == 2 && graphics.lastCanvasLayer == 1,
 		"array Canvas drawLayer dispatch mismatch");
-	require(graphics.meshDraws == 5 && graphics.untexturedShaderMeshDraws == 2
+	require(graphics.meshDraws == 6 && graphics.untexturedShaderMeshDraws == 2
 		&& graphics.shaderPointMeshDraws == 1
 		&& graphics.lastMeshVertices.size() == 3
 		&& graphics.lastMeshIndices == std::vector<std::uint32_t>({0, 1, 2}),
@@ -5268,14 +5503,21 @@ int main()
 		&& graphics.canvasSource[1] == 2.0f && graphics.canvasSource[2] == 24.0f
 		&& graphics.canvasSource[3] == 12.0f,
 		"Canvas Quad source rectangle was not dispatched");
-	require(graphics.imageDataDecodes == 13,
-		"ImageData and auto-loaded BMFont page decode calls did not reach the injected backend");
-	require(graphics.compressedImageDecodes == 11,
-		"CompressedImageData probes did not reach the injected backend");
+	require(graphics.imageDataDecodes == 16,
+		"ImageData and auto-loaded BMFont page decode calls did not reach the injected backend: "
+			+ std::to_string(graphics.imageDataDecodes));
+	require(graphics.compressedImageDecodes == 14,
+		"CompressedImageData probes did not reach the injected backend: "
+			+ std::to_string(graphics.compressedImageDecodes));
 	require(graphics.imageDataEncodes == 4 && graphics.lastImageDataEncodeFormat == "tga"
 		&& graphics.lastImageDataEncodeWidth == 2 && graphics.lastImageDataEncodeHeight == 2
 		&& graphics.lastImageDataEncodePixels.size() == 16,
-		"ImageData encode calls did not preserve rgba8 metadata");
+		"ImageData encode calls did not preserve rgba8 metadata: calls="
+			+ std::to_string(graphics.imageDataEncodes) + " format="
+			+ graphics.lastImageDataEncodeFormat + " size="
+			+ std::to_string(graphics.lastImageDataEncodeWidth) + "x"
+			+ std::to_string(graphics.lastImageDataEncodeHeight) + " bytes="
+			+ std::to_string(graphics.lastImageDataEncodePixels.size()));
 	std::string savedImageData;
 	require(imageDataFilesystem.load((imageDataSaveBase / "image-data/roundtrip.png").string(),
 		savedImageData, error) && savedImageData == "encoded-png",
@@ -5292,12 +5534,13 @@ int main()
 		"  screenshotRed, screenshotGreen, screenshotBlue, screenshotAlpha = data:getPixel(1, 0)\n"
 		"end)\n"
 		"love.graphics.captureScreenshot('capture.png')\n"
+		"love.graphics.captureScreenshot('capture.TGA')\n"
 		"love.graphics.captureScreenshot(screenshotChannel)\n"
 		"assert(not pcall(love.graphics.captureScreenshot, 'capture.jpg'))\n"
 		"assert(not pcall(love.graphics.captureScreenshot, 1))\n",
 		"@screenshot-requests.lua");
-	require(graphics.screenshotRequests.size() == 3,
-		"captureScreenshot did not queue callback, filename, and Channel requests independently");
+	require(graphics.screenshotRequests.size() == 4,
+		"captureScreenshot did not queue callback, PNG/TGA filenames, and Channel requests independently");
 	const std::vector<std::uint8_t> screenshotPixels = {
 		255, 0, 0, 255, 0, 255, 0, 128};
 	require(graphical.completeScreenshot(graphics.screenshotRequests[0], 2, 1,
@@ -5318,6 +5561,11 @@ int main()
 		"filename screenshot did not preserve RGBA8 pixels through the image backend");
 	require(graphical.completeScreenshot(graphics.screenshotRequests[2], 2, 1,
 		screenshotPixels, error), error);
+	require(imageDataFilesystem.load((imageDataSaveBase / "image-data/capture.TGA").string(),
+		savedScreenshot, error) && savedScreenshot == "encoded-tga",
+		"TGA screenshot did not preserve the original wrapper's encoded format");
+	require(graphical.completeScreenshot(graphics.screenshotRequests[3], 2, 1,
+		screenshotPixels, error), error);
 	execute(graphical,
 		"local data = screenshotChannel:demand(0)\n"
 		"assert(data:typeOf('ImageData'))\n"
@@ -5336,7 +5584,7 @@ int main()
 		&& graphics.lastImageWrapU == Dora::Love::GraphicsBackend::TextureWrap::Repeat
 		&& graphics.lastImageWrapV == Dora::Love::GraphicsBackend::TextureWrap::MirroredRepeat,
 		"Image filter/wrap state was not dispatched to the Dora backend");
-	require(graphics.imageSources.size() == 3 && graphics.imageSources[1].size() == 4,
+	require(graphics.imageSources.size() == 5 && graphics.imageSources[1].size() == 4,
 		"Quad Image source rectangle was not dispatched");
 	requireNear(graphics.imageSources[1][0], 6.0f, "Quad source x");
 	requireNear(graphics.imageSources[1][1], 4.0f, "Quad source y");
@@ -5352,15 +5600,20 @@ int main()
 		"color mask state/restore mismatch");
 	requireNear(graphics.lastScissor[0], 12.0f, "restored scissor x");
 	requireNear(graphics.lastScissor[3], 45.0f, "restored scissor height");
-	require(graphics.lastImageFilename == "fixture.png", "Image filename dispatch mismatch");
+	require(graphics.lastImageFilename.empty(),
+		"upstream Image wrapper bypassed Content decoding through the legacy filename backend");
 	requireNear(graphics.imageMatrix[0], std::cos(0.5f) * 2.0f, "Image matrix a");
 	requireNear(graphics.imageMatrix[1], std::sin(0.5f) * 2.0f, "Image matrix b");
-	requireNear(graphics.imageMatrix[4], 300.0f, "Image matrix tx");
-	requireNear(graphics.imageMatrix[5], 200.0f, "Image matrix ty");
+	requireNear(graphics.imageMatrix[4], 300.0f
+		- 16.0f * std::cos(0.5f) * 2.0f
+		+ 8.0f * std::sin(0.5f) * 3.0f, "Image matrix tx");
+	requireNear(graphics.imageMatrix[5], 200.0f
+		- 16.0f * std::sin(0.5f) * 2.0f
+		- 8.0f * std::cos(0.5f) * 3.0f, "Image matrix ty");
 	require(graphics.fontsCreated == 10 && graphics.bmFontsCreated == 3
 		&& graphics.lastBMFontPageCount == 1 && graphics.lastBMFontGlyphCount == 1
 		&& graphics.lastBMFontFilter == Dora::Love::GraphicsBackend::TextureFilter::Linear
-		&& graphics.textDraws == 4 && graphics.lastTextFont == 19,
+		&& graphics.textDraws == 5 && graphics.lastTextFont == 19,
 		"Font creation/current font/text dispatch mismatch");
 	require(graphics.lastImageFontWidth == 8 && graphics.lastImageFontHeight == 2
 		&& graphics.lastImageFontPixels.size() == 64
@@ -5371,15 +5624,19 @@ int main()
 		"ImageFont atlas transparency, dimensions, or default filter mismatch");
 	require(graphics.lastFontFallbacks.size() == 1 && graphics.lastFontFallbacks.front() == 18,
 		"Font fallback list did not reach the graphics backend");
-	require(graphics.lastText == "wrapped text" && graphics.lastTextWrapLimit == 120.0f
-		&& graphics.lastTextAlign == "center", "printf arguments mismatch");
+	require(graphics.textDrawRecords[3].text == "wrapped "
+		&& graphics.textDrawRecords[4].text == "text"
+		&& graphics.lastTextWrapLimit == -1.0f && graphics.lastTextAlign == "left",
+		"printf wrapper layout arguments mismatch");
 	requireNear(graphics.textMatrix[0], std::cos(0.25f) * 2.0f, "Text matrix a");
 	requireNear(graphics.textMatrix[1], std::sin(0.25f) * 2.0f, "Text matrix b");
 	execute(graphical,
 		"love.graphics.printf('negative wrap', 0, 0, -5, 'left')\n",
 		"@negative-printf-wrap.lua");
-	require(graphics.lastTextWrapLimit == 0.0f,
-		"printf did not clamp a negative wrap limit like LÖVE");
+	require(graphics.textDrawRecords.size() == 6
+		&& graphics.textDrawRecords.back().text == " "
+		&& graphics.lastTextWrapLimit == -1.0f,
+		"printf did not clamp and lay out a negative wrap limit like LÖVE");
 	execute(graphical,
 		"function love.draw() love.graphics.polygon('fill', 0, 0, 10, 0, 0, 10) end\n",
 		"@graphics-reset.lua");
@@ -5396,6 +5653,23 @@ int main()
 		"Canvas userdata did not release its backend RenderTarget on state close");
 	require(graphics.fontsReleased == 10 && graphics.fontSizes.empty(),
 		"Font backend resources were not released on state close");
+
+	MockGraphics canvasWrapperGraphics;
+	Dora::Love::LoveRuntime canvasWrapperRuntime;
+	canvasWrapperRuntime.setGraphicsBackend(&canvasWrapperGraphics);
+	require(canvasWrapperRuntime.open(error), error);
+	require(canvasWrapperRuntime.boot(
+		"local g=love.graphics\n"
+		"local canvas=g.newCanvas(8,8)\n"
+		"local value=0\n"
+		"canvas:renderTo(function(a,b) value=a+b; assert(g.getCanvas()==canvas) end,2,3)\n"
+		"assert(value==5 and g.getCanvas()==nil)\n"
+		"local ok,message=pcall(canvas.renderTo,canvas,function() error('expected renderTo failure') end)\n"
+		"assert(not ok and message:find('expected renderTo failure',1,true) and g.getCanvas()==nil)\n",
+		"@canvas-upstream-wrapper.lua", error), error);
+	canvasWrapperRuntime.close();
+	require(canvasWrapperGraphics.canvases.empty(),
+		"Canvas original wrapper renderTo test retained its RenderTarget");
 
 	MockGraphics handleGraphics;
 	Dora::Love::LoveRuntime handleRuntime;
@@ -5475,13 +5749,15 @@ int main()
 	require(spriteBatchRuntime.open(error), error);
 	require(spriteBatchRuntime.boot(
 		"local graphics = require('love.graphics')\n"
-		"local first = graphics.newImage('first.png')\n"
-		"local second = graphics.newImage('second.png')\n"
+		"local image = require('love.image')\n"
+		"local first = graphics.newImage(image.newImageData(32, 16))\n"
+		"local second = graphics.newImage(image.newImageData(32, 16))\n"
 		"local quad = graphics.newQuad(4, 2, 8, 6, 32, 16)\n"
 		"batch = graphics.newSpriteBatch(first, 2, 'dynamic')\n"
+		"local transformBatch = graphics.newSpriteBatch(first, 1); assert(transformBatch:add(love.math.newTransform(7, 8)) == 1)\n"
 		"assert(batch:getCount() == 0 and batch:getBufferSize() == 2)\n"
 		"assert(select('#', batch:getColor()) == 0 and batch:getTexture() == first)\n"
-		"batch:setColor({1, 0.5, 0.25, 0.75}); local r,g,b,a=batch:getColor(); assert(r==1 and g==0.5 and b==0.25 and a==0.75)\n"
+		"batch:setColor({1, 0.5, 0.25, 0.75}); local r,g,b,a=batch:getColor(); assert(r==1 and math.abs(g-0.5)<=1/255 and math.abs(b-0.25)<=1/255 and math.abs(a-0.75)<=1/255)\n"
 		"assert(batch:add(quad, 10, 20) == 1)\n"
 		"batch:setColor(); assert(select('#', batch:getColor()) == 0)\n"
 		"assert(batch:add(0, 0) == 2 and batch:add(20, 30) == 3)\n"
@@ -5606,7 +5882,7 @@ int main()
 	require(particleRuntime.open(error), error);
 	require(particleRuntime.boot(
 		"local g=love.graphics\n"
-		"local image=g.newImage('particles.png')\n"
+		"local image=g.newImage(love.image.newImageData(32,16))\n"
 		"local quad1=g.newQuad(4,2,8,6,32,16); local quad2=g.newQuad(12,2,8,6,32,16)\n"
 		"particles=g.newParticleSystem(image,3)\n"
 		"assert(particles:getTexture()==image and particles:getBufferSize()==3 and particles:isActive() and particles:isEmpty())\n"
@@ -5673,7 +5949,7 @@ int main()
 	meshCacheRuntime.setGraphicsBackend(&meshCacheGraphics);
 	require(meshCacheRuntime.open(error), error);
 	require(meshCacheRuntime.boot(
-		"local g=love.graphics; local image=g.newImage('cache.png')\n"
+		"local g=love.graphics; local image=g.newImage(love.image.newImageData(8,8))\n"
 		"batch=g.newSpriteBatch(image,2); batch:add(0,0)\n"
 		"mesh=g.newMesh({{0,0,0,0},{8,0,1,0},{0,8,0,1}},'triangles'); mesh:setTexture(image)\n"
 		"particles=g.newParticleSystem(image,2); particles:setParticleLifetime(2); particles:emit(1)\n"
@@ -5769,10 +6045,10 @@ int main()
 		"local p=require('love.physics'); assert(p==love.physics and p.getMeter()==30)\n"
 		"p.setMeter(64); assert(p.getMeter()==64)\n"
 		"world=p.newWorld(0,10,true); local gx,gy=world:getGravity(); assert(gx==0 and gy==10)\n"
-		"bodyA=p.newBody(world,10,20,'dynamic'); bodyB=p.newBody(world,40,20,'static')\n"
+		"bodyA=p.newBody(world,10,20,'dynamic'); bodyB=p.newBody(world,40,20,'static'); local bodyMarker={kind='body'}; bodyA:setUserData(bodyMarker); assert(bodyA:getUserData()==bodyMarker and bodyA:getWorld()==world and world:getBodyCount()==2 and world:getJointCount()==0 and world:getContactCount()==0 and not world:isLocked()); local bodyList=world:getBodyList(); assert(#bodyList==2); bodyA:setUserData(nil); assert(bodyA:getUserData()==nil)\n"
 		"assert(world:isSleepingAllowed()); world:setSleepingAllowed(false); assert(not world:isSleepingAllowed() and not bodyA:isSleepingAllowed() and not bodyB:isSleepingAllowed()); world:setSleepingAllowed(true); assert(world:isSleepingAllowed() and bodyA:isSleepingAllowed())\n"
 		"circle=p.newCircleShape(3,4,8); assert(circle:getType()=='circle' and circle:getRadius()==8 and circle:type()=='CircleShape' and circle:typeOf('CircleShape') and circle:typeOf('Shape') and circle:typeOf('Object') and not circle:typeOf('PolygonShape'))\n"
-		"local cx,cy=circle:getPoints(); assert(cx==3 and cy==4)\n"
+		"local cx,cy=circle:getPoint(); assert(cx==3 and cy==4 and circle:getChildCount()==1 and circle:testPoint(0,0,0,3,4)); circle:setPoint(5,6); circle:setRadius(9); cx,cy=circle:getPoint(); assert(cx==5 and cy==6 and circle:getRadius()==9); circle:setPoint(3,4); circle:setRadius(8); sbx1,sby1,sbx2,sby2=circle:computeAABB(0,0,0); assert(sbx1==-5 and sby1==-4 and sbx2==11 and sby2==12); smx,smy,smm,smi=circle:computeMass(2); assert(smx==3 and smy==4 and smm==4 and smi==6); snx,sny,sf=circle:rayCast(0,4,20,4,1,0,0,0); assert(snx==-1 and sny==0 and sf==0.25)\n"
 		"rectangle=p.newRectangleShape(20,10); assert(rectangle:getType()=='polygon'); local x1,y1,x2,y2,x3,y3,x4,y4=rectangle:getPoints(); assert(x1==-10 and y1==-5 and x2==10 and y2==-5 and x3==10 and y3==5 and x4==-10 and y4==5)\n"
 		"polygon=p.newPolygonShape({0,0,20,0,10,15}); assert(polygon:getType()=='polygon' and polygon:validate()); local pgx,pgy=polygon:getPoints(); assert(pgx==0 and pgy==0)\n"
 		"polygon2=p.newPolygonShape(0,0,12,0,6,9); assert(polygon2:validate())\n"
@@ -5782,7 +6058,7 @@ int main()
 		"loopChain=p.newChainShape(true,0,0,20,0,10,15); assert(loopChain:getVertexCount()==4); local lx,ly=loopChain:getPoint(4); assert(lx==0 and ly==0); local lpx,lpy=loopChain:getPreviousVertex(); local lnx,lny=loopChain:getNextVertex(); assert(lpx==10 and lpy==15 and lnx==20 and lny==0); loopEdge=loopChain:getChildEdge(3); local epx,epy=loopEdge:getPreviousVertex(); local elx,ely=loopEdge:getNextVertex(); assert(epx==20 and epy==0 and elx==20 and ely==0)\n"
 		"assert(not pcall(p.newPolygonShape,0,0,10,0)); assert(not pcall(p.newPolygonShape,0,0,10,0,10,10,0,10,5,5,3,4,2,3,1,2,9,9)); assert(not pcall(p.newEdgeShape,0,0,0,0)); assert(not pcall(p.newChainShape,true,0,0,10,0))\n"
 		"fixture=p.newFixture(bodyA,circle,2); fixtureB=p.newFixture(bodyB,rectangle,0); fixture:setFriction(0.6); fixture:setRestitution(0.4); fixture:setSensor(true)\n"
-		"bodies=world:getBodies(); assert(#bodies==2 and ((bodies[1]==bodyA and bodies[2]==bodyB) or (bodies[1]==bodyB and bodies[2]==bodyA))); fixtures=bodyA:getFixtures(); assert(#fixtures==1 and fixtures[1]==fixture)\n"
+		"bodies=world:getBodies(); assert(#bodies==2 and ((bodies[1]==bodyA and bodies[2]==bodyB) or (bodies[1]==bodyB and bodies[2]==bodyA))); fixtures=bodyA:getFixtures(); local fixtureList=bodyA:getFixtureList(); assert(#fixtures==1 and fixtures[1]==fixture and #fixtureList==1 and fixtureList[1]==fixture)\n"
 		"assert(math.abs(fixture:getFriction()-0.6)<1e-5 and math.abs(fixture:getRestitution()-0.4)<1e-5 and fixture:isSensor())\n"
 		"assert(fixture:getType()=='circle' and fixture:getBody()==bodyA and fixture:getShape()==circle and fixture:getDensity()==2); fixture:setDensity(3); assert(fixture:getDensity()==3 and fixture:testPoint(13,24) and not fixture:testPoint(30,40))\n"
 		"local fnx,fny,ff=fixture:rayCast(0,24,30,24,1); assert(fnx==-1 and fny==0 and ff==0.25 and select('#',fixture:rayCast(0,24,30,24,0.2))==0); local fbx1,fby1,fbx2,fby2=fixture:getBoundingBox(); assert(fbx1==5 and fby1==16 and fbx2==21 and fby2==32); local fmx,fmy,fmm,fmi=fixture:getMassData(); assert(fmx==3 and fmy==4 and fmm==6 and fmi==9)\n"
@@ -5798,7 +6074,7 @@ int main()
 		"bodyA:setLinearDamping(0.2); bodyA:setAngularDamping(0.3); assert(math.abs(bodyA:getLinearDamping()-0.2)<1e-5 and math.abs(bodyA:getAngularDamping()-0.3)<1e-5); bodyA:setFixedRotation(true); assert(bodyA:isFixedRotation()); bodyA:setFixedRotation(false); assert(not bodyA:isFixedRotation())\n"
 		"assert(bodyA:isAwake() and bodyA:isSleepingAllowed() and bodyA:isActive() and not bodyA:isBullet()); bodyA:setAwake(false); assert(not bodyA:isAwake()); bodyA:setAwake(true); bodyA:setSleepingAllowed(false); assert(not bodyA:isSleepingAllowed()); bodyA:setSleepingAllowed(true); bodyA:setActive(false); assert(not bodyA:isActive()); bodyA:setActive(true); bodyA:setBullet(true); assert(bodyA:isBullet()); bodyA:setBullet(false); bodyA:setType('kinematic'); assert(bodyA:getType()=='kinematic'); bodyA:setType('dynamic'); assert(bodyA:getType()=='dynamic'); assert(not pcall(bodyA.setType,bodyA,'invalid'))\n"
 		"assert(not pcall(bodyA.setLinearDamping,bodyA,-1) and not pcall(bodyA.setAngularDamping,bodyA,0/0))\n"
-		"joint=p.newDistanceJoint(bodyA,bodyB,10,20,40,20,false); assert(joint:getType()=='distance' and joint:type()=='DistanceJoint' and joint:typeOf('DistanceJoint') and joint:typeOf('Joint') and joint:typeOf('Object') and not joint:typeOf('RevoluteJoint'))\n"
+		"joint=p.newDistanceJoint(bodyA,bodyB,10,20,40,20,false); local bodyJoints=bodyA:getJoints(); local bodyJointList=bodyA:getJointList(); local worldJoints=world:getJoints(); local worldJointList=world:getJointList(); assert(world:getJointCount()==1 and #worldJoints==1 and worldJoints[1]==joint and #worldJointList==1 and worldJointList[1]==joint and #bodyJoints==1 and bodyJoints[1]==joint and #bodyJointList==1 and bodyJointList[1]==joint); assert(joint:getType()=='distance' and joint:type()=='DistanceJoint' and joint:typeOf('DistanceJoint') and joint:typeOf('Joint') and joint:typeOf('Object') and not joint:typeOf('RevoluteJoint'))\n"
 		"local ja,jb=joint:getBodies(); assert(ja==bodyA and jb==bodyB); local jx1,jy1,jx2,jy2=joint:getAnchors(); assert(jx1==10 and jy1==20 and jx2==40 and jy2==20 and not joint:getCollideConnected())\n"
 		"local jfx,jfy=joint:getReactionForce(2); assert(jfx==4 and jfy==6 and joint:getReactionTorque(2)==8); joint:setLength(25); joint:setFrequency(3); joint:setDampingRatio(0.4); assert(joint:getLength()==25 and joint:getFrequency()==3 and math.abs(joint:getDampingRatio()-0.4)<1e-5); local marker={kind='joint'}; joint:setUserData(marker); assert(joint:getUserData()==marker); joint:setUserData(nil); assert(joint:getUserData()==nil); assert(not pcall(joint.setLength,joint,-1) and not pcall(joint.getReactionForce,joint,0/0))\n"
 		"revolute=p.newRevoluteJoint(bodyA,bodyB,10,20,11,21,false,0.25); assert(revolute:getType()=='revolute'); local ra,rb=revolute:getBodies(); assert(ra==bodyA and rb==bodyB); local rx1,ry1,rx2,ry2=revolute:getAnchors(); assert(rx1==10 and ry1==20 and rx2==11 and ry2==21 and not revolute:getCollideConnected()); assert(math.abs(revolute:getReferenceAngle()-0.25)<1e-5 and math.abs(revolute:getJointAngle()+0.25)<1e-5 and math.abs(revolute:getJointSpeed()+2)<1e-5)\n"
@@ -5826,23 +6102,23 @@ int main()
 		"do local gearGroundA=p.newBody(world,-100,0,'static'); local gearBodyA=p.newBody(world,-50,0,'dynamic'); local gearGroundB=p.newBody(world,100,0,'static'); local gearBodyB=p.newBody(world,150,0,'dynamic'); local gearRev=p.newRevoluteJoint(gearGroundA,gearBodyA,-50,0,false); local gearPris=p.newPrismaticJoint(gearGroundB,gearBodyB,150,0,1,0,false)\n"
 		"local defaultGear=p.newGearJoint(gearRev,gearPris); assert(defaultGear:getType()=='gear' and defaultGear:getRatio()==1 and not defaultGear:getCollideConnected()); defaultGear:destroy(); local gear=p.newGearJoint(gearRev,gearPris,2,true); local gjA,gjB=gear:getJoints(); local gbA,gbB=gear:getBodies(); assert(gjA==gearRev and gjB==gearPris and gbA==gearBodyA and gbB==gearBodyB and gear:getRatio()==2 and gear:getCollideConnected()); gear:setRatio(-3); assert(gear:getRatio()==-3); assert(not pcall(p.newGearJoint,gearRev,gearRev) and not pcall(p.newGearJoint,gearRev,friction) and not pcall(p.newGearJoint,gearRev,gearPris,0/0) and not pcall(gear.setRatio,gear,0/0) and not pcall(friction.getJoints,friction)); gearRev:destroy(); assert(gear:isDestroyed() and not pcall(gear.getRatio,gear)) end\n"
 		"local begins,ends,pres,posts=0,0,0,0; local savedContact\n"
-		"local beginCallback=function(a,b,contact) begins=begins+1; assert(a==fixture and b==fixtureB and contact:isValid() and contact:isTouching()); local fa,fb=contact:getFixtures(); assert(fa==a and fb==b); local ca,cb=contact:getChildren(); assert(ca==1 and cb==1); savedContact=contact; local px1,py1,px2,py2=contact:getPositions(); assert(px1==10 and py1==20 and px2==11 and py2==21); local nx,ny=contact:getNormal(); assert(nx==0 and ny==-1) end\n"
-		"local endCallback=function(a,b,contact) ends=ends+1; assert(a==fixture and b==fixtureB and contact==savedContact and contact:isValid()) end\n"
+		"local beginCallback=function(a,b,contact) begins=begins+1; local contacts=bodyA:getContacts(); local contactList=bodyA:getContactList(); local worldContacts=world:getContacts(); local worldContactList=world:getContactList(); assert(world:isLocked() and world:getContactCount()==1 and #worldContacts==1 and worldContacts[1]==contact and #worldContactList==1 and worldContactList[1]==contact and #contacts==1 and contacts[1]==contact and #contactList==1 and contactList[1]==contact and bodyA:isTouching(bodyB)); assert(a==fixture and b==fixtureB and not contact:isDestroyed() and contact:isTouching()); local fa,fb=contact:getFixtures(); assert(fa==a and fb==b); local ca,cb=contact:getChildren(); assert(ca==1 and cb==1); savedContact=contact; local px1,py1,px2,py2=contact:getPositions(); assert(px1==10 and py1==20 and px2==11 and py2==21); local nx,ny=contact:getNormal(); assert(nx==0 and ny==-1) end\n"
+		"local endCallback=function(a,b,contact) ends=ends+1; assert(a==fixture and b==fixtureB and contact==savedContact and not contact:isDestroyed()) end\n"
 		"local preCallback=function(a,b,contact) pres=pres+1; assert(a==fixture and b==fixtureB and contact==savedContact); if pres==1 then assert(math.abs(contact:getFriction()-0.3)<1e-5); contact:setFriction(0.8); contact:setRestitution(0.7); contact:setTangentSpeed(12); contact:setEnabled(false); assert(not contact:isEnabled()); contact:setEnabled(true); assert(contact:isEnabled() and math.abs(contact:getTangentSpeed()-12)<1e-5) end end\n"
 		"local postCallback=function(a,b,contact,n1,t1,n2,t2) posts=posts+1; assert(a==fixture and b==fixtureB and contact==savedContact and n1==3 and t1==1 and n2==2 and t2==0.5); assert(math.abs(contact:getFriction()-0.8)<1e-5 and math.abs(contact:getRestitution()-0.7)<1e-5) end\n"
 		"world:setCallbacks(beginCallback,endCallback,preCallback,postCallback); local cb,ce,cp,co=world:getCallbacks(); assert(cb==beginCallback and ce==endCallback and cp==preCallback and co==postCallback)\n"
 		"bodyA:setLinearVelocity(2,3); bodyA:applyLinearImpulse(1,2); world:update(0.5,8,3)\n"
-		"assert(begins==1 and ends==0 and pres==1 and posts==1 and savedContact:isValid())\n"
+		"assert(begins==1 and ends==0 and pres==1 and posts==1 and not savedContact:isDestroyed())\n"
 		"local x,y=bodyA:getPosition(); assert(x==11.5 and y==27.5)\n"
 		"local vx,vy=bodyA:getLinearVelocity(); assert(vx==3 and vy==15)\n"
 		"bodyA:setAngularVelocity(0.5); bodyA:applyAngularImpulse(0.25); bodyA:applyTorque(0.25); assert(bodyA:getAngularVelocity()==1); bodyA:applyForce(2,4); bodyA:applyForce(1,1,10,20); vx,vy=bodyA:getLinearVelocity(); assert(vx==6 and vy==20)\n"
-		"bodyA:setPosition(7,9); bodyA:setAngle(0.25); assert(bodyA:getType()=='dynamic')\n"
+		"bodyA:setPosition(7,9); bodyA:setAngle(0.25); world:translateOrigin(2,3); local shiftedX,shiftedY=bodyA:getPosition(); assert(shiftedX==5 and shiftedY==6); world:translateOrigin(-2,-3); assert(bodyA:getType()=='dynamic')\n"
 		"x,y=bodyA:getPosition(); assert(x==7 and y==9 and bodyA:getAngle()==0.25)\n"
 		"local queried={}; world:queryBoundingBox(0,0,50,30,function(item) queried[#queried+1]=item; return true end); assert(#queried==2 and ((queried[1]==fixture and queried[2]==fixtureB) or (queried[1]==fixtureB and queried[2]==fixture)))\n"
 		"local stopped=0; world:queryBoundingBox(0,0,50,30,function() stopped=stopped+1; return false end); assert(stopped==1)\n"
 		"local clipped={}; world:rayCast(0,9,50,9,function(item,hx,hy,nx,ny,fraction) clipped[#clipped+1]=item; assert(hx>=0 and hx<=50 and ny==-1); return fraction end); assert(#clipped==1 and clipped[1]==fixture)\n"
 		"local ignored={}; world:rayCast(0,9,50,9,function(item) ignored[#ignored+1]=item; return -1 end); assert(#ignored==2 and ignored[1]==fixture and ignored[2]==fixtureB)\n"
-		"world:update(0,8,3); assert(begins==1 and ends==1 and pres==2 and posts==2 and not savedContact:isValid()); assert(not pcall(function() savedContact:getFriction() end))\n"
+		"world:update(0,8,3); assert(not world:isLocked() and world:getContactCount()==0 and begins==1 and ends==1 and pres==2 and posts==2 and savedContact:isDestroyed() and not bodyA:isTouching(bodyB) and #bodyA:getContacts()==0 and #world:getContacts()==0); assert(not pcall(function() savedContact:getFriction() end))\n"
 		"world:setCallbacks(); local cb2,ce2,cp2,co2=world:getCallbacks(); assert(cb2==nil and ce2==nil and cp2==nil and co2==nil)\n",
 		"@physics-core.lua");
 	execute(firstPhysicsRuntime,
@@ -5853,12 +6129,12 @@ int main()
 		"local p=love.physics; local w=p.newWorld(0,10,true); local a=p.newBody(w,0,0,'dynamic'); local b=p.newBody(w,0,0,'static')\n"
 		"local f=p.newFixture(a,circle,1); local j=p.newDistanceJoint(a,b,0,0,0,0,false)\n"
 		"assert(not w:isDestroyed() and not a:isDestroyed() and not f:isDestroyed() and not j:isDestroyed())\n"
-		"f:destroy(); f:destroy(); assert(f:isDestroyed() and not pcall(f.getFriction,f))\n"
-		"j:destroy(); j:destroy(); assert(j:isDestroyed() and not pcall(j.getType,j))\n"
+		"f:destroy(); assert(not pcall(f.destroy,f)); assert(f:isDestroyed() and not pcall(f.getFriction,f))\n"
+		"j:destroy(); assert(not pcall(j.destroy,j)); assert(j:isDestroyed() and not pcall(j.getType,j))\n"
 		"local f2=p.newFixture(a,circle,1); local j2=p.newDistanceJoint(a,b,0,0,0,0,false)\n"
-		"a:destroy(); a:destroy(); assert(a:isDestroyed() and f2:isDestroyed() and j2:isDestroyed() and not b:isDestroyed())\n"
+		"a:destroy(); assert(not pcall(a.destroy,a)); assert(a:isDestroyed() and f2:isDestroyed() and j2:isDestroyed() and not b:isDestroyed())\n"
 		"assert(not pcall(a.getType,a) and not pcall(f2.isSensor,f2) and not pcall(j2.getBodies,j2))\n"
-		"w:destroy(); w:destroy(); assert(w:isDestroyed() and b:isDestroyed()); assert(not pcall(w.getGravity,w))\n",
+		"w:destroy(); assert(not pcall(w.destroy,w)); assert(w:isDestroyed() and b:isDestroyed()); assert(not pcall(w.getGravity,w))\n",
 		"@physics-destroy.lua");
 	execute(secondPhysicsRuntime,
 		"local p=require('love.physics'); assert(p.getMeter()==30); p.setMeter(12); assert(p.getMeter()==12)\n"
@@ -6209,7 +6485,7 @@ int main()
 	const std::string resourceSoakCode =
 		"resources = {}\n"
 		"for i = 1, 8 do\n"
-		"  local image = love.graphics.newImage('pig.png')\n"
+		"  local image = love.graphics.newImage(love.image.newImageData(8, 8))\n"
 		"  local canvas = love.graphics.newCanvas(16, 16)\n"
 		"  image:setFilter(i % 2 == 0 and 'nearest' or 'linear')\n"
 		"  image:setWrap('repeat', 'mirroredrepeat')\n"

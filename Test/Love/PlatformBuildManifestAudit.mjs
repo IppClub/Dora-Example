@@ -4,9 +4,6 @@ import {doraSSRRoot, testRoot} from "./TestPaths.mjs";
 const repositoryRoot = doraSSRRoot;
 const loveAdapterSources = [
 	"LoveRuntime.cpp",
-	"LoveDataAlgorithms.cpp",
-	"LoveLZ4.c",
-	"LoveLZ4HC.c",
 	"LoveNode.cpp",
 	"LoveVideoSources.cpp",
 ];
@@ -84,7 +81,7 @@ requireCount(windows, windowsPath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(windows, windowsPath, "..\\..\\..\\Source\\3rdParty\\ogg\\OggSources.c", 1);
 requireCount(windows, windowsPath, "..\\..\\..\\Source\\3rdParty\\theora\\TheoraSources.c", 0);
 requireCount(windows, windowsPath, "h264bsd", 0);
-for (const source of ["LoveRuntime.cpp", "LoveDataAlgorithms.cpp", "LoveLZ4.c", "LoveLZ4HC.c"]) {
+for (const source of ["LoveRuntime.cpp"]) {
 	const start = windows.indexOf(`<ClCompile Include="..\\..\\..\\Source\\Love\\${source}">`);
 	const end = windows.indexOf("</ClCompile>", start);
 	if (start < 0 || end < 0)
@@ -94,6 +91,8 @@ for (const source of ["LoveRuntime.cpp", "LoveDataAlgorithms.cpp", "LoveLZ4.c", 
 	if (source === "LoveRuntime.cpp")
 		requireContains(item, windowsPath, "../../../Source/3rdParty/Lua");
 }
+for (const removedSource of ["LoveDataAlgorithms.cpp", "LoveLZ4.c", "LoveLZ4HC.c"])
+	requireCount(windows, windowsPath, removedSource, 0);
 for (const header of ["LoveRuntime.h", "LoveNode.h"])
 	requireCount(windows, windowsPath, `..\\..\\..\\Source\\Love\\${header}`, 1);
 
@@ -171,6 +170,51 @@ const loveCMakePath = "Dora-Example/Test/Love/CMakeLists.txt";
 const loveCMake = fs.readFileSync(path.join(testRoot, "CMakeLists.txt"), "utf8");
 for (const source of ["Object.cpp", "types.cpp", "Reference.cpp", "Module.cpp", "Exception.cpp", "deprecation.cpp", "runtime.cpp"])
 	requireCount(loveCMake, loveCMakePath, `src/common/${source}`, 1);
+for (const source of ["Matrix.cpp", "Variant.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/common/${source}`, 1);
+for (const source of ["Data.cpp", "StringMap.cpp", "b64.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/common/${source}`, 1);
+for (const source of ["BezierCurve.cpp", "wrap_BezierCurve.cpp", "RandomGenerator.cpp", "wrap_RandomGenerator.cpp", "Transform.cpp", "wrap_Transform.cpp", "MathModule.cpp", "wrap_Math.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/math/${source}`, 1);
+for (const source of ["noise1234.cpp", "simplexnoise1234.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/libraries/noise1234/${source}`, 1);
+for (const source of ["lz4.c", "lz4hc.c"])
+	requireCount(loveCMake, loveCMakePath, `src/libraries/lz4/${source}`, 1);
+for (const source of ["ByteData.cpp", "CompressedData.cpp", "Compressor.cpp", "DataModule.cpp",
+	"DataView.cpp", "HashFunction.cpp", "wrap_ByteData.cpp", "wrap_CompressedData.cpp",
+	"wrap_Data.cpp", "wrap_DataModule.cpp", "wrap_DataView.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/data/${source}`, 1);
+for (const source of ["File.cpp", "FileData.cpp", "Filesystem.cpp", "wrap_File.cpp", "wrap_FileData.cpp", "wrap_Filesystem.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/filesystem/${source}`, 1);
+for (const source of ["GlyphData.cpp", "Rasterizer.cpp", "TrueTypeRasterizer.cpp", "wrap_Font.cpp", "wrap_GlyphData.cpp", "wrap_Rasterizer.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/font/${source}`, 1);
+for (const source of ["Drawable.cpp", "vertex.cpp", "Font.cpp", "Shader.cpp", "Text.cpp", "Mesh.cpp", "SpriteBatch.cpp", "ParticleSystem.cpp", "Canvas.cpp", "Quad.cpp", "wrap_Canvas.cpp", "wrap_GraphicsCanvasConstructor.cpp", "wrap_GraphicsCapabilities.cpp", "wrap_GraphicsDraw.cpp", "wrap_GraphicsDisplayState.cpp", "wrap_GraphicsInfo.cpp", "wrap_GraphicsFontConstructor.cpp", "wrap_GraphicsImageConstructor.cpp", "wrap_GraphicsScreenshot.cpp", "wrap_GraphicsFontState.cpp", "wrap_GraphicsPrimitives.cpp", "wrap_GraphicsPrint.cpp", "wrap_GraphicsQuad.cpp", "wrap_GraphicsShaderConstructor.cpp", "wrap_GraphicsState.cpp", "wrap_GraphicsShaderState.cpp", "wrap_Font.cpp", "wrap_Shader.cpp", "wrap_Text.cpp", "wrap_Mesh.cpp", "wrap_SpriteBatch.cpp", "wrap_ParticleSystem.cpp", "wrap_Quad.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/graphics/${source}`, 1);
+requireCount(loveCMake, loveCMakePath, "src/common/pixelformat.cpp", 1);
+for (const source of ["Image.cpp", "ImageDataBase.cpp", "CompressedSlice.cpp", "CompressedImageData.cpp", "FormatHandler.cpp", "ImageData.cpp", "wrap_Image.cpp", "wrap_CompressedImageData.cpp", "wrap_ImageData.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/image/${source}`, 1);
+for (const source of ["Decoder.cpp", "Sound.cpp", "SoundData.cpp", "wrap_Decoder.cpp", "wrap_Sound.cpp", "wrap_SoundData.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/sound/${source}`, 1);
+for (const source of ["Channel.cpp", "LuaThread.cpp", "wrap_Channel.cpp", "wrap_LuaThread.cpp", "wrap_ThreadModule.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/thread/${source}`, 1);
+for (const source of ["System.cpp", "wrap_System.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/system/${source}`, 1);
+requireCount(loveCMake, loveCMakePath, "src/modules/timer/wrap_Timer.cpp", 1);
+for (const source of ["Event.cpp", "wrap_Event.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/event/${source}`, 1);
+for (const source of ["Window.cpp", "wrap_Window.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/window/${source}`, 1);
+for (const source of ["Keyboard.cpp", "wrap_Keyboard.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/keyboard/${source}`, 1);
+for (const source of ["Cursor.cpp", "wrap_Cursor.cpp", "wrap_Mouse.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/mouse/${source}`, 1);
+requireCount(loveCMake, loveCMakePath, "src/modules/touch/wrap_Touch.cpp", 1);
+for (const source of ["Joystick.cpp", "wrap_Joystick.cpp", "wrap_JoystickModule.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/joystick/${source}`, 1);
+for (const source of ["Body.cpp", "Shape.cpp", "Joint.cpp"])
+	requireCount(loveCMake, loveCMakePath, `src/modules/physics/${source}`, 1);
+for (const removedSource of ["LoveDataAlgorithms.cpp", "LoveLZ4.c", "LoveLZ4HC.c"])
+	requireCount(loveCMake, loveCMakePath, removedSource, 0);
 requireContains(loveCMake, loveCMakePath, "LOVE_PROXY_USERVALUES=5");
 requireCount(loveCMake, loveCMakePath, "LoveObjectRuntimeSupport.cpp", 0);
 requireCount(loveCMake, loveCMakePath, '"${DORA_SOURCE_ROOT}/3rdParty/ogg/OggSources.c"', 1);
@@ -243,6 +287,9 @@ requireContains(oggXmake, oggXmakePath, 'add_includedirs(".", {public = true})')
 
 const loveXmakePath = "Source/3rdParty/Love/xmake.lua";
 const loveXmake = read(loveXmakePath);
+const loveSourceCount = [...loveXmake.matchAll(/^\s*"src\/[^"\n]+\.(?:c|cpp)",$/gm)].length;
+if (loveSourceCount !== 139)
+	throw new Error(`${loveXmakePath} source manifest count changed: ${loveSourceCount}`);
 requireContains(loveXmake, loveXmakePath, 'target("love")');
 requireContains(loveXmake, loveXmakePath, 'set_kind("static")');
 requireContains(loveXmake, loveXmakePath, 'add_defines("_ITERATOR_DEBUG_LEVEL=0")');
@@ -258,7 +305,40 @@ requireContains(loveXmake, loveXmakePath, '"../Zip"');
 requireCount(loveXmake, loveXmakePath, "include/miniz/miniz.c", 0);
 for (const source of ["Object.cpp", "types.cpp", "Reference.cpp", "Module.cpp", "Exception.cpp", "deprecation.cpp", "runtime.cpp"])
 	requireCount(loveXmake, loveXmakePath, `"src/common/${source}"`, 1);
-for (const rejected of ["Box2D", "modules/physics", "platform/", "src/love.cpp"])
+for (const source of ["Matrix.cpp", "Variant.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/common/${source}"`, 1);
+for (const source of ["BezierCurve.cpp", "wrap_BezierCurve.cpp", "RandomGenerator.cpp", "wrap_RandomGenerator.cpp", "Transform.cpp", "wrap_Transform.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/math/${source}"`, 1);
+for (const source of ["File.cpp", "FileData.cpp", "Filesystem.cpp", "wrap_File.cpp", "wrap_FileData.cpp", "wrap_Filesystem.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/filesystem/${source}"`, 1);
+for (const source of ["GlyphData.cpp", "Rasterizer.cpp", "TrueTypeRasterizer.cpp", "wrap_Font.cpp", "wrap_GlyphData.cpp", "wrap_Rasterizer.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/font/${source}"`, 1);
+for (const source of ["Drawable.cpp", "vertex.cpp", "Font.cpp", "Shader.cpp", "Text.cpp", "Mesh.cpp", "SpriteBatch.cpp", "ParticleSystem.cpp", "Canvas.cpp", "Quad.cpp", "wrap_Canvas.cpp", "wrap_GraphicsCanvasConstructor.cpp", "wrap_GraphicsCapabilities.cpp", "wrap_GraphicsDraw.cpp", "wrap_GraphicsDisplayState.cpp", "wrap_GraphicsInfo.cpp", "wrap_GraphicsFontConstructor.cpp", "wrap_GraphicsImageConstructor.cpp", "wrap_GraphicsScreenshot.cpp", "wrap_GraphicsFontState.cpp", "wrap_GraphicsPrimitives.cpp", "wrap_GraphicsPrint.cpp", "wrap_GraphicsQuad.cpp", "wrap_GraphicsShaderConstructor.cpp", "wrap_GraphicsState.cpp", "wrap_GraphicsShaderState.cpp", "wrap_Font.cpp", "wrap_Shader.cpp", "wrap_Text.cpp", "wrap_Mesh.cpp", "wrap_SpriteBatch.cpp", "wrap_ParticleSystem.cpp", "wrap_Quad.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/graphics/${source}"`, 1);
+requireCount(loveXmake, loveXmakePath, '"src/common/pixelformat.cpp"', 1);
+for (const source of ["Image.cpp", "ImageDataBase.cpp", "CompressedSlice.cpp", "CompressedImageData.cpp", "FormatHandler.cpp", "ImageData.cpp", "wrap_Image.cpp", "wrap_CompressedImageData.cpp", "wrap_ImageData.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/image/${source}"`, 1);
+for (const source of ["Decoder.cpp", "Sound.cpp", "SoundData.cpp", "wrap_Decoder.cpp", "wrap_Sound.cpp", "wrap_SoundData.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/sound/${source}"`, 1);
+for (const source of ["Channel.cpp", "LuaThread.cpp", "wrap_Channel.cpp", "wrap_LuaThread.cpp", "wrap_ThreadModule.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/thread/${source}"`, 1);
+for (const source of ["System.cpp", "wrap_System.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/system/${source}"`, 1);
+requireCount(loveXmake, loveXmakePath, '"src/modules/timer/wrap_Timer.cpp"', 1);
+for (const source of ["Event.cpp", "wrap_Event.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/event/${source}"`, 1);
+for (const source of ["Window.cpp", "wrap_Window.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/window/${source}"`, 1);
+for (const source of ["Keyboard.cpp", "wrap_Keyboard.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/keyboard/${source}"`, 1);
+for (const source of ["Cursor.cpp", "wrap_Cursor.cpp", "wrap_Mouse.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/mouse/${source}"`, 1);
+requireCount(loveXmake, loveXmakePath, '"src/modules/touch/wrap_Touch.cpp"', 1);
+for (const source of ["Joystick.cpp", "wrap_Joystick.cpp", "wrap_JoystickModule.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/joystick/${source}"`, 1);
+for (const source of ["Body.cpp", "Shape.cpp", "Joint.cpp", "World.cpp", "wrap_Body.cpp", "wrap_Joint.cpp", "wrap_World.cpp"])
+	requireCount(loveXmake, loveXmakePath, `"src/modules/physics/${source}"`, 1);
+for (const rejected of ["Box2D", "modules/physics/box2d", "platform/", "src/love.cpp"])
 	requireCount(loveXmake, loveXmakePath, rejected, rejected === "Box2D" ? 1 : 0);
 
 const bgfxXmakePath = "Source/3rdParty/bgfx/xmake.lua";
@@ -464,4 +544,4 @@ const linuxRendererBoundary = application.match(
 if (!linuxRendererBoundary)
 	throw new Error(`${applicationPath} changed the documented Linux renderer selection boundary`);
 
-console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-7-source-static+upstream-soloud-openmpt+libopenmpt+5-platform-artifacts adapters=6-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+linked-theora ogg=shared+xmake theora=portable+xmake+linked bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");
+console.log("LOVE_PLATFORM_BUILD_MANIFEST_AUDIT_PASS love=xmake-139-source-static+upstream-math+data+filesystem+drawable+texture+image+canvas+mesh+spritebatch+particlesystem+text+shader+audio-source+video-object+video-wrapper+videostream-wrapper+thread-object+thread-wrapper+thread-module+system-wrapper+timer-wrapper+event-wrapper+window-wrapper+keyboard-wrapper+mouse-cursor-wrapper+touch-wrapper+joystick-wrapper+physics-base-types+physics-body-wrapper+physics-world-wrapper+physics-fixture-contact-wrappers+physics-shape-wrapper+physics-joint-wrapper+graphics-info+graphics-capabilities+graphics-primitives+graphics-quad+canvas-constructor+shader-constructor+font-constructor+image-constructor+screenshot-wrapper+shader-state+font-state+graphics-print+canvas-wrapper+graphics-draw+graphics-transform-state+graphics-display-state+mesh-wrapper+spritebatch-wrapper+particlesystem-wrapper+font-wrapper+text-wrapper+shader-wrapper+source-wrapper+image-module+image-data+compressed-image-data+font+quad+sound+decoder+sounddata+glyphdata+rasterizer-wrappers+soloud-openmpt+libopenmpt+5-platform-artifacts adapters=3-per-platform windows=msvc-build+standalone-tests+zig-x86+direct3d-full dora-cs=ogg+linked-theora ogg=shared+xmake theora=portable+xmake+linked bimg=pvr3-etc2+pvrtc-logical-mips shaderc-abi=1.1.0 texture-format-abi=100+rust+platform-rebuild");

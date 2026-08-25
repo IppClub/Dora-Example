@@ -1,6 +1,7 @@
 local shapeCanvas
 local actionCanvas
 local rendered = false
+local drawFrames = 0
 local screenshotRequested = false
 local screenshotVerified = false
 
@@ -51,7 +52,7 @@ function love.update()
 end
 
 function love.draw()
-	if rendered then
+	if screenshotRequested then
 		return
 	end
 
@@ -119,8 +120,11 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.draw(shapeCanvas, 8, 8)
 	love.graphics.draw(actionCanvas, 120, 8)
+	drawFrames = drawFrames + 1
 	rendered = true
-	if not screenshotRequested then
+	-- Match the Canvas visual-evidence fixture: let a newly-created render target
+	-- complete one host frame before capturing its composition on Metal.
+	if drawFrames >= 2 and not screenshotRequested then
 		screenshotRequested = true
 		love.graphics.captureScreenshot("stencil.png")
 		love.graphics.captureScreenshot(function(data)

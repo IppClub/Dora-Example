@@ -810,7 +810,7 @@ function love.load()
 			deferredDestroyRequested = true
 		end
 		contactBegins = contactBegins + 1
-		assert(contact:isValid() and contact:isTouching())
+		assert(not contact:isDestroyed() and contact:isTouching())
 		local contactFixtureA, contactFixtureB = contact:getFixtures()
 		assert(contactFixtureA == first and contactFixtureB == second)
 		local childA, childB = contact:getChildren()
@@ -824,7 +824,7 @@ function love.load()
 	local function endContact(first, second, contact)
 		if not isBallGround(first, second) then return end
 		contactEnds = contactEnds + 1
-		assert(contact == savedContact and contact:isValid())
+		assert(contact == savedContact and not contact:isDestroyed())
 	end
 	local function preSolve(first, second, contact)
 		if not isBallGround(first, second) then return end
@@ -903,7 +903,7 @@ function love.update(dt)
 		separationFrames = separationFrames + 1
 		if contactEnds > 0 then
 			assert(contactBegins >= 1 and contactEnds >= 1 and contactPres > 0 and contactPosts > 0)
-			assert(savedContact and not savedContact:isValid())
+			assert(savedContact and savedContact:isDestroyed())
 			assert(not pcall(function() savedContact:getNormal() end))
 			print("LOVE_PHYSICS_CONTACT_PASS", contactBegins, contactEnds, contactPres, contactPosts)
 			finished = true

@@ -84,8 +84,8 @@ try {
 		`TypeScript project build failed: ${JSON.stringify(tsBuild)}`);
 	for (const filename of ["src/main.lua", "src/conf.lua"]) {
 		const lua = await read(`${tsRoot}/${filename}`);
-		assert(lua.startsWith(`-- [ts]: ${tsRoot}/${filename.replace(/\.lua$/, ".ts")}\n`),
-			`TypeScript output lost source header: ${filename}`);
+		assert(lua.startsWith(`-- [ts]: ${path.basename(filename).replace(/\.lua$/, ".ts")}\n`),
+			`TypeScript output lost source header: ${filename}: ${JSON.stringify(lua.slice(0, 160))}`);
 		assert(lua.includes('require("love")'),
 			`TypeScript output lost standard Love module import: ${filename}`);
 	}

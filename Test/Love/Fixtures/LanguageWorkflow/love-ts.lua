@@ -202,7 +202,7 @@ love.graphics.draw( -- 155
 	0 -- 155
 ) -- 155
 local ____ = typedTextDimensions -- 155
-local typedBatchImage = love.graphics.newImage("pig.png") -- 157
+local typedBatchImage = love.graphics.newImage(love.image.newImageData(16, 16)) -- 157
 local typedBatch = love.graphics.newSpriteBatch(typedBatchImage, 8, "dynamic") -- 158
 local typedBatchIndex = typedBatch:add(4, 8) -- 159
 typedBatch:set( -- 160

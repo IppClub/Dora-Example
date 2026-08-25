@@ -490,7 +490,10 @@ function love.load()
 	volumeMipShader:send("source", autoVolume)
 	replacedCubeShader:send("source", replacedCube)
 	replacedVolumeShader:send("source", replacedVolume)
-	assert(not pcall(graphics.newImage, data, {mipmaps = "yes"}))
+	-- The original Love wrapper uses luax_boolflag here, so any non-false Lua
+	-- value (including a string) enables mipmaps.
+	local truthyMipmaps, truthyImage = pcall(graphics.newImage, data, {mipmaps = "yes"})
+	assert(truthyMipmaps and truthyImage)
 	canvas = graphics.newCanvas(752, 16, {readable = true})
 	print("LOVE_COMPRESSED_IMAGE_BIMG_PASS", width, height, data:getFormat(), data:getSize(),
 		"formats=DDS-DXT1+DXT3+DXT5+KTX-DXT1+ASTC4x4+PVR-DXT1+KTX-ETC1+PVR-ETC1+KTX-ETC2rgb+ETC2rgba+ETC2rgba1+PVR-ETC2rgb+ETC2rgba+ETC2rgba1+KTX/PVR-PVRTC1-rgb2+rgb4+rgba2+rgba4+KTX-ASTC5x4+5x5+6x5+6x6+8x5+8x6+8x8+10x5+10x6+10x8+10x10+12x10+12x12+KTX/PVR-EACr+EACrs+EACrg+EACrgs",

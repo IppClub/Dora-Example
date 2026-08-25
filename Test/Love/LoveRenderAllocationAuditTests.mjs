@@ -10,7 +10,9 @@ function assert(condition, message) {
 
 const loveNode = fs.readFileSync(path.join(doraSSRRoot, "Source/Love/LoveNode.cpp"), "utf8");
 const loveNodeHeader = fs.readFileSync(path.join(doraSSRRoot, "Source/Love/LoveNode.h"), "utf8");
-const loveRuntime = fs.readFileSync(path.join(doraSSRRoot, "Source/Love/LoveRuntime.cpp"), "utf8");
+const loveRuntime = ["LoveRuntime.cpp", "LoveRuntimeAdapters.inc"]
+	.map(file => fs.readFileSync(path.join(doraSSRRoot, "Source/Love", file), "utf8"))
+	.join("\n");
 const loveRuntimeHeader = fs.readFileSync(path.join(doraSSRRoot, "Source/Love/LoveRuntime.h"), "utf8");
 const renderTarget = fs.readFileSync(path.join(doraSSRRoot, "Source/Render/RenderTarget.cpp"), "utf8");
 const bgfxGL = fs.readFileSync(path.join(doraSSRRoot, "Source/3rdParty/bgfx/src/renderer_gl.cpp"), "utf8");
