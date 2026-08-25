@@ -665,6 +665,7 @@ const imported = diagnosticsFor("/main.ts", `
 		const quad: Love.Quad = love.graphics.newQuad(0, 0, 16, 16, image);
 		const canvasQuad: Love.Quad = love.graphics.newQuad(0, 0, 16, 16, canvas);
 		const numericQuad: Love.Quad = love.graphics.newQuad(0, 0, 16, 16, 32, 32);
+		const drawTransform: Love.Transform = love.math.newTransform(20, 30, 0.2, 2, 2, 8, 8);
 		const viewport: LuaMultiReturn<[number, number, number, number]> = quad.getViewport();
 		quad.setViewport(8, 8, 16, 16); quad.setLayer(1);
 		const width: number = image.getWidth();
@@ -675,6 +676,10 @@ const imported = diagnosticsFor("/main.ts", `
 		love.graphics.draw(image, quad, 20, 30, 0.2, 2, 2, 8, 8);
 		love.graphics.draw(image, width, 20, 0.2, 0.5, 0.5, 16, 16);
 		love.graphics.draw(canvas, canvasQuad, 0, 0);
+		love.graphics.draw(image, drawTransform);
+		love.graphics.draw(image, quad, drawTransform);
+		love.graphics.draw(canvas, drawTransform);
+		love.graphics.draw(canvas, canvasQuad, drawTransform);
 		const mode: LuaMultiReturn<[number, number, Love.WindowMode]> = love.window.getMode();
 		const resized: boolean = love.window.setMode(480, 270, {resizable: true});
 		const updatedSettings: boolean = love.window.updateMode({resizable: false});
