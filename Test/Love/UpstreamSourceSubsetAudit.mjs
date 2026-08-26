@@ -351,7 +351,6 @@ const upstreamHashes = new Map([
 	["src/modules/math/wrap_BezierCurve.cpp", "4f9f19bae4c384d2956ff9871b40a79f83b39b31d8c8cff0cc3ef42490b4e18a"],
 	["src/modules/math/wrap_BezierCurve.h", "129cdd8aaa60322aea2628b37b351c566bc438c540e205abf5ae60289b8df2e8"],
 	["src/modules/math/MathModule.cpp", "78769b34dc7a7a5dd2f5ae263b25ff86a268147a5e185ca858a51ba7df182525"],
-	["src/modules/math/MathModule.h", "29fd5a65b9644281d18629eb313de5fe41f6b038c23e6538c421e929baefdf75"],
 	["src/modules/math/wrap_Math.h", "ad554e35fc6acad6ec6e3523a3e766eb2f2372e4e7fcee629816a6391d67529a"],
 	["src/modules/math/wrap_Math.lua", "7687e99314c01d922cfeffa400f27969ed823da1a7d3b4955de144eb44cfd51f"],
 	["src/common/Data.cpp", "29fd43defc1c396b1566b6b6e8c4208054a8bbaa23639f9e81f6415c6e20dc3a"],

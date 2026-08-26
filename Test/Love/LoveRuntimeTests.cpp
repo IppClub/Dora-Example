@@ -1422,6 +1422,21 @@ public:
 		lastStencilCompare = compare;
 		lastStencilTestValue = value;
 	}
+	bool setStencilMode(std::string_view mode, int value, std::string &error) override
+	{
+		if (mode != "off" && mode != "draw" && mode != "test" && mode != "custom")
+		{
+			error = "unknown mock stencil mode";
+			return false;
+		}
+		stencilWriting = mode == "draw";
+		lastStencilAction = "replace";
+		lastStencilWriteValue = value;
+		lastStencilCompare = mode == "test" ? "equal" : "always";
+		lastStencilTestValue = value;
+		error.clear();
+		return true;
+	}
 	bool setMode(int width, int height, std::string &error) override
 	{
 		pixelWidth = width;
@@ -2655,6 +2670,7 @@ public:
 	bool applyBodyForce(BodyHandle h,float x,float y,float,float,std::string &e) override {auto i=bodies.find(h);if(i==bodies.end()){e="mock Body is closed";return false;}i->second.vx+=x;i->second.vy+=y;e.clear();return true;}
 	bool applyBodyTorque(BodyHandle h,float v,std::string &e) override {auto i=bodies.find(h);if(i==bodies.end()){e="mock Body is closed";return false;}i->second.angularVelocity+=v;e.clear();return true;}
 	FixtureHandle newFixture(BodyHandle b,ShapeHandle s,float d,std::string &error) override { if(!bodies.contains(b)||!shapes.contains(s)){error="mock fixture input is closed";return 0;}auto h=next++;fixtures[h]={b,s,d};error.clear();return h; }
+	bool getFixtureDistance(FixtureHandle a,FixtureHandle b,float&distance,float&ax,float&ay,float&bx,float&by,std::string&e) const override {auto fa=fixtures.find(a),fb=fixtures.find(b);if(fa==fixtures.end()||fb==fixtures.end()){e="mock Fixture is closed";return false;}const auto&ba=bodies.at(fa->second.body);const auto&bb=bodies.at(fb->second.body);const auto&sa=shapes.at(fa->second.shape);const auto&sb=shapes.at(fb->second.shape);const float acx=ba.x+sa.x,acy=ba.y+sa.y,bcx=bb.x+sb.x,bcy=bb.y+sb.y,dx=bcx-acx,dy=bcy-acy,center=std::sqrt(dx*dx+dy*dy),r=sa.width+sb.width;if(center>r&&center>0){const float nx=dx/center,ny=dy/center;ax=acx+nx*sa.width;ay=acy+ny*sa.width;bx=bcx-nx*sb.width;by=bcy-ny*sb.width;distance=center-r;}else{ax=bx=(acx+bcx)*0.5f;ay=by=(acy+bcy)*0.5f;distance=0;}e.clear();return true;}
 	void releaseFixture(FixtureHandle h) override { if(fixtures.erase(h))++fixturesReleased; }
 	bool isFixtureValid(FixtureHandle h) const override { return fixtures.contains(h); }
 	bool setFixtureFriction(FixtureHandle h,float v,std::string &e) override { auto i=fixtures.find(h);if(i==fixtures.end()){e="mock Fixture is closed";return false;}i->second.friction=v;e.clear();return true; }
@@ -3283,21 +3299,21 @@ int main()
 	execute(officialCompatibilityRuntime, officialDataMath.c_str(), "@official-data-math.lua");
 	execute(officialCompatibilityRuntime,
 		"assert(#official_failed == 0, table.concat(official_failed, '\\n'))\n"
-		"assert(official_passed == 231)\n"
-		"assert(#official_skipped == 60)\n"
+		"assert(official_passed == 238)\n"
+		"assert(#official_skipped == 53)\n"
 		"assert(official_modules.data.passed == 8 and official_modules.data.failed == 0 and official_modules.data.skipped == 0)\n"
-		"assert(official_modules.math.passed == 6 and official_modules.math.failed == 0 and official_modules.math.skipped == 2)\n"
+		"assert(official_modules.math.passed == 8 and official_modules.math.failed == 0 and official_modules.math.skipped == 0)\n"
 		"assert(official_modules.event.passed == 4 and official_modules.event.failed == 0 and official_modules.event.skipped == 2)\n"
 		"assert(official_modules.timer.passed == 6 and official_modules.timer.failed == 0 and official_modules.timer.skipped == 0)\n"
 		"assert(official_modules.system.passed == 6 and official_modules.system.failed == 0 and official_modules.system.skipped == 2)\n"
-		"assert(official_modules.filesystem.passed == 26 and official_modules.filesystem.failed == 0 and official_modules.filesystem.skipped == 6)\n"
+		"assert(official_modules.filesystem.passed == 27 and official_modules.filesystem.failed == 0 and official_modules.filesystem.skipped == 5)\n"
 		"assert(official_modules.image.passed == 5 and official_modules.image.failed == 0 and official_modules.image.skipped == 0)\n"
 		"assert(official_modules.sound.passed == 4 and official_modules.sound.failed == 0 and official_modules.sound.skipped == 0)\n"
 		"assert(official_modules.audio.passed == 28 and official_modules.audio.failed == 0 and official_modules.audio.skipped == 1)\n"
 		"assert(official_modules.font.passed == 7 and official_modules.font.failed == 0 and official_modules.font.skipped == 0)\n"
-		"assert(official_modules.physics.passed == 21 and official_modules.physics.failed == 0 and official_modules.physics.skipped == 7)\n"
+		"assert(official_modules.physics.passed == 22 and official_modules.physics.failed == 0 and official_modules.physics.skipped == 6)\n"
 		"assert(official_modules.window.passed == 28 and official_modules.window.failed == 0 and official_modules.window.skipped == 8)\n"
-		"assert(official_modules.graphics.passed == 75 and official_modules.graphics.failed == 0 and official_modules.graphics.skipped == 32)\n"
+		"assert(official_modules.graphics.passed == 78 and official_modules.graphics.failed == 0 and official_modules.graphics.skipped == 29)\n"
 		"assert(official_modules.thread.passed == 5 and official_modules.thread.failed == 0 and official_modules.thread.skipped == 0)\n"
 		"assert(official_modules.video.passed == 2 and official_modules.video.failed == 0 and official_modules.video.skipped == 0)\n",
 		"@verify-official-data-math.lua");
