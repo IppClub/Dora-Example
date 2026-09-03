@@ -33,6 +33,12 @@ Wait for its result file: command submission success is not a test result.
 - `GamepadTest` and `NavigationTest` run native UI regressions with mock agent
   services and restore the visible UI/window. Results are `/tmp/dora-gamepad.result`
   and `/tmp/dora-navigation.result`. Disconnect Web IDE before running them.
+- `SystemUIFrameSyncTest` captures a production rounded NanoVG surface and a
+  clipped Sprite moving every frame, then hides both. After
+  `/tmp/dora-system-ui-frame-sync.result` reports `captured`, run
+  `python3 Test/Mobile/verify_system_ui_frame_sync.py` (requires Pillow). The
+  verifier checks 12 rendered frames for alignment/layering and the first hidden
+  frame for stale geometry. The fixture restores the window and visible UI.
 - `UIMode*`, `EntryNavigationTest`, `MobileFeedEntryCacheTest`, and takeover/lifecycle
   tests need the actual home shell; use `/command`, not a project `/run` that clears it.
 - Preview tests and some runners intentionally clear system UI or resize the
