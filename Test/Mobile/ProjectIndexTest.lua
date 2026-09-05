@@ -53,6 +53,13 @@ D.thread(function()
 		find(host, "mobile-feed-index"):emit("Tapped")
 		D.sleep(0.05)
 		assert(find(host, "mobile-project-index-container"), "Project index did not open")
+		local card = assert(find(host, "mobile-feed-current-title"))
+		local visible = true
+		while card do
+			visible = visible and card.visible
+			card = card.parent
+		end
+		assert(not visible, "Feed content is visible through the project index")
 		assert(not find(host, "mobile-project-index-new"), "Project index should not contain a new-project button")
 		assert(find(host, "mobile-project-index-group-A"), "A group missing")
 		assert(find(host, "mobile-project-index-group-B"), "B group missing")

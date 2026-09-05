@@ -35,6 +35,22 @@ Wait for its result file: command submission success is not a test result.
   and `/tmp/dora-navigation.result`. Disconnect Web IDE before running them.
 - `ProjectIndexTest` checks the local-project A-Z/Other grouping, left-edge ruler,
   selection, and portrait/landscape layout. Its result is `/tmp/dora-project-index.result`.
+- `PackageTest`, `PackagePanelTest`, and `RemixQuestionnaireTest` cover package
+  import/export, asynchronous share-sheet stability, and questionnaire layout.
+  Before `PackageTest`, run `python3 Test/Mobile/mobile_package_fixtures.py <Dora appPath>`.
+  Results are `<appPath>/mobile-package-test.result`,
+  `<appPath>/mobile-package-panel-test.result`, and
+  `<appPath>/mobile-remix-questionnaire-test.result` respectively.
+  These sources depend on engine-internal modules. For `/ts/build`, temporarily
+  stage the source under the matching engine's `Assets/Script`, use that directory
+  as `projectRoot`, then copy the generated Lua back and remove the staged files.
+- `RemixHeaderFeedbackTest` checks portrait/landscape header gaps and busy-notice
+  expiration, including timer reset on repeated taps. Result:
+  `/tmp/dora-remix-header-feedback.result`.
+- `FeedBadgePreviewTest` captures the counter over the Dismantlism banner in both
+  tabs and orientations and checks the local index button. Requires Dora-Demo
+  installed in the writable workspace. Inspect `/tmp/dora-feed-badge-*.tga`;
+  `/tmp/dora-feed-badge.result` reports capture and interaction status.
 - `SystemUIFrameSyncTest` captures a production rounded NanoVG surface and a
   clipped Sprite moving every frame, then hides both. After
   `/tmp/dora-system-ui-frame-sync.result` reports `captured`, run
