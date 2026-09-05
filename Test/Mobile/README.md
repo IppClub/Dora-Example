@@ -33,6 +33,8 @@ Wait for its result file: command submission success is not a test result.
 - `GamepadTest` and `NavigationTest` run native UI regressions with mock agent
   services and restore the visible UI/window. Results are `/tmp/dora-gamepad.result`
   and `/tmp/dora-navigation.result`. Disconnect Web IDE before running them.
+- `ProjectIndexTest` checks the local-project A-Z/Other grouping, left-edge ruler,
+  selection, and portrait/landscape layout. Its result is `/tmp/dora-project-index.result`.
 - `SystemUIFrameSyncTest` captures a production rounded NanoVG surface and a
   clipped Sprite moving every frame, then hides both. After
   `/tmp/dora-system-ui-frame-sync.result` reports `captured`, run

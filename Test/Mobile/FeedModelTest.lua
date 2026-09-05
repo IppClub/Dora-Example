@@ -13,6 +13,8 @@ local ____exports = {} -- 1
 local ____Dora = require("Dora") -- 1
 local Content = ____Dora.Content -- 1
 local ____FeedModel = require("Dev.Mobile.FeedModel") -- 2
+local getFeedProjectGroup = ____FeedModel.getFeedProjectGroup
+local groupFeedProjects = ____FeedModel.groupFeedProjects
 local getReusableCardIndices = ____FeedModel.getReusableCardIndices -- 3
 local getCoverScales = ____FeedModel.getCoverScales -- 4
 local normalizeFeedIndex = ____FeedModel.normalizeFeedIndex -- 5
@@ -169,14 +171,25 @@ do -- 14
 			resolveFeedLocation(locals, {}, discover[1]).index == 1, -- 46
 			"Installed Catalog project should match local path" -- 46
 		) -- 46
-		expect( -- 47
+			expect( -- 47
 			resolveFeedLocation( -- 47
 				{__TS__ObjectAssign({}, locals[2], {id = "renamed"})}, -- 47
 				{}, -- 47
 				locals[2] -- 47
 			).index == 0, -- 47
-			"Rename must retain project identity" -- 47
-		) -- 47
+				"Rename must retain project identity" -- 47
+			) -- 47
+			expect(getFeedProjectGroup("  alpha") == "A", "Latin initials should normalize to uppercase")
+			expect(getFeedProjectGroup("中文作品") == "#", "Chinese titles should be grouped under Other")
+			expect(getFeedProjectGroup("2026 demo") == "#", "non-Latin initials should be grouped under Other")
+			local grouped = groupFeedProjects({
+				__TS__ObjectAssign({}, locals[1], {id = "zh", title = "中文作品"}),
+				__TS__ObjectAssign({}, locals[1], {id = "beta", title = "beta"}),
+				__TS__ObjectAssign({}, locals[1], {id = "alpha", title = "Alpha"}),
+				__TS__ObjectAssign({}, locals[1], {id = "number", title = "01 demo"})
+			})
+			expect(grouped[1].key == "A" and grouped[2].key == "B" and grouped[3].key == "#", "project groups must be A-Z with Other last")
+			expect(grouped[3].entries[1].title == "01 demo" and grouped[3].entries[2].title == "中文作品", "Other group sorting mismatch")
 		local landscapeScales = getCoverScales(1920, 1080, 390, 390) -- 48
 		expect( -- 49
 			math.abs(landscapeScales.contain - 390 / 1920) < 0.0001, -- 49

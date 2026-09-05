@@ -2,6 +2,8 @@ import { Content } from "Dora";
 import {
 	getReusableCardIndices,
 	getCoverScales,
+	getFeedProjectGroup,
+	groupFeedProjects,
 	normalizeFeedIndex,
 	resolveDiscoverRefreshTab,
 	resolveFeedGesture,
@@ -45,6 +47,17 @@ try {
 	expect(resolveFeedLocation(locals, discover, discover[0]).tab === "discover", "Return should retain origin tab");
 	expect(resolveFeedLocation(locals, [], discover[0]).index === 1, "Installed Catalog project should match local path");
 	expect(resolveFeedLocation([{ ...locals[1], id: "renamed" }], [], locals[1]).index === 0, "Rename must retain project identity");
+	expect(getFeedProjectGroup("  alpha") === "A", "Latin initials should normalize to uppercase");
+	expect(getFeedProjectGroup("中文作品") === "#", "Chinese titles should be grouped under Other");
+	expect(getFeedProjectGroup("2026 demo") === "#", "non-Latin initials should be grouped under Other");
+	const grouped = groupFeedProjects([
+		{ ...locals[0], id: "zh", title: "中文作品" },
+		{ ...locals[0], id: "beta", title: "beta" },
+		{ ...locals[0], id: "alpha", title: "Alpha" },
+		{ ...locals[0], id: "number", title: "01 demo" },
+	]);
+	expect(grouped.map(group => group.key).join(",") === "A,B,#", "project groups must be A-Z with Other last");
+	expect(grouped[2].entries.map(entry => entry.title).join(",") === "01 demo,中文作品", "Other group sorting mismatch");
 	const landscapeScales = getCoverScales(1920, 1080, 390, 390);
 	expect(math.abs(landscapeScales.contain - 390 / 1920) < 0.0001, "landscape cover contain scale mismatch");
 	expect(math.abs(landscapeScales.cover - 390 / 1080) < 0.0001, "landscape cover fill scale mismatch");
