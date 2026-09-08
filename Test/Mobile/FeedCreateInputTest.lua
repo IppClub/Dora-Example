@@ -22,7 +22,7 @@ D.thread(function()
 		assert(D.HttpServer.wsConnectionCount==0, "Disconnect Web IDE before native input tests")
 		D.App.winSize = D.Size(390, 820); D.sleep(0.2)
 		local syncProgress, syncDone
-		local submitted, remixCount = {}, 0
+		local submitted, languages, remixCount = {}, {}, 0
 		local entries = {{id="input-fixture", title="输入框验证", kind="local", description="名称与焦点测试", workDir=D.Content.assetPath}}
 		host = F.startMobileFeed({
 			getLocalEntries=function() return entries end,
@@ -31,8 +31,9 @@ D.thread(function()
 			onPlay=function() error("Unexpected Play") end,
 			onRemix=function() remixCount=remixCount+1 end,
 			prepare=function() error("Unexpected prepare") end,
-			createProject=function(name)
+			createProject=function(name, language)
 				submitted[#submitted+1]=name
+				languages[#languages+1]=language
 				if #submitted==1 then return {success=false,error="target-existed"} end
 				return {success=true,entry=entries[1]}
 			end,
@@ -89,18 +90,25 @@ D.thread(function()
 		input:emit("KeyDown", "End")
 		for _=1, 96 do input:emit("KeyDown", "BackSpace") end
 		assert(label.text=="XAB你甲乙", "Long input deletion")
+		get("mobile-project-create-language-lua"):emit("Tapped")
+		assert(get("mobile-project-create-input")==input and label.text=="XAB你甲乙", "Language selection lost draft/input")
+		assert(get("mobile-project-create-error").text:find("Lua",1,true), "Lua starter hint missing")
+		input:emit("Tapped"); D.sleep(0.1)
 		D.App:saveScreenshot("/tmp/dora-feed-create-focus"); D.sleep(0.15)
 		D.App.winSize=D.Size(430,820); D.sleep(0.2)
 		input=get("mobile-project-create-input"); label=get("remix-input-text")
 		assert(input.keyboardEnabled and label.text=="XAB你甲乙", "Resize lost focus/draft")
 		input:emit("KeyDown", "Return")
 		assert(submitted[1]=="XAB你甲乙" and get("remix-input-text").text==submitted[1], "Failure lost draft")
+		assert(languages[1]=="lua", "Lua selection not passed to creation")
 		assert(get("mobile-project-create-input-border").color3:toRGB()==0x343b48, "Failure retained focus border")
 		get("mobile-project-create-submit"):emit("Tapped")
 		assert(#submitted==2 and remixCount==1 and not find(host,"mobile-project-create-sheet"), "Retry did not create/remix")
+		assert(languages[2]=="lua", "Retry lost Lua selection")
 		get("mobile-feed-create"):emit("Tapped"); D.sleep(0.1)
 		input=get("mobile-project-create-input")
 		assert(get("remix-input-text").text=="", "Reopen retained old draft")
+		assert(get("mobile-project-create-error").text:find("TypeScript",1,true), "Reopen did not restore default language")
 		host:emit("SuspendLocalUI")
 		assert(not input.keyboardEnabled and get("remix-input-placeholder").visible, "Suspension did not blur")
 		get("mobile-project-create-cancel"):emit("Tapped"); D.sleep(0.05)

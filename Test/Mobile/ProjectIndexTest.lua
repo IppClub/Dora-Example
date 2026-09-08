@@ -98,9 +98,30 @@ D.thread(function()
 		assert(find(host, "mobile-project-index-rail").height > 200, "Landscape ruler lost its usable drag area")
 		assert(D.App:saveScreenshot("/tmp/dora-project-index-landscape") ~= "", "Landscape screenshot failed")
 		D.sleep(0.25)
+		host:removeFromParent(true)
+		local remoteA = {id = "remote-a", title = "Alpha online", description = "Online fixture", kind = "discover", installed = false}
+		local remoteZ = {id = "remote-z", title = "Zulu online", description = "Online fixture", kind = "discover", installed = false}
+		host = Feed.startMobileFeed({initialEntry = remoteA,
+			getLocalEntries = function() return entries end,
+			getDiscoverEntries = function() return {remoteZ, remoteA} end,
+			prepare = function() error("Index navigation must not download a project") end,
+			onPlay = function() error("Index navigation must not start a game") end,
+			onRemix = function() error("Index navigation must not enter Remix") end,
+		})
+		find(host, "mobile-feed-index"):emit("Tapped")
+		D.sleep(0.05)
+		assert(find(host, "mobile-project-index-group-Z"), "Discover index did not use discovered projects")
+		assert(not find(host, "mobile-project-index-group-#"), "Local entries leaked into discover index")
+		find(host, "mobile-project-index-entry-1"):emit("Tapped")
+		assert(not find(host, "mobile-project-index-container"), "Discover index did not close")
+		assert(find(host, "mobile-feed-current-title").text == remoteZ.title, "Discover selection did not locate the remote card")
+		find(host, "mobile-feed-index"):emit("Tapped")
+		assert(find(host, "mobile-project-index-group-Z"), "Selection switched away from discover")
+		find(host, "mobile-project-index-back"):emit("Tapped")
+		assert(find(host, "mobile-feed-current-title").text == remoteZ.title, "Closing index lost the discover position")
 	end, debug.traceback)
 	if host.parent then host:removeFromParent(true) end
 	D.App.winSize = previousSize
 	for _, node in ipairs(hidden) do node.visible = true end
-	D.Content:save(resultPath, ok and "passed groups=1 other=1 ruler=1 select=1 portrait=1 landscape=1\n" or "failed " .. tostring(err))
+	D.Content:save(resultPath, ok and "passed groups=1 other=1 ruler=1 select=1 portrait=1 landscape=1 discover=1 noDownload=1\n" or "failed " .. tostring(err))
 end)
