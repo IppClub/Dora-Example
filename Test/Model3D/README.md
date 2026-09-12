@@ -10,6 +10,18 @@
 
 ## Automated P0 regression
 
+### Entry projection reset
+
+With the native Dora service running at `127.0.0.1:8866`, run:
+
+```sh
+python3 Test/Model3D/test_entry_projection_reset.py
+```
+
+This checks that stop/run and direct project switches restore the default near/far clipping distances and field of view after a 3D entry changes them. It switches the running scene to temporary fixtures and stops the scene when finished.
+
+### P0 runner
+
 Before any runner starts the engine with `dora cli doctor --fix`, close every Dora Web IDE tab. The runners close matching tabs in Chrome, Edge, and Safari before killing the old Dora process. Automation using the Codex in-app browser must close its Dora Web IDE tabs separately before invoking a runner, because those tabs are not controlled by AppleScript.
 
 Then run the regression:
