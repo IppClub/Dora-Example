@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer} from 'node:http';
+import {once} from 'node:events';
+import {openModelConfigurationStore} from '../apps/server/model-configuration-store.mjs';
+import {createByokConfigurationsRoute} from '../apps/server/model-byok-configurations-route.mjs';
+test('BYOK configuration listing exposes only owned public fields with bounded pagination',async t=>{
+ const dir=mkdtempSync(join(tmpdir(),'studio-config-list-')),catalog=openModelConfigurationStore(join(dir,'catalog.db'),{providerIds:new Set(['provider'])});
+ t.after(()=>{catalog.close();rmSync(dir,{recursive:true,force:true});});
+ for(const [id,ownerId,kind] of [['a1','a','byok'],['a2','a','byok'],['b1','b','byok'],['shared','platform','shared']])catalog.put({id,ownerId,kind,label:`Model ${id}`,model:'model',providerId:'provider',enabled:id!=='a2'},{expectedVersion:0,actorId:'fixture-admin'});
+ const route=createByokConfigurationsRoute({studioOrigin:'http://studio.test',catalog,authenticate:async req=>['a','b'].includes(req.headers.authorization)?{accountId:req.headers.authorization}:null});
+ const server=createServer(async(req,res)=>{if(!await route(req,res)){res.statusCode=404;res.end();}});server.listen(0,'127.0.0.1');await once(server,'listening');
+ t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+ const get=(query='',account='a',headers={})=>fetch(`http://127.0.0.1:${server.address().port}/api/byok/configurations${query}`,{headers:{authorization:account,...headers}});
+ const response=await get('?limit=1');assert.equal(response.headers.get('cache-control'),'private, no-store');const first=await response.json();
+ assert.deepEqual(first.configurations,[{id:'a1',label:'Model a1',model:'model',providerId:'provider',enabled:true,version:1}]);assert.equal(first.nextCursor,'a1');
+ const second=await (await get('?after=a1&limit=1')).json();assert.equal(second.configurations[0].id,'a2');assert.equal(second.configurations[0].enabled,false);assert.equal(second.nextCursor,null);
+ assert.deepEqual((await (await get('','b')).json()).configurations.map(row=>row.id),['b1']);
+ assert.equal((await get('','')).status,401);assert.equal((await get('?ownerId=b')).status,400);assert.equal((await get('?limit=51')).status,400);assert.equal((await get('?after=a1&after=b1')).status,400);assert.equal((await get('','a',{origin:'https://foreign.test'})).status,403);
+});

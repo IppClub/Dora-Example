@@ -1,0 +1,25 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {once} from 'node:events';
+import {openModelConfigurationStore} from '../apps/server/model-configuration-store.mjs';
+import {createByokConfigurationWriteRoute} from '../apps/server/model-byok-configuration-write-route.mjs';
+test('BYOK metadata create/update is owner-bound, strict, CAS and reauthenticated',async t=>{
+ const catalog=openModelConfigurationStore(':memory:',{providerIds:new Set(['approved']),maxByokConfigurationsPerAccount:1});t.after(()=>catalog.close());
+ let calls=0,revoke=false;
+ const route=createByokConfigurationWriteRoute({studioOrigin:'http://studio.test',catalog,providerIds:new Set(['approved']),authenticate:async req=>{calls++;return revoke&&calls%2===0?null:req.headers.authorization?{accountId:req.headers.authorization}:null;}});
+ const server=createServer(async(req,res)=>{if(!await route(req,res)){res.statusCode=404;res.end();}});server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+ const base={label:'日常创作',model:'model',providerId:'approved',enabled:true,expectedVersion:0};
+ const put=(body=base,account='a',id='mine',headers={})=>fetch(`http://127.0.0.1:${server.address().port}/api/byok/configurations/${id}`,{method:'PUT',headers:{origin:'http://studio.test','content-type':'application/json',authorization:account,...headers},body:typeof body==='string'?body:JSON.stringify(body)});
+ let response=await put();assert.equal(response.status,201);assert.equal(response.headers.get('cache-control'),'private, no-store');assert.deepEqual(await response.json(),{id:'mine',label:base.label,model:'model',providerId:'approved',enabled:true,version:1});
+ assert.equal(catalog.get('mine').ownerId,'a');assert.equal((await put()).status,409);
+ const get=account=>fetch(`http://127.0.0.1:${server.address().port}/api/byok/configurations/mine`,{headers:{authorization:account}});
+ const own=await get('a');assert.equal(own.status,200);assert.deepEqual(Object.keys(await own.json()).sort(),['id','label','model','providerId','enabled','version'].sort());
+ assert.equal((await get('b')).status,404);assert.equal((await get('')).status,401);
+ assert.equal((await put({...base,expectedVersion:1,enabled:false})).status,200);assert.equal(catalog.get('mine').enabled,false);
+ assert.equal((await put(base,'a','over-limit')).status,429);assert.equal(catalog.get('over-limit'),undefined);
+ assert.equal((await put({...base,expectedVersion:2},'b')).status,404);assert.equal(catalog.get('mine').version,2);
+ for(const extra of [{ownerId:'b'},{kind:'shared'},{key:'secret'},{url:'http://localhost'},{providerId:'unknown'},{label:' '},{model:'bad\nmodel'},{expectedVersion:-1}])assert.equal((await put({...base,...extra},'a','new')).status,400);
+ assert.equal((await put(base,'')).status,401);assert.equal((await put(base,'a','new',{origin:''})).status,403);assert.equal((await put('x'.repeat(8193),'a','new')).status,413);
+ calls=0;revoke=true;assert.equal((await put(base,'a','revoked')).status,401);assert.equal(catalog.get('revoked'),undefined);
+});

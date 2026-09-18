@@ -16,6 +16,10 @@
 2. 将本项目的内容放置到 Dora SSR 引擎项目的 `工作空间` 资源目录中。
 3. 启动引擎，即可浏览并运行示例内容。
 
+Dora Studio 的自动化测试统一维护在
+[`Test/DoraStudio`](Test/DoraStudio/README.md)。测试通过 `DORA_SSR_ROOT`
+选择对应的 Dora-SSR checkout，不会把 Studio 实现复制到本仓库。
+
 ## 注意事项
 
 - 所有示例按功能分类，尽量保持简洁明了，便于理解。

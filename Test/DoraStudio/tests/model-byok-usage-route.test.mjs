@@ -1,0 +1,26 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer} from 'node:http';
+import {once} from 'node:events';
+import {openModelLedger} from '../apps/server/model-ledger-sqlite.mjs';
+import {createByokUsageRoute} from '../apps/server/model-byok-usage-route.mjs';
+test('BYOK report preserves exact known counts, unknown usage and account-scoped pagination over HTTP',async t=>{
+ const dir=mkdtempSync(join(tmpdir(),'studio-byok-report-')),ledger=openModelLedger(join(dir,'ledger.db'));
+ t.after(()=>{ledger.close();rmSync(dir,{recursive:true,force:true});});
+ for(const accountId of ['a','b'])ledger.configure('account',accountId,{enabled:true,limit:1,amountLimit:100n},{actorId:'admin'});
+ for(const [requestId,accountId] of [['a1','a'],['a2','a'],['b1','b']])ledger.beginByok({requestId,accountId,projectId:'p',configurationId:'c',model:'model',fingerprint:'private-fingerprint'});
+ ledger.recordByokUsage('a','a1',1,{inputTokens:9007199254740993n,outputTokens:2n,cachedInputTokens:10n});
+ const route=createByokUsageRoute({studioOrigin:'http://studio.test',ledger,authenticate:async req=>['a','b'].includes(req.headers.authorization)?{accountId:req.headers.authorization}:undefined});
+ const server=createServer(async(req,res)=>{if(!await route(req,res)){res.statusCode=404;res.end();}});server.listen(0,'127.0.0.1');await once(server,'listening');
+ t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+ const get=(query='',account='a')=>fetch(`http://127.0.0.1:${server.address().port}/api/byok/usage${query}`,{headers:{authorization:account}});
+ const response=await get('?limit=1');assert.equal(response.headers.get('cache-control'),'private, no-store');const report=await response.json();
+ assert.deepEqual(report.summary,{registeredRequests:'2',knownUsageRequests:'1',pendingUsageRequests:'1',inputTokens:'9007199254740993',outputTokens:'2'});
+ assert.equal(report.records.length,1);assert.equal(report.records[0].usage.cachedInputTokens,'10');assert.equal(report.records[0].fingerprint,undefined);assert.equal(report.balance,undefined);
+ const next=await (await get(`?after=${report.nextCursor}`)).json();assert.equal(next.records[0].requestId,'a2');assert.equal(next.records[0].usage,null);assert.equal(next.nextCursor,null);
+ const foreign=await (await get('','b')).json();assert.equal(foreign.records.length,1);assert.equal(foreign.records[0].requestId,'b1');assert.equal(foreign.summary.inputTokens,'0');assert.equal(foreign.summary.pendingUsageRequests,'1');
+ assert.equal((await get('?accountId=b')).status,400);assert.equal((await get('?limit=101')).status,400);assert.equal((await get('?limit=1&limit=2')).status,400);assert.equal((await get('','')).status,401);
+});

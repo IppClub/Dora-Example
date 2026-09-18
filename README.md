@@ -18,6 +18,11 @@ To run these examples:
 2. Place the contents into the `Workspace` directory of your Dora SSR engine.
 3. Launch the engine to browse and execute the examples.
 
+Dora Studio's automated suites are maintained in
+[`Test/DoraStudio`](Test/DoraStudio/README.md). They test a matching Dora-SSR
+checkout selected with `DORA_SSR_ROOT`; the Studio implementation is not copied
+into this repository.
+
 ## Notes
 
 - All examples are organized by feature and kept minimal for clarity.
@@ -26,4 +31,3 @@ To run these examples:
 ## License
 
 MIT
-

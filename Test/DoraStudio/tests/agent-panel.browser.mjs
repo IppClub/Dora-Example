@@ -1,0 +1,186 @@
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {readFile, mkdir, writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {createRequire} from 'node:module';
+import {build} from 'esbuild';
+
+const require = createRequire(import.meta.url);
+const {chromium} = require(process.env.STUDIO_PLAYWRIGHT_MODULE || 'playwright');
+const output = resolve('apps/web/artifacts/agent-panel');
+await mkdir(output, {recursive:true});
+const bundle = await build({stdin:{contents:`
+import {createRoot} from 'react-dom/client';
+import {AgentPanel} from './AgentPanel';
+import {AgentSessionPanel} from './AgentSessionPanel';
+import {AgentPauseControl} from './AgentPauseControl';
+import {createAgentRetirement} from './agent-retirement';
+import {createAgentSessionController} from './agent-session-controller';
+import {createAgentSessionState} from './agent-session-state';
+const state=createAgentSessionState({session:{id:1,title:'月光森林',status:'DONE',workMode:'code'},messages:Array.from({length:12},(_,index)=>({id:index+1,sessionId:1,role:index%2?'assistant':'user',content:index%2?'已更新跳跃与落地反馈。\\n'+('长路径_'.repeat(30)):'让角色的跳跃更有弹性。'})),steps:[{id:1,sessionId:1,taskId:1,step:1,tool:'edit_file',status:'DONE',reason:'更新角色控制',files:[{path:'Script/Player.lua',op:'write'}]}],checkpoints:[{id:1,taskId:1,seq:1,summary:'调整跳跃'}],relatedSessions:[],pendingQuestionnaire:null,spawnInfo:null,hasActivePlan:false,hasEarlierMessages:true});
+window.historyLoads=0;
+const controller=createAgentSessionController({projectId:'p',generation:'g',sequence:0,snapshot:{...state,messages:[...state.messages.byId.values()],steps:[...state.steps.byId.values()],checkpoints:[...state.checkpoints.byId.values()]}});
+window.deliver=controller.receive;
+const root=createRoot(document.getElementById('root'));
+const pending=new Map();window.pauseCalls=[];
+const actions=Object.fromEntries(['a','b'].map(owner=>[owner,()=>new Promise((resolve,reject)=>{window.pauseCalls.push(owner);pending.set(owner,{resolve,reject});})]));
+window.showPause=(owner,disabled=false)=>root.render(<AgentPauseControl persist={actions[owner]} disabled={disabled}/>);
+window.settlePause=(owner,success)=>{const task=pending.get(owner);pending.delete(owner);success?task.resolve():task.reject(Error('storage failed'));};
+window.retirementCalls=[];
+const retirement=createAgentRetirement({persistAndClose:()=>new Promise((resolve,reject)=>{window.retirementCalls.push('save');pending.set('save',{resolve:()=>{controller.close();resolve();},reject});}),revoke:()=>new Promise((resolve,reject)=>{window.retirementCalls.push('cleanup');pending.set('cleanup',{resolve,reject});})});
+window.showRetirement=()=>root.render(<AgentSessionPanel controller={controller} retirement={retirement}/>);
+window.writebackClicks=0;
+window.showWriteback=(busy=false)=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentSessionPanel controller={controller} retirement={retirement} busy={busy} synchronization={{run:()=>{},disabled:false,status:'Agent 已确认本机项目 r123；尚未同步云端，任务保持暂停。'}} writeback={{run:()=>{window.writebackClicks++;},disabled:false,status:'已保存到本机 r124；Agent 确认未完成，请重试核对。'}}/></div>);
+window.questionnaireResults=[];
+window.showQuestionnaire=()=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentPanel state={{...state,pendingQuestionnaire:{id:8,sessionId:1,taskId:2,step:1,status:'PENDING',createdAt:1,schema:{title:'确认玩法',questions:[{id:'pace',prompt:'你喜欢哪种节奏？',type:'single_choice',required:true,allowOther:false,options:[{id:'calm',label:'轻松',description:'节奏舒缓'},{id:'tense',label:'紧张',description:'持续挑战'}]}]}}}} composer={{value:'不应显示',onChange(){},onSubmit(){},disabled:false,busy:false,status:'可继续'}} questionnaire={{submitting:false,onSubmit:answers=>window.questionnaireResults.push(answers),onCancel:()=>window.questionnaireResults.push('cancel')}}/></div>);
+window.showConfiguredComposer=()=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentPanel state={state} composer={{value:'继续完善关卡',onChange(){},onSubmit(){},disabled:false,busy:false,status:'Agent 已连接',planMode:false,fetchUrlEnabled:false,executeCommandEnabled:true,models:[{id:'grant-a',name:'DeepSeek · deepseek-chat'},{id:'grant-b',name:'智谱 · glm-4.5'}],modelId:'grant-a',onPlanModeChange(){},onFetchUrlEnabledChange(){},onExecuteCommandEnabledChange(){},onModelChange(){}}}/></div>);
+let historyVisible=false;const renderHiddenHistory=()=>root.render(<div className="agent-workspace-view" hidden={!historyVisible}><AgentPanel state={state}/></div>);
+window.showHiddenHistory=()=>{historyVisible=false;renderHiddenHistory();};window.revealHiddenHistory=()=>{historyVisible=true;renderHiddenHistory();};
+root.render(<div className="workbench show-agent"><section className="work-pane"><div className="pane-header">浏览器布局测试 · 非生产会话</div></section>{location.search.includes('live=1') ? <AgentSessionPanel controller={controller}/> : <AgentPanel state={state} onLoadHistory={()=>{window.historyLoads++}}/>}</div>);
+`,loader:'tsx',resolveDir:resolve('apps/web/src')},bundle:true,write:false,format:'esm',platform:'browser',jsx:'automatic',loader:{'.css':'empty'}});
+const css=await readFile('apps/web/src/style.css','utf8')+'\n'+await readFile('apps/web/src/agent-panel.css','utf8')+'\n'+await readFile('packages/agent-ui/src/style.css','utf8');
+const server=createServer((req,res)=>{
+  if(req.url==='/app.js'){res.setHeader('Content-Type','text/javascript');res.end(bundle.outputFiles[0].text);return;}
+  if(req.url==='/style.css'){res.setHeader('Content-Type','text/css');res.end(css);return;}
+  res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script type="module" src="/app.js"></script></body></html>');
+});
+await new Promise(done=>server.listen(0,'127.0.0.1',done));
+let browser;
+const report={errors:[],viewports:[]};
+try {
+  browser=await chromium.launch({executablePath:process.env.STUDIO_CHROME_PATH,headless:true});
+  const page=await browser.newPage();
+  page.on('pageerror',error=>report.errors.push(error.message));
+  for(const viewport of [{width:1280,height:800},{width:390,height:844}]) {
+    await page.setViewportSize(viewport);
+    await page.goto(`http://127.0.0.1:${server.address().port}`);
+    await page.getByRole('button',{name:'加载更早的消息'}).click();
+    assert.equal(await page.evaluate(()=>window.historyLoads),1);
+    const measurements=await page.evaluate(()=>{
+      const pane=document.querySelector('.agent-pane'), transcript=document.querySelector('.agent-transcript'), composer=document.querySelector('.dora-agent-composer');
+      return {pageOverflow:document.documentElement.scrollWidth>innerWidth, paneOverflow:pane.scrollWidth>pane.clientWidth,scrollable:transcript.scrollHeight>transcript.clientHeight,overlap:transcript.getBoundingClientRect().bottom>composer.getBoundingClientRect().top+1};
+    });
+    assert.equal(measurements.pageOverflow,false);
+    assert.equal(measurements.paneOverflow,false);
+    assert.equal(measurements.scrollable,true);
+    assert.equal(measurements.overlap,false);
+    await page.locator('.agent-transcript').evaluate(element=>element.scrollTop=element.scrollHeight);
+    const changedFile=page.locator('.dora-agent-step-files button').filter({hasText:'Script/Player.lua'});
+    await changedFile.waitFor({state:'visible'});
+    assert.match(await changedFile.innerText(),/write.*Script\/Player\.lua/s);
+    await page.screenshot({path:resolve(output,`${viewport.width}.png`),fullPage:true});
+    report.viewports.push({...viewport,...measurements});
+  }
+  report.questionnaireViewports=[];
+  for(const viewport of [{width:1280,height:800},{width:390,height:844}]){
+    await page.setViewportSize(viewport);
+    await page.goto(`http://127.0.0.1:${server.address().port}`);
+    await page.waitForFunction(()=>typeof window.showQuestionnaire==='function');
+    await page.evaluate(()=>window.showQuestionnaire());
+    await page.getByRole('radio',{name:/轻松/}).check();
+    assert.equal(await page.getByLabel('Agent 描述').count(),0);
+    const measured=await page.evaluate(()=>{const pane=document.querySelector('.agent-pane'),questionnaire=document.querySelector('.dora-agent-questionnaire');return{overflow:document.documentElement.scrollWidth>innerWidth||pane.scrollWidth>pane.clientWidth,visible:questionnaire.getBoundingClientRect().height>0};});
+    assert.deepEqual(measured,{overflow:false,visible:true});
+    await page.getByRole('button',{name:'提交回答',exact:true}).click();
+    assert.deepEqual(await page.evaluate(()=>window.questionnaireResults.at(-1)),[{questionId:'pace',status:'answered',selectedOptionIds:['calm']}]);
+    await page.screenshot({path:resolve(output,`questionnaire-${viewport.width}.png`),fullPage:true});
+    report.questionnaireViewports.push({...viewport,...measured});
+  }
+  report.configuredComposerViewports=[];
+  for(const viewport of [{width:1280,height:800},{width:390,height:844}]){
+    await page.setViewportSize(viewport);
+    await page.goto(`http://127.0.0.1:${server.address().port}`);
+    await page.waitForFunction(()=>typeof window.showConfiguredComposer==='function');
+    await page.evaluate(()=>window.showConfiguredComposer());
+    await page.getByRole('button',{name:/计划/}).waitFor();
+    await page.getByRole('button',{name:/网络/}).waitFor();
+    await page.getByRole('button',{name:/命令/}).waitFor();
+    await page.getByLabel('下一轮使用的模型').waitFor();
+    assert.equal(await page.locator('.dora-agent-composer-status').count(),0);
+    assert.equal(await page.getByText('Agent 已连接',{exact:true}).count(),0);
+    const measured=await page.evaluate(()=>{const pane=document.querySelector('.agent-pane'),composer=document.querySelector('.dora-agent-composer');return{overflow:document.documentElement.scrollWidth>innerWidth||pane.scrollWidth>pane.clientWidth,composerVisible:composer.getBoundingClientRect().height>0};});
+    assert.deepEqual(measured,{overflow:false,composerVisible:true});
+    await page.screenshot({path:resolve(output,`configured-${viewport.width}.png`),fullPage:true});
+    report.configuredComposerViewports.push({...viewport,...measured});
+  }
+  await page.setViewportSize({width:1280,height:800});
+  await page.goto(`http://127.0.0.1:${server.address().port}`);
+  await page.waitForFunction(()=>typeof window.showHiddenHistory==='function');
+  await page.evaluate(()=>window.showHiddenHistory());
+  assert.equal(await page.getByLabel('Agent 会话记录').evaluate(element=>element.clientHeight),0);
+  await page.evaluate(()=>window.revealHiddenHistory());
+  await page.waitForFunction(()=>{const element=document.querySelector('.agent-transcript');return element&&element.clientHeight>0&&element.scrollHeight-element.scrollTop-element.clientHeight<48;});
+  report.restoredHistoryScrollsAfterReveal=true;
+  report.writebackViewports=[];
+  for(const viewport of [{width:1280,height:800},{width:390,height:844},{width:320,height:736}]){
+    await page.setViewportSize(viewport);
+    await page.goto(`http://127.0.0.1:${server.address().port}?live=1`);
+    await page.waitForFunction(()=>typeof window.showWriteback==='function');
+    await page.evaluate(()=>window.showWriteback());
+    const button=page.getByRole('button',{name:'核对并接收 Agent 修改',exact:true});
+    await button.click();assert.equal(await page.evaluate(()=>window.writebackClicks),1);
+    const measured=await page.evaluate(()=>{
+      const pane=document.querySelector('.agent-pane');
+      const controls=[...document.querySelectorAll('.agent-pause-control')];
+      return {overflow:document.documentElement.scrollWidth>innerWidth||pane.scrollWidth>pane.clientWidth,controlsOverlap:controls.some((control,i)=>i>0&&controls[i-1].getBoundingClientRect().bottom>control.getBoundingClientRect().top+1)};
+    });
+    assert.deepEqual(measured,{overflow:false,controlsOverlap:false});
+    await page.screenshot({path:resolve(output,`writeback-${viewport.width}.png`),fullPage:true});
+    await page.evaluate(()=>window.showWriteback(true));
+    await page.waitForFunction(()=>[...document.querySelectorAll('button')].find(button=>button.textContent==='核对并接收 Agent 修改')?.disabled);
+    assert.equal(await page.getByRole('button',{name:'同步已保存项目到 Agent',exact:true}).isDisabled(),true);
+    report.writebackViewports.push({...viewport,...measured});
+  }
+  await page.goto(`http://127.0.0.1:${server.address().port}/?live=1`);
+  await page.getByLabel('Agent 会话记录').waitFor();
+  const deliver=async(sequence,fields)=>page.evaluate(({sequence,fields})=>window.deliver({version:1,projectId:'p',generation:'g',sessionId:1,sequence,payload:JSON.stringify({name:'AgentSessionPatch',sessionId:1,...fields})}),{sequence,fields});
+  assert.equal(await deliver(1,{session:{id:1,projectRoot:'/game',title:'月光森林',kind:'main',rootSessionId:1,memoryScope:'main',workMode:'code',status:'RUNNING',currentTaskId:7,currentTaskStatus:'RUNNING',createdAt:1,updatedAt:2},message:{id:99,sessionId:1,taskId:7,role:'user',content:'修复一下构建错误',createdAt:1,updatedAt:1}}),'updated');
+  await page.getByRole('region',{name:'当前 Agent 任务'}).getByText('修复一下构建错误',{exact:true}).waitFor();
+  assert.equal(await deliver(2,{step:{id:7,sessionId:1,taskId:7,step:1,tool:'build',status:'RUNNING',reason:'核对当前构建错误',reasoningContent:'',createdAt:2,updatedAt:2}}),'updated');
+  await page.getByRole('region',{name:'当前 Agent 任务'}).getByText('构建',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Agent 会话记录').evaluate(element=>element.scrollHeight-element.scrollTop-element.clientHeight<48),true);
+  assert.equal(await deliver(4,{}),'resync-required');
+  await page.getByRole('status').filter({hasText:'需要重新同步'}).waitFor();
+  assert.equal(await deliver(3,{message:{id:99,sessionId:1,taskId:7,role:'assistant',content:'不得显示迟到更新',createdAt:1,updatedAt:2}}),'resync-required');
+  assert.equal(await page.getByText('不得显示迟到更新',{exact:true}).count(),0);
+  report.liveSubscriptionAndGapPassed=true;
+  await page.evaluate(()=>window.showPause('a'));
+  await page.getByRole('button',{name:'暂停并保存',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'正在停止并保存…',exact:true}).isDisabled(),true);
+  await page.evaluate(()=>window.settlePause('a',false));
+  await page.getByRole('button',{name:'重试保存',exact:true}).click();
+  await page.evaluate(()=>window.showPause('b'));
+  await page.getByRole('button',{name:'暂停并保存',exact:true}).waitFor();
+  await page.evaluate(()=>window.settlePause('a',true));
+  assert.equal(await page.getByRole('button',{name:'已保存到本机',exact:true}).count(),0);
+  await page.getByRole('button',{name:'暂停并保存',exact:true}).click();
+  await page.evaluate(()=>window.settlePause('b',true));
+  await page.getByRole('button',{name:'已保存到本机',exact:true}).waitFor();
+  assert.deepEqual(await page.evaluate(()=>window.pauseCalls),['a','a','b']);
+  assert.equal(await page.getByRole('button',{name:'已保存到本机',exact:true}).isDisabled(),true);
+  await page.evaluate(()=>window.showPause('a',true));
+  assert.equal(await page.getByRole('button',{name:'暂停并保存',exact:true}).isDisabled(),true);
+  report.pauseFailureRetryAndOwnerSwitchPassed=true;
+  await page.evaluate(()=>window.showRetirement());
+  await page.getByRole('button',{name:'保存并关闭 Agent',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'正在保存…',exact:true}).isDisabled(),true);
+  await page.evaluate(()=>window.settlePause('save',false));
+  await page.getByRole('button',{name:'重试保存',exact:true}).click();
+  await page.evaluate(()=>window.settlePause('save',true));
+  await page.getByRole('button',{name:'正在清理…',exact:true}).waitFor();
+  await page.evaluate(()=>window.settlePause('cleanup',false));
+  await page.getByText('会话已保存到本机；服务端清理未确认，可单独重试。',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'重试清理',exact:true}).click();
+  await page.evaluate(()=>window.settlePause('cleanup',true));
+  await page.getByRole('button',{name:'Agent 已关闭',exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Agent 已关闭',exact:true}).isDisabled(),true);
+  assert.deepEqual(await page.evaluate(()=>window.retirementCalls),['save','save','cleanup','cleanup']);
+  report.retirementFailureRetryAfterTransportClosePassed=true;
+  assert.deepEqual(report.errors,[]);
+  report.passed=true;
+} finally {
+  await browser?.close();
+  await new Promise(done=>server.close(done));
+  await writeFile(resolve(output,'result.json'),JSON.stringify(report,null,2));
+}
+console.log(JSON.stringify(report));
