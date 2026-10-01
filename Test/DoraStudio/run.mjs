@@ -49,6 +49,13 @@ function run(command,args,cwd){
 const temporary=await mkdtemp(join(tmpdir(),'dora-studio-tests-'));
 const mirrorRoot=join(temporary,'Dora-SSR'),mirrorStudio=join(mirrorRoot,'Studio'),mirrorTests=join(mirrorStudio,'tests');
 try{
+  // Prepare every artifact used by unit tests before enumerating the mirror.
+  // A clean checkout has no Studio/dist directory to symlink until this runs.
+  // Building the production Go server remains a separate xmake build gate.
+  if(build){
+    await run('pnpm',['-r','build'],studioRoot);
+    await run('pnpm',['build:agent-host'],studioRoot);
+  }
   await mkdir(mirrorStudio,{recursive:true});
   for(const entry of await readdir(doraRoot,{withFileTypes:true})){
     if(entry.name==='.git'||entry.name==='Studio')continue;
@@ -61,9 +68,6 @@ try{
   await cp(join(suiteRoot,'tests'),mirrorTests,{recursive:true});
   await cp(join(suiteRoot,'backend-contract.json'),join(mirrorStudio,'backend-contract.json'));
 
-  // Refresh compiled contracts, documentation and frontend sources before tests.
-  // Rebuilding production engine/server packages is a separate xmake build gate.
-  if(build)await run('pnpm',['-r','build'],studioRoot);
   const available=(await readdir(mirrorTests)).filter(name=>name.endsWith('.mjs'));
   const selected=requested.length?requested:available.filter(name=>name.endsWith('.test.mjs'));
   for(const name of selected)if(!available.includes(name))throw new Error(`Unknown Dora Studio test: ${name}`);
