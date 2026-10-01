@@ -3,6 +3,10 @@
   "engine": "Dora-SSR main",
   "files": [
     {
+      "source": "Tools/build-scripts/check_xmake_test_entrypoints.test.mjs",
+      "path": "Test/BuildScripts/check_xmake_test_entrypoints.test.mjs"
+    },
+    {
       "source": "Projects/Web/LoveAudioProbe.cpp",
       "path": "Test/Web/LoveAudioProbe.cpp"
     },

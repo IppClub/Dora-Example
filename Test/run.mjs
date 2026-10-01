@@ -15,7 +15,7 @@ const files = JSON.parse(fs.readFileSync(path.join(repo, 'Test/manifest.json'), 
 const cases = files.filter(f => /\.(mjs|lua|cjs|py)$/.test(f.path) && /Test\/(BuildScripts|WebIDE|StudioPrototype|Art)\//.test(f.path));
 cases.push({name:'studio', source:'Studio/tests/run.mjs', path:'Test/DoraStudio/run.mjs'});
 const suites = {
-  contract: ['check_touch_input_sources', 'check_web_builtin_libraries.test', 'check_web_api_parity.test', 'check_web_loader', 'check_web_package', 'test_web_audio_state', 'test_web_gallery', 'test_lualib_utf8_trim'],
+  contract: ['check_touch_input_sources', 'check_xmake_test_entrypoints.test', 'check_web_builtin_libraries.test', 'check_web_api_parity.test', 'check_web_loader', 'check_web_package', 'test_web_audio_state', 'test_web_gallery', 'test_lualib_utf8_trim'],
   web: ['check_web_output', 'check_web_love_capabilities', 'check_web_player_output', 'check_web_forbidden_deps'],
   'web-ide': cases.filter(f => f.path.startsWith('Test/WebIDE/')).map(f => path.basename(f.path, '.mjs')),
   studio: ['studio'],
@@ -46,7 +46,7 @@ for (const name of selected) {
     DORA_TEST_ORIGIN_URL:pathToFileURL(path.join(engine,file.source)).href,
     DORA_IDE_SCRIPT_URL:pathToFileURL(path.join(engine,file.source)).href,
     DORA_IDE_SCRIPTS_DIR:path.join(engine,'Tools/dora-dora/scripts')};
-  const nodeArgs = ['--import', path.join(repo,'Test/support/register.mjs')];
+  const nodeArgs = ['--import', pathToFileURL(path.join(repo,'Test/support/register.mjs')).href];
   if (name.endsWith('.test')) nodeArgs.push('--test');
   nodeArgs.push(path.join(repo,file.path), ...extra);
   const lua = file.path.endsWith('.lua');
