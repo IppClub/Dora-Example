@@ -13,7 +13,7 @@ function setup(options = {}) {
   const module = { print() {}, printErr() {} }, messages = [];
   const port = { postMessage(event) { messages.push(event); }, start() {}, close() { this.closed = true; } };
   const identity = { version: 1, sessionId: 's', projectId: 'p', revision: 1, requestId: 'q', runId: 'r' };
-  const bridge = installRuntimeBridge(page, module, { parentOrigin: 'https://studio.example', nonce: 'secret', identity, engineBuild: 'engine', ...options });
+  const bridge = installRuntimeBridge(page, module, { parentOrigin: 'https://studio.example', nonce: 'secret', identity, engineBuild: 'engine', engineVersion:'1.9.3', ...options });
   const event = { source: page.parent, origin: 'https://studio.example', data: { type: 'dora-runtime-connect', nonce: 'secret' }, ports: [port] };
   return { page, module, messages, port, bridge, event, listeners, timers, identity };
 }

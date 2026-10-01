@@ -18,6 +18,7 @@ import {createAgentRetirement} from './agent-retirement';
 import {createAgentSessionController} from './agent-session-controller';
 import {createAgentSessionState} from './agent-session-state';
 const state=createAgentSessionState({session:{id:1,title:'月光森林',status:'DONE',workMode:'code'},messages:Array.from({length:12},(_,index)=>({id:index+1,sessionId:1,role:index%2?'assistant':'user',content:index%2?'已更新跳跃与落地反馈。\\n'+('长路径_'.repeat(30)):'让角色的跳跃更有弹性。'})),steps:[{id:1,sessionId:1,taskId:1,step:1,tool:'edit_file',status:'DONE',reason:'更新角色控制',files:[{path:'Script/Player.lua',op:'write'}]}],checkpoints:[{id:1,taskId:1,seq:1,summary:'调整跳跃'}],relatedSessions:[],pendingQuestionnaire:null,spawnInfo:null,hasActivePlan:false,hasEarlierMessages:true});
+const queuedState=createAgentSessionState({session:{id:2,title:'排队验证',status:'RUNNING',workMode:'code',currentTaskId:9,currentTaskStatus:'RUNNING'},messages:[{id:99,sessionId:2,taskId:9,role:'user',content:'继续完善游戏'}],steps:[],checkpoints:[],relatedSessions:[],pendingQuestionnaire:null,spawnInfo:null,hasActivePlan:false,hasEarlierMessages:false});
 window.historyLoads=0;
 const controller=createAgentSessionController({projectId:'p',generation:'g',sequence:0,snapshot:{...state,messages:[...state.messages.byId.values()],steps:[...state.steps.byId.values()],checkpoints:[...state.checkpoints.byId.values()]}});
 window.deliver=controller.receive;
@@ -34,6 +35,7 @@ window.showWriteback=(busy=false)=>root.render(<div className="workbench show-ag
 window.questionnaireResults=[];
 window.showQuestionnaire=()=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentPanel state={{...state,pendingQuestionnaire:{id:8,sessionId:1,taskId:2,step:1,status:'PENDING',createdAt:1,schema:{title:'确认玩法',questions:[{id:'pace',prompt:'你喜欢哪种节奏？',type:'single_choice',required:true,allowOther:false,options:[{id:'calm',label:'轻松',description:'节奏舒缓'},{id:'tense',label:'紧张',description:'持续挑战'}]}]}}}} composer={{value:'不应显示',onChange(){},onSubmit(){},disabled:false,busy:false,status:'可继续'}} questionnaire={{submitting:false,onSubmit:answers=>window.questionnaireResults.push(answers),onCancel:()=>window.questionnaireResults.push('cancel')}}/></div>);
 window.showConfiguredComposer=()=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentPanel state={state} composer={{value:'继续完善关卡',onChange(){},onSubmit(){},disabled:false,busy:false,status:'Agent 已连接',planMode:false,fetchUrlEnabled:false,executeCommandEnabled:true,models:[{id:'grant-a',name:'DeepSeek · deepseek-chat'},{id:'grant-b',name:'智谱 · glm-4.5'}],modelId:'grant-a',onPlanModeChange(){},onFetchUrlEnabledChange(){},onExecuteCommandEnabledChange(){},onModelChange(){}}}/></div>);
+window.showModelQueue=()=>root.render(<div className="workbench show-agent"><section className="work-pane"/><AgentPanel state={queuedState} modelQueue={{version:1,state:'queued',queuedAt:123,position:3}}/></div>);
 let historyVisible=false;const renderHiddenHistory=()=>root.render(<div className="agent-workspace-view" hidden={!historyVisible}><AgentPanel state={state}/></div>);
 window.showHiddenHistory=()=>{historyVisible=false;renderHiddenHistory();};window.revealHiddenHistory=()=>{historyVisible=true;renderHiddenHistory();};
 root.render(<div className="workbench show-agent"><section className="work-pane"><div className="pane-header">浏览器布局测试 · 非生产会话</div></section>{location.search.includes('live=1') ? <AgentSessionPanel controller={controller}/> : <AgentPanel state={state} onLoadHistory={()=>{window.historyLoads++}}/>}</div>);
@@ -103,6 +105,14 @@ try {
     await page.screenshot({path:resolve(output,`configured-${viewport.width}.png`),fullPage:true});
     report.configuredComposerViewports.push({...viewport,...measured});
   }
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(`http://127.0.0.1:${server.address().port}`);
+  await page.waitForFunction(()=>typeof window.showModelQueue==='function');
+  await page.evaluate(()=>window.showModelQueue());
+  const queueStatus=page.getByRole('status').filter({hasText:'共享模型繁忙，正在自动排队等待'});
+  await queueStatus.waitFor();assert.match(await queueStatus.innerText(),/前方 2 个请求/);
+  assert.equal(await page.getByText('正在准备上下文并请求模型…',{exact:true}).count(),0);
+  report.modelQueueStatusPassed=true;
   await page.setViewportSize({width:1280,height:800});
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   await page.waitForFunction(()=>typeof window.showHiddenHistory==='function');

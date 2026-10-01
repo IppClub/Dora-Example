@@ -3,3 +3,4 @@
 *.swp
 .agent/
 /Test/Love/build*/
+/Test/DoraStudio/node_modules/

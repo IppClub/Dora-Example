@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "engine": "Dora-SSR main",
+  "files": [
+    {
+      "source": "Projects/Web/LoveAudioProbe.cpp",
+      "path": "Test/Web/LoveAudioProbe.cpp"
+    },
+    {
+      "source": "Projects/Web/LoveComplexProbe.cpp",
+      "path": "Test/Web/LoveComplexProbe.cpp"
+    },
+    {
+      "source": "Projects/Web/LoveGraphicsProbe.cpp",
+      "path": "Test/Web/LoveGraphicsProbe.cpp"
+    },
+    {
+      "source": "Projects/Web/LoveLinkProbe.cpp",
+      "path": "Test/Web/LoveLinkProbe.cpp"
+    },
+    {
+      "source": "Projects/Web/LoveShaderProbe.cpp",
+      "path": "Test/Web/LoveShaderProbe.cpp"
+    },
+    {
+      "source": "Projects/Web/api-contract/builtin-libraries.lua",
+      "path": "Test/Web/api-contract/builtin-libraries.lua"
+    },
+    {
+      "source": "Projects/Web/api-contract/init.lua",
+      "path": "Test/Web/api-contract/init.lua"
+    },
+    {
+      "source": "Projects/Web/audio-source-fixture/init.lua",
+      "path": "Test/Web/audio-source-fixture/init.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/DragonBones/web-dragon_ske.json",
+      "path": "Test/Web/demo-game/DragonBones/web-dragon_ske.json"
+    },
+    {
+      "source": "Projects/Web/demo-game/DragonBones/web-dragon_tex.json",
+      "path": "Test/Web/demo-game/DragonBones/web-dragon_tex.json"
+    },
+    {
+      "source": "Projects/Web/demo-game/Examples/LuaSprite.lua",
+      "path": "Test/Web/demo-game/Examples/LuaSprite.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/Examples/TealLabel.lua",
+      "path": "Test/Web/demo-game/Examples/TealLabel.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/Examples/TealLabel.tl",
+      "path": "Test/Web/demo-game/Examples/TealLabel.tl"
+    },
+    {
+      "source": "Projects/Web/demo-game/Examples/YueDraw.lua",
+      "path": "Test/Web/demo-game/Examples/YueDraw.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/Examples/YueDraw.yue",
+      "path": "Test/Web/demo-game/Examples/YueDraw.yue"
+    },
+    {
+      "source": "Projects/Web/demo-game/Font/web-fixture.ttf",
+      "path": "Test/Web/demo-game/Font/web-fixture.ttf"
+    },
+    {
+      "source": "Projects/Web/demo-game/LoveFixture/main.lua",
+      "path": "Test/Web/demo-game/LoveFixture/main.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/Particle/fire.par",
+      "path": "Test/Web/demo-game/Particle/fire.par"
+    },
+    {
+      "source": "Projects/Web/demo-game/Spine/web-spine.atlas",
+      "path": "Test/Web/demo-game/Spine/web-spine.atlas"
+    },
+    {
+      "source": "Projects/Web/demo-game/Spine/web-spine.json",
+      "path": "Test/Web/demo-game/Spine/web-spine.json"
+    },
+    {
+      "source": "Projects/Web/demo-game/init.lua",
+      "path": "Test/Web/demo-game/init.lua"
+    },
+    {
+      "source": "Projects/Web/demo-game/lazy.txt",
+      "path": "Test/Web/demo-game/lazy.txt"
+    },
+    {
+      "source": "Projects/Web/love-audio-fixture/conf.lua",
+      "path": "Test/Web/love-audio-fixture/conf.lua"
+    },
+    {
+      "source": "Projects/Web/love-audio-fixture/main.lua",
+      "path": "Test/Web/love-audio-fixture/main.lua"
+    },
+    {
+      "source": "Projects/Web/love-audio-probe-runner.js",
+      "path": "Test/Web/love-audio-probe-runner.js"
+    },
+    {
+      "source": "Projects/Web/love-complex-probe-runner.js",
+      "path": "Test/Web/love-complex-probe-runner.js"
+    },
+    {
+      "source": "Projects/Web/love-complex-project.json",
+      "path": "Test/Web/love-complex-project.json"
+    },
+    {
+      "source": "Projects/Web/love-graphics-fixture/conf.lua",
+      "path": "Test/Web/love-graphics-fixture/conf.lua"
+    },
+    {
+      "source": "Projects/Web/love-graphics-fixture/main.lua",
+      "path": "Test/Web/love-graphics-fixture/main.lua"
+    },
+    {
+      "source": "Projects/Web/love-graphics-probe-runner.js",
+      "path": "Test/Web/love-graphics-probe-runner.js"
+    },
+    {
+      "source": "Projects/Web/love-link-probe-runner.js",
+      "path": "Test/Web/love-link-probe-runner.js"
+    },
+    {
+      "source": "Projects/Web/love-shader-fixture/conf.lua",
+      "path": "Test/Web/love-shader-fixture/conf.lua"
+    },
+    {
+      "source": "Projects/Web/love-shader-fixture/main.lua",
+      "path": "Test/Web/love-shader-fixture/main.lua"
+    },
+    {
+      "source": "Projects/Web/love-shader-probe-runner.js",
+      "path": "Test/Web/love-shader-probe-runner.js"
+    },
+    {
+      "source": "Projects/Web/performance-baseline.json",
+      "path": "Test/Web/performance-baseline.json"
+    },
+    {
+      "source": "Projects/xmake/tests/web-profile/LoveFixture/main.lua",
+      "path": "Test/Web/profile/LoveFixture/main.lua"
+    },
+    {
+      "source": "Projects/xmake/tests/web-profile/init.lua",
+      "path": "Test/Web/profile/init.lua"
+    },
+    {
+      "source": "Tools/build-scripts/check_touch_input_sources.mjs",
+      "path": "Test/BuildScripts/check_touch_input_sources.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_wa_web.mjs",
+      "path": "Test/BuildScripts/check_wa_web.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_api_contract.mjs",
+      "path": "Test/BuildScripts/check_web_api_contract.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_api_parity.mjs",
+      "path": "Test/BuildScripts/check_web_api_parity.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_audio_worklet.mjs",
+      "path": "Test/BuildScripts/check_web_audio_worklet.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_browser.mjs",
+      "path": "Test/BuildScripts/check_web_browser.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_builtin_libraries.mjs",
+      "path": "Test/BuildScripts/check_web_builtin_libraries.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_builtin_libraries.test.mjs",
+      "path": "Test/BuildScripts/check_web_builtin_libraries.test.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_forbidden_deps.mjs",
+      "path": "Test/BuildScripts/check_web_forbidden_deps.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_gallery.mjs",
+      "path": "Test/BuildScripts/check_web_gallery.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_game_smoke.mjs",
+      "path": "Test/BuildScripts/check_web_game_smoke.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_loader.mjs",
+      "path": "Test/BuildScripts/check_web_loader.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_audio.mjs",
+      "path": "Test/BuildScripts/check_web_love_audio.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_capabilities.mjs",
+      "path": "Test/BuildScripts/check_web_love_capabilities.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_complex.mjs",
+      "path": "Test/BuildScripts/check_web_love_complex.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_complex_input.mjs",
+      "path": "Test/BuildScripts/check_web_love_complex_input.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_graphics.mjs",
+      "path": "Test/BuildScripts/check_web_love_graphics.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_player.mjs",
+      "path": "Test/BuildScripts/check_web_love_player.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_player_output.mjs",
+      "path": "Test/BuildScripts/check_web_love_player_output.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_runtime.mjs",
+      "path": "Test/BuildScripts/check_web_love_runtime.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_love_shader.mjs",
+      "path": "Test/BuildScripts/check_web_love_shader.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_output.mjs",
+      "path": "Test/BuildScripts/check_web_output.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_package.mjs",
+      "path": "Test/BuildScripts/check_web_package.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_performance.mjs",
+      "path": "Test/BuildScripts/check_web_performance.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_player_output.mjs",
+      "path": "Test/BuildScripts/check_web_player_output.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_preview.mjs",
+      "path": "Test/BuildScripts/check_web_preview.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/generate_web_audio_fixture.mjs",
+      "path": "Test/BuildScripts/generate_web_audio_fixture.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/generate_web_render_fixtures.mjs",
+      "path": "Test/BuildScripts/generate_web_render_fixtures.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/stage_web_audio_source_test.mjs",
+      "path": "Test/BuildScripts/stage_web_audio_source_test.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/stage_web_love_complex_input.mjs",
+      "path": "Test/BuildScripts/stage_web_love_complex_input.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/test_lualib_utf8_trim.lua",
+      "path": "Test/BuildScripts/test_lualib_utf8_trim.lua"
+    },
+    {
+      "source": "Tools/build-scripts/test_web_audio_state.mjs",
+      "path": "Test/BuildScripts/test_web_audio_state.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/test_web_audio_worklet.mjs",
+      "path": "Test/BuildScripts/test_web_audio_worklet.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/test_web_gallery.mjs",
+      "path": "Test/BuildScripts/test_web_gallery.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-auto-scroll.mjs",
+      "path": "Test/WebIDE/test-agent-auto-scroll.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-doc-search.mjs",
+      "path": "Test/WebIDE/test-agent-doc-search.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-patch-batch.mjs",
+      "path": "Test/WebIDE/test-agent-patch-batch.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-render-window.mjs",
+      "path": "Test/WebIDE/test-agent-render-window.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-service-callbacks.mjs",
+      "path": "Test/WebIDE/test-agent-service-callbacks.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-session-snapshot.mjs",
+      "path": "Test/WebIDE/test-agent-session-snapshot.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-step-budget.mjs",
+      "path": "Test/WebIDE/test-agent-step-budget.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-virtual-log.mjs",
+      "path": "Test/WebIDE/test-agent-virtual-log.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-vision-contract.mjs",
+      "path": "Test/WebIDE/test-agent-vision-contract.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-audio-preview.mjs",
+      "path": "Test/WebIDE/test-audio-preview.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-auth-signature.mjs",
+      "path": "Test/WebIDE/test-auth-signature.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-cli-agent.mjs",
+      "path": "Test/WebIDE/test-cli-agent.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-entry-lease.mjs",
+      "path": "Test/WebIDE/test-entry-lease.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-entry-list-cache.mjs",
+      "path": "Test/WebIDE/test-entry-list-cache.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-entry-run-queue.mjs",
+      "path": "Test/WebIDE/test-entry-run-queue.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-entry-writable-path.mjs",
+      "path": "Test/WebIDE/test-entry-writable-path.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-es6-subset.mjs",
+      "path": "Test/WebIDE/test-es6-subset.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-file-search-index.mjs",
+      "path": "Test/WebIDE/test-file-search-index.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-first-project-tour.mjs",
+      "path": "Test/WebIDE/test-first-project-tour.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-git-job-store.mjs",
+      "path": "Test/WebIDE/test-git-job-store.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-git-progress.mjs",
+      "path": "Test/WebIDE/test-git-progress.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-heavy-assets.mjs",
+      "path": "Test/WebIDE/test-heavy-assets.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-local-agent-backends.mjs",
+      "path": "Test/WebIDE/test-local-agent-backends.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-lodash-amd.mjs",
+      "path": "Test/WebIDE/test-lodash-amd.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-log-buffer.mjs",
+      "path": "Test/WebIDE/test-log-buffer.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-resource-tree-sync.mjs",
+      "path": "Test/WebIDE/test-resource-tree-sync.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-transpile-protocol.mjs",
+      "path": "Test/WebIDE/test-transpile-protocol.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-tstl-truthiness.mjs",
+      "path": "Test/WebIDE/test-tstl-truthiness.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-web-package.mjs",
+      "path": "Test/WebIDE/test-web-package.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-web-runtime-preparation.mjs",
+      "path": "Test/WebIDE/test-web-runtime-preparation.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-xrt-network-wrapper.mjs",
+      "path": "Test/WebIDE/test-xrt-network-wrapper.mjs"
+    },
+    {
+      "source": "Source/Node/Surface3D.cpp",
+      "path": "Test/Native/Surface3D.inc"
+    },
+    {
+      "source": "Source/Basic/Director.cpp",
+      "path": "Test/Native/Director.inc"
+    },
+    {
+      "source": "Source/Http/HttpServer.cpp",
+      "path": "Test/Native/HttpServer.inc"
+    },
+    {
+      "source": "Source/Test/HelloWorldCpp.cpp",
+      "path": "Test/Native/HelloWorldCpp.cpp"
+    },
+    {
+      "source": "Studio/prototype/test.cjs",
+      "path": "Test/StudioPrototype/test.cjs"
+    },
+    {
+      "source": "Studio/prototype/money-test.cjs",
+      "path": "Test/StudioPrototype/money-test.cjs"
+    },
+    {
+      "source": "Tools/Art/Mobile/test_mascot.py",
+      "path": "Test/Art/test_mascot.py"
+    },
+    {
+      "source": "Tools/build-scripts/check_web_api_parity.test.mjs",
+      "path": "Test/BuildScripts/check_web_api_parity.test.mjs"
+    }
+  ]
+}

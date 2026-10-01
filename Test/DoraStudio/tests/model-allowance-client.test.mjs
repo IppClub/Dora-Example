@@ -11,7 +11,7 @@ test('allowance reads reject redirects, bound streamed bytes and do not dispatch
  const aborted=new AbortController();aborted.abort();await assert.rejects(loadAllowance('grant',aborted.signal));assert.equal(calls,1);
  await assert.rejects(loadAllowance('../foreign',new AbortController().signal));assert.equal(calls,1);
  globalThis.fetch=async()=>new Response(new Uint8Array([0xff]));await assert.rejects(loadAllowance('grant',new AbortController().signal));
- const body={version:1,currency:'CNY',unit:'nano-CNY',funding:'platform',grantId:'grant',state:'available',available:'5',account:{spent:'0',reserved:'0',limit:'5'},grant:{spent:'0',reserved:'0',limit:'5'}};
+ const body={version:1,currency:'CNY',unit:'nano-CNY',funding:'platform',grantId:'grant',state:'available',available:'5',api:{spent:'0',reserved:'0',limit:'0'},account:{spent:'0',reserved:'0',limit:'5'},grant:{spent:'0',reserved:'0',limit:'5'}};
  globalThis.fetch=async()=>Response.json(body);assert.equal((await loadAllowance('grant',new AbortController().signal)).available,'5');
  globalThis.fetch=async()=>Response.json({...body,grantId:'other'});await assert.rejects(loadAllowance('grant',new AbortController().signal),/Invalid allowance/);
 });

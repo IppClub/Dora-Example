@@ -2,8 +2,14 @@ import {spawn} from 'node:child_process';
 import {access,cp,mkdir,mkdtemp,readdir,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {basename,join,resolve} from 'node:path';
+import {createRequire} from 'node:module';
 
 const suiteRoot=import.meta.dirname;
+const require=createRequire(import.meta.url);
+let playwrightModule=process.env.STUDIO_PLAYWRIGHT_MODULE;
+if(!playwrightModule){
+  try{playwrightModule=require.resolve('playwright');}catch{/* Unit-only runs do not require Playwright. */}
+}
 
 async function isStudioRoot(path){
   try{
@@ -34,7 +40,7 @@ for(const argument of process.argv.slice(2)){
 
 function run(command,args,cwd){
   return new Promise((resolve,reject)=>{
-    const child=spawn(command,args,{cwd,stdio:'inherit',env:{...process.env,DORA_SSR_ROOT:doraRoot,DORA_STUDIO_ROOT:studioRoot}});
+    const child=spawn(command,args,{cwd,stdio:'inherit',env:{...process.env,DORA_SSR_ROOT:doraRoot,DORA_STUDIO_ROOT:studioRoot,...(playwrightModule?{STUDIO_PLAYWRIGHT_MODULE:playwrightModule}:{})}});
     child.once('error',reject);
     child.once('exit',(code,signal)=>code===0?resolve():reject(new Error(signal?`${command} stopped by ${signal}`:`${command} exited with ${code}`)));
   });
@@ -53,14 +59,17 @@ try{
     await symlink(join(studioRoot,entry.name),join(mirrorStudio,entry.name),entry.isDirectory()?'dir':'file');
   }
   await cp(join(suiteRoot,'tests'),mirrorTests,{recursive:true});
+  await cp(join(suiteRoot,'backend-contract.json'),join(mirrorStudio,'backend-contract.json'));
 
-  if(build)await run('pnpm',['build'],studioRoot);
+  // Refresh compiled contracts, documentation and frontend sources before tests.
+  // Rebuilding production engine/server packages is a separate xmake build gate.
+  if(build)await run('pnpm',['-r','build'],studioRoot);
   const available=(await readdir(mirrorTests)).filter(name=>name.endsWith('.mjs'));
   const selected=requested.length?requested:available.filter(name=>name.endsWith('.test.mjs'));
   for(const name of selected)if(!available.includes(name))throw new Error(`Unknown Dora Studio test: ${name}`);
   const unit=selected.filter(name=>name.endsWith('.test.mjs'));
   const scripts=selected.filter(name=>!name.endsWith('.test.mjs'));
-  if(unit.length)await run(process.execPath,['--test',...unit.map(name=>join(mirrorTests,name))],studioRoot);
+  if(unit.length)await run(process.execPath,['--test','--test-concurrency=4',...unit.map(name=>join(mirrorTests,name))],studioRoot);
   for(const name of scripts)await run(process.execPath,[join(mirrorTests,name)],studioRoot);
 }finally{
   await rm(temporary,{recursive:true,force:true});

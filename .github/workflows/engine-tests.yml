@@ -1,0 +1,88 @@
+name: Latest engine tests
+
+on:
+  push:
+    branches: [master]
+    paths: ['Test/**', '.github/workflows/engine-tests.yml']
+  pull_request:
+    branches: [master]
+    paths: ['Test/**', '.github/workflows/engine-tests.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout current engine main
+        uses: actions/checkout@v4
+        with:
+          repository: IppClub/Dora-SSR
+          ref: main
+          path: engine
+          submodules: recursive
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: engine/Tools/dora-dora/package.json
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: engine/Studio/go.sum
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4 build-essential pkg-config libgl1-mesa-dev libssl-dev libdbus-1-dev \
+            libasound2-dev libjack-jackd2-dev libpulse-dev libpipewire-0.3-dev libsamplerate0-dev libsndio-dev \
+            libibus-1.0-dev libudev-dev libusb-1.0-0-dev \
+            libx11-dev libxext-dev libxcursor-dev libxi-dev libxfixes-dev libxrandr-dev libxrender-dev libxss-dev \
+            libdrm-dev libgbm-dev libegl1-mesa-dev libwayland-dev libwayland-bin wayland-protocols \
+            libxkbcommon-dev libdecor-0-dev
+          pnpm --dir engine/Tools/dora-dora install --frozen-lockfile
+          pnpm --dir engine/Studio install --frozen-lockfile
+      - name: Validate current engine against these tests
+        working-directory: engine
+        env:
+          DORA_TEST_REPO: ${{ github.workspace }}
+        run: |
+          xmake dora-test
+          xmake dora-build --tests --mode=debug --jobs=2
+          xmake dora-test --suite=web-ide
+          xmake dora-test --suite=studio
+      - name: Keep revision and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: engine/build/test-results
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: IppClub/Dora-SSR
+          ref: main
+          path: engine
+          submodules: recursive
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+      - name: Build and verify external Web fixtures
+        working-directory: engine
+        env:
+          DORA_TEST_REPO: ${{ github.workspace }}
+        run: |
+          xmake dora-web --tests --jobs=2
+          xmake dora-test --suite=web

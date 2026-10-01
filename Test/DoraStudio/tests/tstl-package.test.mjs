@@ -21,7 +21,8 @@ test('TSTL browser bundle is independent of native IDE sources and Node built-in
     logLevel: 'silent',
   });
   assert.ok(result.outputFiles[0].contents.length > 1000);
-  assert.ok(Object.keys(result.metafile.inputs).every(path => !path.includes('Tools/dora-dora')));
+  assert.ok(Object.keys(result.metafile.inputs).every(path => !/(?:^|\/)Tools\/dora-dora\/src\//.test(path)),
+    'the compiler bundle must not consume native Web IDE source; shared node_modules paths are allowed');
   for (const output of Object.values(result.metafile.outputs)) assert.deepEqual(output.imports, []);
 });
 

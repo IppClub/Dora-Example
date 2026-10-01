@@ -16,8 +16,13 @@ test('workspace runtime prefers Agent-generated Lua without requiring a Studio b
 });
 
 test('workspace runtime keeps an explicit build when generated output is absent',async()=>{
-  const compiled={buildId:'b',projectId:'p',revision:2,compilerVersion:'compiler',entry:'main.lua',files:[{path:'main.lua',kind:'text',text:'print("compiled")'}],sourceMaps:{},sha256:'a'.repeat(64)};
+  const compiled={buildId:'b',projectId:'p',revision:3,compilerVersion:'compiler',entry:'main.lua',files:[{path:'main.lua',kind:'text',text:'print("compiled")'}],sourceMaps:{},sha256:'a'.repeat(64)};
   assert.equal(await resolveWorkspaceRuntimeArtifact(snapshot([source]),compiled),compiled);
+  const stale={...compiled,revision:2};
+  const current=await resolveWorkspaceRuntimeArtifact(snapshot([source]),stale);
+  assert.notEqual(current,stale);
+  assert.equal(current.revision,3);
+  assert.equal(current.entry,'main.ts');
 });
 
 test('workspace runtime packages raw source and leaves missing compilation diagnosis to Player',async()=>{

@@ -9,7 +9,8 @@ layouts. The runner creates a temporary mirror so the tests retain their
 original relative imports without copying implementation code into this
 repository.
 
-Run the complete build and Node.js unit suite from the Dora-Example checkout:
+Run the current frontend build, Node.js contracts and Go backend race suite
+from the Dora-Example checkout (Go >= 1.24 and pnpm are required):
 
 ```sh
 DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs
@@ -18,7 +19,7 @@ DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs
 Run one or more tests without rebuilding:
 
 ```sh
-DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build contracts.test.mjs project-store.test.mjs
+DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build contracts.test.mjs backend-go.test.mjs
 ```
 
 Browser and manual scripts remain opt-in because they require the services and
@@ -32,3 +33,17 @@ DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build workbenc
 The temporary mirror is deleted after each run. Test evidence and application
 artifacts continue to be written to the paths selected by each script in the
 Dora-SSR checkout.
+
+From the engine root, use `xmake dora-test --suite=studio`. The default run
+refreshes workspace packages and bilingual documentation with `pnpm -r build`;
+`-- --no-build` is only appropriate after that build. Production engine/server
+packaging is a separate build gate, not a prerequisite for these unit tests.
+
+The backend is now Go. The 45 former Node implementation-specific test files
+have been removed because the server modules they tested no longer exist.
+`backend-contract.json` records required current Go test groups.
+`backend-go.test.mjs` executes real
+HTTP/SQLite/quota/model/queue/static-host tests with `-race -count=1`, checks
+that every registered Go group actually passed, and fails on missing coverage
+or a failing process. This is current-backend acceptance, not a claim of
+one-to-one preservation of every obsolete Node internal-unit assertion.

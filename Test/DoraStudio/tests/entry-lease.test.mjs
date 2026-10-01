@@ -9,21 +9,19 @@ function entry() {
     stop(){stops++;status.running=false;return true;},
     start(){status.runId++;status.running=true;}};
 }
-test('original entry lease excludes concurrent Agent tools and never stops a manual game', () => {
+test('current entry lease interrupts a manual game once and excludes concurrent Agent tools', () => {
   const lease = createEntryLease(), runtime = entry();
   runtime.start();
-  assert.throws(()=>lease.acquireEntryLease('A',runtime),/in use/);
-  assert.equal(lease.releaseEntryLease('A',runtime),undefined);
-  assert.equal(runtime.stops,0);
-  runtime.status.running=false;
+  assert.equal(lease.acquireEntryLease('A',runtime),true);
+  assert.equal(runtime.stops,1);
   lease.acquireEntryLease('A',runtime);
   assert.throws(()=>lease.acquireEntryLease('B',runtime),/busy/);
   lease.recordEntryLeaseRun('A',runtime);runtime.start();
   assert.equal(lease.ownsEntryLease('A',runtime),true);
   lease.releaseEntryLease('B',runtime);
-  assert.equal(runtime.stops,0);
-  lease.releaseEntryLease('A',runtime);
   assert.equal(runtime.stops,1);
+  lease.releaseEntryLease('A',runtime);
+  assert.equal(runtime.stops,2);
   assert.equal(lease.ownsEntryLease('A',runtime),false);
 });
 test('late cleanup cannot stop a newer run and independent hosts do not share ownership', () => {

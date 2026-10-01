@@ -48,6 +48,7 @@ function fixture(){
  const api={analyzePath:p=>({exists:fs.existsSync(path(p))}),lstat:p=>fs.lstatSync(path(p)),isDir:m=>(m&0o170000)===0o040000,isFile:m=>(m&0o170000)===0o100000,readdir:p=>fs.readdirSync(path(p)),readFile:p=>fs.readFileSync(path(p)),writeFile:(p,b)=>fs.writeFileSync(path(p),b),mkdirTree:p=>fs.mkdirSync(path(p),{recursive:true}),rename:(a,b)=>fs.renameSync(path(a),path(b)),unlink:p=>fs.unlinkSync(path(p)),rmdir:p=>fs.rmdirSync(path(p))};
  api.mkdirTree('/user/studio-project/.agent');api.writeFile('/user/studio-project/.agent/session.json',Buffer.from('keep'));
  api.writeFile('/user/studio-project/old.lua',Buffer.from('old'));api.mkdirTree('/game');api.writeFile('/game/init.lua',Buffer.from('trusted'));
+ for(const name of ['Music.d.ts','Music.lua']){api.mkdirTree('/game/Agent/Gen');api.writeFile('/game/Agent/Gen/'+name,Buffer.from('trusted '+name));}
  return {api,path,close:()=>fs.rmSync(base,{recursive:true,force:true})};
 }
 test('installation replaces author files but preserves Agent state and trusted host',()=>{

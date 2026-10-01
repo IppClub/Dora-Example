@@ -17,7 +17,7 @@ function artifact() {
 }
 test('runtime snapshot preserves exact text/binary bytes and build identity without networking', async () => {
   const input = artifact();
-  const result = await prepareRuntimeSnapshot(input);
+  const result = await prepareRuntimeSnapshot(input, '1.9.3');
   assert.deepEqual(result.identity, { projectId: 'p', revision: 2, buildId: 'build2', sha256: input.sha256 });
   assert.equal(new TextDecoder().decode(result.files[0].bytes), 'print("你好")');
   assert.deepEqual([...result.files[1].bytes], [0, 255, 10]);
@@ -28,8 +28,8 @@ test('runtime snapshot preserves exact text/binary bytes and build identity with
 });
 test('runtime snapshot rejects tampering and isolates mutation during async hashing', async () => {
   const invalid = artifact(); invalid.files[0].text = 'changed';
-  await assert.rejects(prepareRuntimeSnapshot(invalid), /完整性/);
-  const input = artifact(); const pending = prepareRuntimeSnapshot(input);
+  await assert.rejects(prepareRuntimeSnapshot(invalid, '1.9.3'), /完整性/);
+  const input = artifact(); const pending = prepareRuntimeSnapshot(input, '1.9.3');
   input.files[1].bytes.fill(42); input.revision = 100;
   const result = await pending;
   assert.deepEqual([...result.files[1].bytes], [0, 255, 10]);

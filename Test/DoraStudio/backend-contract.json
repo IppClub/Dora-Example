@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "backend": "Go",
+  "requiredGoTests": [
+    "TestAdministrationModelsAndBYOK",
+    "TestAgentLaunchAssetsModelAndLedger",
+    "TestByokUsageReportProjectsSafeRecordsAndFullSummary",
+    "TestInvitationQuotaIsAtomic",
+    "TestInvitationQuotaManagement",
+    "TestLegacyTaggedNanoScope",
+    "TestLoginRateLimitIsSharedAndExpires",
+    "TestObsoleteInvitationSchemaRequiresDatabaseRebuild",
+    "TestRuntimeHandlerDedicatedStaticSurface",
+    "TestRuntimeHandlerRejectsIncompleteBuild",
+    "TestStreamProviderResponseRequiresDoneAndPreservesUsage",
+    "TestUserProjectLifecycle",
+    "TestWebHandlerRejectsUnsafeOrIncompleteTree",
+    "TestWebHandlerServesAssetsRoutesAndAPI",
+    "TestXYWHSoftUsesXMLAgentDecisions"
+  ]
+}

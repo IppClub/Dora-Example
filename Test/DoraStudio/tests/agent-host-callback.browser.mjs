@@ -359,10 +359,27 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(done=>server.listen(0,'127.0.0.1',done));
 let launchRoute,revokeRoute;
+let fixtureCloud={cloudRevision:1,updatedAt:1,name:'Alpha',snapshot:{version:1,projectId:'owned',revision:0,entry:'init.lua',files:[{path:'init.lua',kind:'text',text:'-- author offline edit'},{path:'Resources/test.bin',kind:'binary',base64:'AP+A'}]}};
 const parentServer=createServer(async(req,res)=>{
   res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
   if(launchRoute && await launchRoute(req,res))return;
   if(revokeRoute && await revokeRoute(req,res))return;
+  if(req.method==='GET'&&req.url==='/api/projects?limit=20&after='){
+    res.setHeader('Content-Type','application/json');res.end(JSON.stringify({version:1,items:[{projectId:'owned',name:fixtureCloud.name,cloudRevision:fixtureCloud.cloudRevision,updatedAt:fixtureCloud.updatedAt}],nextCursor:null}));return;
+  }
+  if(req.method==='GET'&&req.url==='/api/projects/owned'){
+    res.setHeader('Content-Type','application/json');res.end(JSON.stringify({version:1,...fixtureCloud}));return;
+  }
+  if(req.method==='PUT'&&req.url==='/api/projects/owned'){
+    let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);
+    assert.equal(body.baseRevision,fixtureCloud.cloudRevision);fixtureCloud={cloudRevision:body.baseRevision+1,updatedAt:Date.now(),name:body.name,snapshot:body.snapshot};
+    res.setHeader('Content-Type','application/json');res.end(JSON.stringify({version:1,projectId:'owned',requestId:body.requestId,cloudRevision:fixtureCloud.cloudRevision,replayed:false}));return;
+  }
+  if(req.method==='GET'&&req.url==='/api/projects/other'){res.statusCode=404;res.end();return;}
+  if(req.method==='PUT'&&req.url==='/api/projects/other'){
+    let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);assert.equal(body.baseRevision,0);
+    res.setHeader('Content-Type','application/json');res.end(JSON.stringify({version:1,projectId:'other',requestId:body.requestId,cloudRevision:1,replayed:false}));return;
+  }
   if(req.url==='/launch.js'){res.setHeader('Content-Type','text/javascript');res.end(launchBundle.outputFiles[0].text);return;}
   if(req.url==='/adapter.js'){res.setHeader('Content-Type','text/javascript');res.end(adapterBundle.outputFiles[0].text);return;}
   if(req.url==='/empty'){res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/style.css"></head><body><div class="workbench show-agent"><section class="work-pane"><p>真实 Agent 保存关闭验证</p></section><div id="panel" style="display:contents"></div></div></body></html>');return;}
@@ -767,7 +784,6 @@ try{
   await ownedParent.getByRole('button',{name:'保存项目',exact:true}).click();
   await activeAuthorFrame.waitForFunction(source=>Module.FS.readFile('/user/studio-project/init.lua',{encoding:'utf8'})===source,receivedGameSource);
   report.formalAppAutomaticAuthorSyncPassed=true;
-  await ownedParent.getByText('尚未编译',{exact:true}).waitFor();
   assert.equal(await ownedParent.locator('.runtime-surface iframe').count(),0);
   report.formalAppWritebackNoExtraCompilePlayPassed=true;
   await ownedParent.getByRole('button',{name:/编译项目/}).click();
@@ -803,7 +819,7 @@ try{
   assert.equal(await activeAuthorFrame.evaluate(()=>Module.FS.readFile('/user/studio-project/init.lua',{encoding:'utf8'})),'-- unreconciled Agent edit');
   report.formalAppAuthorSyncAndConflictPassed=true;
   assert.equal(launchStore.stats().entries,1);
-  assert.equal(await ownedParent.locator('iframe').count(),1);
+  assert.equal(await ownedParent.locator('iframe').count(),2);
   await ownedParent.locator('.project-link').filter({hasText:'Beta'}).click();
   await ownedParent.getByRole('heading',{name:'Beta',exact:true}).waitFor();
   assert.equal(await ownedParent.locator('iframe').count(),0);

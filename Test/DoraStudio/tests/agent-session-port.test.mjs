@@ -117,6 +117,19 @@ test('dedicated host port acknowledges one bound prompt without accepting a fore
     assert.equal(calls,1);
   }finally{client.close();host.close();}
 });
+test('dedicated port publishes validated model queue state without changing the Agent transcript',async()=>{
+  const {port1,port2}=new MessageChannel();let queue={version:1,state:'idle'},listener;
+  const modelQueue={getSnapshot:()=>queue,subscribe:value=>{listener=value;return()=>{listener=undefined;}}};
+  const host=serve(port2,binding,{subscribe:()=>()=>{},capture:()=>snapshot},{persist:async()=>{},modelQueue});
+  const client=await connect(port1,binding,new AbortController().signal,1000);
+  try{
+    assert.deepEqual(client.modelQueue.getSnapshot(),{version:1,state:'idle'});
+    const changed=new Promise(resolve=>{const stop=client.modelQueue.subscribe(()=>{stop();resolve();});});
+    queue={version:1,state:'queued',queuedAt:123,position:2};listener();await changed;
+    assert.deepEqual(client.modelQueue.getSnapshot(),queue);
+    assert.equal(client.controller.closed,false);
+  }finally{client.close();host.close();}
+});
 test('dedicated host port forwards one validated questionnaire response',async()=>{
   const {port1,port2}=new MessageChannel(),requestId=crypto.randomUUID(),answers=[{questionId:'style',status:'answered',selectedOptionIds:['arcade']}];let calls=0;
   const host=serve(port2,binding,{subscribe:()=>()=>{},capture:()=>snapshot},{persist:async()=>{},handleQuestionnaire:async(action,id,value,grant,request)=>{calls++;assert.equal(action,'respond');assert.equal(id,9);assert.deepEqual(value,answers);assert.equal(grant,'grant');assert.equal(request,requestId);return 17;}});
