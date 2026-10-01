@@ -7,6 +7,29 @@ import {spawnSync} from 'node:child_process';
 
 const engine = process.env.DORA_ENGINE_ROOT;
 
+test('canonical tutorial generator prepares bilingual docs in a clean checkout', () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'dora-studio-docs-'));
+  try {
+    const script = path.join(temporary, 'Docs/scripts/generate-language-docs.js');
+    fs.mkdirSync(path.dirname(script), {recursive: true});
+    fs.copyFileSync(path.join(engine, 'Docs/scripts/generate-language-docs.js'), script);
+    for (const directory of ['docs/tutorial', 'i18n/zh-Hans/docusaurus-plugin-content-docs/current/tutorial']) {
+      const source = path.join(temporary, 'Docs', directory);
+      fs.mkdirSync(source, {recursive: true});
+      fs.writeFileSync(path.join(source, '001.ci-fixture.md'), '# CI fixture\n\n```lua\nprint("hello")\n```\n');
+    }
+    assert.equal(fs.existsSync(path.join(temporary, 'Assets/Doc')), false);
+    const result = spawnSync(process.execPath, [script], {encoding: 'utf8', timeout: 30000});
+    assert.equal(result.status, 0, result.error?.message || result.stdout + result.stderr);
+    for (const language of ['en', 'zh-Hans']) {
+      const tutorial = path.join(temporary, 'Assets/Doc', language, 'Tutorial/lua/ci-fixture.md');
+      assert.match(fs.readFileSync(tutorial, 'utf8'), /print\("hello"\)/);
+    }
+  } finally {
+    fs.rmSync(temporary, {recursive: true, force: true});
+  }
+});
+
 test('nested package and CI commands put the xmake task before project options', () => {
   for (const name of ['Tools/dora-dora/package.json', 'Docs/package.json', '.github/workflows/ui.yml']) {
     const source = fs.readFileSync(path.join(engine, name), 'utf8');

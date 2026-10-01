@@ -35,9 +35,16 @@ artifacts continue to be written to the paths selected by each script in the
 Dora-SSR checkout.
 
 From the engine root, use `xmake dora-test --suite=studio`. The default run
+uses xmake-managed Emscripten for the Teal/Yarn compilers and regenerates
+bilingual tutorial assets from the canonical Docs sources before it
 refreshes workspace packages and bilingual documentation with `pnpm -r build`;
 `-- --no-build` is only appropriate after that build. Production engine/server
 packaging is a separate build gate, not a prerequisite for these unit tests.
+
+Test CI is owned by Dora-SSR, not this repository. Dora-Example stores the
+test sources; the engine CI fetches the latest test revision. Changes made
+only here do not automatically start engine CI: validate locally or manually
+dispatch the relevant Dora-SSR workflow.
 
 The backend is now Go. The 45 former Node implementation-specific test files
 have been removed because the server modules they tested no longer exist.
