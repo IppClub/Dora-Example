@@ -1,0 +1,58 @@
+Native Web IDE Agent runtime reload
+
+The stable entry is Assets/Script/Dev/AgentHost.lua. WebServer keeps proxies to
+this entry, rather than holding replaceable Agent implementations. Game scene
+cleanup preserves the host and Agent cache; only the host swaps generations.
+
+POST /agent/runtime/status with {}:
+  generation, busy, automatic, pending, changedFiles, lastFailure
+POST /agent/runtime/reload with {}:
+  Reload while idle, or return AGENT_BUSY without interrupting any work.
+  Syntax/initialization failure returns AGENT_RELOAD_FAILED and restores cache.
+POST /agent/runtime/automatic with {"enabled":true|false}:
+  Enable or disable automatic source-change detection (enabled by default).
+
+CLI equivalents:
+  dora cli agent status
+  dora cli agent reload
+Both accept --host, --port and --timeout, emit one JSON object, and return
+exit code 0 on success or 1 on failure. Reload never stops active tasks.
+
+Automatic detection compares actual generated Agent Lua sources, including
+additions/deletions. Read-only polling checks at most every two seconds; task
+admission and standalone command/preview admission check immediately. Updates
+wait until all prompt runs, local controls, sub-agent finalization and host
+request/promise leases are finished. An unchanged failed candidate is not
+repeatedly initialized. Existing database records and ordinary memory files
+are not rewritten by reload.
+
+Agent-source write/build requests hold a lease across their entire batch.
+Failed batches report failedBuildPaths and block loading partially emitted
+Lua until a successful build covers the failed target (a smaller unrelated
+successful build does not clear that failure).
+
+Agent.Storage.Database, Agent.Runtime.SessionEvents and Agent.Runtime.TaskAdmission
+are long-lived service boundaries. Their implementations are preserved; a
+changed service source explicitly rejects hot reload and requires host restart.
+AgentHost itself and WebServer/Entry changes use development-entry reload while
+idle. This mechanism does not hot-swap the engine or frontend compiler bundle.
+
+Tests:
+  DORA_SSR_ROOT=/path/to/Dora-SSR lua Test/Agent/test_agent_host_reload.lua
+  DORA_SSR_ROOT=/path/to/Dora-SSR node Test/Agent/test_agent_build_contract.mjs
+Real acceptance additionally requires frontend tasks, generation checks, and
+an unchanged native process ID. Do not infer live acceptance from isolated
+modules or fabricate frontend events.
+
+Compiler warning regression:
+  DORA_SSR_ROOT=/path/to/Dora-SSR node Test/Agent/test_ts_warning_errors.mjs
+Requires installed Tools/dora-dora dependencies in the engine checkout.
+
+Native registered-tool regression (dedicated idle development engine only):
+  python3 Test/Agent/test_agent_build_runtime.py
+Requires native service on localhost:8866 and a connected Web IDE compiler.
+It temporarily replaces module caches and must not share a running Agent task.
+
+Unified isolated suite (no running-engine cache replacement):
+  DORA_ENGINE_ROOT=/path/to/Dora-SSR node Test/run.mjs --suite=agent
+The native runtime test is opt-in with --suite=agent --case=test_agent_build_runtime.

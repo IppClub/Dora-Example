@@ -445,6 +445,22 @@
     {
       "source": "Tools/build-scripts/check_web_api_parity.test.mjs",
       "path": "Test/BuildScripts/check_web_api_parity.test.mjs"
+    },
+    {
+      "source": "Tools/tests/test_agent_build_contract.mjs",
+      "path": "Test/Agent/test_agent_build_contract.mjs"
+    },
+    {
+      "source": "Tools/tests/test_agent_build_runtime.py",
+      "path": "Test/Agent/test_agent_build_runtime.py"
+    },
+    {
+      "source": "Tools/tests/test_agent_host_reload.lua",
+      "path": "Test/Agent/test_agent_host_reload.lua"
+    },
+    {
+      "source": "Tools/tests/test_ts_warning_errors.mjs",
+      "path": "Test/Agent/test_ts_warning_errors.mjs"
     }
   ]
 }

@@ -12,9 +12,10 @@ const options = separator < 0 ? argv : argv.slice(0, separator);
 const extra = separator < 0 ? [] : argv.slice(separator + 1);
 const value = (name, fallback) => options.find(a => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
 const files = JSON.parse(fs.readFileSync(path.join(repo, 'Test/manifest.json'), 'utf8')).files;
-const cases = files.filter(f => /\.(mjs|lua|cjs|py)$/.test(f.path) && /Test\/(BuildScripts|WebIDE|StudioPrototype|Art)\//.test(f.path));
+const cases = files.filter(f => /\.(mjs|lua|cjs|py)$/.test(f.path) && /Test\/(BuildScripts|WebIDE|StudioPrototype|Art|Agent)\//.test(f.path));
 cases.push({name:'studio', source:'Studio/tests/run.mjs', path:'Test/DoraStudio/run.mjs'});
 const suites = {
+  agent: ['test_agent_build_contract', 'test_agent_host_reload', 'test_ts_warning_errors'],
   contract: ['check_touch_input_sources', 'check_xmake_test_entrypoints.test', 'check_web_builtin_libraries.test', 'check_web_api_parity.test', 'check_web_loader', 'check_web_package', 'test_web_audio_state', 'test_web_gallery', 'test_lualib_utf8_trim'],
   web: ['check_web_output', 'check_web_love_capabilities', 'check_web_player_output', 'check_web_forbidden_deps'],
   'web-ide': cases.filter(f => f.path.startsWith('Test/WebIDE/')).map(f => path.basename(f.path, '.mjs')),
