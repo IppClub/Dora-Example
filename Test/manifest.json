@@ -461,6 +461,18 @@
     {
       "source": "Tools/tests/test_ts_warning_errors.mjs",
       "path": "Test/Agent/test_ts_warning_errors.mjs"
+    },
+    {
+      "source": "Tools/tests/test_compression_cancel_runtime.py",
+      "path": "Test/Agent/test_compression_cancel_runtime.py"
+    },
+    {
+      "source": "Tools/tests/test_output_budget_presets.mjs",
+      "path": "Test/Agent/test_output_budget_presets.mjs"
+    },
+    {
+      "source": "Tools/tests/test_llm_config_migration_runtime.py",
+      "path": "Test/Agent/test_llm_config_migration_runtime.py"
     }
   ]
 }

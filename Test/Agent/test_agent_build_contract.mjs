@@ -17,10 +17,11 @@ async function load(file, globals, stubs) {
 }
 let reply={success:true,luaCode:'return 1'}, saves=[], saved=true, listener, connected=1;
 let files=['main.ts'];
-const app={platform:'macOS',runningTime:0};
+// Exercise the WebSocket path; native desktop builds delegate to WebServer.
+const app={platform:'Linux',runningTime:0};
 const path=Object.assign((...p)=>p.join('/'),{getExt:p=>p.split('.').pop(),getName:p=>p.replace(/\.[^.]*$/,''),replaceExt:(p,e)=>p.replace(/\.[^.]*$/,'.'+e)});
 const content={load:()=> 'export const n=1;',save:(p,s)=>{saves.push([p,s]);return saved},exist:()=>true,isdir:p=>p.endsWith('/dir'),isAbsolutePath:p=>p.startsWith('/')};
-const dora={App:app,Content:content,Path:path,HttpServer:{get wsConnectionCount(){return connected}},Node:()=>({gslot:(_,cb)=>{listener=cb},removeFromParent(){}}),once:fn=>fn,Director:{systemScheduler:{schedule:fn=>fn()}},wait:fn=>{for(let i=0;i<40&&!fn();i++)app.runningTime++},emit:(_,__,text)=>{const r=JSON.parse(text);listener({type:'Receive',msg:JSON.stringify(r.name==='TranspileTSProbe'?r:{...r,...reply})})}};
+const dora={App:app,Content:content,Path:path,HttpServer:{get wsConnectionCount(){return connected}},Node:()=>({gslot:(_,cb)=>{listener=cb},removeFromParent(){}}),once:fn=>fn,Director:{systemScheduler:{schedule:fn=>fn()}},wait:fn=>{for(let i=0;i<40&&!fn();i++)app.runningTime++},emit:(_,__,text)=>{const r=JSON.parse(text);listener({type:'Receive',msg:JSON.stringify(r.name==='TranspileTSProbe'?{...r,success:true}:{...r,...reply})})}};
 const tools=await load('Assets/Script/Lib/Agent/Tool/Build.ts',{__dora:dora,__files:()=>files},{Dora:'module.exports=__dora;', 'Agent/Utils':'module.exports={Log(){},safeJsonEncode:o=>[JSON.stringify(o)],safeJsonDecode:s=>[JSON.parse(s)]};','Agent/Tool/WebIDESync':'module.exports={sendWebIDEFileUpdate:()=>true};','Agent/Tool/Workspace':'module.exports={resolveWorkspaceSearchPath:(w,p)=>w+"/"+p,toWorkspaceRelativePath:(w,p)=>p,listFiles:()=>({success:true,files:__files()}),codeExtensions:[".ts"]};'});
 const buildFile=()=>tools.build({workDir:'/project',path:'main.ts'});
 let r=await buildFile();assert.equal(r.success,true);assert.equal(r.passed,1);assert.equal(saves.length,1);

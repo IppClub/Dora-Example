@@ -1,0 +1,16 @@
+2026-10-14 LLM configuration data upgrade v1
+Recommendation/default: 64000 for shared main/compression output budget and Web/mobile presets.
+Version marker: existing dora.db Config.agentLLMConfigVersion; independent of agent.db schema version. Existing table definitions unchanged.
+Atomic migration: force every existing max_tokens column and provider budget overrides to 64000; preserve max_tokens:null when selecting max_completion_tokens; remove auxiliaryOptions.max_tokens/max_completion_tokens; preserve independent reasoning and all other configuration values.
+Version is committed with the updates; failures roll back; later user edits survive module reload; future versions are not downgraded. Invalid custom JSON is retained verbatim for correction and does not block upgrading usable configurations. Missing table before initial setup is allowed.
+Native SQLite test PASS: atomic rollback, unchanged schema, all budgets, auxiliary removal, reasoning/field selection, unchanged unrelated data, one-time persistence, invalid JSON preservation without blocking valid rows, unrelated JSON unchanged, empty/missing table, future version.
+Actual existing configuration verification PASS: 3 configurations at 64000 with no auxiliary budget fields. No credentials recorded.
+Agent suite 5/5 PASS; shared compression/cancellation native regression PASS (cancel 0.248s).
+Changed TypeScript files and WebServer/Entry Yue builds PASS; generated Lua synchronized; git diff --check PASS in both repositories.
+
+Review follow-up 2026-10-14:
+Removed duplicate provider-option application at the compression HTTP boundary; explicit deletion uses delete in TS so generated Lua removes the field after copying.
+Native HTTP regression additionally verifies null-removal of top_p and suppression of forced tool_choice in save_memory requests; shared main/compression budgets, independent reasoning and cancellation PASS (0.235s).
+Native migration regression PASS after review changes; invalid legacy JSON remains editable, valid rows upgrade, unrelated option JSON keeps exact original text, DB rollback remains atomic.
+Web IDE type-check comparison: baseline 40 diagnostics, current 40, zero introduced. The complete frontend type check is still blocked by existing errors and local compiler/config version mismatch; no full frontend build claim.
+Publication scope: shared output budget, unified 64000 default/presets and one-time data-only migration in Dora-SSR; only their tests/records/runner registrations plus the required build-contract fixture platform fix in Dora-Example. Earlier schema/repeated-output tests remain uncommitted and untouched.

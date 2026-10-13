@@ -1,0 +1,32 @@
+Output budget investigation — 2026-10-14
+
+Shared configuration: compression inherits effective main max_tokens or max_completion_tokens. Legacy auxiliary budget fields ignored. Auxiliary reasoning remains independent. No compression-only 8192 default/floor, 32768 cap, or adaptive doubling.
+
+Main-loop audit: no numeric output ceiling in DoraAgent/Utils or WebServer normalization; only positive integer normalization. Default remains 8192 (DeepSeek preset 64000), not a ceiling. Top-level customOptions can override max_tokens or select max_completion_tokens. MiMo preset explicitly supplies max_completion_tokens=8192; this is shared provider configuration, not a compression-only cap. Raising its UI maxTokens alone will not override that custom field; change the shared custom field too.
+
+Context fitting currently reserves the entire configured output budget from contextWindow in both normal requests and compression; minimum input fallback is 512 tokens. Thus a max token value near or above a mistakenly small contextWindow can cause aggressive history trimming/compression. Configure the true model contextWindow first and leave meaningful input space. This behavior was retained, not relaxed or disguised as an output cap.
+
+Official documentation verified today; suggested settings are engineering starting points, not measured optima or provider guarantees. Limits depend on the exact model, protocol and gateway. No automatic changes to saved user LLM configuration or generic default.
+
+DeepSeek V4 Pro / Flash: official 1M context, maximum output 384K. Suggested 131072 initially; extreme code/reasoning can use the provider maximum if the remaining input context suffices.
+https://api-docs.deepseek.com/quick_start/pricing/
+OpenAI GPT-6 Astra: 1050000 context, 128000 maximum output. Suggested 128000. GPT-5.2 also 128000 maximum output, 400000 context. Use the provider-supported completion budget field.
+https://developers.openai.com/api/docs/models/gpt-6-astra
+https://developers.openai.com/api/docs/models/gpt-5.2
+Claude current Fable 5.1 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5: official 1M context and 128K maximum output. Suggested 128000, subject to exact endpoint limit. Earlier Claude releases have different limits.
+https://platform.claude.com/docs/en/models/overview
+Gemini 2.5 Pro: official input 1048576, output 65536. Suggested 65536. Native parameter maxOutputTokens; OpenAI-compatible gateway translation must be checked.
+https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro
+GLM-5.2: official 1M context, 128K maximum output. Suggested 128000. GLM-5 has 200K context, so 64000 initially preserves more input, with 128K available for long outputs.
+https://docs.z.ai/guides/llm/glm-5.2
+https://docs.z.ai/guides/llm/glm-5
+Kimi K3: official max_completion_tokens default 131072; maximum 1048576 minus prompt_tokens. Suggested 131072 initially; larger only after accounting for input. K2.5/K2.6 output availability is documented as 262144 minus prompt_tokens; cannot use a generic vendor-wide ceiling.
+https://www.kimi.ai/help/kimi-api/api-troubleshooting
+Qwen: the consulted official Qwen3-VL-Plus page states 32768 max output and a separate reasoning budget. This is a vision model, not a substitute for the configured Qwen coding/text model. Current Qwen coding/text detail pages were not readable without the console; no unsupported universal recommendation.
+https://www.alibabacloud.com/help/en/model-studio/qwen3-vl-plus
+MiniMax: consulted official compatible API documents reasoning included in generation limit, M2.7 context 204800 and M3 context 1000000; they do not establish a numeric maximum output in that page. Do not mislabel context as output. Validate the exact model/endpoint before raising a production limit.
+https://platform.minimax.io/docs/api-reference/text-openai-api
+Xiaomi MiMo: official documentation is client-rendered; no independently established numeric output ceiling in this investigation. Use its exact model documentation/API errors to confirm.
+https://platform.xiaomimimo.com/
+
+2026-10-14 subsequent user decision: use 64000 as the unified Dora recommendation/default across providers, rather than provider-specific starting values above. Shared main/compression configuration remains user-editable after the one-time v1 upgrade. Compression-specific reasoning is retained; auxiliary token fields are deleted by migration and ignored at runtime.
