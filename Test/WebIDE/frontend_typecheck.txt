@@ -1,0 +1,15 @@
+2026-10-14 Web IDE frontend type-check repair
+Baseline: local TypeScript 5.9.3 rejected ignoreDeprecations=6.0; overriding to 5.0 exposed 40 diagnostics.
+Final pnpm typecheck (tsc --noEmit): PASS, 0 diagnostics, strict checking retained. No blanket suppressions or weakened strictness added.
+Configuration: bundler module resolution and explicit .js Monaco ESM export paths; removed unused/deprecated baseUrl and incompatible ignoreDeprecations; added typecheck script.
+Dependency/API fixes: typed Monaco contribution via current public TypeScript namespace, diagnostics getter, React editor unmount lifecycle before disposal, MUI data attributes, typed custom tree metadata, Ant Design nullable target type compatibility and section width, source-map's static initialize declaration mismatch, readonly diagnostic copy and worker diagnostic flattening, removed unused generated parser label and unsupported Spine option.
+Shared TSTL: optional source filename guard and recursive public forEachChild API instead of undeclared internal traversal. Nested explicit-any diagnostics remain enforced exactly once per occurrence.
+Vite production build: PASS (8065 modules transformed), shared compiler build PASS. This validates the Vite bundle; native engine served assets were not replaced/deployed by this task.
+Dora-Example regressions PASS: first-project tour contract; TypeScript transpile protocol; TSTL truthiness and three nested explicit-any diagnostics; real React editor lifecycle with latest callback, URI and StrictMode. Monaco widget itself is mocked in the lifecycle regression; React mount/unmount effects are real and assert view-state save precedes disposal.
+Tests registered through Test/manifest.json. Earlier unrelated worktree changes preserved. git diff --check PASS in both repositories.
+
+2026-10-14 publication review:
+Removed duplicate FileTree metadata assertions using structural property checks; reduced Monaco declaration bridge to a single assertion. Retained only dependency-boundary compatibility assertions: Monaco ESM has empty declarations, source-map types incorrectly place initialize on instances, Tour types incorrectly model nullable callbacks as a union of functions. Verified their installed runtime implementations.
+Removed an unnecessary initial copy/reassignment of readonly diagnostics; only the warning-promotion result is mutable.
+Added actual installed Tour useTarget hook regression: missing target produces centered mode, lazy mounted target is found, removal returns to centered mode, visible play controls inside a strip are selected. No fallback to document.body was introduced in application callbacks.
+Strict typecheck and final production bundle, editor cleanup, Tour runtime, protocol and TSTL regressions rerun for publication. Earlier unrelated Agent schema/repetition tests remain unstaged.

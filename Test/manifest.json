@@ -473,6 +473,14 @@
     {
       "source": "Tools/tests/test_llm_config_migration_runtime.py",
       "path": "Test/Agent/test_llm_config_migration_runtime.py"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-monaco-runtime-lifecycle.mjs",
+      "path": "Test/WebIDE/test-monaco-runtime-lifecycle.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-tour-target-runtime.mjs",
+      "path": "Test/WebIDE/test-tour-target-runtime.mjs"
     }
   ]
 }

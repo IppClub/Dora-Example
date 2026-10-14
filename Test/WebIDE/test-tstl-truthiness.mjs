@@ -60,7 +60,14 @@ try {
 	assert.equal(compile("boolean", "if (!condition) {}").length, 0, "boolean negation must remain valid");
 	assert.equal(compile("boolean", "const hidden = !condition;").length, 0, "standalone boolean negation must remain valid");
 
-	console.log("TSTL logical-not truthiness diagnostics passed.");
+	const explicitAny = tstl.transpileVirtualProject({
+		"main.ts": "type Nested = { value: any };\nfunction pass(value: any): any { return value; }",
+	}, { strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.CommonJS, luaTarget: tstl.LuaTarget.Lua55, noHeader: true });
+	const anyDiagnostics = explicitAny.diagnostics.filter(d =>
+		ts.flattenDiagnosticMessageText(d.messageText, "\n").startsWith("Explicit 'any' types are not allowed."));
+	assert.equal(anyDiagnostics.length, 3, "public AST traversal must still diagnose every nested explicit any exactly once");
+	assert.equal(new Set(anyDiagnostics.map(d => d.start)).size, 3);
+	console.log("TSTL logical-not truthiness and nested explicit-any diagnostics passed.");
 } finally {
 	rmSync(tempDir, { recursive: true, force: true });
 }
