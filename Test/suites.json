@@ -1,0 +1,101 @@
+{
+  "agent": [
+    "test_output_budget_presets",
+    "test_agent_build_contract",
+    "test_agent_host_reload",
+    "test_ts_warning_errors"
+  ],
+  "contract": [
+    "check_touch_input_sources",
+    "check_xmake_test_entrypoints.test",
+    "check_web_builtin_libraries.test",
+    "check_web_api_parity.test",
+    "check_web_loader",
+    "check_web_package",
+    "test_web_audio_state",
+    "test_web_gallery",
+    "test_lualib_utf8_trim",
+    "check_ci_test_coverage.test"
+  ],
+  "web": [
+    "check_web_output",
+    "check_web_love_capabilities",
+    "check_web_player_output",
+    "check_web_forbidden_deps"
+  ],
+  "web-ide": [
+    "test-agent-auto-scroll",
+    "test-agent-doc-search",
+    "test-agent-patch-batch",
+    "test-agent-render-window",
+    "test-agent-service-callbacks",
+    "test-agent-session-snapshot",
+    "test-agent-step-budget",
+    "test-agent-virtual-log",
+    "test-agent-vision-contract",
+    "test-audio-preview",
+    "test-auth-signature",
+    "test-cli-agent",
+    "test-entry-lease",
+    "test-entry-list-cache",
+    "test-entry-run-queue",
+    "test-entry-writable-path",
+    "test-es6-subset",
+    "test-file-search-index",
+    "test-first-project-tour",
+    "test-git-job-store",
+    "test-git-progress",
+    "test-heavy-assets",
+    "test-local-agent-backends",
+    "test-lodash-amd",
+    "test-log-buffer",
+    "test-resource-tree-sync",
+    "test-transpile-protocol",
+    "test-tstl-truthiness",
+    "test-web-package",
+    "test-web-runtime-preparation",
+    "test-xrt-network-wrapper",
+    "test-monaco-runtime-lifecycle",
+    "test-tour-target-runtime"
+  ],
+  "studio": [
+    "agent-teal-source.test",
+    "studio"
+  ],
+  "prototype": [
+    "test",
+    "money-test"
+  ],
+  "art": [
+    "test_mascot"
+  ],
+  "engine": [
+    "test_http_validators",
+    "test_git_path_policy",
+    "test_http_origin",
+    "test_http_origin_wire",
+    "test_http_precompressed",
+    "test_http_pool",
+    "test_http_pending",
+    "test_shutdown_watchdog",
+    "test_http_static_path",
+    "test_agent_stream_updates",
+    "test_web_asset_bootstrap",
+    "test_git_clone_paths",
+    "test_git_job_pruning",
+    "test_cli_local_auth"
+  ],
+  "ui": [
+    "ide-dev-proxy.test",
+    "ide-dev-proxy-wire.test",
+    "ide-dev-client.test",
+    "auth-client-modes.test",
+    "agent-stream-updates.test",
+    "precompress-assets.test",
+    "auth-reconnect.test",
+    "native-ide-run.test",
+    "websocket-lifecycle.test",
+    "test-editor-debounce",
+    "test-web-runtime-preparation"
+  ]
+}

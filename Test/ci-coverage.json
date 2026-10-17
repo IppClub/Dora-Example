@@ -1,0 +1,91 @@
+{
+  "previousUiCases": [
+    "check_touch_input_sources",
+    "check_xmake_test_entrypoints.test",
+    "check_web_builtin_libraries.test",
+    "check_web_api_parity.test",
+    "check_web_loader",
+    "check_web_package",
+    "test_web_audio_state",
+    "test_web_gallery",
+    "test_lualib_utf8_trim",
+    "test_http_validators",
+    "test_git_path_policy",
+    "test_http_origin",
+    "test_http_origin_wire",
+    "test_http_precompressed",
+    "test_http_pool",
+    "test_http_pending",
+    "test_shutdown_watchdog",
+    "test_agent_stream_updates",
+    "test_web_asset_bootstrap",
+    "test_git_clone_paths",
+    "test_git_job_pruning",
+    "test_cli_local_auth",
+    "ide-dev-proxy.test",
+    "ide-dev-proxy-wire.test",
+    "ide-dev-client.test",
+    "auth-client-modes.test",
+    "agent-stream-updates.test",
+    "precompress-assets.test",
+    "auth-reconnect.test",
+    "native-ide-run.test",
+    "websocket-lifecycle.test",
+    "test-web-runtime-preparation",
+    "test-web-package",
+    "agent-teal-source.test",
+    "studio"
+  ],
+  "addedCases": [
+    "test_http_static_path",
+    "test-editor-debounce",
+    "check_ci_test_coverage.test"
+  ],
+  "manualCases": [
+    "emoji-label",
+    "test_agent_command_content",
+    "test_catalog_project_sync",
+    "test_catalog_sync_ui",
+    "test_http_access_native",
+    "test_webide_paid_models",
+    "test_webide_services"
+  ],
+  "triggerInputs": {
+    "ui.yml": [
+      ".github/workflows/ui.yml",
+      "Tools/dora-dora/src/Service.ts",
+      "Tools/dora-dora/scripts/ide-dev-proxy.mjs",
+      "Studio/packages/agent-ui/src/index.tsx",
+      "Studio/scripts/agent-session-types.mjs",
+      "Assets/Script/Lib/Agent/Session.ts",
+      "Projects/xmake/tasks/test.lua",
+      "Source/Basic/Application.cpp",
+      "Tools/dora-rust/Cargo.toml",
+      "Tools/dora-wa/wa.mod",
+      "Tools/tolua++/Dora.h"
+    ],
+    "engine-tests.yml": [
+      ".github/workflows/engine-tests.yml",
+      "Source/Http/XrtNetwork.c",
+      "Source/Basic/Application.cpp",
+      "Assets/Script/Dev/cli.lua",
+      "Assets/Script/Lib/Agent/Runtime/StreamUpdates.lua",
+      "Tools/tolua++/Dora.h",
+      "Projects/Web/web-loader.js",
+      "Projects/xmake/tasks/test.lua",
+      "Tools/dora-dora/package.json",
+      "Docs/scripts/generate-language-docs.js",
+      "Tools/dora-rust/Cargo.toml",
+      "Tools/dora-wa/wa.mod"
+    ],
+    "studio.yml": [
+      ".github/workflows/studio.yml",
+      "Studio/cmd/studio-server/main.go",
+      "Studio/packages/agent-ui/src/index.tsx",
+      "Source/Lua/Builtin/tl.lua",
+      "Assets/Script/Lib/Agent/Session.ts",
+      "Tools/dora-dora/src/AgentPatchBatch.ts",
+      "Projects/xmake/tasks/test.lua"
+    ]
+  }
+}

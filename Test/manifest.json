@@ -481,6 +481,161 @@
     {
       "source": "Tools/dora-dora/scripts/test-tour-target-runtime.mjs",
       "path": "Test/WebIDE/test-tour-target-runtime.mjs"
+    },
+    {
+      "source": "Tools/tests/test_catalog_sync_ui.lua",
+      "path": "Test/Engine/test_catalog_sync_ui.lua"
+    },
+    {
+      "source": "Tools/tests/test_webide_services.py",
+      "path": "Test/Engine/test_webide_services.py"
+    },
+    {
+      "source": "Tools/tests/test_http_pending.py",
+      "path": "Test/Engine/test_http_pending.py"
+    },
+    {
+      "source": "Tools/tests/test_http_pool.py",
+      "path": "Test/Engine/test_http_pool.py"
+    },
+    {
+      "source": "Tools/tests/test_shutdown_watchdog.py",
+      "path": "Test/Engine/test_shutdown_watchdog.py"
+    },
+    {
+      "source": "Tools/tests/test_agent_command_content.py",
+      "path": "Test/Engine/test_agent_command_content.py"
+    },
+    {
+      "source": "Tools/tests/test_agent_stream_updates.lua",
+      "path": "Test/Engine/test_agent_stream_updates.lua"
+    },
+    {
+      "source": "Tools/tests/test_http_static_path.py",
+      "path": "Test/Engine/test_http_static_path.py"
+    },
+    {
+      "source": "Tools/tests/test_http_access_native.py",
+      "path": "Test/Engine/test_http_access_native.py"
+    },
+    {
+      "source": "Tools/tests/emoji-label.lua",
+      "path": "Test/Engine/emoji-label.lua"
+    },
+    {
+      "source": "Tools/tests/test_git_path_policy.py",
+      "path": "Test/Engine/test_git_path_policy.py"
+    },
+    {
+      "source": "Tools/tests/test_catalog_project_sync.py",
+      "path": "Test/Engine/test_catalog_project_sync.py"
+    },
+    {
+      "source": "Tools/tests/test_http_validators.py",
+      "path": "Test/Engine/test_http_validators.py"
+    },
+    {
+      "source": "Tools/tests/test_webide_paid_models.py",
+      "path": "Test/Engine/test_webide_paid_models.py"
+    },
+    {
+      "source": "Tools/tests/test_http_origin_wire.py",
+      "path": "Test/Engine/test_http_origin_wire.py",
+      "args": [
+        "--require-lan"
+      ]
+    },
+    {
+      "source": "Tools/tests/test_cli_local_auth.lua",
+      "path": "Test/Engine/test_cli_local_auth.lua"
+    },
+    {
+      "source": "Tools/tests/test_git_job_pruning.lua",
+      "path": "Test/Engine/test_git_job_pruning.lua"
+    },
+    {
+      "source": "Tools/tests/test_git_clone_paths.lua",
+      "path": "Test/Engine/test_git_clone_paths.lua"
+    },
+    {
+      "source": "Tools/tests/test_macos_bundle.py",
+      "path": "Test/Engine/test_macos_bundle.py"
+    },
+    {
+      "source": "Tools/tests/test_http_precompressed.py",
+      "path": "Test/Engine/test_http_precompressed.py"
+    },
+    {
+      "source": "Tools/tests/web-package-names.test.mjs",
+      "path": "Test/Engine/web-package-names.test.mjs"
+    },
+    {
+      "source": "Tools/tests/test_web_asset_bootstrap.lua",
+      "path": "Test/Engine/test_web_asset_bootstrap.lua"
+    },
+    {
+      "source": "Tools/tests/test_http_origin.py",
+      "path": "Test/Engine/test_http_origin.py"
+    },
+    {
+      "source": "Tools/tests/fixtures/http-access-lan.html",
+      "path": "Test/Engine/fixtures/http-access-lan.html"
+    },
+    {
+      "source": "Tools/tests/fixtures/http-access.html",
+      "path": "Test/Engine/fixtures/http-access.html"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/ide-dev-proxy-wire.test.mjs",
+      "path": "Test/Frontend/ide-dev-proxy-wire.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/precompress-assets.test.mjs",
+      "path": "Test/Frontend/precompress-assets.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/ide-dev-client.test.mjs",
+      "path": "Test/Frontend/ide-dev-client.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/native-ide-run.test.mjs",
+      "path": "Test/Frontend/native-ide-run.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/auth-reconnect.test.mjs",
+      "path": "Test/Frontend/auth-reconnect.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/ide-dev-proxy.test.mjs",
+      "path": "Test/Frontend/ide-dev-proxy.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/agent-stream-updates.test.mjs",
+      "path": "Test/Frontend/agent-stream-updates.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/websocket-lifecycle.test.mjs",
+      "path": "Test/Frontend/websocket-lifecycle.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/auth-client-modes.test.mjs",
+      "path": "Test/Frontend/auth-client-modes.test.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-editor-debounce.mjs",
+      "path": "Test/Frontend/test-editor-debounce.mjs"
+    },
+    {
+      "source": "Studio/scripts/agent-teal-source.test.mjs",
+      "path": "Test/Frontend/agent-teal-source.test.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/check_ci_test_coverage.test.mjs",
+      "path": "Test/BuildScripts/check_ci_test_coverage.test.mjs"
+    },
+    {
+      "source": "Tools/WebBuilder/test_webbuild.py",
+      "path": "Test/Engine/test_webbuild.py"
     }
   ]
 }
