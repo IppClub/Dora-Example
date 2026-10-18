@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Exercise the Agent Content facade through a running native Dora CLI bridge.
+"""Exercise the Agent Content facade through a disposable native Dora CLI bridge.
 
-Usage: python3 Tools/tests/test_agent_command_content.py --dora /path/to/Dora
-A native Dora service and its connected Web IDE are required.
+Usage: python3 Test/Engine/test_agent_command_content.py --engine /path/to/Dora
+Starts and stops its own isolated engine; no Web IDE connection is needed.
 """
 import os
 import argparse
 import json
 from pathlib import Path
 import re
-import subprocess
+import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'support'))
+from native_agent import NativeAgent, add_engine_argument
 
 SCOPED = r'''
 local native = requireProjectModule("Dora").Content
@@ -136,11 +139,11 @@ print("PASS: virtual docs/skills/log reads, async load, metadata, search/callbac
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dora", type=Path, required=True)
+    add_engine_argument(parser)
     args = parser.parse_args()
     repo = Path(os.environ.get('DORA_ENGINE_ROOT', Path.cwd())).resolve()
     methods = re.findall(r"^\t(\w+): function", (repo / "Assets/Script/Lib/Dora/en/Content.d.tl").read_text(), re.M)
-    with tempfile.TemporaryDirectory(prefix="dora-content-regression-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="dora-content-regression-") as temporary, NativeAgent(args.engine, repo) as engine:
         root = Path(temporary)
         for name, text in {
             "resources/.agent/one_in.md": "fixture\n",
@@ -153,17 +156,7 @@ def main():
             file.write_text(text)
         (root / "output").mkdir()
         def command(code):
-            request = root / "request.json"
-            request.write_text(json.dumps({"mode": "lua", "code": code, "timeoutSeconds": 30}))
-            result = subprocess.run(
-                [str(args.dora.resolve()), "--asset", str(repo / "Assets"), "cli", "agent", "command", "-p", str(root), "--input", str(request)],
-                text=True, capture_output=True, timeout=45,
-            )
-            try:
-                reply = json.loads(result.stdout)
-            except json.JSONDecodeError:
-                raise AssertionError(result.stdout + result.stderr)
-            assert result.returncode == 0 and reply.get("success"), reply
+            reply = engine.command(root, code)
             print(reply.get("output", ""))
         command('requireProjectModule("Agent.Tool.Workspace"); requireProjectModule("Agent.Tool.CommandContent"); requireProjectModule("Agent.Tool.Command"); print("Reloaded command modules")')
         inventory = "local methods = {" + ",".join(json.dumps(name) for name in methods) + "}\n"

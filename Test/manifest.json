@@ -648,6 +648,10 @@
     {
       "source": "Tools/tests/test_llm_config_names.py",
       "path": "Test/Engine/test_llm_config_names.py"
+    },
+    {
+      "source": "Tools/tests/test_native_agent_lifecycle.py",
+      "path": "Test/Engine/test_native_agent_lifecycle.py"
     }
   ]
 }

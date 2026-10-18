@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Real native Git/Content regression for Catalog project sync.
 
-Requires a running Dora service and connected Web IDE. All repositories and
-writes are temporary; Content.writablePath is restored after every command.
+Starts and stops its own isolated engine; no Web IDE connection is needed.
+All repositories and writes are temporary; Content.writablePath is restored
+after every command.
 """
 import argparse
 import json
@@ -10,16 +11,18 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "support"))
+from native_agent import NativeAgent, add_engine_argument
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dora", type=Path, required=True)
+    add_engine_argument(parser)
     args = parser.parse_args()
     repo = Path(os.environ.get('DORA_ENGINE_ROOT', Path.cwd())).resolve()
-    environment = {k: v for k, v in os.environ.items() if k.lower() not in
-                   {"http_proxy", "https_proxy", "all_proxy", "no_proxy"}}
-    with tempfile.TemporaryDirectory(prefix="dora-catalog-sync-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="dora-catalog-sync-") as temporary, NativeAgent(args.engine, repo) as engine:
         root = Path(temporary)
         workspace = root / "workspace"
         workspace.mkdir()
@@ -63,19 +66,12 @@ local options = {catalogCommit="fixture"}
 local function run()
 '''
         def command(code):
-            request = root / "request.json"
-            request.write_text(json.dumps({"mode": "lua", "timeoutSeconds": 120,
-                "code": prelude + "C.writablePath = " + json.dumps(str(workspace)) + "\n" + code + r'''
+            reply = engine.command(root, prelude + "C.writablePath = " + json.dumps(str(workspace)) + "\n" + code + r'''
 end
 local ok, err = pcall(run)
 C.writablePath = previousWritable
 assert(ok, tostring(err))
-'''}))
-            result = subprocess.run([str(args.dora.resolve()), "--asset", str(repo / "Assets"),
-                "cli", "agent", "command", "-p", str(root), "--input", str(request)],
-                capture_output=True, text=True, timeout=140, env=environment)
-            reply = json.loads(result.stdout)
-            assert result.returncode == 0 and reply.get("success"), reply
+''', timeout_seconds=120)
             print(reply.get("output", "").strip())
         def operation(url, force=False, extra=""):
             return "local result=await(installer.syncResource(resource, version(" + json.dumps(str(url)) + "), options, " + str(force).lower() + "))\n" + extra

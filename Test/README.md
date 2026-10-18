@@ -29,3 +29,19 @@ Graphical, paid-model, and project-specific acceptance programs remain manual,
 with their required arguments and disposable-profile guards preserved. They are
 listed in the CI coverage manifest instead of silently treated as automated CI.
 Fixtures for browser/native HTTP acceptance are under `Engine/fixtures/`.
+
+Native Agent acceptance starts its own engine in a disposable user profile. Both
+Content and Catalog tests work without a connected Web IDE. The lifecycle case
+also checks cleanup after assertions, Lua failures, CLI/startup timeouts and an
+unresponsive engine. Run the three cases sequentially (they use ports 8866/8868):
+
+```sh
+xmake dora-test --repo=/path/to/Dora-Example --suite=native-agent -- --engine /absolute/path/Dora
+```
+
+`--dora` remains an alias for `--engine`; both now launch an isolated service.
+An occupied port is a prerequisite error; tests never attach to or stop an
+existing service. macOS and Linux profile isolation is supported. On headless
+Linux, provide Xvfb/Mesa and run the command under `xvfb-run -a`.
+These cases remain explicit native acceptance, outside the lightweight CI suites;
+no full engine build or graphical environment is added to ordinary Engine Tests.

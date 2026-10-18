@@ -51,7 +51,8 @@
     "test_catalog_sync_ui",
     "test_http_access_native",
     "test_webide_paid_models",
-    "test_webide_services"
+    "test_webide_services",
+    "test_native_agent_lifecycle"
   ],
   "triggerInputs": {
     "ui.yml": [

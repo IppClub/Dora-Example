@@ -100,5 +100,10 @@
     "websocket-lifecycle.test",
     "test-editor-debounce",
     "test-web-runtime-preparation"
+  ],
+  "native-agent": [
+    "test_agent_command_content",
+    "test_catalog_project_sync",
+    "test_native_agent_lifecycle"
   ]
 }
