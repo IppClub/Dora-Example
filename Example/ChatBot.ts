@@ -2,7 +2,7 @@
 import { HttpClient, json, thread, Buffer, Vec2, Node as DNode, Log, DB, Path, Content, Director, App } from 'Dora';
 import * as ImGui from "ImGui";
 import { InputTextFlag, SetCond, WindowFlag } from "ImGui";
-import { Node, Flow } from 'Agent/flow';
+import { Node, Flow } from 'Agent/Runtime/Flow';
 import * as Config from 'Config';
 
 interface LLM {

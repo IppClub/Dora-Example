@@ -30,7 +30,7 @@ local U=require("Agent.Utils")
 local D=require("Dora")
 local l=require("lualib_bundle")
 -- Isolate the compiled module under test; never replace a live task's module cache.
-local M=assert(loadfile("ENGINE_ROOT/Assets/Script/Lib/Agent/Memory.lua"))()
+local M=assert(loadfile("ENGINE_ROOT/Assets/Script/Lib/Agent/Runtime/Memory.lua"))()
 local presets=assert(loadfile("ENGINE_ROOT/Assets/Script/Dev/Mobile/LLMSetup.lua"))().mobileLLMPresets
 for _,preset in ipairs(presets) do
  local options=assert(U.safeJsonDecode(preset.customOptions)).auxiliaryOptions

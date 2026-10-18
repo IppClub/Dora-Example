@@ -33,7 +33,7 @@ r=await tools.build({workDir:'/project',path:'types.d.ts'});assert.equal(r.succe
 files=[];r=await tools.build({workDir:'/project',path:'dir'});assert.equal(r.success,false);
 connected=0;r=await buildFile();assert.equal(r.success,false);assert.equal(r.failureKind,'tool');
 assert.match(r.message,/not connected/);
-const {projectBuildResultForModel,projectMessagesForLLMContext}=await load('Assets/Script/Lib/Agent/Runtime/HistoryProjection.ts',{math:Math},{'Agent/Utils':'module.exports={safeJsonEncode:o=>[JSON.stringify(o)],safeJsonDecode:s=>[JSON.parse(s)]};','Agent/Config':'module.exports={AGENT_LIMITS:{llmHistoryBuildMaxMessages:20,llmHistoryToolResultMaxChars:20000}};'});
+const {projectBuildResultForModel,projectMessagesForLLMContext}=await load('Assets/Script/Lib/Agent/Runtime/HistoryProjection.ts',{math:Math},{'Agent/Utils':'module.exports={safeJsonEncode:o=>[JSON.stringify(o)],safeJsonDecode:s=>[JSON.parse(s)]};','Agent/Config/Defaults':'module.exports={AGENT_LIMITS:{llmHistoryBuildMaxMessages:20,llmHistoryToolResultMaxChars:20000}};'});
 assert.deepEqual(JSON.parse(JSON.stringify(projectBuildResultForModel(r))),{message:'Build tool call failed: Web IDE not connected'});
 const diagnostic={success:false,results:[{success:false,messages:[{success:false,file:'main.ts',message:'TS2322'}]}]};
 assert.deepEqual(JSON.parse(JSON.stringify(projectBuildResultForModel(diagnostic))),diagnostic);
@@ -44,7 +44,7 @@ assert.deepEqual(JSON.parse(actualContext[0].content),{message:'Build tool call 
 assert.equal(r.success,false);assert.equal(r.failureKind,'tool');
 const legacyContext=projectMessagesForLLMContext([{role:'tool',name:'build',content:JSON.stringify({success:false,code:'TOOL_EXECUTION_FAILED',message:'old bridge error'})}]);
 assert.deepEqual(JSON.parse(legacyContext[0].content),{message:'Build tool call failed: old bridge error'});
-const {executeAgentToolDefinition}=await load('Assets/Script/Lib/Agent/Tool/Executor.ts',{}, {'Agent/JsonSchema':'module.exports={compileJsonSchema:()=>({success:true,validator:{validate:()=>({valid:true})}})};','Agent/Tool/Guards':'module.exports={runAgentToolGuards:()=>undefined};'});
+const {executeAgentToolDefinition}=await load('Assets/Script/Lib/Agent/Tool/Executor.ts',{}, {'Agent/Tool/JsonSchema':'module.exports={compileJsonSchema:()=>({success:true,validator:{validate:()=>({valid:true})}})};','Agent/Tool/Guards':'module.exports={runAgentToolGuards:()=>undefined};'});
 const context={cancellation:{isCancelled:()=>false,reason:()=>undefined}};
 const definition={name:'build',inputSchema:()=>({}),outputSchema:{},handler:async()=>({output:{success:false,message:'compiler diagnostic'}})};
 let executed=await executeAgentToolDefinition(definition,{},context,{});

@@ -6,8 +6,8 @@ import {spawn} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 
 const repo = resolve(process.env.DORA_IDE_SCRIPTS_DIR, '../../..');
-const source = await readFile(join(repo, 'Assets/Script/Lib/Agent/LocalAgent.ts'), 'utf8');
-const generatedSource = await readFile(join(repo, 'Assets/Script/Lib/Agent/LocalAgent.lua'), 'utf8');
+const source = await readFile(join(repo, 'Assets/Script/Lib/Agent/Runtime/LocalAgent.ts'), 'utf8');
+const generatedSource = await readFile(join(repo, 'Assets/Script/Lib/Agent/Runtime/LocalAgent.lua'), 'utf8');
 const session = await readFile(join(repo, 'Assets/Script/Lib/Agent/Session.ts'), 'utf8');
 const webServer = await readFile(join(repo, 'Assets/Script/Dev/WebServer.yue'), 'utf8');
 const agentPanel = await readFile(join(repo, 'Tools/dora-dora/src/AgentPanel.tsx'), 'utf8');

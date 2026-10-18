@@ -64,14 +64,14 @@ assert.match(
 	"the generated Lua runtime must also grant continuations a fresh agent step budget",
 );
 
-const configSource = await readFile(path.join(repoRoot, "Assets/Script/Lib/Agent/Config.ts"), "utf8");
+const configSource = await readFile(path.join(repoRoot, "Assets/Script/Lib/Agent/Config/Defaults.ts"), "utf8");
 assert.match(configSource, /maxSteps:\s*999\b/, "the default long-running task limit must be 999");
 
 const codingAgentSource = await readFile(path.join(repoRoot, "Assets/Script/Lib/Agent/DoraAgent.ts"), "utf8");
-assert.match(
+assert.doesNotMatch(
 	codingAgentSource,
-	/preExecutedResults\.size\s*>=\s*remainingWorkSteps/,
-	"streaming tool pre-execution must respect the remaining task budget",
+	/preExecutedResults/,
+	"streaming responses must not pre-execute tools before complete-output validation",
 );
 assert.match(
 	codingAgentSource,

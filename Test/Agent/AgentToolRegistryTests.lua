@@ -8,7 +8,7 @@ local __TS__ArrayMap = ____lualib.__TS__ArrayMap -- 1
 local __TS__ArrayJoin = ____lualib.__TS__ArrayJoin -- 1
 local ____exports = {} -- 1
 local Registry = require("Agent.Tool.Registry") -- 2
-local ____JsonSchema = require("Agent.JsonSchema") -- 3
+local ____JsonSchema = require("Agent.Tool.JsonSchema") -- 3
 local compileJsonSchema = ____JsonSchema.compileJsonSchema -- 3
 function ____exports.runAgentToolRegistryTests() -- 14
 	local passed = 0 -- 15

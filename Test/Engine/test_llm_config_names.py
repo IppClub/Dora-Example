@@ -80,7 +80,7 @@ function db:exec(sql,args)
 end
 function db:transaction(sql) return rpc(FAIL and 'fail_transaction' or 'transaction',sql) end
 package.loaded.Dora={DB=db,json={decode=function()error('Unexpected JSON decoding in name migration')end}}
-local names=require('Agent.LLMConfigNames')
+local names=require('Agent.Config.LLMConfigNames')
 FAIL=true;assert(not pcall(names.upgradeLLMConfigNames));FAIL=false
 assert(rpc('assert_rollback',''))
 names.upgradeLLMConfigNames()

@@ -104,7 +104,7 @@ assert.match(stepDebugSource, /writeStepLLMDebugFile[\s\S]*sendWebIDEFileUpdate\
 const runtimePolicySource = await readFile(path.resolve("../../Assets/Script/Lib/Agent/Runtime/Policy.ts"), "utf8");
 assert.match(runtimePolicySource, /Content\.save\(path, content\)[\s\S]*sendWebIDEFileUpdate\(path, true, content\)/);
 
-const memorySource = await readFile(path.resolve("../../Assets/Script/Lib/Agent/Memory.ts"), "utf8");
+const memorySource = await readFile(path.resolve("../../Assets/Script/Lib/Agent/Runtime/Memory.ts"), "utf8");
 assert.equal(
 	(memorySource.match(/Content\.save\(/g) ?? []).length,
 	(memorySource.match(/sendWebIDEFileUpdate\(/g) ?? []).length,

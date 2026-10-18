@@ -11,22 +11,22 @@ const workspaceTools = await read("Assets/Script/Lib/Agent/Tool/Workspace.ts");
 const doraDocSearch = await read("Assets/Script/Lib/Agent/Tool/DoraDocSearch.ts");
 const fetchTool = await read("Assets/Script/Lib/Agent/Tool/Fetch.ts");
 const gitCommand = await read("Assets/Script/Lib/Agent/Tool/GitCommand.ts");
-const agentConfig = await read("Assets/Script/Lib/Agent/Config.ts");
+const agentConfig = await read("Assets/Script/Lib/Agent/Config/Defaults.ts");
 const registry = await read("Assets/Script/Lib/Agent/Tool/Registry.ts");
 const codingAgent = await read("Assets/Script/Lib/Agent/DoraAgent.ts");
 const toolHandlers = await read("Assets/Script/Lib/Agent/Tool/Handlers.ts");
-const memory = await read("Assets/Script/Lib/Agent/Memory.ts");
+const memory = await read("Assets/Script/Lib/Agent/Runtime/Memory.ts");
 const utils = await read("Assets/Script/Lib/Agent/Utils.ts");
 const toolsLua = await read("Assets/Script/Lib/Agent/Tools.lua");
 const workspaceToolsLua = await read("Assets/Script/Lib/Agent/Tool/Workspace.lua");
 const doraDocSearchLua = await read("Assets/Script/Lib/Agent/Tool/DoraDocSearch.lua");
 const fetchToolLua = await read("Assets/Script/Lib/Agent/Tool/Fetch.lua");
 const gitCommandLua = await read("Assets/Script/Lib/Agent/Tool/GitCommand.lua");
-const agentConfigLua = await read("Assets/Script/Lib/Agent/Config.lua");
+const agentConfigLua = await read("Assets/Script/Lib/Agent/Config/Defaults.lua");
 const registryLua = await read("Assets/Script/Lib/Agent/Tool/Registry.lua");
 const codingAgentLua = await read("Assets/Script/Lib/Agent/DoraAgent.lua");
 const toolHandlersLua = await read("Assets/Script/Lib/Agent/Tool/Handlers.lua");
-const memoryLua = await read("Assets/Script/Lib/Agent/Memory.lua");
+const memoryLua = await read("Assets/Script/Lib/Agent/Runtime/Memory.lua");
 const utilsLua = await read("Assets/Script/Lib/Agent/Utils.lua");
 const webServer = await read("Assets/Script/Dev/WebServer.yue");
 const llmConfigDialog = await read("Tools/dora-dora/src/LLMConfigDialog.tsx");
@@ -75,7 +75,8 @@ assert.doesNotMatch(memoryLua, /HISTORY_MAX_BYTES/);
 assert.doesNotMatch(utils, /function applyProviderLLMDefaults/);
 assert.doesNotMatch(utilsLua, /local function applyProviderLLMDefaults/);
 assert.match(utils, /customOptions: normalizeLLMCustomOptions\(config\["custom_options"\]\)/);
-assert.match(memory, /\.\.\.getAuxiliaryLLMOptions\(llmConfig\)/);
+assert.match(memory, /const auxiliaryOptions = getAuxiliaryLLMOptions\(this\.config\.llmConfig\)/);
+assert.match(memory, /\}, auxiliaryOptions\);/);
 const deepSeekTemplate = llmConfigDialog.slice(
 	llmConfigDialog.indexOf("id: 'deepseek'"),
 	llmConfigDialog.indexOf("id: 'moonshot'"),

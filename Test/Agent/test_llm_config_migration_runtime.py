@@ -35,10 +35,10 @@ local ok,err=pcall(function()
  end
  local env=setmetatable({require=function(name)
   if name=='Dora' then return facade end
-  if name=='Agent.Config' then return assert(loadfile('ENGINE_ROOT/Assets/Script/Lib/Agent/Config.lua'))() end
+  if name=='Agent.Config.Defaults' then return assert(loadfile('ENGINE_ROOT/Assets/Script/Lib/Agent/Config/Defaults.lua'))() end
   return require(name)
  end},{__index=_G})
- local M=assert(load(assert(D.Content:load('ENGINE_ROOT/Assets/Script/Lib/Agent/LLMConfigMigration.lua')),'migration-test','t',env))()
+ local M=assert(load(assert(D.Content:load('ENGINE_ROOT/Assets/Script/Lib/Agent/Config/LLMConfigMigration.lua')),'migration-test','t',env))()
  local function query(s) return assert(db:query(sql(s))) end
  local function exec(s,args) local n;if args then n=db:exec(sql(s),args) else n=db:exec(sql(s)) end;assert(n>=0) end
  local function version() local r=query("SELECT value_num FROM Config WHERE name='agentLLMConfigVersion'");return r[1] and r[1][1] end
@@ -71,7 +71,7 @@ local ok,err=pcall(function()
  assert(query('SELECT value FROM '..schema..'.Unrelated')[1][1]=='preserve')
  -- Simulate a later user edit and a fresh module load: it must not be forced again.
  exec('UPDATE LLMConfig SET max_tokens=32768 WHERE id=1')
- M=assert(load(assert(D.Content:load('ENGINE_ROOT/Assets/Script/Lib/Agent/LLMConfigMigration.lua')),'migration-test','t',env))()
+ M=assert(load(assert(D.Content:load('ENGINE_ROOT/Assets/Script/Lib/Agent/Config/LLMConfigMigration.lua')),'migration-test','t',env))()
  M.upgradeLLMConfig()
  assert(query('SELECT max_tokens FROM LLMConfig WHERE id=1')[1][1]==32768)
  -- Invalid legacy JSON must remain editable and must not block other rows.

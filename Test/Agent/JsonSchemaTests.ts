@@ -1,6 +1,6 @@
 // @preview-file off clear
 import { json } from 'Dora';
-import { compileJsonSchema, JsonSchema, validateJsonSchema, validateJsonValue } from 'Agent/JsonSchema';
+import { compileJsonSchema, JsonSchema, validateJsonSchema, validateJsonValue } from 'Agent/Tool/JsonSchema';
 
 export interface JsonSchemaTestResult {
 	success: boolean;

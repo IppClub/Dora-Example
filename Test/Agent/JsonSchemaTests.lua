@@ -2,7 +2,7 @@
 local ____exports = {} -- 1
 local ____Dora = require("Dora") -- 2
 local json = ____Dora.json -- 2
-local ____JsonSchema = require("Agent.JsonSchema") -- 3
+local ____JsonSchema = require("Agent.Tool.JsonSchema") -- 3
 local compileJsonSchema = ____JsonSchema.compileJsonSchema -- 3
 local validateJsonSchema = ____JsonSchema.validateJsonSchema -- 3
 local validateJsonValue = ____JsonSchema.validateJsonValue -- 3

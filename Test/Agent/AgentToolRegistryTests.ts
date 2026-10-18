@@ -1,7 +1,7 @@
 // @preview-file off clear
 import * as Registry from 'Agent/Tool/Registry';
-import { compileJsonSchema } from 'Agent/JsonSchema';
-import type { JsonSchema } from 'Agent/JsonSchema';
+import { compileJsonSchema } from 'Agent/Tool/JsonSchema';
+import type { JsonSchema } from 'Agent/Tool/JsonSchema';
 import type { AgentRole, AgentToolName, AgentWorkMode } from 'Agent/Tool/Types';
 
 export interface AgentToolRegistryTestResult {

@@ -9,7 +9,7 @@ import {
 	resolveRemixThinkingStatus,
 	resolveRemixWorkMode,
 } from "Dev/Mobile/RemixModel";
-import type { AgentQuestion } from "Agent/Questionnaire";
+import type { AgentQuestion } from "Agent/Runtime/Questionnaire";
 
 const resultPath = "/tmp/dora-mobile-remix-model.result";
 const expect = (condition: boolean, message: string) => { if (!condition) throw new Error(message); };

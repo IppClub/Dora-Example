@@ -1,5 +1,5 @@
 import { App, Content, Node, Size, sleep, thread } from "Dora";
-import type { AgentQuestionnaireAnswers } from "Agent/Questionnaire";
+import type { AgentQuestionnaireAnswers } from "Agent/Runtime/Questionnaire";
 import type { AgentSessionDetailResult, AgentSessionItem, AgentSessionStatus } from "Agent/Session";
 import type { LLMConfig } from "Agent/Utils";
 import { startMobileRemix, type MobileRemixServices } from "Dev/Mobile/Remix";
