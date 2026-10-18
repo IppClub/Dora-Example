@@ -640,6 +640,10 @@
     {
       "source": "Tools/tests/test_http_resource_limits.py",
       "path": "Test/Engine/test_http_resource_limits.py"
+    },
+    {
+      "source": "Tools/tests/test_agent_storage.py",
+      "path": "Test/Engine/test_agent_storage.py"
     }
   ]
 }
