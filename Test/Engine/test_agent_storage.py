@@ -210,7 +210,7 @@ local function rpc(op,sql,args)
  return assert(load("return "..assert(io.read("*l")),"SQLite reply","t",{}))()
 end
 local callbacks={}
-local app={platform="Linux",runningTime=0,appPath=TEST_PROFILE}
+local app={platform="Linux",runningTime=0}
 TEST_FAULTS={}
 local db={}
 function db:existDB(name) return rpc("exists",name) end
@@ -228,7 +228,12 @@ function db:transaction(sql)
  if TEST_FAULTS.transaction then TEST_FAULTS.transaction=nil;return rpc("fail_transaction",sql) end
  return rpc("transaction",sql)
 end
-package.loaded.Dora={App=app,Content={},DB=db,Path=function(...) return table.concat({...},"/") end,Director={systemScheduler={schedule=function(_,fn) callbacks[#callbacks+1]=fn end}}}
+local function path(...)
+ local parts=table.pack(...)
+ for i=1,parts.n do assert(type(parts[i])=="string","Path expects non-nil string components") end
+ return table.concat(parts,"/",1,parts.n)
+end
+package.loaded.Dora={App=app,Content={appPath=TEST_PROFILE,writablePath=TEST_PROFILE},DB=db,Path=path,Director={systemScheduler={schedule=function(_,fn) callbacks[#callbacks+1]=fn end}}}
 package.loaded['Agent.Utils']={Log=function() end}
 function TEST_CALLBACK_COUNT() return #callbacks end
 function TEST_TICK(t)
