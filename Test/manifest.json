@@ -644,6 +644,10 @@
     {
       "source": "Tools/tests/test_agent_storage.py",
       "path": "Test/Engine/test_agent_storage.py"
+    },
+    {
+      "source": "Tools/tests/test_llm_config_names.py",
+      "path": "Test/Engine/test_llm_config_names.py"
     }
   ]
 }

@@ -41,7 +41,8 @@
     "test-editor-debounce",
     "check_ci_test_coverage.test",
     "test_http_resource_limits",
-    "test_agent_storage"
+    "test_agent_storage",
+    "test_llm_config_names"
   ],
   "manualCases": [
     "emoji-label",

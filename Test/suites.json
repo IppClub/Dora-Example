@@ -85,7 +85,8 @@
     "test_git_job_pruning",
     "test_cli_local_auth",
     "test_http_resource_limits",
-    "test_agent_storage"
+    "test_agent_storage",
+    "test_llm_config_names"
   ],
   "ui": [
     "ide-dev-proxy.test",
