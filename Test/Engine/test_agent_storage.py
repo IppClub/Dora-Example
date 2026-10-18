@@ -160,14 +160,14 @@ local facade={ImGui=fake,Director={systemScheduler={schedule=function(_,fn)
     render(false)
     assert(schedules==1 and pending==0,"failed cleanup retried without a click")
     assert(table.concat(texts,"\n"):find("Some data remains",1,true),"failure result missing")
-    clicked="Clean orphan data";render(false)
+    clicked="Clean previous turn data";render(false)
     assert(schedules==2 and pending==1,"manual retry did not start")
     return true
    end
    assert(S.getStorageUsage().usage.orphanHeavyData.taskCount==0)
    render(false)
    assert(table.concat(texts,"\n"):find("Cleaned 1 tasks.",1,true),"cleanup result missing")
-   local before=schedules;clicked="Clean orphan data";render(false)
+   local before=schedules;clicked="Clean previous turn data";render(false)
    assert(schedules==before,"empty cleanup button was enabled")
    TEST_UI_FINISHED=true
    print("PASS: production settings panel, cached usage, disabled duplicate/empty cleanup, finite failure and explicit retry")
@@ -186,14 +186,14 @@ open=true;render(false)
 queries=TEST_QUERY_COUNT
 for i=1,10 do render(false) end
 if queries then assert(TEST_QUERY_COUNT==queries,"panel queried every frame") end
-assert(table.concat(texts,"\n"):find("Can clean: 1 orphan tasks",1,true))
+assert(table.concat(texts,"\n"):find("Previous turns with cleanable data: 1",1,true))
 clicked="Refresh usage";render(false)
 if queries then assert(TEST_QUERY_COUNT>queries,"refresh button did not read usage") end
 assert(schedules==0,"statistics triggered background cleanup")
 if TEST_FAULTS then TEST_FAULTS.transaction=true end
-clicked="Clean orphan data";render(false)
+clicked="Clean previous turn data";render(false)
 assert(schedules==1 and pending==1,"cleanup button did not schedule one finite operation")
-clicked="Clean orphan data";render(false)
+clicked="Clean previous turn data";render(false)
 assert(schedules==1,"duplicate cleanup was allowed while busy")
 '''
 
@@ -348,7 +348,7 @@ def native_fixture(engine, temp, hold=False):
             usage = post('/agent/storage/usage')
             assert usage['success'] and usage['usage']['orphanHeavyData']['taskCount'] == 1, usage
             if hold:
-                print('NATIVE SETTINGS READY: manually open Misc / Agent storage and clean orphan data', flush=True)
+                print('NATIVE SETTINGS READY: manually open Misc / Agent storage and clean previous turn data', flush=True)
                 input('Press Enter after native UI acceptance: ')
             else:
                 command('local S=require("Agent.Storage.Database");local r=S.cleanupOrphanHeavyDataBatch(4);assert(r.success and r.cleanedTaskCount==1)')

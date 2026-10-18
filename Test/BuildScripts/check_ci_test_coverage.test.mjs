@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import {spawnSync} from 'node:child_process';
 
 const engine = process.env.DORA_ENGINE_ROOT;
 const repo = process.env.DORA_TEST_REPO;
@@ -91,5 +92,42 @@ test('branch-only source checks are not repeated in platform build workflows', a
   for (const name of ['check_web_builtin_libraries.test', 'check_web_loader', 'check_web_package']) {
     assert.equal(web.split(`--case=${name}\n`).length - 1, 1, name);
     assert.ok(gate.includes(`--case=${name}`), name);
+  }
+});
+
+const engineLuaAction = path.join(engine, '.github/actions/setup-engine-lua/action.yml');
+const engineLuaSetup = {skip: !fs.existsSync(engineLuaAction) && 'Engine Lua CI setup has not landed in this revision'};
+
+test('Lua CI consumers share engine sources and trigger on interpreter setup changes', engineLuaSetup, () => {
+  for (const name of ['engine-tests.yml', 'studio.yml']) {
+    const source = workflow(name);
+    assert.equal(source.split("      - '.github/actions/setup-engine-lua/**'").length - 1, 2, name);
+    assert.equal(source.split('uses: ./.github/actions/setup-engine-lua').length - 1, 1, name);
+    assert.ok(source.indexOf('uses: ./.github/actions/setup-engine-lua') < source.indexOf('run: xmake dora-test --suite='), name);
+  }
+  for (const name of fs.readdirSync(path.join(engine, '.github/workflows')).filter(name => name.endsWith('.yml'))) {
+    assert.doesNotMatch(workflow(name), /lua5\.[0-4]\b|DORA_LUA:\s*lua\b/, name);
+  }
+  const setup = fs.readFileSync(path.join(path.dirname(engineLuaAction), 'setup.sh'), 'utf8');
+  assert.match(setup, /Source\/3rdParty\/Lua\/lua\.h/);
+  assert.match(setup, /cp Source\/3rdParty\/Lua\/\*\.\[ch\]/);
+  assert.match(setup, /GITHUB_ENV/);
+  assert.match(setup, /GITHUB_PATH/);
+  assert.match(setup, /cp Source\/3rdParty\/Lua\/cli\/\{lua\.c,luac\.c,Makefile\}/);
+  assert.doesNotMatch(setup, /\b(?:curl|wget|tar|shasum)\b|https?:\/\//, 'Lua setup must use bundled sources without downloads');
+  for (const file of ['lua.c', 'luac.c', 'Makefile']) {
+    assert.ok(fs.existsSync(path.join(engine, 'Source/3rdParty/Lua/cli', file)), file);
+  }
+});
+
+test('configured and PATH Lua interpreters match the engine release', {
+  skip: engineLuaSetup.skip || (!process.env.DORA_LUA && 'DORA_LUA is only required by Lua-consuming CI jobs'),
+}, () => {
+  const header = fs.readFileSync(path.join(engine, 'Source/3rdParty/Lua/lua.h'), 'utf8');
+  const version = ['MAJOR', 'MINOR', 'RELEASE'].map(name => header.match(new RegExp(`#define LUA_VERSION_${name}_N\\s+(\\d+)`))[1]).join('.');
+  for (const command of new Set([process.env.DORA_LUA, 'lua'])) {
+    const result = spawnSync(command, ['-v'], {encoding: 'utf8'});
+    assert.equal(result.status, 0, result.error?.message || result.stderr);
+    assert.ok((result.stdout + result.stderr).startsWith(`Lua ${version} `), `${command}: ${result.stdout}${result.stderr}`);
   }
 });
