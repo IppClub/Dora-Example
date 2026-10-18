@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import http.client
 import json
+import os
 import ipaddress
 import plistlib
 from pathlib import Path
@@ -113,14 +114,16 @@ def signed(path='/ping', body='{}', method='POST'):
             'X-Dora-Signature': hmac.new(b'qa-secret', payload.encode(), hashlib.sha256).hexdigest()}
 
 
+def signed_ws_target():
+    ts, nonce = str(int(time.time())), uuid.uuid4().hex
+    target = '/?' + urllib.parse.urlencode(sorted({'session': 'qa-session', 'ts': ts, 'nonce': nonce}.items()))
+    payload = '\n'.join(['qa-session', 'GET', target, ts, nonce, ''])
+    return target + '&sig=' + hmac.new(b'qa-secret', payload.encode(), hashlib.sha256).hexdigest()
+
+
 def ws(origin, want=101, authenticated=False, resource=None, address='127.0.0.1', host=None):
     global checks, lan_checks
-    target = resource or '/'
-    if authenticated:
-        ts, nonce = str(int(time.time())), uuid.uuid4().hex
-        target += '?' + urllib.parse.urlencode(sorted({'session': 'qa-session', 'ts': ts, 'nonce': nonce}.items()))
-        payload = '\n'.join(['qa-session', 'GET', target, ts, nonce, ''])
-        target += '&sig=' + hmac.new(b'qa-secret', payload.encode(), hashlib.sha256).hexdigest()
+    target = signed_ws_target() if authenticated else resource or '/'
     req = f'GET {target} HTTP/1.1\r\nHost: {host or f"{address}:8868"}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n'
     if origin is not None:
         req += f'Origin: {origin}\r\n'
@@ -166,7 +169,10 @@ print('HTTP_ACCESS_NATIVE_READY')
 """.replace('WWW', json.dumps(str(www))).replace('MOUNTED', json.dumps(str(mounted)))
     (assets / 'Script/init.lua').write_text(script)
     with (root / 'engine.log').open('w') as log:
-        proc = subprocess.Popen([str(engine), '--asset', str(assets)], stdout=log, stderr=subprocess.STDOUT)
+        profile = root / 'profile'
+        profile.mkdir()
+        proc = subprocess.Popen([str(engine), '--asset', str(assets)], stdout=log, stderr=subprocess.STDOUT,
+                                env={**os.environ, 'CFFIXED_USER_HOME': str(profile), 'XDG_DATA_HOME': str(profile / 'data')})
         try:
             for attempt in range(100):
                 if proc.poll() is not None:
@@ -268,7 +274,11 @@ print('HTTP_ACCESS_NATIVE_READY')
                 call(origin='null', address=lan, want=403)
                 ws('null', address=lan, want=403)
             call('/auth', body='{"token":"legacy-token"}', origin=foreign)
-            call(origin=foreign, headers={'Authorization': 'Bearer legacy-token'})
+            for prefix in ['', 'Bearer ', 'Dora ']:
+                call(origin=foreign, headers={'Authorization': prefix + 'legacy-token'})
+                call(origin=foreign, headers={'Authorization': prefix + 'legacy-tokem'}, want=401)
+            call('/ping?auth=legacy-token', origin=foreign)
+            call('/ping?auth=legacy-tokem', origin=foreign, want=401)
             call(origin=foreign, headers={'X-Dora-Auth': 'legacy-token'})
             call(origin=foreign, headers={'X-Dora-Auth': 'wrong'}, want=401)
             ws(foreign, resource='/?auth=legacy-token')
@@ -287,7 +297,8 @@ print('HTTP_ACCESS_NATIVE_READY')
                 if origin:
                     assert out['Cache-Control'] == 'no-store'
                 call(origin=origin, headers=hs, want=401)
-                ws(origin, authenticated=True)
+                target = ws(origin, authenticated=True)
+                ws(origin, resource=target, want=401)
             if lan:
                 for origin in [None, lan_origin, foreign]:
                     hs = signed()
@@ -311,6 +322,23 @@ print('HTTP_ACCESS_NATIVE_READY')
                 call(origin=lan_origin, address=lan, headers=signed('/wrong'), want=401)
                 call(origin=lan_origin, address=lan, body='{"changed":true}', headers=signed(), want=401)
                 call(origin=lan_origin, address=lan, headers={**signed(),'Host':'evil.test:8866'}, want=403)
+            # Reject wrong first/middle/last bytes and short signatures on both
+            # transports; failed signatures must not consume a valid nonce.
+            for address in ['127.0.0.1'] + ([lan] if lan else []):
+                for position in [0, 31, 63, None]:
+                    valid = signed()
+                    broken = dict(valid)
+                    value = valid['X-Dora-Signature']
+                    broken['X-Dora-Signature'] = 'short' if position is None else value[:position] + ('1' if value[position] == '0' else '0') + value[position + 1:]
+                    call(origin=foreign, address=address, headers=broken, want=401)
+                    call(origin=foreign, address=address, headers=valid)
+                    call(origin=foreign, address=address, headers=valid, want=401)
+                    target = signed_ws_target()
+                    prefix, _, signature = target.rpartition('&sig=')
+                    bad = 'short' if position is None else signature[:position] + ('1' if signature[position] == '0' else '0') + signature[position + 1:]
+                    ws(foreign, address=address, resource=prefix + '&sig=' + bad, want=401)
+                    ws(foreign, address=address, resource=target)
+                    ws(foreign, address=address, resource=target, want=401)
             call('/deferred', origin=foreign, headers=signed('/deferred'))
             call('/read-sync', body=None, origin=None, method='GET', headers=signed('/read-sync','',method='GET'))
             call(origin=foreign, headers=signed('/wrong'), want=401)

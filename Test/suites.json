@@ -86,7 +86,8 @@
     "test_cli_local_auth",
     "test_http_resource_limits",
     "test_agent_storage",
-    "test_llm_config_names"
+    "test_llm_config_names",
+    "test_http_constant_time"
   ],
   "ui": [
     "ide-dev-proxy.test",
