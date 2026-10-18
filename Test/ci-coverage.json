@@ -39,7 +39,8 @@
   "addedCases": [
     "test_http_static_path",
     "test-editor-debounce",
-    "check_ci_test_coverage.test"
+    "check_ci_test_coverage.test",
+    "test_http_resource_limits"
   ],
   "manualCases": [
     "emoji-label",

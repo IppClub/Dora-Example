@@ -83,7 +83,8 @@
     "test_web_asset_bootstrap",
     "test_git_clone_paths",
     "test_git_job_pruning",
-    "test_cli_local_auth"
+    "test_cli_local_auth",
+    "test_http_resource_limits"
   ],
   "ui": [
     "ide-dev-proxy.test",

@@ -636,6 +636,10 @@
     {
       "source": "Tools/WebBuilder/test_webbuild.py",
       "path": "Test/Engine/test_webbuild.py"
+    },
+    {
+      "source": "Tools/tests/test_http_resource_limits.py",
+      "path": "Test/Engine/test_http_resource_limits.py"
     }
   ]
 }
