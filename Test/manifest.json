@@ -656,6 +656,10 @@
     {
       "source": "Tools/tests/test_http_constant_time.py",
       "path": "Test/Engine/test_http_constant_time.py"
+    },
+    {
+      "source": "Tools/tests/test_lua_global_writes.py",
+      "path": "Test/Engine/test_lua_global_writes.py"
     }
   ]
 }

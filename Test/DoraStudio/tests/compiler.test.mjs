@@ -106,3 +106,18 @@ test('explicit module aliases resolve but duplicate and ambiguous inputs fail', 
   duplicate.files.push({ file: '/project/main.ts', content: '' });
   assert.throws(() => createSnapshotProgram(ts, duplicate), /Duplicate/);
 });
+
+for (const [name, source] of [
+  ['plain script', 'const value = 1; function drawBaby() { return value; } drawBaby();'],
+  ['module marker', 'const value = 1; function drawBaby() { return value; } export {};'],
+  ['Dora import', 'import {App} from "Dora"; const value = 1; function drawBaby() { return value; } const platform = App.platform;'],
+]) {
+  test(`top-level declarations stay local: ${name}`, () => {
+    const result = compile(input({'main.ts': source}));
+    assert.deepEqual(messages(result), []);
+    const lua = result.output.get('/project/main.lua').content;
+    assert.match(lua, /local value = 1/);
+    assert.match(lua, /local function drawBaby/);
+    assert.doesNotMatch(lua, /^value =|^function drawBaby/m);
+  });
+}

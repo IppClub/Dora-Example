@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import { build } from 'esbuild';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.STUDIO_PLAYWRIGHT_MODULE || 'playwright');
+const globalCases = JSON.parse(await readFile(new URL('./lua-global-fixtures.json', import.meta.url), 'utf8'));
 const declarations = [];
 async function collect(directory, prefix = '') {
   for (const item of await readdir(directory, { withFileTypes: true })) {
@@ -17,7 +18,8 @@ const api = (await build({ stdin: { contents: `export {createTealCompiler} from 
 export {createTealWorkerBuild} from './teal-worker-client.js';
 export {compileTealProject} from './teal-project.js';
 export {createWorkerBuildBackend} from './worker-build.js';
-export {createBuildHandler} from './build-tool.js';`, resolveDir: new URL('../packages/agent-contracts/dist/', import.meta.url).pathname }, bundle: true, format: 'esm', platform: 'browser', write: false })).outputFiles[0].text;
+export {createBuildHandler} from './build-tool.js';
+export {buildAgentScriptTool} from '../../../apps/web/src/agent-tool-script-build.ts';`, resolveDir: new URL('../packages/agent-contracts/dist/', import.meta.url).pathname }, bundle: true, format: 'esm', platform: 'browser', write: false })).outputFiles[0].text;
 const wasm = await readFile(new URL('../packages/agent-contracts/dist/teal/compiler.mjs', import.meta.url));
 const buildWorker = await readFile(new URL('../packages/agent-contracts/dist/teal/worker.mjs', import.meta.url));
 const worker = `import {createTealCompiler} from '/api.js'; import createModule from '/compiler.mjs';
@@ -33,12 +35,13 @@ self.onmessage = async event => {
     const lua = compiler.check('A', 'game.lua');
     const luaInvalid = compiler.check('A', 'broken.lua');
     const luaFiltered = compiler.check('A', 'unknown.lua');
+    const globalResults = ${JSON.stringify(globalCases)}.map((fixture, index) => ({name: fixture.name, expected: fixture.success, result: compiler.check('A', 'global' + index + '.lua')}));
     let foreignRejected = false;
     try { compiler.check('B', 'main.tl'); } catch { foreignRejected = true; }
     compiler.dispose();
     let disposedRejected = false;
     try { compiler.check('A', 'main.tl'); } catch { disposedRejected = true; }
-    self.postMessage({checked, compiled, lua, luaInvalid, luaFiltered, foreignRejected, disposedRejected});
+    self.postMessage({checked, compiled, lua, luaInvalid, luaFiltered, globalResults, foreignRejected, disposedRejected});
   } catch(error) { self.postMessage({error: String(error)}); }
   finally { compiler?.dispose(); }
 };`;
@@ -55,7 +58,7 @@ try {
   const page = await browser.newPage();
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}`);
-  const result = await page.evaluate(async declarations => {
+  const result = await page.evaluate(async ({declarations, globalCases}) => {
     let ticks = 0; const timer = setInterval(() => ticks++, 5);
     const run = dependency => new Promise((resolve, reject) => {
       const worker = new Worker('/worker.mjs', { type: 'module' });
@@ -69,11 +72,25 @@ try {
         { path: 'game.lua', kind: 'text', text: 'while true do end' },
         { path: 'broken.lua', kind: 'text', text: 'local =' },
         { path: 'unknown.lua', kind: 'text', text: 'unknown_global()' },
+        ...globalCases.map((fixture, index) => ({path: 'global' + index + '.lua', kind: 'text', text: fixture.code})),
       ] } });
     });
     try {
-      const {createTealWorkerBuild, createWorkerBuildBackend, createBuildHandler, compileTealProject} = await import('/api.js');
+      const {createTealWorkerBuild, createWorkerBuildBackend, createBuildHandler, compileTealProject, buildAgentScriptTool} = await import('/api.js');
       const compileNonTs = createTealWorkerBuild(() => new Worker('/build-worker.mjs', {type: 'module'}), declarations);
+      const agentParity = [];
+      for (const fixture of globalCases) {
+        const root = '/user/studio-project', path = root + '/init.lua', bytes = new TextEncoder().encode(fixture.code);
+        const fs = {
+          analyzePath: name => ({exists: name === root || name === path}),
+          lstat: name => ({mode: name === root ? 16384 : 32768, size: name === root ? 0 : bytes.length}),
+          isDir: mode => mode === 16384, isFile: mode => mode === 32768,
+          readdir: () => ['.', '..', 'init.lua'], readFile: () => bytes,
+        };
+        const result = await buildAgentScriptTool(fs, 'owned', {operation: 'build-script', projectRoot: root, file: path, content: fixture.code}, new AbortController().signal,
+          (snapshot, path, signal) => compileNonTs({snapshot, path, signal}));
+        agentParity.push({name: fixture.name, expected: fixture.success, result});
+      }
       const snapshot = {version: 1, projectId: 'A', revision: 0, entry: 'main.lua', files: [
         {path: 'main.lua', kind: 'text', text: 'return 1'}, {path: 'typed.tl', kind: 'text', text: 'local x: number = 1\nreturn x'},
         {path: 'broken.lua', kind: 'text', text: 'local ='},
@@ -85,10 +102,10 @@ try {
         {path:'main.tl',kind:'text',text:'local dep = require("dep")\nreturn dep'},
         {path:'dep.tl',kind:'text',text:'return 42'},
       ]}, compileNonTs);
-      return { good: await run('return 1'), bad: await run('return "wrong"'), recovered: await run('return 2'), ticks, built, workflow, derived };
+      return { agentParity, good: await run('return 1'), bad: await run('return "wrong"'), recovered: await run('return 2'), ticks, built, workflow, derived };
     }
     finally { clearInterval(timer); }
-  }, declarations);
+  }, {declarations, globalCases});
   assert.equal(result.good.checked?.success, true, JSON.stringify(result.good));
   assert.equal(result.built.output.succeededBuildCount, 2, JSON.stringify(result.built));
   assert.equal(result.built.output.failedBuildCount, 1);
@@ -98,6 +115,10 @@ try {
   assert.equal(result.derived.snapshot.entry, 'main.lua');
   assert.deepEqual(result.derived.snapshot.files.map(file => file.path), ['main.lua','dep.lua']);
   assert.match(result.derived.snapshot.files[1].text, /42/);
+  for (const item of [...result.good.globalResults, ...result.agentParity]) {
+    assert.equal(item.result.success, item.expected, JSON.stringify(item));
+    if (!item.expected) assert.match(item.result.message || item.result.diagnostics?.[0]?.message || '', /global/);
+  }
   assert.equal(result.good.compiled.success, true);
   assert.equal(result.good.compiled.revision, 7);
   assert.equal(result.good.lua.success, true);
@@ -112,5 +133,5 @@ try {
   assert.equal(result.recovered.checked.success, true);
   assert.ok(result.ticks > 0);
   assert.deepEqual(errors, []);
-  console.log(`PASS Chrome ${browser.version()}: Teal Wasm Worker dependencies, diagnostics, generation, immutable snapshot and lifecycle; ${result.ticks} page heartbeats`);
+  console.log(`PASS Chrome ${browser.version()}: Teal Wasm Worker and original Agent adapter global-write parity, dependencies, diagnostics, generation, immutable snapshot and lifecycle; ${result.ticks} page heartbeats`);
 } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }

@@ -20,6 +20,10 @@ const makeJob = (id, root, value, missing = false) => ({
 });
 const jobs = [makeJob(1, '/project-a', 11), makeJob(2, '/project-a', 22), makeJob(3, '/project-b', 33),
   makeJob(4, '/project-a', 0, true), makeJob(5, '/project-a', 44)];
+jobs.push({id: 6, file: '/plain/main.ts', projectRoot: '/plain',
+ content: 'const value = 1; function drawBaby() { return value; } drawBaby();', files: [...declarations, lualib]});
+jobs.push({id: 7, file: '/plain-tsx/main.tsx', projectRoot: '/plain-tsx',
+ content: 'const value = 1; function drawBaby() { return value; } drawBaby();', files: [...declarations, lualib]});
 const expectedCount = jobs.length;
 const results = [];
 const forbidden = [];
@@ -30,6 +34,7 @@ const server = createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   const json = data => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(data)); };
   try {
+    if (pathname === '/status') return json({platform: 'Linux'});
     if (pathname === '/compiler/ready') return json({ success: true });
     if (pathname === '/compiler/poll') return json({ success: true, job: jobs.shift() });
     if (pathname === '/compiler/result') {
@@ -43,7 +48,7 @@ const server = createServer(async (req, res) => {
     if (req.method !== 'GET') {
       forbidden.push(pathname); res.writeHead(403); res.end('No native services'); return;
     }
-    if (pathname === '/heavy-assets.json') return json({ typescript: '/typescript.js' });
+    if (pathname === '/heavy-assets.json') return json(JSON.parse(await readFile(resolve(buildRoot, 'heavy-assets.json'), 'utf8')));
     const path = resolve(buildRoot, `.${decodeURIComponent(pathname)}`);
     if (!path.startsWith(resolve(buildRoot) + sep)) { res.writeHead(403); res.end(); return; }
     const content = await readFile(path);
@@ -67,16 +72,21 @@ try {
   await Promise.race([done, new Promise((_, reject) => {
     timeout = setTimeout(() => reject(new Error(`Compiler timed out: ${JSON.stringify({ results, errors })}`)), 30000);
   })]);
-  assert.deepEqual(results.map(result => [result.id, result.success]), [[1, true], [2, true], [3, true], [4, false], [5, true]], JSON.stringify(results));
-  for (const result of results.filter(result => result.success)) {
+  assert.deepEqual(results.map(result => [result.id, result.success]), [[1, true], [2, true], [3, true], [4, false], [5, true], [6, true], [7, true]], JSON.stringify(results));
+  for (const result of results.filter(result => result.success && result.id <= 5)) {
     assert.match(result.luaCode, /-- \[ts\]: main.ts/);
     assert.match(result.luaCode, /require\("Dora"\)/);
     assert.match(result.luaCode, /logic.value/);
   }
+  for (const result of results.filter(result => result.id >= 6)) {
+    assert.match(result.luaCode, /local value = 1/);
+    assert.match(result.luaCode, /local function drawBaby/);
+    assert.doesNotMatch(result.luaCode, /^value =|^function drawBaby/m);
+  }
   assert.match(results[3].message, /Cannot find module/);
   assert.deepEqual(forbidden, [], 'snapshot compiler must not call native file services');
   assert.deepEqual(errors.filter(message => !message.includes('404')), []);
-  console.log(`PASS Chrome ${browser.version()}: 5 real native-IDE snapshot jobs, multi-project, missing dependency and recovery; zero native file requests.`);
+  console.log(`PASS Chrome ${browser.version()}: 7 real native-IDE snapshot jobs including no-import TS/TSX locals, multi-project, missing dependency and recovery; zero native file requests.`);
 } finally {
   clearTimeout(timeout);
   await browser.close();

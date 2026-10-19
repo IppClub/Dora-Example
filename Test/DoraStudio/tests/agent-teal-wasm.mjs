@@ -35,6 +35,13 @@ function check(text, filename = 'main.tl', lax = false) {
 try {
   await declarations(new URL('../../Assets/Script/Lib/Dora/en/', import.meta.url));
   assert.equal(module._teal_init(), 0, error());
+  const globalsCases = JSON.parse(await readFile(new URL('./lua-global-fixtures.json', import.meta.url), 'utf8'));
+  for (const fixture of globalsCases) {
+    const status = withBytes(fixture.code, (pointer, length) => checkLua(pointer, length, 'globals.lua'));
+    assert.equal(status, fixture.success ? 0 : 1, fixture.name + ': ' + Array.from({length: module._teal_diagnostic_count()}, (_, i) => diagnostic(i + 1, 5)).join('\n'));
+    if (!fixture.success) assert.equal(diagnostic(1, 1), 'syntax', fixture.name);
+  }
+  console.log(`Lua global-write WASM parity: ${globalsCases.length} cases passed`);
   const good = check('local x: number = 1\nreturn x');
   assert.equal(good.status, 0, JSON.stringify(good));
   const bad = check('local x: number = "wrong"\nreturn x');

@@ -15,8 +15,8 @@ import urllib.request
 PORTS = (8866, 8868)
 
 
-def assert_ports_free():
-    for port in PORTS:
+def assert_ports_free(ports=PORTS):
+    for port in ports:
         with socket.socket() as sock:
             if hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
@@ -34,7 +34,8 @@ def add_engine_argument(parser):
 
 
 class NativeAgent(AbstractContextManager):
-    def __init__(self, engine, repo, startup_timeout=30, shutdown_timeout=12):
+    def __init__(self, engine, repo, startup_timeout=30, shutdown_timeout=12, ports=PORTS):
+        self.ports = tuple(ports)
         self.engine = Path(engine).resolve()
         self.repo = Path(repo).resolve()
         self.startup_timeout = startup_timeout
@@ -54,14 +55,14 @@ class NativeAgent(AbstractContextManager):
             raise RuntimeError(f'DORA_ENGINE_ROOT must point to an engine checkout: {self.repo}')
         if sys.platform == 'linux' and not (os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY')):
             raise RuntimeError('Native engine requires a display; run under xvfb-run with Mesa on headless Linux')
-        assert_ports_free()
+        assert_ports_free(self.ports)
         self.temporary = tempfile.TemporaryDirectory(prefix='dora-native-agent-')
         self.root = Path(self.temporary.name).resolve()
         self.profile = self.root / 'profile'
         self.profile.mkdir()
         self.log_path = self.root / 'engine.log'
         self.log = self.log_path.open('w')
-        self.environment.update(CFFIXED_USER_HOME=str(self.profile), XDG_DATA_HOME=str(self.profile / 'data'))
+        self.environment.update(CFFIXED_USER_HOME=str(self.profile), XDG_DATA_HOME=str(self.profile / 'data'), DORA_PORT=str(self.ports[0]))
         deadline = time.monotonic() + self.startup_timeout
         try:
             self.process = subprocess.Popen(
@@ -74,7 +75,7 @@ class NativeAgent(AbstractContextManager):
                 if self.process.poll() is not None:
                     raise RuntimeError(f'Native engine exited during startup: {self.process.returncode}')
                 try:
-                    request = urllib.request.Request('http://127.0.0.1:8866/status', data=b'{}',
+                    request = urllib.request.Request(f'http://127.0.0.1:{self.ports[0]}/status', data=b'{}',
                                                     headers={'Content-Type': 'application/json', 'Sec-Fetch-Site': 'same-origin'})
                     with opener.open(request, timeout=min(1, max(.001, deadline - time.monotonic()))) as response:
                         status = json.load(response)
@@ -127,7 +128,7 @@ class NativeAgent(AbstractContextManager):
                 deadline = time.monotonic() + 3
                 while True:
                     try:
-                        assert_ports_free()
+                        assert_ports_free(self.ports)
                         break
                     except RuntimeError as error:
                         if time.monotonic() >= deadline:
@@ -146,7 +147,7 @@ class NativeAgent(AbstractContextManager):
                         exc.add_note(message)
                     print(message, file=sys.stderr)
             elif self.process is not None:
-                print('Native Agent exited normally; ports 8866/8868 released', flush=True)
+                print(f'Native Agent exited normally; ports {self.ports[0]}/{self.ports[1]} released', flush=True)
         finally:
             if self.log is not None:
                 self.log.close()
