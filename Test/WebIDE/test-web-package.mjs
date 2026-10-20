@@ -1,3 +1,4 @@
+import {engineVersion} from "../BuildScripts/engine_version.mjs";
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 import {mkdtemp, readFile, rm} from 'node:fs/promises';
@@ -14,7 +15,7 @@ try {
   const {createWebArchive, readProjectZip} = await import(pathToFileURL(outfile).href);
   const {zipSync, unzipSync, strToU8, strFromU8} = await import('fflate');
   const runtime = {
-    'runtime.json': strToU8(JSON.stringify({engineVersion: '1.9.3'})),
+    'runtime.json': strToU8(JSON.stringify({engineVersion})),
     'audio-worklet.js': strToU8('worklet'),
     'dora-audio-mixer.wasm': new Uint8Array([0,97,115,109]),
     'index.html': strToU8((await readFile('../../Projects/Web/player-shell.html', 'utf8')).replace('{{{ SCRIPT }}}', '<script src="dora-player-runtime.js"></script>')),
@@ -57,8 +58,9 @@ try {
   assert.equal(shellMetadata.size, archive['index.html'].length);
   assert.equal(shellMetadata.sha256, createHash('sha256').update(archive['index.html']).digest('hex'));
   assert.equal(archive['.env'], undefined);
-  const newer = unzipSync(await createWebArchive(project, {...runtime, 'runtime.json': strToU8(JSON.stringify({engineVersion: '1.9.4'}))}));
-  assert.equal(JSON.parse(strFromU8(newer['dora-web-manifest.json'])).engineVersion, '1.9.4');
+  const newerVersion = engineVersion.replace(/\d+$/, value => String(Number(value) + 1));
+  const newer = unzipSync(await createWebArchive(project, {...runtime, 'runtime.json': strToU8(JSON.stringify({engineVersion: newerVersion}))}));
+  assert.equal(JSON.parse(strFromU8(newer['dora-web-manifest.json'])).engineVersion, newerVersion);
   assert.ok(newer['audio-worklet.js'] && newer['dora-audio-mixer.wasm']);
   const pretendRuntime = {...runtime, 'dora-player-runtime.js': strToU8('Module.doraSnapshot; new URL("dora-audio-mixer.wasm",base); new URL("audio-worklet.js",base);')};
   const adaptedRuntime = unzipSync(await createWebArchive(project, pretendRuntime, 'html'));
