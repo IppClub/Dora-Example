@@ -1,3 +1,4 @@
+import {engineVersion} from "./engine_version.mjs";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import path from "node:path";
@@ -9,7 +10,7 @@ const { validateManifest, mountStartup, mountSnapshot, mountUserStorage, fetchPa
 const valid = {
 	format: "dora-web-game",
 	version: 1,
-	engineVersion: "1.9.3",
+	engineVersion,
 	profile: "dora-preset",
 	entry: "init.lua",
 	files: [{
@@ -33,6 +34,7 @@ for (const profile of ["dora-demo", "web-player-minimal"]) {
 
 for (const mutate of [
 	(value) => { value.version = 2; },
+	(value) => { value.engineVersion = "0.0.0-unsupported"; },
 	(value) => { value.entry = "../init.lua"; value.files[0].path = "../init.lua"; },
 	(value) => { value.files[0].url = "https://evil.test/init.lua"; },
 	(value) => { value.files[0].sha256 = "not-a-hash"; },
@@ -54,7 +56,7 @@ const digest = (data) => crypto.createHash("sha256").update(data).digest("hex");
 const lazyManifest = {
 	format: "dora-web-game",
 	version: 1,
-	engineVersion: "1.9.3",
+	engineVersion,
 	profile: "dora-preset",
 	entry: "init.lua",
 	files: [

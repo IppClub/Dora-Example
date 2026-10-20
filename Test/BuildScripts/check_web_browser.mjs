@@ -1,3 +1,4 @@
+import {engineVersion} from "./engine_version.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import http from "node:http";
@@ -47,7 +48,7 @@ function crc32(bytes) {
 
 function createPackageFixture() {
 	const entries = [
-		["dora-package.json", JSON.stringify({format: "dora-game", version: 1, title: "Browser import", engineVersion: "1.9.3", entry: "init"})],
+		["dora-package.json", JSON.stringify({format: "dora-game", version: 1, title: "Browser import", engineVersion, entry: "init"})],
 		["init.lua", "print('browser package import ready')"],
 	];
 	const locals = [];

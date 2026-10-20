@@ -1,3 +1,4 @@
+import {engineVersion} from "./engine_version.mjs";
 import assert from "node:assert/strict";
 import path from "node:path";
 import {pathToFileURL} from "node:url";
@@ -79,7 +80,7 @@ const manifest = (overrides = {}) => JSON.stringify({
 	format: "dora-game",
 	version: 1,
 	title: "Web package fixture",
-	engineVersion: "1.9.3",
+	engineVersion,
 	entry: "init",
 	...overrides
 });
