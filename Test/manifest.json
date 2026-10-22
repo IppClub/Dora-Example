@@ -451,6 +451,10 @@
       "path": "Test/Agent/test_agent_build_contract.mjs"
     },
     {
+      "source": "Tools/tests/test_read_file_ranges.mjs",
+      "path": "Test/Agent/test_read_file_ranges.mjs"
+    },
+    {
       "source": "Tools/tests/test_agent_build_runtime.py",
       "path": "Test/Agent/test_agent_build_runtime.py"
     },
@@ -463,8 +467,28 @@
       "path": "Test/Agent/test_ts_warning_errors.mjs"
     },
     {
+      "source": "Tools/tests/test_repeated_output_recovery.mjs",
+      "path": "Test/Agent/test_repeated_output_recovery.mjs"
+    },
+    {
+      "source": "Tools/tests/test_repeated_output_runtime.py",
+      "path": "Test/Agent/test_repeated_output_runtime.py"
+    },
+    {
       "source": "Tools/tests/test_compression_cancel_runtime.py",
       "path": "Test/Agent/test_compression_cancel_runtime.py"
+    },
+    {
+      "source": "Tools/tests/test_search_zero_width_runtime.py",
+      "path": "Test/Agent/test_search_zero_width_runtime.py"
+    },
+    {
+      "source": "Tools/tests/test_read_file_schema_runtime.py",
+      "path": "Test/Agent/test_read_file_schema_runtime.py"
+    },
+    {
+      "source": "Tools/tests/test_build_schema_runtime.py",
+      "path": "Test/Agent/test_build_schema_runtime.py"
     },
     {
       "source": "Tools/tests/test_output_budget_presets.mjs",

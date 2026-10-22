@@ -3,9 +3,9 @@ local ____lualib = require("lualib_bundle") -- 1
 local __TS__ArrayIndexOf = ____lualib.__TS__ArrayIndexOf -- 1
 local __TS__ArrayFilter = ____lualib.__TS__ArrayFilter -- 1
 local __TS__ArrayFind = ____lualib.__TS__ArrayFind -- 1
-local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
 local __TS__ArrayMap = ____lualib.__TS__ArrayMap -- 1
 local __TS__ArrayJoin = ____lualib.__TS__ArrayJoin -- 1
+local __TS__ArrayIsArray = ____lualib.__TS__ArrayIsArray -- 1
 local ____exports = {} -- 1
 local Registry = require("Agent.Tool.Registry") -- 2
 local ____JsonSchema = require("Agent.Tool.JsonSchema") -- 3
@@ -131,98 +131,98 @@ function ____exports.runAgentToolRegistryTests() -- 14
 	) -- 63
 	local readParams = readSchema and readSchema["function"].parameters -- 64
 	check( -- 65
-		__TS__ArrayIsArray(readParams and readParams.anyOf) and #readParams.anyOf == 2, -- 65
-		"read_file schema exposes composable single and batch forms" -- 65
+		(readParams and readParams.anyOf) == nil and table.concat(readParams and readParams.required, ",") == "reads", -- 65
+		"read_file model schema requires reads without anyOf" -- 65
 	) -- 65
 	local compiledReadSchema = compileJsonSchema(readParams) -- 66
 	check( -- 67
-		compiledReadSchema.success and compiledReadSchema.validator:validate({path = "a.ts"}).valid and compiledReadSchema.validator:validate({reads = {{path = "a.ts"}, {path = "b.ts", startLine = -2}}}).valid and compiledReadSchema.validator:validate({path = "a.ts", reads = {{path = "b.ts"}}}).valid, -- 68
-		"read_file schema accepts single, batch, and mixed input" -- 72
-	) -- 72
-	local ____opt_15 = Registry.getToolDefinition("read_file") -- 72
-	local readValidator = ____opt_15 and ____opt_15.validateInput -- 74
-	local singleRead = readValidator and readValidator({path = "a.ts", startLine = 1, endLine = 2}) -- 75
-	local arrayRead = readValidator and readValidator({reads = {{path = "a.ts"}}}) -- 76
-	local mixedRead = readValidator and readValidator({path = "a.ts", startLine = 2, reads = {{path = "b.ts", startLine = 3}}}) -- 77
-	check((singleRead and singleRead.success) == true and singleRead.value.path == "a.ts", "read_file validator accepts and normalizes the single form") -- 78
-	check((arrayRead and arrayRead.success) == true and arrayRead.value.reads[1].path == "a.ts", "read_file validator accepts and normalizes the batch form") -- 79
-	check( -- 80
-		(mixedRead and mixedRead.success) == true and __TS__ArrayJoin( -- 81
-			__TS__ArrayMap( -- 82
-				mixedRead.value.reads, -- 82
-				function(____, item) return item.path end -- 82
-			), -- 82
-			"," -- 82
-		) == "a.ts,b.ts" and mixedRead.value.path == nil, -- 82
-		"read_file validator prepends the top-level range to batch reads" -- 84
-	) -- 84
-	check( -- 86
-		(readValidator and readValidator({reads = {}}).success) == false and (readValidator and readValidator({path = ""}).success) == false, -- 87
-		"read_file validator requires at least one non-empty form" -- 89
-	) -- 89
-	local ____opt_33 = __TS__ArrayFind( -- 89
-		mainSchemas, -- 91
-		function(____, item) return item["function"].name == "build" end -- 91
+		compiledReadSchema.success and not compiledReadSchema.validator:validate({path = "a.ts"}).valid and compiledReadSchema.validator:validate({reads = {{path = "a.ts"}, {path = "b.ts", startLine = -2}}}).valid and not compiledReadSchema.validator:validate({path = "a.ts", reads = {{path = "b.ts"}}}).valid and not compiledReadSchema.validator:validate({}).valid and not compiledReadSchema.validator:validate({reads = {}}).valid, -- 68
+		"read_file model schema accepts reads only and rejects empty input" -- 74
+	) -- 74
+	local ____opt_17 = Registry.getToolDefinition("read_file") -- 74
+	local readValidator = ____opt_17 and ____opt_17.validateInput -- 76
+	local singleRead = readValidator and readValidator({path = "a.ts", startLine = 1, endLine = 2}) -- 77
+	local arrayRead = readValidator and readValidator({reads = {{path = "a.ts"}}}) -- 78
+	local mixedRead = readValidator and readValidator({path = "a.ts", startLine = 2, reads = {{path = "b.ts", startLine = 3}}}) -- 79
+	check((singleRead and singleRead.success) == true and singleRead.value.path == "a.ts", "read_file validator accepts and normalizes the single form") -- 80
+	check((arrayRead and arrayRead.success) == true and arrayRead.value.reads[1].path == "a.ts", "read_file validator accepts and normalizes the batch form") -- 81
+	check( -- 82
+		(mixedRead and mixedRead.success) == true and __TS__ArrayJoin( -- 83
+			__TS__ArrayMap( -- 84
+				mixedRead.value.reads, -- 84
+				function(____, item) return item.path end -- 84
+			), -- 84
+			"," -- 84
+		) == "a.ts,b.ts" and mixedRead.value.path == nil, -- 84
+		"read_file validator prepends the top-level range to batch reads" -- 86
+	) -- 86
+	check( -- 88
+		(readValidator and readValidator({reads = {}}).success) == false and (readValidator and readValidator({path = ""}).success) == false, -- 89
+		"read_file validator requires at least one non-empty form" -- 91
 	) -- 91
-	local buildSchema = ____opt_33 and ____opt_33["function"].parameters -- 91
-	local ____opt_35 = Registry.getToolDefinition("build") -- 91
-	local buildValidator = ____opt_35 and ____opt_35.validateInput -- 92
-	check( -- 93
-		__TS__ArrayIsArray(buildSchema and buildSchema.anyOf) and #buildSchema.anyOf == 2, -- 93
-		"build schema exposes composable paths and path forms" -- 93
+	local ____opt_35 = __TS__ArrayFind( -- 91
+		mainSchemas, -- 93
+		function(____, item) return item["function"].name == "build" end -- 93
 	) -- 93
-	local compiledBuildSchema = compileJsonSchema(buildSchema) -- 94
+	local buildSchema = ____opt_35 and ____opt_35["function"].parameters -- 93
+	local ____opt_37 = Registry.getToolDefinition("build") -- 93
+	local buildValidator = ____opt_37 and ____opt_37.validateInput -- 94
 	check( -- 95
-		compiledBuildSchema.success and compiledBuildSchema.validator:validate({paths = {"a.ts", "b.ts"}}).valid and compiledBuildSchema.validator:validate({path = "a.ts"}).valid and compiledBuildSchema.validator:validate({path = "a.ts", paths = {"b.ts"}}).valid, -- 96
-		"build schema accepts single, batch, and mixed input" -- 100
-	) -- 100
-	local arrayBuild = buildValidator and buildValidator({paths = {"a.ts", "b.ts"}}) -- 102
-	local singleBuild = buildValidator and buildValidator({path = "a.ts"}) -- 103
-	local mixedBuild = buildValidator and buildValidator({path = "a.ts", paths = {"b.ts", "c.ts"}}) -- 104
-	check((arrayBuild and arrayBuild.success) == true and #arrayBuild.value.paths == 2, "build validator accepts ordered targets") -- 105
-	check((singleBuild and singleBuild.success) == true and singleBuild.value.paths[1] == "a.ts" and singleBuild.value.path == nil, "build validator normalizes single path to paths") -- 106
-	check( -- 112
-		(mixedBuild and mixedBuild.success) == true and table.concat(mixedBuild.value.paths, ",") == "a.ts,b.ts,c.ts" and mixedBuild.value.path == nil, -- 113
-		"build validator prepends the top-level path to paths" -- 116
-	) -- 116
-	check( -- 118
-		(buildValidator and buildValidator({paths = {}}).success) == false, -- 119
-		"build validator rejects empty forms" -- 120
+		(buildSchema and buildSchema.anyOf) == nil and table.concat(buildSchema and buildSchema.required, ",") == "paths", -- 95
+		"build model schema requires paths without anyOf" -- 95
+	) -- 95
+	local compiledBuildSchema = compileJsonSchema(buildSchema) -- 96
+	check( -- 97
+		compiledBuildSchema.success and compiledBuildSchema.validator:validate({paths = {"a.ts", "b.ts"}}).valid and not compiledBuildSchema.validator:validate({path = "a.ts"}).valid and not compiledBuildSchema.validator:validate({path = "a.ts", paths = {"b.ts"}}).valid and not compiledBuildSchema.validator:validate({}).valid and not compiledBuildSchema.validator:validate({paths = {}}).valid, -- 98
+		"build model schema accepts paths only and rejects empty input" -- 104
+	) -- 104
+	local arrayBuild = buildValidator and buildValidator({paths = {"a.ts", "b.ts"}}) -- 106
+	local singleBuild = buildValidator and buildValidator({path = "a.ts"}) -- 107
+	local mixedBuild = buildValidator and buildValidator({path = "a.ts", paths = {"b.ts", "c.ts"}}) -- 108
+	check((arrayBuild and arrayBuild.success) == true and #arrayBuild.value.paths == 2, "build validator accepts ordered targets") -- 109
+	check((singleBuild and singleBuild.success) == true and singleBuild.value.paths[1] == "a.ts" and singleBuild.value.path == nil, "build validator normalizes single path to paths") -- 110
+	check( -- 116
+		(mixedBuild and mixedBuild.success) == true and table.concat(mixedBuild.value.paths, ",") == "a.ts,b.ts,c.ts" and mixedBuild.value.path == nil, -- 117
+		"build validator prepends the top-level path to paths" -- 120
 	) -- 120
-	local ____opt_53 = __TS__ArrayFind( -- 120
-		mainSchemas, -- 122
-		function(____, item) return item["function"].name == "edit_file" end -- 122
-	) -- 122
-	local editSchema = ____opt_53 and ____opt_53["function"].parameters -- 122
-	local editProperties = editSchema and editSchema.properties -- 123
-	local editBatchSchema = editProperties and editProperties.edits -- 124
-	check((editBatchSchema and editBatchSchema.minItems) == 1 and editBatchSchema.maxItems == nil, "edit_file batch is non-empty without an artificial upper bound") -- 125
-	local ____opt_61 = Registry.getToolDefinition("edit_file") -- 125
-	local editValidator = ____opt_61 and ____opt_61.validateInput -- 126
-	local legacyEdit = editValidator and editValidator({path = "a.ts", old_str = "a", new_str = "b"}) -- 127
-	local batchEdit = editValidator and editValidator({edits = {{path = "a.ts", old_str = "a", new_str = "b"}, {path = "b.ts", old_str = "", new_str = "x"}}}) -- 128
-	local commonPathBatchEdit = editValidator and editValidator({path = "a.ts", edits = {{old_str = "a", new_str = "b"}, {old_str = "b", new_str = "c"}}}) -- 129
-	local mixedEdit = editValidator and editValidator({path = "a.ts", old_str = "a", new_str = "b", edits = {{path = "b.ts", old_str = "b", new_str = "c"}}}) -- 130
-	local emptyBatchEdit = editValidator and editValidator({edits = {}}) -- 131
-	local commonPathEdits = (commonPathBatchEdit and commonPathBatchEdit.success) == true and commonPathBatchEdit.value.edits or ({}) -- 132
-	check((legacyEdit and legacyEdit.success) == true and (batchEdit and batchEdit.success) == true, "edit_file validator preserves legacy form and accepts batch form") -- 133
-	check(#commonPathEdits == 2 and commonPathEdits[1].path == "a.ts" and commonPathEdits[2].path == "a.ts", "edit_file batch applies top-level default path") -- 134
-	check((mixedEdit and mixedEdit.success) == false and (emptyBatchEdit and emptyBatchEdit.success) == false, "edit_file validator rejects mixed and empty forms") -- 135
-	local ____opt_83 = __TS__ArrayFind( -- 135
-		Registry.buildDecisionToolSchema("main", 20, {workMode = "code"}), -- 137
-		function(____, item) return item["function"].name == "finish" end -- 138
-	) -- 138
-	local mainFinish = ____opt_83 and ____opt_83["function"].parameters -- 137
-	local ____opt_85 = __TS__ArrayFind( -- 137
-		Registry.buildDecisionToolSchema("sub", 20, {workMode = "code"}), -- 139
-		function(____, item) return item["function"].name == "finish" end -- 140
-	) -- 140
-	local subFinish = ____opt_85 and ____opt_85["function"].parameters -- 139
-	check(mainFinish == nil, "finish is hidden from main agents") -- 141
-	check( -- 142
-		__TS__ArrayIsArray(subFinish and subFinish.required) and table.concat(subFinish and subFinish.required, ",") == "message,outcome,validation,knownIssues,assumptions,learningCandidates", -- 142
-		"sub finish strict requirements" -- 142
+	check( -- 122
+		(buildValidator and buildValidator({paths = {}}).success) == false, -- 123
+		"build validator rejects empty forms" -- 124
+	) -- 124
+	local ____opt_57 = __TS__ArrayFind( -- 124
+		mainSchemas, -- 126
+		function(____, item) return item["function"].name == "edit_file" end -- 126
+	) -- 126
+	local editSchema = ____opt_57 and ____opt_57["function"].parameters -- 126
+	local editProperties = editSchema and editSchema.properties -- 127
+	local editBatchSchema = editProperties and editProperties.edits -- 128
+	check((editBatchSchema and editBatchSchema.minItems) == 1 and editBatchSchema.maxItems == nil, "edit_file batch is non-empty without an artificial upper bound") -- 129
+	local ____opt_65 = Registry.getToolDefinition("edit_file") -- 129
+	local editValidator = ____opt_65 and ____opt_65.validateInput -- 130
+	local legacyEdit = editValidator and editValidator({path = "a.ts", old_str = "a", new_str = "b"}) -- 131
+	local batchEdit = editValidator and editValidator({edits = {{path = "a.ts", old_str = "a", new_str = "b"}, {path = "b.ts", old_str = "", new_str = "x"}}}) -- 132
+	local commonPathBatchEdit = editValidator and editValidator({path = "a.ts", edits = {{old_str = "a", new_str = "b"}, {old_str = "b", new_str = "c"}}}) -- 133
+	local mixedEdit = editValidator and editValidator({path = "a.ts", old_str = "a", new_str = "b", edits = {{path = "b.ts", old_str = "b", new_str = "c"}}}) -- 134
+	local emptyBatchEdit = editValidator and editValidator({edits = {}}) -- 135
+	local commonPathEdits = (commonPathBatchEdit and commonPathBatchEdit.success) == true and commonPathBatchEdit.value.edits or ({}) -- 136
+	check((legacyEdit and legacyEdit.success) == true and (batchEdit and batchEdit.success) == true, "edit_file validator preserves legacy form and accepts batch form") -- 137
+	check(#commonPathEdits == 2 and commonPathEdits[1].path == "a.ts" and commonPathEdits[2].path == "a.ts", "edit_file batch applies top-level default path") -- 138
+	check((mixedEdit and mixedEdit.success) == false and (emptyBatchEdit and emptyBatchEdit.success) == false, "edit_file validator rejects mixed and empty forms") -- 139
+	local ____opt_87 = __TS__ArrayFind( -- 139
+		Registry.buildDecisionToolSchema("main", 20, {workMode = "code"}), -- 141
+		function(____, item) return item["function"].name == "finish" end -- 142
 	) -- 142
-	return {success = #failures == 0, passed = passed, total = total, failures = failures} -- 144
+	local mainFinish = ____opt_87 and ____opt_87["function"].parameters -- 141
+	local ____opt_89 = __TS__ArrayFind( -- 141
+		Registry.buildDecisionToolSchema("sub", 20, {workMode = "code"}), -- 143
+		function(____, item) return item["function"].name == "finish" end -- 144
+	) -- 144
+	local subFinish = ____opt_89 and ____opt_89["function"].parameters -- 143
+	check(mainFinish == nil, "finish is hidden from main agents") -- 145
+	check( -- 146
+		__TS__ArrayIsArray(subFinish and subFinish.required) and table.concat(subFinish and subFinish.required, ",") == "message,outcome,validation,knownIssues,assumptions,learningCandidates", -- 146
+		"sub finish strict requirements" -- 146
+	) -- 146
+	return {success = #failures == 0, passed = passed, total = total, failures = failures} -- 148
 end -- 14
 return ____exports -- 14

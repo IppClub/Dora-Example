@@ -1,7 +1,9 @@
 {
   "agent": [
     "test_output_budget_presets",
+    "test_repeated_output_recovery",
     "test_agent_build_contract",
+    "test_read_file_ranges",
     "test_agent_host_reload",
     "test_ts_warning_errors"
   ],

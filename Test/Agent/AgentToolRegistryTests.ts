@@ -62,14 +62,16 @@ export function runAgentToolRegistryTests(): AgentToolRegistryTestResult {
 	check(mainSchemas.length === 11, "main code function schema count");
 	const readSchema = mainSchemas.find(item => item.function.name === "read_file");
 	const readParams = readSchema?.function.parameters as Record<string, unknown> | undefined;
-	check(Array.isArray(readParams?.anyOf) && (readParams.anyOf as unknown[]).length === 2, "read_file schema exposes composable single and batch forms");
+	check(readParams?.anyOf === undefined && (readParams?.required as string[]).join(",") === "reads", "read_file model schema requires reads without anyOf");
 	const compiledReadSchema = compileJsonSchema(readParams as JsonSchema);
 	check(
 		compiledReadSchema.success
-		&& compiledReadSchema.validator.validate({ path: "a.ts" }).valid
+		&& !compiledReadSchema.validator.validate({ path: "a.ts" }).valid
 		&& compiledReadSchema.validator.validate({ reads: [{ path: "a.ts" }, { path: "b.ts", startLine: -2 }] }).valid
-		&& compiledReadSchema.validator.validate({ path: "a.ts", reads: [{ path: "b.ts" }] }).valid,
-		"read_file schema accepts single, batch, and mixed input"
+		&& !compiledReadSchema.validator.validate({ path: "a.ts", reads: [{ path: "b.ts" }] }).valid
+		&& !compiledReadSchema.validator.validate({}).valid
+		&& !compiledReadSchema.validator.validate({ reads: [] }).valid,
+		"read_file model schema accepts reads only and rejects empty input"
 	);
 	const readValidator = Registry.getToolDefinition("read_file")?.validateInput;
 	const singleRead = readValidator?.({ path: "a.ts", startLine: 1, endLine: 2 });
@@ -90,14 +92,16 @@ export function runAgentToolRegistryTests(): AgentToolRegistryTestResult {
 	);
 	const buildSchema = mainSchemas.find(item => item.function.name === "build")?.function.parameters as Record<string, unknown> | undefined;
 	const buildValidator = Registry.getToolDefinition("build")?.validateInput;
-	check(Array.isArray(buildSchema?.anyOf) && (buildSchema.anyOf as unknown[]).length === 2, "build schema exposes composable paths and path forms");
+	check(buildSchema?.anyOf === undefined && (buildSchema?.required as string[]).join(",") === "paths", "build model schema requires paths without anyOf");
 	const compiledBuildSchema = compileJsonSchema(buildSchema as JsonSchema);
 	check(
 		compiledBuildSchema.success
 		&& compiledBuildSchema.validator.validate({ paths: ["a.ts", "b.ts"] }).valid
-		&& compiledBuildSchema.validator.validate({ path: "a.ts" }).valid
-		&& compiledBuildSchema.validator.validate({ path: "a.ts", paths: ["b.ts"] }).valid,
-		"build schema accepts single, batch, and mixed input"
+		&& !compiledBuildSchema.validator.validate({ path: "a.ts" }).valid
+		&& !compiledBuildSchema.validator.validate({ path: "a.ts", paths: ["b.ts"] }).valid
+		&& !compiledBuildSchema.validator.validate({}).valid
+		&& !compiledBuildSchema.validator.validate({ paths: [] }).valid,
+		"build model schema accepts paths only and rejects empty input"
 	);
 	const arrayBuild = buildValidator?.({ paths: ["a.ts", "b.ts"] });
 	const singleBuild = buildValidator?.({ path: "a.ts" });

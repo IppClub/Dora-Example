@@ -1,0 +1,44 @@
+Repeated-output recovery acceptance — 2026-10-13
+
+Production behavior:
+- Compare consecutive complete decision messages, including content, reasoning,
+  tool order/names and exact argument text. Provider IDs are excluded.
+- No tool starts during streaming. A second identical response is intercepted
+  before validation/retry/repair or tool execution.
+- Reuse ordinary full compaction, retaining persistent original history and
+  task/workflow state. Continue the same task after successful compaction.
+- Repeated recovery of the same output in one task pauses as STOPPED, with an
+  explicit reason. Compression failure or no progress also pauses. Existing
+  session continuation starts a fresh recovery detector.
+- No total-step cap added. Existing optional step-budget behavior is unchanged.
+
+Historical fixture:
+Fixtures/task670-responses.json contains 162 complete decision responses from
+session 261 task 670, with original file names and source SHA-256 digests.
+125 adjacent pairs match when provider IDs are excluded. Five compression
+responses are excluded from the original 167 complete responses; these are
+not Agent decisions. Only model outputs are included, not credential-bearing
+request options. Original project logs were not modified.
+
+Validation:
+DORA_ENGINE_ROOT=/path/to/Dora-SSR node Test/run.mjs --suite=agent
+  PASS: 4 isolated cases, including real decision/batch execution code with
+  mocked external dependencies and task670 response replay; XML path;
+  compaction success/failure/no-progress/cancellation; manual /compact;
+  1100 distinct executed tool decisions without recovery or a new step cap.
+
+Opt-in dedicated idle native Debug engine:
+DORA_ENGINE_ROOT=/path/to/Dora-SSR node Test/run.mjs --suite=agent --case=test_repeated_output_runtime
+  PASS: compiled Lua + actual ordinary MemoryCompressor and persisted history.
+  Historical steps 4/5/6 replay: one actual read_file execution, one compaction,
+  third identical response pauses. Explicit continue then succeeds.
+  Separate recovery sequence: one compaction, different next tool executes,
+  same original task finishes normally.
+  Decision responses are replayed and compression responses are controlled;
+  no live model/API requests are made. Tests restore module/function overrides
+  and remove disposable workspaces. Do not run with real Agent tasks active.
+
+DoraAgent.ts and RepeatedOutput.ts compiled with the current native compiler.
+Generated Lua syntax checks and git diff checks passed. Memory.ts/Memory.lua
+were not changed. This does not establish that the live Ornith model will
+recover; it establishes interception, compaction and resumable-stop behavior.
