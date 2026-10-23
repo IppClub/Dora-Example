@@ -41,3 +41,23 @@ test('virtual documents and logs use exact immutable bindings and cannot fall ba
   assert.throws(() => createSnapshotReadBackend(snapshot, [{ path: '/etc/passwd', text: '' }]));
   assert.throws(() => createSnapshotReadBackend(snapshot, [bindings[0], bindings[0]]));
 });
+
+
+test('snapshot reads resolve omitted ends from the starting line for files and virtual documents', () => {
+  const text = Array.from({ length: 1000 }, (_, i) => `line ${i + 1}`).join('\n');
+  const read = createSnapshotReadBackend({ version: 1, projectId: 'A', revision: 0, entry: 'main.ts', files: [
+    { path: 'main.ts', kind: 'text', text }
+  ] }, [{ path: '@dora_full_logs.txt', text }]);
+  for (const path of ['main.ts', '@dora_full_logs.txt']) {
+    for (const [start, end] of [[1, 300], [400, 699], [-400, 900], [-2, 1000]]) {
+      const result = read('A', path, start);
+      assert.equal(result.success, true);
+      assert.equal(result.endLine, end);
+      assert.equal(result.startLine, start > 0 ? start : 1001 + start);
+    }
+    assert.equal(read('A', path, 400, -1).endLine, 1000);
+    assert.equal(read('A', path, 400, 450).endLine, 450);
+    assert.equal(read('A', path, 0).success, false);
+    assert.equal(read('A', path, 400, 0).success, false);
+  }
+});

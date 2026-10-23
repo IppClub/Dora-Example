@@ -20,7 +20,7 @@ test('original read handler preserves partial batches and post-compression clipp
   assert.equal(result.output.partial, true);
   assert.equal(result.output.succeededReadCount, 2);
   assert.equal(result.output.failedReadCount, 1);
-  assert.deepEqual(calls, [['project-A', 'a', 1, 160, 'zh'], ['project-A', 'missing', 1, 160, 'zh'], ['project-A', 'b', -2, -1, 'zh']]);
+  assert.deepEqual(calls, [['project-A', 'a', 1, 160, 'zh'], ['project-A', 'missing', 1, 160, 'zh'], ['project-A', 'b', -2, undefined, 'zh']]);
   assert.equal(result.output.results[0].clipped, true);
   assert.equal(result.output.results[1].clipped, undefined);
   assert.equal(result.output.results[2].clipped, undefined);
