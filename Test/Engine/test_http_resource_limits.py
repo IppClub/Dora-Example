@@ -38,7 +38,7 @@ static int request(void* unused,const DoraXrtHttpServerRequest* r,DoraXrtHttpSer
  if(!strcmp(r->path,"/storage/reset"))faultMode=0;
  if(!strcmp(r->path,"/upload")){
   assert(r->uploadAuthorized && r->bodyFile && !r->body);
-  int result=DoraXrtMultipartFileForEachFile(DoraXrtHttpServerRequestHeader(r,"Content-Type"),r->bodyFile,r->bodyLen,512u*1024u*1024u,part,&total);
+  int result=DoraXrtMultipartFileForEachFile(DoraXrtHttpServerRequestHeader(r,"Content-Type"),r->bodyFile,r->bodyLen,DORA_HTTP_UPLOAD_BODY_LIMIT,part,&total);
   if(result!=1){DoraXrtHttpServerResponseSetStatus(response,400,NULL);return 1;}
  }
  snprintf(answer,sizeof(answer),"{\"success\":true,\"bytes\":%zu,\"sum\":%zu}",total.bytes,total.sum);
@@ -47,7 +47,7 @@ static int request(void* unused,const DoraXrtHttpServerRequest* r,DoraXrtHttpSer
 int main(int argc,char**argv){
  DoraXrtHttpServerEvents events={0};events.onRequest=request;events.onUploadHead=head;events.shouldDefer=defer;events.temporaryDirectory=argv[1];
  snprintf(readonlyPath,sizeof(readonlyPath),"%s/readonly",argv[1]);FILE* empty=fopen(readonlyPath,"wb");assert(empty);fclose(empty);
- DoraXrtHttpServer* h=DoraXrtHttpServerCreate(0,512u*1024u*1024u,&events,NULL);assert(h);
+ DoraXrtHttpServer* h=DoraXrtHttpServerCreate(0,DORA_HTTP_UPLOAD_BODY_LIMIT,&events,NULL);assert(h);
  h->native->tConfig.OpenSpoolFile=spool;
  DoraXrtWebSocketServerEvents wsEvents={0};
  DoraXrtWebSocketServer* ws=DoraXrtWebSocketServerCreate(0,16u*1024u*1024u,&wsEvents,NULL);assert(ws);
@@ -61,8 +61,8 @@ int main(int argc,char**argv){
 def connect(port):
     return socket.create_connection(('127.0.0.1', port), 5)
 
-def status(sock):
-    sock.settimeout(5)
+def status(sock, timeout=5):
+    sock.settimeout(timeout)
     response = http.client.HTTPResponse(sock)
     response.begin()
     data = response.read()
@@ -111,7 +111,7 @@ def upload(port, size, *, chunked=False, path='/upload', auth=True):
             n=min(left,65536);send(b'x'*n);left-=n
         send(suffix)
         if chunked:s.sendall(b'0\r\n\r\n')
-        return status(s)
+        return status(s, 120)
 
 def reject_closed(s):
     try:
@@ -152,7 +152,7 @@ def fixture(temp):
             line=proc.stdout.readline();assert line,line
             port,ws_port=map(int,line.split())
             assert healthy(port)
-            for path,limit in (('/info',8*MIB),('/upload',512*MIB)):
+            for path,limit in (('/info',8*MIB),('/upload',2049*MIB)):
                 code,_=raw(port,headers(port,path,limit+1,expect=True));assert code==413,(path,code)
                 code,_=raw(port,headers(port,path,chunked=True)+f'{limit+1:x}\r\n'.encode());assert code==413,(path,code)
             assert raw(ws_port,b'GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 536870912\r\n\r\n')[0]==400
@@ -234,7 +234,7 @@ def fixture(temp):
             assert proc.returncode==0,(proc.returncode,errors)
             assert 'ERROR: AddressSanitizer' not in errors and 'runtime error:' not in errors,errors
 
-def engine_tests(engine, temp, hold=False):
+def engine_tests(engine, temp, hold=False, large=False):
     import signal, threading, urllib.parse
     for port in (8866,8868):
         with socket.socket() as probe:
@@ -261,7 +261,7 @@ def engine_tests(engine, temp, hold=False):
                 code,data=post(8866,'/read',{'path':str(file)})
                 assert code==200 and json.loads(data)['content']=='return "IDE recovered"\n',(code,data)
             ide_roundtrip()
-            for path,limit in (('/info',8*MIB),('/upload?path=ResourceLimitProbe',512*MIB)):
+            for path,limit in (('/info',8*MIB),('/upload?path=ResourceLimitProbe',2049*MIB)):
                 assert raw(8866,headers(8866,path,limit+1,expect=True))[0]==413
                 assert raw(8866,headers(8866,path,chunked=True)+f'{limit+1:x}\r\n'.encode())[0]==413
             ide_roundtrip()
@@ -279,7 +279,7 @@ def engine_tests(engine, temp, hold=False):
                     samples.append(rss())
             sampler=threading.Thread(target=sample);sampler.start()
             try:
-                for size,chunked in ((511*MIB,False),(12*MIB,True)):
+                for size,chunked in ([(1844*MIB,False),(2048*MIB,False),(12*MIB,True)] if large else [(511*MIB,False),(12*MIB,True)]):
                     code,data=upload(8866,size,chunked=chunked,path='/upload?path=ResourceLimitProbe')
                     assert code==200,(code,data)
                     file=destination/'large.bin'
@@ -294,7 +294,7 @@ def engine_tests(engine, temp, hold=False):
                 stop.set();sampler.join()
             delta=max(samples)-baseline
             assert delta<64*MIB,f'Upload RSS grew by {delta/MIB:.1f} MiB'
-            print(f'real engine: 511 MiB fixed + 12 MiB chunked uploads, SHA-256 exact; peak RSS delta {delta/MIB:.2f} MiB: PASS',flush=True)
+            print(f'real engine: {"1844 + 2048" if large else "511"} MiB fixed + 12 MiB chunked uploads, SHA-256 exact; peak RSS delta {delta/MIB:.2f} MiB: PASS',flush=True)
             # Aborted uploads release both spool permits without publishing partial files.
             held=[]
             try:
@@ -331,7 +331,7 @@ def engine_tests(engine, temp, hold=False):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--engine',type=Path);parser.add_argument('--hold',action='store_true');parser.add_argument('--engine-only',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--engine',type=Path);parser.add_argument('--hold',action='store_true');parser.add_argument('--engine-only',action='store_true');parser.add_argument('--large',action='store_true',help='Verify 1.8 GiB and inclusive 2 GiB uploads against the real engine');args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='dora-http-limits-') as name:
         if not args.engine_only: fixture(Path(name))
-        if args.engine: engine_tests(args.engine.resolve(),Path(name),args.hold)
+        if args.engine: engine_tests(args.engine.resolve(),Path(name),args.hold,args.large)
