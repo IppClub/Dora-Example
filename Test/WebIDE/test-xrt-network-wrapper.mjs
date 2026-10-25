@@ -201,3 +201,45 @@ try {
 	assert.equal(settled[2].reason.name, 'AbortError');
 } finally { globalThis.fetch = originalFetch; }
 console.log('Bounded folder upload queue and cancellation before admission: PASS');
+
+// Large selections yield during admission and create only two active jobs.
+const queueBundle = await build({entryPoints:[path.resolve('src/FolderUploadQueue.ts')],bundle:true,format:'esm',platform:'node',write:false});
+const {FolderUploadQueue} = await import(`data:text/javascript;base64,${Buffer.from(queueBundle.outputFiles[0].text).toString('base64')}`);
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const until = async check => {
+ const end=Date.now()+15000;
+ while(!check()){assert(Date.now()<end,'Folder queue did not settle');await delay(2);}
+};
+let admitted=0,active=0,maxActive=0,completed=0,sawPartialAdmission=false;
+const visited=new Set(),failures=[];
+const folderQueue=new FolderUploadQueue({
+ admit(index){admitted++;if(index===23)return false;},
+ async upload(index,signal){
+  assert(!signal.aborted);assert(!visited.has(index));visited.add(index);
+  active++;maxActive=Math.max(maxActive,active);
+  try{await delay(1);if(index===17)throw Error('one file failed');completed++;}finally{active--;}
+ },
+ error(index,error){failures.push([index,error.message]);}
+});
+for(let i=0;i<5000;i++)folderQueue.enqueue(i);
+assert.equal(admitted,0,'Selection must not synchronously build all progress entries');
+setTimeout(()=>{sawPartialAdmission=admitted>0&&admitted<5000;},0);
+await until(()=>completed+failures.length===4999);
+assert(sawPartialAdmission,'Admission must yield to another UI task before importing the whole folder');
+assert.equal(admitted,5000);assert.equal(visited.size,4999);assert(!visited.has(23));assert.equal(maxActive,2);
+assert.deepEqual(failures,[[17,'one file failed']]);
+folderQueue.dispose();
+let canceledAdmissions=0,canceledCalls=0,cancellationErrors=0;
+const signals=[];
+const canceledQueue=new FolderUploadQueue({
+ admit(){canceledAdmissions++;},
+ async upload(_item,signal){canceledCalls++;signals.push(signal);await new Promise(resolve=>signal.addEventListener('abort',resolve,{once:true}));throw new DOMException('Aborted','AbortError');},
+ error(){cancellationErrors++;}
+});
+for(let i=0;i<5000;i++)canceledQueue.enqueue(i);
+await until(()=>canceledCalls===2);
+const beforeDispose=canceledAdmissions;canceledQueue.dispose();
+await delay(15);
+assert.equal(canceledCalls,2);assert.equal(canceledAdmissions,beforeDispose);assert.equal(cancellationErrors,0);
+assert(signals.every(signal=>signal.aborted));
+console.log('Folder queue: 5000 jobs, cooperative admission, max two uploads, individual failure and disposal: PASS');
