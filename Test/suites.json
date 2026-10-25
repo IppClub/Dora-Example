@@ -58,7 +58,8 @@
     "test-web-runtime-preparation",
     "test-xrt-network-wrapper",
     "test-monaco-runtime-lifecycle",
-    "test-tour-target-runtime"
+    "test-tour-target-runtime",
+    "test-tic80-runtime-lifecycle"
   ],
   "studio": [
     "agent-teal-source.test",
@@ -104,7 +105,8 @@
     "native-ide-run.test",
     "websocket-lifecycle.test",
     "test-editor-debounce",
-    "test-web-runtime-preparation"
+    "test-web-runtime-preparation",
+    "test-tic80-runtime-lifecycle"
   ],
   "native-agent": [
     "test_agent_command_content",

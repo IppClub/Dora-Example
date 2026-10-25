@@ -45,7 +45,8 @@
     "test_agent_storage",
     "test_llm_config_names",
     "test_http_constant_time",
-    "test_lua_global_writes"
+    "test_lua_global_writes",
+    "test-tic80-runtime-lifecycle"
   ],
   "manualCases": [
     "emoji-label",

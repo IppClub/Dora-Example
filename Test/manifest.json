@@ -688,6 +688,10 @@
     {
       "source": "Tools/tests/test_http_resumable_upload.py",
       "path": "Test/Engine/test_http_resumable_upload.py"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-tic80-runtime-lifecycle.mjs",
+      "path": "Test/WebIDE/test-tic80-runtime-lifecycle.mjs"
     }
   ]
 }
