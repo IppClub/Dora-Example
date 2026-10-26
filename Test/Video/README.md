@@ -76,6 +76,20 @@ of difference and a mean absolute RGB error below one. It writes
 
 ## Web OGV acceptance
 
+The Love playback target links the production `common/StringMap.cpp` as well:
+`StringMap.h` declares an extern `std::vector<std::string>` instantiation, whose
+definition must be present for GCC/libstdc++ exception cleanup paths. Clang
+optimization can hide this missing dependency. To check the GNU toolchain,
+use a separate CMake build directory so a previous Clang compiler cache is not
+reused:
+
+```sh
+cmake -S Test/Video -B /tmp/ogv-gcc -DDORA_SSR_ROOT=/path/to/Dora-SSR \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+cmake --build /tmp/ogv-gcc --parallel 4
+ctest --test-dir /tmp/ogv-gcc --output-on-failure
+```
+
 The CMake suite also builds `dora_web_video_controls_tests`: the production
 VideoData and VideoNode control code is compiled with DORA_EMSCRIPTEN and runs
 without a video worker, covering keyframe seeks, paused preview, audio tails,

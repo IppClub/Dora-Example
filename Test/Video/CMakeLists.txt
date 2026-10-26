@@ -21,6 +21,9 @@ add_executable(dora_love_video_playback_tests
  "${LOVE}/common/Object.cpp"
  "${LOVE}/common/types.cpp"
  "${LOVE}/common/Exception.cpp"
+ # StringMap.h suppresses vector<string> instantiation with extern template.
+ # Link its owner too; GCC/libstdc++ needs it for File::getConstants cleanup.
+ "${LOVE}/common/StringMap.cpp"
 )
 target_include_directories(dora_love_video_playback_tests PRIVATE "${SOURCE}" "${LOVE}" "${LOVE}/modules")
 target_link_libraries(dora_love_video_playback_tests PRIVATE video_theora Threads::Threads)
