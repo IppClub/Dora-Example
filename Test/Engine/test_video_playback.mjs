@@ -3,10 +3,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 const engine = process.env.DORA_ENGINE_ROOT || process.env.DORA_SSR_ROOT;
 if (!engine || !fs.existsSync(path.join(engine, 'Source/Node/VideoNode.cpp'))) throw Error('DORA_ENGINE_ROOT must point at Dora-SSR');
 const source = fileURLToPath(new URL('../Video/', import.meta.url));
-const build = path.join(engine, 'build/tests/video-regressions');
+// CMake caches its source path. Local overrides and immutable remote snapshots
+// must not share a build directory when switching test revisions/checkouts.
+const sourceId = createHash('sha256').update(source).digest('hex').slice(0, 12);
+const build = path.join(engine, 'build/tests', `video-regressions-${sourceId}`);
 function run(command, args) {
  const result = spawnSync(command, args, {stdio:'inherit'});
  if (result.error) throw result.error;

@@ -4,6 +4,9 @@ Run the video regressions against the engine being edited:
 xmake dora-test --repo=/path/to/Dora-Example --suite=engine --case=test_video_playback
 ```
 
+The runner isolates CMake build directories by test source path so local overrides
+and immutable remote snapshots can be used successively.
+
 The focused CMake/CTest project is independent of the broader Love test harness:
 
 ```sh
