@@ -92,7 +92,8 @@
     "test_llm_config_names",
     "test_http_constant_time",
     "test_lua_global_writes",
-    "test_http_resumable_upload"
+    "test_http_resumable_upload",
+    "test_video_playback"
   ],
   "ui": [
     "ide-dev-proxy.test",

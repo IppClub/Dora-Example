@@ -46,7 +46,8 @@
     "test_llm_config_names",
     "test_http_constant_time",
     "test_lua_global_writes",
-    "test-tic80-runtime-lifecycle"
+    "test-tic80-runtime-lifecycle",
+    "test_video_playback"
   ],
   "manualCases": [
     "emoji-label",

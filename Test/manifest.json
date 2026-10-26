@@ -692,6 +692,10 @@
     {
       "source": "Tools/dora-dora/scripts/test-tic80-runtime-lifecycle.mjs",
       "path": "Test/WebIDE/test-tic80-runtime-lifecycle.mjs"
+    },
+    {
+      "source": "Test/Engine/test_video_playback.mjs",
+      "path": "Test/Engine/test_video_playback.mjs"
     }
   ]
 }
