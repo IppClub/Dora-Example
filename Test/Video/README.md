@@ -40,3 +40,36 @@ a granule/PCM sample-count mismatch. CTest bounds each decoder test to 15 s.
 These focused tests do not open an audio device or GPU. Actual native rendered
 frames, pause/resume, scene detach, and audio/video loop alignment additionally
 require running a Dora/Love application with a multiplexed OGV.
+
+`VideoControlsTests.cpp` compiles the production VideoNode control methods with
+its real decoder, adapting only the renderer and device clock. It checks exact
+RGBA frames for paused/forward/backward/superseded seeks (including packets
+spanning pages), synchronized audio seeks and clocks, rewind, finite/clamped
+positions, EOF replay, unequal track lengths, loops and scene lifecycle.
+
+For real SoLoud and GPU verification, load `NativeVideoControls.lua` in Dora and
+call its returned function with an original multiplexed OGV and an existing
+output directory. Use a video at least one second long with embedded Vorbis:
+
+```lua
+local run = dofile("/path/to/Dora-Example/Test/Video/NativeVideoControls.lua")
+run("/path/to/original.ogv", "/path/to/existing/output")
+```
+
+This creates `result.json` and 16 PNGs for independent frame comparison. The
+script records `VideoNode.currentTime`, waits for asynchronous readback before
+resuming, and tests paused seeks, audio-driven resume, rapid and playing seeks, end state,
+replay, rewind, clamped positions and loop restart near EOF. Audio is muted;
+physical speaker/display latency is outside the test.
+
+Compare the native captures with an independent FFmpeg decode (requires Python 3,
+FFmpeg and FFprobe):
+
+```sh
+python3 Test/Video/compare_native_frames.py /path/to/original.ogv /path/to/output
+```
+
+The comparison checks all 16 images against the corresponding video timestamp,
+clamps audio-only tails to the final video frame, and requires at most one frame
+of difference and a mean absolute RGB error below one. It writes
+`native-frame-comparison.json` beside the captures.
