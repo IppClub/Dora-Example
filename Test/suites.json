@@ -15,6 +15,7 @@
     "check_web_loader",
     "check_web_package",
     "test_web_audio_state",
+    "test_web_ogv_harness",
     "test_web_gallery",
     "test_lualib_utf8_trim",
     "check_ci_test_coverage.test"

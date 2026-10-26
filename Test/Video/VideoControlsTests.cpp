@@ -92,9 +92,11 @@ struct VideoNode:Sprite {
   check(data->init(String(fixture)),"fixture init failed");_videoData=data;
   _duration=std::max(data->duration,audioDuration);_audioDuration=audioDuration;
   if(audioDuration>0)_audioSource=std::make_shared<AudioSource>(audioDuration);
+#ifndef DORA_EMSCRIPTEN
   worker=std::thread([data]{data->decode();});
+#endif
  }
- ~VideoNode(){static_cast<VideoData*>(_videoData.get())->stop();worker.join();}
+ ~VideoNode(){static_cast<VideoData*>(_videoData.get())->stop();if(worker.joinable())worker.join();}
  void play();void pause();void resume();void seek(double);void rewind();
  double getCurrentTime()const noexcept;double getDuration()const noexcept;
  bool isPlaying()const noexcept;bool isPaused()const;

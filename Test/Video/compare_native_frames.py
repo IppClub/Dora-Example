@@ -9,6 +9,7 @@ import subprocess
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('original', type=Path)
 parser.add_argument('output', type=Path)
+parser.add_argument('--web', action='store_true', help='accept Web suite captures and crop the canvas to video size')
 args = parser.parse_args()
 result = json.loads((args.output / 'result.json').read_text())
 assert result['success'], result.get('error')
@@ -20,7 +21,9 @@ fps = float(Fraction(metadata['r_frame_rate']))
 last = round(float(metadata['duration']) * fps) - 1
 size = metadata['width'] * metadata['height'] * 3
 rows = result['captures']
-assert len(rows) == 16, 'incomplete native test captures'
+if isinstance(rows, dict):
+    rows = list(rows.values())
+assert len(rows) >= 3 if args.web else len(rows) == 16, 'incomplete test captures'
 expected = lambda row: min(last, max(0, int(row['time'] * fps + 1e-7)))
 indices = sorted({i for row in rows for i in range(max(0, expected(row)-5), min(last, expected(row)+5)+1)})
 groups = []
@@ -43,6 +46,7 @@ comparisons = []
 for row in rows:
     image = subprocess.check_output([
         'ffmpeg', '-v', 'error', '-i', str(args.output / row['file']),
+        *(['-vf', f"crop={metadata['width']}:{metadata['height']}:0:0"] if args.web else []),
         '-pix_fmt', 'rgb24', '-f', 'rawvideo', '-'
     ])
     assert len(image) == size, f"unexpected capture dimensions: {row['file']}"

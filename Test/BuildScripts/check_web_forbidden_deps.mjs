@@ -7,6 +7,9 @@ const allowPthreads = args.includes("--allow-pthreads");
 const allowLoveRuntime = args.includes("--allow-love-runtime");
 const outputArg = args.find((arg) => !arg.startsWith("--")) || "result/dora-web-player";
 const outputDir = path.resolve(outputArg);
+const featuresPath = path.join(outputDir, 'dora-web-features.json');
+const allowVideoRuntime = fs.existsSync(featuresPath)
+	&& JSON.parse(fs.readFileSync(featuresPath, 'utf8')).modules?.video === true;
 const wasmPath = path.join(outputDir, "dora-player-runtime.wasm");
 const gluePath = path.join(outputDir, "dora-player-runtime.js");
 
@@ -109,7 +112,8 @@ const forbiddenRuntimeTokens = [
 	"JoltPhysics",
 	"VideoNode:",
 	"Ogg/Theora",
-].filter((token) => !(allowLoveRuntime && token === "Ogg/Theora"))
+].filter((token) => !(allowVideoRuntime && (token === "VideoNode:" || token === "Ogg/Theora"))
+	&& !(allowLoveRuntime && token === "Ogg/Theora"))
 	.filter((token) => wasmText.includes(token) || glue.includes(token));
 const allFiles = listFiles(outputDir);
 const forbiddenArtifacts = allFiles

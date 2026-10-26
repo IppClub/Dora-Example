@@ -696,6 +696,10 @@
     {
       "source": "Test/Engine/test_video_playback.mjs",
       "path": "Test/Engine/test_video_playback.mjs"
+    },
+    {
+      "source": "Tools/build-scripts/test_web_ogv_harness.mjs",
+      "path": "Test/BuildScripts/test_web_ogv_harness.mjs"
     }
   ]
 }

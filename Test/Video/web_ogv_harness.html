@@ -1,0 +1,47 @@
+<!doctype html><meta charset="utf-8"><title>Web OGV acceptance</title>
+<style>body{font:15px system-ui;background:#171a22;color:#eee}a{color:#9cf}canvas{width:960px;height:540px;max-width:100%;background:#000}pre{white-space:pre-wrap}</style>
+<h1>Web OGV acceptance</h1>
+<p><a href="?case=controls">VideoNode controls</a> · <a href="?case=continuous">VideoNode full duration</a> · <a href="?case=lovefull">Love full duration / controls</a></p>
+<button id="unlock" disabled>Start test / resume audio</button><p id="result">Loading…</p>
+<canvas id="canvas" width="960" height="540" tabindex="0"></canvas><pre id="log"></pre>
+<script>
+const testCase=new URLSearchParams(location.search).get('case')||'controls';
+if(!['controls','continuous','lovefull'].includes(testCase))throw Error('Unknown case');
+const posted=new Set();let reported=false,ready=false,started=false,collecting=false;
+var Module={canvas:document.querySelector('#canvas'),locateFile:p=>'/engine/'+p,
+ doraManifestUrl:'/cases/'+testCase+'/dora-web-manifest.json',
+ print:(...args)=>{const text=args.join(' ');document.querySelector('#log').textContent+=text+'\n';if(text.includes('OGV_TEST_READY'))ready=true;},
+ printErr:(...args)=>document.querySelector('#log').textContent+=args.join(' ')+'\n'};
+document.querySelector('#unlock').onclick=async()=>{
+ await Module.doraAudio.context.resume();
+ if(started)return;
+ const directory=testCase==='lovefull'?'/user/Love/ogv-web-lovefull/':'/user/ogv-controls/';
+ try{Module.FS.unlink(directory+'result.json');}catch{}
+ started=true;
+ Module.FS.writeFile('/user/ogv-start','1');
+ document.querySelector('#result').textContent='Running '+testCase+'…';
+};
+setInterval(async()=>{
+ document.querySelector('#unlock').disabled=!ready||!Module.FS||!Module.doraAudio?.ready;
+ if(!started||collecting||reported)return;
+ const directory=testCase==='lovefull'?'/user/Love/ogv-web-lovefull/':'/user/ogv-controls/';
+ let result;try{result=JSON.parse(Module.FS.readFile(directory+'result.json',{encoding:'utf8'}));}catch{return;}
+ collecting=true;
+ try{
+ for(const {file} of Object.values(result.captures||{})){
+  if(posted.has(file))continue;
+  try{const bytes=Module.FS.readFile(directory+file);let raw='';
+   for(let i=0;i<bytes.length;i+=32768)raw+=String.fromCharCode(...bytes.subarray(i,i+32768));
+   const response=await fetch('/result/'+testCase,{method:'POST',body:JSON.stringify({file,base64:btoa(raw)})});
+   if(response.ok)posted.add(file);
+  }catch{}
+ }
+ if(Object.values(result.captures||{}).every(({file})=>posted.has(file))){
+  const response=await fetch('/result/'+testCase,{method:'POST',body:JSON.stringify({result,browser:{
+   userAgent:navigator.userAgent,crossOriginIsolated,sharedArrayBuffer:typeof SharedArrayBuffer,
+   audio:Module.doraAudio?.state,visibility:document.visibilityState}})});
+  if(response.ok){reported=true;document.querySelector('#result').textContent=JSON.stringify(result);}
+ }
+ }finally{collecting=false;}
+},500);
+</script><script src="/engine/dora-player-runtime.js"></script>

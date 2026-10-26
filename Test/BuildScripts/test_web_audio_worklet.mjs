@@ -172,6 +172,20 @@ assert.equal(p.api.audio_voice_count(),0,'all sources behind more than 16 buses 
 for(let i=0;i<40;i++)busCommand(101+i,1);
 busCommand(100,1);
 assert.equal(messages.filter(x=>x.type==='error').length,1,'only the intentional invalid asset may fail');
+// Muted VideoNode Sources use the same 2D clock as audible Sources. They must
+// continue ticking through pause/seek/loop and deliver natural EOF.
+const muted = source.slice();muted[0]=0;muted[2]=0;muted[5]=0;
+command({type:'play',id:900096,asset:8,bytes:sineWav(),loop:false,fade:0,config:muted});
+assert.equal(render(12).energy,0,'muted 2D source must remain silent');
+p.reportVoices();
+let mutedStatus=messages.filter(x=>x.type==='voices').at(-1).values;
+assert.ok(mutedStatus[2]>.025,'muted 2D clock must advance');
+command({type:'control',id:900096,op:1,value:1});render(20);
+p.reportVoices();const held=messages.filter(x=>x.type==='voices').at(-1).values[2];
+assert.ok(Math.abs(held-mutedStatus[2])<.003,'muted pause clock');
+command({type:'control',id:900096,op:0,value:.02});
+command({type:'control',id:900096,op:1,value:0});render(60);
+assert.equal(p.api.audio_voice_count(),0,'muted seek/resume must reach EOF');
 command({type: 'dispose'});
 assert.equal(p.process([], [[new Float32Array(128)]]), false);
 console.log('AudioWorklet WASM: codecs, static/stream, 3D, bus hierarchy, all filters, controls, fades, lifecycle and memory isolation passed.');

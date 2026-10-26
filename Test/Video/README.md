@@ -73,3 +73,54 @@ The comparison checks all 16 images against the corresponding video timestamp,
 clamps audio-only tails to the final video frame, and requires at most one frame
 of difference and a mean absolute RGB error below one. It writes
 `native-frame-comparison.json` beside the captures.
+
+## Web OGV acceptance
+
+The CMake suite also builds `dora_web_video_controls_tests`: the production
+VideoData and VideoNode control code is compiled with DORA_EMSCRIPTEN and runs
+without a video worker, covering keyframe seeks, paused preview, audio tails,
+EOF replay and loop restart. The AudioWorklet DSP test additionally checks that
+a muted 2D Source advances, holds while paused, seeks/resumes and reaches EOF:
+
+```sh
+node Test/BuildScripts/test_web_audio_worklet.mjs /path/to/web-build
+```
+
+For actual browser/audio/GPU acceptance, build a Release Web Player with VIDEO
+and LOVE enabled. Supply an original Ogg/Theora video with embedded Vorbis,
+at least 52 seconds long; the script does not transcode it. Stage and serve it:
+
+```sh
+python3 Test/Video/stage_web_ogv.py /path/to/Dora-SSR /path/to/sintel.ogv /tmp/ogv-web \
+  --engine-files /path/to/web-build --port 8880
+```
+
+Open the printed URL. Select each of the three cases and click **Start test /
+resume audio** after loading. Keep the tab visible. Controls takes about six
+seconds; each full-duration case takes the clip duration plus about 15 seconds.
+Results, PNGs and browser/audio metadata are collected under `results/<case>`.
+Use a new output directory for each build. For pthread builds add `--isolate`;
+leave it off to verify that single-thread video works without COOP/COEP or
+SharedArrayBuffer. LOVE remains opt-in; the VideoNode cases also run with LOVE
+disabled.
+
+```sh
+python3 Test/Video/compare_native_frames.py /path/to/sintel.ogv /tmp/ogv-web/results/controls --web
+python3 Test/Video/compare_native_frames.py /path/to/sintel.ogv /tmp/ogv-web/results/continuous --web
+python3 Test/Video/compare_native_frames.py /path/to/sintel.ogv /tmp/ogv-web/results/lovefull --web
+```
+
+The full tests check natural EOF timing, replay through a non-static scene and
+loop continuation after crossing EOF. Love also checks paused and playing
+seeks. The VideoNode full test continuously moves its muted audio child to
+exercise per-frame configuration updates without blocking the Worklet clock.
+The Love EOF screenshot uses the final video timestamp for comparison:
+its ended Source's `tell()` resets to zero. Audio is muted but decoded by the
+real AudioWorklet mixer; speaker/display latency is not measured. Acceptance
+requires at most one frame of image error and mean RGB error below one.
+
+The contract suite runs `test_web_ogv_harness`: it verifies startup readiness,
+discarding saved results, screenshot upload retries, and publishing the new
+result only after every capture has been collected. `test_web_audio_state`
+also feeds delayed Worklet cursors while moving/fading a Source and confirms
+that configuration changes cannot starve its clock or undo seek/pause ordering.

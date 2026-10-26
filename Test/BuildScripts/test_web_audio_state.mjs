@@ -41,6 +41,15 @@ assert.equal(sent.at(-1).bus,10);assert.equal(sent.at(-1).isStatic,true);
 const playRevision=sent.at(-1).revision;
 assert.ok(id); assert.equal(audio.get(id,0),1);
 reply({type:'accepted',id});
+// A moving/fading VideoNode configures its Source faster than the Worklet
+// reports cursors. Those earlier snapshots still carry the valid audio clock.
+for (let frame=1;frame<=8;++frame) {
+	const previousRevision=sent.at(-1).revision;
+	const moving=config.slice();moving[8]=frame;moving[2]=1-frame*.05;
+	audio.configure(id,moving);
+	reply({type:'voices',revision:previousRevision,values:[id,0,frame*.02]});
+	assert.equal(audio.get(id,2),frame*.02,'source configuration must not starve the video clock');
+}
 reply({type:'voices',revision:playRevision-1,values:[]});
 assert.equal(audio.get(id,0),1,'stale snapshot cannot end a pending voice');
 audio.control(id,1,1);

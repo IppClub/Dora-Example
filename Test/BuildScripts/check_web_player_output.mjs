@@ -58,8 +58,8 @@ if (features.profiles?.core?.available !== true || features.profiles?.["dora-pre
 	throw new Error("Web configurable profile availability is invalid");
 }
 const requiredModules = ["lua", "content", "http", "idbfs", "doraPackage", "input", "audio", "drawNode", "sprite", "label", "renderTarget", "particle", "spine", "dragonBones", "nanoVG", "playRho2D", "entity", "platformer", "builtinLuaLibraries", "imGui"];
-requiredModules.push("yueCompiler", "machineLearning");
-const excludedModules = ["threads", "dynamicLinking", "rustBridge", "wasmRuntime", "tealCompiler", "loveNode", "model3D", "jolt3D", "video", "workspace"];
+requiredModules.push("yueCompiler", "machineLearning", "video");
+const excludedModules = ["threads", "dynamicLinking", "rustBridge", "wasmRuntime", "tealCompiler", "loveNode", "model3D", "jolt3D", "workspace"];
 for (const moduleName of requiredModules) {
 	if (features.modules?.[moduleName] !== true) throw new Error(`required Web module is not declared: ${moduleName}`);
 }
