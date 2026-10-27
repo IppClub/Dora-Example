@@ -700,6 +700,10 @@
     {
       "source": "Tools/build-scripts/test_web_ogv_harness.mjs",
       "path": "Test/BuildScripts/test_web_ogv_harness.mjs"
+    },
+    {
+      "source": "Tools/tests/test_gui_single_instance.py",
+      "path": "Test/Engine/test_gui_single_instance.py"
     }
   ]
 }

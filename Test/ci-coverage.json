@@ -48,7 +48,8 @@
     "test_lua_global_writes",
     "test-tic80-runtime-lifecycle",
     "test_video_playback",
-    "test_web_ogv_harness"
+    "test_web_ogv_harness",
+    "test_gui_single_instance"
   ],
   "manualCases": [
     "emoji-label",

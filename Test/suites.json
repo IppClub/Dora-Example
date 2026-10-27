@@ -94,7 +94,8 @@
     "test_http_constant_time",
     "test_lua_global_writes",
     "test_http_resumable_upload",
-    "test_video_playback"
+    "test_video_playback",
+    "test_gui_single_instance"
   ],
   "ui": [
     "ide-dev-proxy.test",
