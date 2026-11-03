@@ -1,0 +1,14 @@
+config_version=5
+[application]
+config/name="Dora Project Switch B"
+run/main_scene="res://main.tscn"
+[autoload]
+SessionState="*res://session.gd"
+[display]
+window/size/viewport_width=640
+window/size/viewport_height=360
+[input]
+sticky_action={"deadzone":0.5,"events":[]}
+only_b={"deadzone":0.5,"events":[]}
+[rendering]
+renderer/rendering_method="gl_compatibility"

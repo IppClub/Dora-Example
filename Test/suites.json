@@ -126,5 +126,9 @@
     "godot-test-xmake-windows-manifest",
     "godot-test-xmake-skeleton",
     "godot-test-xmake-codegen"
+  ],
+  "godot-projects": [
+    "godot-project-delivery",
+    "godot-player-contract"
   ]
 }

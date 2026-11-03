@@ -36,3 +36,12 @@ CI resolves one immutable Dora-Example revision before invoking these runners.
 Disposable Windows/Android bundles include the path resolver and test inventory;
 their launchers point both roots at the extracted bundle. Keep GPU, physical
 hardware and software/VM acceptance boundaries separate from build results.
+
+Project delivery boundaries are covered by the `godot-projects` suite. The manual
+`run_project_delivery.py` driver checks repository and PCK play in sequential
+ordinary macOS hosts; it does not claim same-process project switching.
+
+进程内项目切换：`run_project_switch.py --godot ... --app ... --runtime-package ... --output ...`。
+限macOS Metal、普通宿主，macOS Metal默认启用，驱动不设置实验环境变量；七次源码/PCK加载使用同一个LibGodot实例，核对静态/资源/单例/输入、音频、像素、GPU和失败恢复。完整限制见引擎 `Tools/Godot/PROJECT_SWITCH.md`；不进入无需GPU的自动套件。
+
+卸载通知及生产GodotPlayer控制器：`tests/project_switch/controller_contract.lua`含8项不依赖GPU的队列/回调/错误/关闭契约；`run_real_project_switch.py`在macOS串行验证未修改的官方2D/3D源码及PCK反复切换、像素/音频/对象与GPU计数；`run_project_lifecycle_edges.py`验证启动取消和默认配置切换及旧运行库的明确拒绝。完整命令和边界见引擎`Tools/Godot/PROJECT_SWITCH.md`。

@@ -2044,6 +2044,118 @@
       "source": "Tools/Godot/build_ios_host.py",
       "path": "Test/Godot/build_ios_host.py",
       "name": "godot-build-ios-host"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/README.md",
+      "path": "Test/Godot/tests/project_switch/README.md"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/legacy.gd",
+      "path": "Test/Godot/tests/project_switch/a/legacy.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/main.gd",
+      "path": "Test/Godot/tests/project_switch/a/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/main.tscn",
+      "path": "Test/Godot/tests/project_switch/a/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/project.godot",
+      "path": "Test/Godot/tests/project_switch/a/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/session.gd",
+      "path": "Test/Godot/tests/project_switch/a/session.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/tag.gd",
+      "path": "Test/Godot/tests/project_switch/a/tag.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/a/tag.tres",
+      "path": "Test/Godot/tests/project_switch/a/tag.tres"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/main.gd",
+      "path": "Test/Godot/tests/project_switch/b/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/main.tscn",
+      "path": "Test/Godot/tests/project_switch/b/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/project.godot",
+      "path": "Test/Godot/tests/project_switch/b/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/session.gd",
+      "path": "Test/Godot/tests/project_switch/b/session.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/tag.gd",
+      "path": "Test/Godot/tests/project_switch/b/tag.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/b/tag.tres",
+      "path": "Test/Godot/tests/project_switch/b/tag.tres"
+    },
+    {
+      "source": "Tools/Godot/test_project_delivery.py",
+      "path": "Test/Godot/test_project_delivery.py",
+      "name": "godot-project-delivery"
+    },
+    {
+      "source": "Tools/Godot/run_project_delivery.py",
+      "path": "Test/Godot/run_project_delivery.py",
+      "name": "godot-project-delivery-native"
+    },
+    {
+      "source": "Tools/Godot/run_project_switch.py",
+      "path": "Test/Godot/run_project_switch.py",
+      "name": "godot-project-switch-native"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/player.lua",
+      "path": "Test/Godot/tests/project_switch/player.lua"
+    },
+    {
+      "source": "Tools/Godot/run_real_project_switch.py",
+      "path": "Test/Godot/run_real_project_switch.py"
+    },
+    {
+      "source": "Tools/Godot/run_project_lifecycle_edges.py",
+      "path": "Test/Godot/run_project_lifecycle_edges.py"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/controller_contract.lua",
+      "path": "Test/Godot/tests/project_switch/controller_contract.lua"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/real_player.lua",
+      "path": "Test/Godot/tests/project_switch/real_player.lua"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/legacy_player.lua",
+      "path": "Test/Godot/tests/project_switch/legacy_player.lua"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/cancel_player.lua",
+      "path": "Test/Godot/tests/project_switch/cancel_player.lua"
+    },
+    {
+      "source": "Tools/Godot/test_godot_player.py",
+      "path": "Test/Godot/test_godot_player.py",
+      "name": "godot-player-contract"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/player_typecheck.ts",
+      "path": "Test/Godot/tests/project_switch/player_typecheck.ts"
+    },
+    {
+      "source": "Tools/Godot/tests/project_switch/default_player.lua",
+      "path": "Test/Godot/tests/project_switch/default_player.lua"
     }
   ]
 }
