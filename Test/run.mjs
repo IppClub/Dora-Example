@@ -12,7 +12,7 @@ const options = separator < 0 ? argv : argv.slice(0, separator);
 const extra = separator < 0 ? [] : argv.slice(separator + 1);
 const value = (name, fallback) => options.find(a => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
 const files = JSON.parse(fs.readFileSync(path.join(repo, 'Test/manifest.json'), 'utf8')).files;
-const cases = files.filter(f => /\.(mjs|lua|cjs|py)$/.test(f.path) && /Test\/(BuildScripts|WebIDE|StudioPrototype|Art|Agent|Engine|Frontend)\//.test(f.path));
+const cases = files.filter(f => /\.(mjs|lua|cjs|py|sh)$/.test(f.path) && /Test\/(BuildScripts|WebIDE|StudioPrototype|Art|Agent|Engine|Frontend|Godot|LibGodotMetalProbe)\//.test(f.path));
 cases.push({name:'studio', source:'Studio/tests/run.mjs', path:'Test/DoraStudio/run.mjs'});
 const suites = JSON.parse(fs.readFileSync(path.join(repo, 'Test/suites.json'), 'utf8'));
 const suite = value('suite', 'contract'), single = value('case');
@@ -44,12 +44,13 @@ for (const name of selected) {
   nodeArgs.push(path.join(repo,file.path), ...(file.args || []), ...extra);
   const lua = file.path.endsWith('.lua');
   const python = file.path.endsWith('.py');
+  const shell = file.path.endsWith('.sh');
   if (python) env.PYTHONDONTWRITEBYTECODE = '1';
   if (file.path.startsWith('Test/StudioPrototype/') && !env.STUDIO_PLAYWRIGHT_MODULE) {
     env.STUDIO_PLAYWRIGHT_MODULE = createRequire(path.join(engine,'Studio/package.json')).resolve('playwright');
   }
-  const result = spawnSync(lua ? process.env.DORA_LUA || 'lua' : python ? process.env.DORA_PYTHON || 'python3' : process.execPath,
-    lua || python ? [path.join(repo,file.path), ...(file.args || []), ...extra] : nodeArgs,
+  const result = spawnSync(lua ? process.env.DORA_LUA || 'lua' : python ? process.env.DORA_PYTHON || 'python3' : shell ? 'bash' : process.execPath,
+    lua || python || shell ? [path.join(repo,file.path), ...(file.args || []), ...extra] : nodeArgs,
     {cwd:ide ? path.join(engine,'Tools/dora-dora') : engine, env, stdio:'inherit'});
   record.cases.push({name,status:result.status,signal:result.signal,error:result.error?.message});
   fs.writeFileSync(path.join(resultDir, `${suite}-${single || 'suite'}.json`), JSON.stringify(record,null,2));

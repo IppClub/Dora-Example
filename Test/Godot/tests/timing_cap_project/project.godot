@@ -1,0 +1,13 @@
+config_version=5
+[application]
+config/name="Godot physics catch-up clock contract"
+run/main_scene="res://main.tscn"
+[display]
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/size/window_width_override=640
+window/size/window_height_override=360
+[physics]
+common/max_physics_steps_per_frame=1
+[rendering]
+renderer/rendering_method="mobile"

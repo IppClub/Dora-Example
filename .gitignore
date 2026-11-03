@@ -4,3 +4,7 @@
 .agent/
 /Test/Love/build*/
 /Test/DoraStudio/node_modules/
+
+# Python caches are local test outputs.
+__pycache__/
+*.py[cod]

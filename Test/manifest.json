@@ -704,6 +704,1346 @@
     {
       "source": "Tools/tests/test_gui_single_instance.py",
       "path": "Test/Engine/test_gui_single_instance.py"
+    },
+    {
+      "source": "Tools/Godot/audit_android_dependency_symbols.py",
+      "path": "Test/Godot/audit_android_dependency_symbols.py",
+      "name": "godot-audit-android-dependency-symbols"
+    },
+    {
+      "source": "Tools/Godot/audit_android_include_order.py",
+      "path": "Test/Godot/audit_android_include_order.py",
+      "name": "godot-audit-android-include-order"
+    },
+    {
+      "source": "Tools/Godot/audit_apple_image_isolation.py",
+      "path": "Test/Godot/audit_apple_image_isolation.py",
+      "name": "godot-audit-apple-image-isolation"
+    },
+    {
+      "source": "Tools/Godot/audit_compile_include_order.py",
+      "path": "Test/Godot/audit_compile_include_order.py",
+      "name": "godot-audit-compile-include-order"
+    },
+    {
+      "source": "Tools/Godot/audit_dependency_overlap.py",
+      "path": "Test/Godot/audit_dependency_overlap.py",
+      "name": "godot-audit-dependency-overlap"
+    },
+    {
+      "source": "Tools/Godot/audit_dependency_sources.py",
+      "path": "Test/Godot/audit_dependency_sources.py",
+      "name": "godot-audit-dependency-sources"
+    },
+    {
+      "source": "Tools/Godot/audit_ios_include_order.py",
+      "path": "Test/Godot/audit_ios_include_order.py",
+      "name": "godot-audit-ios-include-order"
+    },
+    {
+      "source": "Tools/Godot/audit_linux_dependency_symbols.py",
+      "path": "Test/Godot/audit_linux_dependency_symbols.py",
+      "name": "godot-audit-linux-dependency-symbols"
+    },
+    {
+      "source": "Tools/Godot/audit_macos_dependency_symbols.py",
+      "path": "Test/Godot/audit_macos_dependency_symbols.py",
+      "name": "godot-audit-macos-dependency-symbols"
+    },
+    {
+      "source": "Tools/Godot/audit_macos_host_ogg.py",
+      "path": "Test/Godot/audit_macos_host_ogg.py",
+      "name": "godot-audit-macos-host-ogg"
+    },
+    {
+      "source": "Tools/Godot/audit_nir_notice_inheritance.py",
+      "path": "Test/Godot/audit_nir_notice_inheritance.py",
+      "name": "godot-audit-nir-notice-inheritance"
+    },
+    {
+      "source": "Tools/Godot/audit_nir_source_derivations.py",
+      "path": "Test/Godot/audit_nir_source_derivations.py",
+      "name": "godot-audit-nir-source-derivations"
+    },
+    {
+      "source": "Tools/Godot/audit_vendor_provenance.py",
+      "path": "Test/Godot/audit_vendor_provenance.py",
+      "name": "godot-audit-vendor-provenance"
+    },
+    {
+      "source": "Tools/Godot/audit_web_include_order.py",
+      "path": "Test/Godot/audit_web_include_order.py",
+      "name": "godot-audit-web-include-order"
+    },
+    {
+      "source": "Tools/Godot/audit_windows_dependency_images.py",
+      "path": "Test/Godot/audit_windows_dependency_images.py",
+      "name": "godot-audit-windows-dependency-images"
+    },
+    {
+      "source": "Tools/Godot/export_macos_host_objects.lua",
+      "path": "Test/Godot/export_macos_host_objects.lua",
+      "name": "godot-export-macos-host-objects"
+    },
+    {
+      "source": "Tools/Godot/export_macos_link_receipt.lua",
+      "path": "Test/Godot/export_macos_link_receipt.lua",
+      "name": "godot-export-macos-link-receipt"
+    },
+    {
+      "source": "Tools/Godot/probe_dependency_compile_inputs.py",
+      "path": "Test/Godot/probe_dependency_compile_inputs.py",
+      "name": "godot-probe-dependency-compile-inputs"
+    },
+    {
+      "source": "Tools/Godot/probe_dependency_layouts.py",
+      "path": "Test/Godot/probe_dependency_layouts.py",
+      "name": "godot-probe-dependency-layouts"
+    },
+    {
+      "source": "Tools/Godot/probe_public_c_api.py",
+      "path": "Test/Godot/probe_public_c_api.py",
+      "name": "godot-probe-public-c-api"
+    },
+    {
+      "source": "Tools/Godot/relink_macos_runtime.py",
+      "path": "Test/Godot/relink_macos_runtime.py",
+      "name": "godot-relink-macos-runtime"
+    },
+    {
+      "source": "Tools/Godot/test_jolt_source.py",
+      "path": "Test/Godot/test_jolt_source.py",
+      "name": "godot-test-jolt-source"
+    },
+    {
+      "source": "Tools/Godot/test_nir_notice_inheritance.py",
+      "path": "Test/Godot/test_nir_notice_inheritance.py",
+      "name": "godot-test-nir-notice-inheritance"
+    },
+    {
+      "source": "Tools/Godot/test_nir_package_notices.py",
+      "path": "Test/Godot/test_nir_package_notices.py",
+      "name": "godot-test-nir-package-notices"
+    },
+    {
+      "source": "Tools/Godot/test_public_c_api.py",
+      "path": "Test/Godot/test_public_c_api.py",
+      "name": "godot-test-public-c-api"
+    },
+    {
+      "source": "Tools/Godot/test_sdl_source.py",
+      "path": "Test/Godot/test_sdl_source.py",
+      "name": "godot-test-sdl-source"
+    },
+    {
+      "source": "Tools/Godot/test_vendor_provenance.py",
+      "path": "Test/Godot/test_vendor_provenance.py",
+      "name": "godot-test-vendor-provenance"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_generated_flags.py",
+      "path": "Test/Godot/test_xmake_generated_flags.py",
+      "name": "godot-test-xmake-generated-flags"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_linux_manifest.py",
+      "path": "Test/Godot/test_xmake_linux_manifest.py",
+      "name": "godot-test-xmake-linux-manifest"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_native_variants.py",
+      "path": "Test/Godot/test_xmake_native_variants.py",
+      "name": "godot-test-xmake-native-variants"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_only.py",
+      "path": "Test/Godot/test_xmake_only.py",
+      "name": "godot-test-xmake-only"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_windows_manifest.py",
+      "path": "Test/Godot/test_xmake_windows_manifest.py",
+      "name": "godot-test-xmake-windows-manifest"
+    },
+    {
+      "source": "Tools/Godot/tests/android/await_cleanup.lua",
+      "path": "Test/Godot/tests/android/await_cleanup.lua",
+      "name": "godot-tests-android-await-cleanup"
+    },
+    {
+      "source": "Tools/Godot/tests/android/dodge_release.lua",
+      "path": "Test/Godot/tests/android/dodge_release.lua",
+      "name": "godot-tests-android-dodge-release"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/app/src/main/java/org/dora/godotrc1/ShaderBinaryProbe.java",
+      "path": "Test/Godot/tests/android/lifecycle/app/src/main/java/org/dora/godotrc1/ShaderBinaryProbe.java"
+    },
+    {
+      "source": "Tools/Godot/tests/android/prepare_ordinary_assets.py",
+      "path": "Test/Godot/tests/android/prepare_ordinary_assets.py",
+      "name": "godot-tests-android-prepare-ordinary-assets"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_await_cleanup.py",
+      "path": "Test/Godot/tests/android/run_await_cleanup.py",
+      "name": "godot-tests-android-run-await-cleanup"
+    },
+    {
+      "source": "Tools/Godot/tests/android/timing_cap.lua",
+      "path": "Test/Godot/tests/android/timing_cap.lua",
+      "name": "godot-tests-android-timing-cap"
+    },
+    {
+      "source": "Tools/Godot/tests/android/timing_cap_adapter/android_timing_cap.gd",
+      "path": "Test/Godot/tests/android/timing_cap_adapter/android_timing_cap.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/android/timing_cap_adapter/android_timing_cap.tscn",
+      "path": "Test/Godot/tests/android/timing_cap_adapter/android_timing_cap.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/android/timing_cap_adapter/override.cfg",
+      "path": "Test/Godot/tests/android/timing_cap_adapter/override.cfg"
+    },
+    {
+      "source": "Tools/Godot/tests/android/verify_dodge_release.py",
+      "path": "Test/Godot/tests/android/verify_dodge_release.py",
+      "name": "godot-tests-android-verify-dodge-release"
+    },
+    {
+      "source": "Tools/Godot/tests/audit_windows_direct_matrix.py",
+      "path": "Test/Godot/tests/audit_windows_direct_matrix.py",
+      "name": "godot-tests-audit-windows-direct-matrix"
+    },
+    {
+      "source": "Tools/Godot/tests/await_cleanup/main.gd",
+      "path": "Test/Godot/tests/await_cleanup/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/await_cleanup/main.tscn",
+      "path": "Test/Godot/tests/await_cleanup/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/await_cleanup/pending.gd",
+      "path": "Test/Godot/tests/await_cleanup/pending.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/await_cleanup/project.godot",
+      "path": "Test/Godot/tests/await_cleanup/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/backend_mismatch_windows.lua",
+      "path": "Test/Godot/tests/backend_mismatch_windows.lua",
+      "name": "godot-tests-backend-mismatch-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/object_ownership_fixture.py",
+      "path": "Test/Godot/tests/bindings/object_ownership_fixture.py",
+      "name": "godot-tests-bindings-object-ownership-fixture"
+    },
+    {
+      "source": "Tools/Godot/tests/ios/run_runtime_abi.py",
+      "path": "Test/Godot/tests/ios/run_runtime_abi.py",
+      "name": "godot-tests-ios-run-runtime-abi"
+    },
+    {
+      "source": "Tools/Godot/tests/ios/runtime_abi.cpp",
+      "path": "Test/Godot/tests/ios/runtime_abi.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/make_timing_cap_reference.py",
+      "path": "Test/Godot/tests/make_timing_cap_reference.py",
+      "name": "godot-tests-make-timing-cap-reference"
+    },
+    {
+      "source": "Tools/Godot/tests/run_await_cleanup_linux.py",
+      "path": "Test/Godot/tests/run_await_cleanup_linux.py",
+      "name": "godot-tests-run-await-cleanup-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_await_cleanup_native.py",
+      "path": "Test/Godot/tests/run_await_cleanup_native.py",
+      "name": "godot-tests-run-await-cleanup-native"
+    },
+    {
+      "source": "Tools/Godot/tests/run_await_cleanup_windows.py",
+      "path": "Test/Godot/tests/run_await_cleanup_windows.py",
+      "name": "godot-tests-run-await-cleanup-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_dodge_the_creeps_linux.py",
+      "path": "Test/Godot/tests/run_dodge_the_creeps_linux.py",
+      "name": "godot-tests-run-dodge-the-creeps-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_dodge_the_creeps_native.py",
+      "path": "Test/Godot/tests/run_dodge_the_creeps_native.py",
+      "name": "godot-tests-run-dodge-the-creeps-native"
+    },
+    {
+      "source": "Tools/Godot/tests/run_dodge_the_creeps_windows.py",
+      "path": "Test/Godot/tests/run_dodge_the_creeps_windows.py",
+      "name": "godot-tests-run-dodge-the-creeps-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_linux_audio_load_probe.py",
+      "path": "Test/Godot/tests/run_linux_audio_load_probe.py",
+      "name": "godot-tests-run-linux-audio-load-probe"
+    },
+    {
+      "source": "Tools/Godot/tests/run_linux_runtime_matrix.py",
+      "path": "Test/Godot/tests/run_linux_runtime_matrix.py",
+      "name": "godot-tests-run-linux-runtime-matrix"
+    },
+    {
+      "source": "Tools/Godot/tests/run_timing_cap_native.py",
+      "path": "Test/Godot/tests/run_timing_cap_native.py",
+      "name": "godot-tests-run-timing-cap-native"
+    },
+    {
+      "source": "Tools/Godot/tests/run_windows_runtime_matrix.py",
+      "path": "Test/Godot/tests/run_windows_runtime_matrix.py",
+      "name": "godot-tests-run-windows-runtime-matrix"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_cap.lua",
+      "path": "Test/Godot/tests/timing_cap.lua",
+      "name": "godot-tests-timing-cap"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_cap_project/main.gd",
+      "path": "Test/Godot/tests/timing_cap_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_cap_project/main.tscn",
+      "path": "Test/Godot/tests/timing_cap_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_cap_project/project.godot",
+      "path": "Test/Godot/tests/timing_cap_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_timing_cap.py",
+      "path": "Test/Godot/tests/verify_timing_cap.py",
+      "name": "godot-tests-verify-timing-cap"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_await_cleanup.py",
+      "path": "Test/Godot/tests/web/prepare_await_cleanup.py",
+      "name": "godot-tests-web-prepare-await-cleanup"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_dodge_game.py",
+      "path": "Test/Godot/tests/web/prepare_dodge_game.py",
+      "name": "godot-tests-web-prepare-dodge-game"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_timing_cap.py",
+      "path": "Test/Godot/tests/web/prepare_timing_cap.py",
+      "name": "godot-tests-web-prepare-timing-cap"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_timing_cap.cjs",
+      "path": "Test/Godot/tests/web/run_timing_cap.cjs",
+      "name": "godot-tests-web-run-timing-cap"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_timing_cap_safari.py",
+      "path": "Test/Godot/tests/web/run_timing_cap_safari.py",
+      "name": "godot-tests-web-run-timing-cap-safari"
+    },
+    {
+      "source": "Tools/Godot/tests/web/verify_await_cleanup.py",
+      "path": "Test/Godot/tests/web/verify_await_cleanup.py",
+      "name": "godot-tests-web-verify-await-cleanup"
+    },
+    {
+      "source": "Tools/Godot/tests/web/verify_dodge.py",
+      "path": "Test/Godot/tests/web/verify_dodge.py",
+      "name": "godot-tests-web-verify-dodge"
+    },
+    {
+      "source": "Tools/Godot/verify_astc_source.py",
+      "path": "Test/Godot/verify_astc_source.py",
+      "name": "godot-verify-astc-source"
+    },
+    {
+      "source": "Tools/Godot/verify_jolt_source.py",
+      "path": "Test/Godot/verify_jolt_source.py",
+      "name": "godot-verify-jolt-source"
+    },
+    {
+      "source": "Tools/Godot/verify_ogg_source.py",
+      "path": "Test/Godot/verify_ogg_source.py",
+      "name": "godot-verify-ogg-source"
+    },
+    {
+      "source": "Tools/Godot/verify_sdl_source.py",
+      "path": "Test/Godot/verify_sdl_source.py",
+      "name": "godot-verify-sdl-source"
+    },
+    {
+      "source": "Tools/Godot/verify_shader_source.py",
+      "path": "Test/Godot/verify_shader_source.py",
+      "name": "godot-verify-shader-source"
+    },
+    {
+      "source": "Tools/Godot/verify_tinyexr_source.py",
+      "path": "Test/Godot/verify_tinyexr_source.py",
+      "name": "godot-verify-tinyexr-source"
+    },
+    {
+      "source": "Tools/Godot/verify_vorbis_source.py",
+      "path": "Test/Godot/verify_vorbis_source.py",
+      "name": "godot-verify-vorbis-source"
+    },
+    {
+      "source": "Tools/Godot/verify_zlib_source.py",
+      "path": "Test/Godot/verify_zlib_source.py",
+      "name": "godot-verify-zlib-source"
+    },
+    {
+      "source": "Tools/Godot/package_android_direct_test.py",
+      "path": "Test/Godot/package_android_direct_test.py",
+      "name": "godot-package-android-direct-test"
+    },
+    {
+      "source": "Tools/Godot/package_windows_d3d12_test.py",
+      "path": "Test/Godot/package_windows_d3d12_test.py",
+      "name": "godot-package-windows-d3d12-test"
+    },
+    {
+      "source": "Tools/Godot/prepare_android_test_assets.py",
+      "path": "Test/Godot/prepare_android_test_assets.py",
+      "name": "godot-prepare-android-test-assets"
+    },
+    {
+      "source": "Tools/Godot/test_linux.sh",
+      "path": "Test/Godot/test_linux.sh",
+      "name": "godot-test-linux"
+    },
+    {
+      "source": "Tools/Godot/test_macos.sh",
+      "path": "Test/Godot/test_macos.sh",
+      "name": "godot-test-macos"
+    },
+    {
+      "source": "Tools/Godot/test_windows.py",
+      "path": "Test/Godot/test_windows.py",
+      "name": "godot-test-windows"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_codegen.py",
+      "path": "Test/Godot/test_xmake_codegen.py",
+      "name": "godot-test-xmake-codegen"
+    },
+    {
+      "source": "Tools/Godot/test_xmake_skeleton.py",
+      "path": "Test/Godot/test_xmake_skeleton.py",
+      "name": "godot-test-xmake-skeleton"
+    },
+    {
+      "source": "Tools/Godot/tests/GodotCycleTest.inc",
+      "path": "Test/Godot/tests/GodotCycleTest.inc"
+    },
+    {
+      "source": "Tools/Godot/tests/GodotNodeTest.cpp",
+      "path": "Test/Godot/tests/GodotNodeTest.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/GodotOutputTest.inc",
+      "path": "Test/Godot/tests/GodotOutputTest.inc"
+    },
+    {
+      "source": "Tools/Godot/tests/GodotResourceProbe.mm",
+      "path": "Test/Godot/tests/GodotResourceProbe.mm"
+    },
+    {
+      "source": "Tools/Godot/tests/GodotTimingTest.inc",
+      "path": "Test/Godot/tests/GodotTimingTest.inc"
+    },
+    {
+      "source": "Tools/Godot/tests/abi_targets.sh",
+      "path": "Test/Godot/tests/abi_targets.sh",
+      "name": "godot-tests-abi-targets"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/.gitignore",
+      "path": "Test/Godot/tests/android/lifecycle/.gitignore"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/app/build.gradle",
+      "path": "Test/Godot/tests/android/lifecycle/app/build.gradle"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/app/src/main/AndroidManifest.xml",
+      "path": "Test/Godot/tests/android/lifecycle/app/src/main/AndroidManifest.xml"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/app/src/main/java/org/dora/godotrc1/ReleaseLifecycle.java",
+      "path": "Test/Godot/tests/android/lifecycle/app/src/main/java/org/dora/godotrc1/ReleaseLifecycle.java"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/build.gradle",
+      "path": "Test/Godot/tests/android/lifecycle/build.gradle"
+    },
+    {
+      "source": "Tools/Godot/tests/android/lifecycle/settings.gradle",
+      "path": "Test/Godot/tests/android/lifecycle/settings.gradle"
+    },
+    {
+      "source": "Tools/Godot/tests/android/ordinary_release.lua",
+      "path": "Test/Godot/tests/android/ordinary_release.lua",
+      "name": "godot-tests-android-ordinary-release"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_direct.py",
+      "path": "Test/Godot/tests/android/run_direct.py",
+      "name": "godot-tests-android-run-direct"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_direct_release.py",
+      "path": "Test/Godot/tests/android/run_direct_release.py",
+      "name": "godot-tests-android-run-direct-release"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_node.py",
+      "path": "Test/Godot/tests/android/run_node.py",
+      "name": "godot-tests-android-run-node"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_ordinary_release.py",
+      "path": "Test/Godot/tests/android/run_ordinary_release.py",
+      "name": "godot-tests-android-run-ordinary-release"
+    },
+    {
+      "source": "Tools/Godot/tests/android/run_transport.py",
+      "path": "Test/Godot/tests/android/run_transport.py",
+      "name": "godot-tests-android-run-transport"
+    },
+    {
+      "source": "Tools/Godot/tests/android/verify_ordinary_release.py",
+      "path": "Test/Godot/tests/android/verify_ordinary_release.py",
+      "name": "godot-tests-android-verify-ordinary-release"
+    },
+    {
+      "source": "Tools/Godot/tests/audio_queue.cpp",
+      "path": "Test/Godot/tests/audio_queue.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/async_error.rs",
+      "path": "Test/Godot/tests/bindings/async_error.rs"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/async_error.wa",
+      "path": "Test/Godot/tests/bindings/async_error.wa"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/async_error_host.lua",
+      "path": "Test/Godot/tests/bindings/async_error_host.lua",
+      "name": "godot-tests-bindings-async-error-host"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/build.py",
+      "path": "Test/Godot/tests/bindings/build.py",
+      "name": "godot-tests-bindings-build"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/constructor_rejections.py",
+      "path": "Test/Godot/tests/bindings/constructor_rejections.py",
+      "name": "godot-tests-bindings-constructor-rejections"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/failure.py",
+      "path": "Test/Godot/tests/bindings/failure.py",
+      "name": "godot-tests-bindings-failure"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/generate.py",
+      "path": "Test/Godot/tests/bindings/generate.py",
+      "name": "godot-tests-bindings-generate"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/main.rs",
+      "path": "Test/Godot/tests/bindings/main.rs"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/main.wa",
+      "path": "Test/Godot/tests/bindings/main.wa"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/ownership_failure.wa",
+      "path": "Test/Godot/tests/bindings/ownership_failure.wa"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/run.py",
+      "path": "Test/Godot/tests/bindings/run.py",
+      "name": "godot-tests-bindings-run"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/run_async_error_macos.py",
+      "path": "Test/Godot/tests/bindings/run_async_error_macos.py",
+      "name": "godot-tests-bindings-run-async-error-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/run_object_ownership_trap.py",
+      "path": "Test/Godot/tests/bindings/run_object_ownership_trap.py",
+      "name": "godot-tests-bindings-run-object-ownership-trap"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/run_ownership_failure_macos.py",
+      "path": "Test/Godot/tests/bindings/run_ownership_failure_macos.py",
+      "name": "godot-tests-bindings-run-ownership-failure-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/verify_async_error.py",
+      "path": "Test/Godot/tests/bindings/verify_async_error.py",
+      "name": "godot-tests-bindings-verify-async-error"
+    },
+    {
+      "source": "Tools/Godot/tests/bindings/verify_ownership_failure.py",
+      "path": "Test/Godot/tests/bindings/verify_ownership_failure.py",
+      "name": "godot-tests-bindings-verify-ownership-failure"
+    },
+    {
+      "source": "Tools/Godot/tests/bridge_abi.c",
+      "path": "Test/Godot/tests/bridge_abi.c"
+    },
+    {
+      "source": "Tools/Godot/tests/check_library.py",
+      "path": "Test/Godot/tests/check_library.py",
+      "name": "godot-tests-check-library"
+    },
+    {
+      "source": "Tools/Godot/tests/ci_linux.py",
+      "path": "Test/Godot/tests/ci_linux.py",
+      "name": "godot-tests-ci-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/ci_linux_release.py",
+      "path": "Test/Godot/tests/ci_linux_release.py",
+      "name": "godot-tests-ci-linux-release"
+    },
+    {
+      "source": "Tools/Godot/tests/create_imported_fixture.py",
+      "path": "Test/Godot/tests/create_imported_fixture.py",
+      "name": "godot-tests-create-imported-fixture"
+    },
+    {
+      "source": "Tools/Godot/tests/create_pck.gd",
+      "path": "Test/Godot/tests/create_pck.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/dodge_the_creeps_macos.lua",
+      "path": "Test/Godot/tests/dodge_the_creeps_macos.lua",
+      "name": "godot-tests-dodge-the-creeps-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/embedded_shader.py",
+      "path": "Test/Godot/tests/embedded_shader.py",
+      "name": "godot-tests-embedded-shader"
+    },
+    {
+      "source": "Tools/Godot/tests/frame_ring.cpp",
+      "path": "Test/Godot/tests/frame_ring.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/host_targets.cpp",
+      "path": "Test/Godot/tests/gl/host_targets.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/run.sh",
+      "path": "Test/Godot/tests/gl/run.sh",
+      "name": "godot-tests-gl-run"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/run_host_targets.sh",
+      "path": "Test/Godot/tests/gl/run_host_targets.sh",
+      "name": "godot-tests-gl-run-host-targets"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/run_runtime.sh",
+      "path": "Test/Godot/tests/gl/run_runtime.sh",
+      "name": "godot-tests-gl-run-runtime"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/runtime.cpp",
+      "path": "Test/Godot/tests/gl/runtime.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/target_policy.cpp",
+      "path": "Test/Godot/tests/gl/target_policy.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/transport.cpp",
+      "path": "Test/Godot/tests/gl/transport.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/gl/verify_runtime.py",
+      "path": "Test/Godot/tests/gl/verify_runtime.py",
+      "name": "godot-tests-gl-verify-runtime"
+    },
+    {
+      "source": "Tools/Godot/tests/gpu_reads.cpp",
+      "path": "Test/Godot/tests/gpu_reads.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/ios/metal_caps.mm",
+      "path": "Test/Godot/tests/ios/metal_caps.mm"
+    },
+    {
+      "source": "Tools/Godot/tests/ios/run_metal_caps.py",
+      "path": "Test/Godot/tests/ios/run_metal_caps.py",
+      "name": "godot-tests-ios-run-metal-caps"
+    },
+    {
+      "source": "Tools/Godot/tests/ios/run_node.py",
+      "path": "Test/Godot/tests/ios/run_node.py",
+      "name": "godot-tests-ios-run-node"
+    },
+    {
+      "source": "Tools/Godot/tests/ordinary_macos.lua",
+      "path": "Test/Godot/tests/ordinary_macos.lua",
+      "name": "godot-tests-ordinary-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/ordinary_native.lua",
+      "path": "Test/Godot/tests/ordinary_native.lua",
+      "name": "godot-tests-ordinary-native"
+    },
+    {
+      "source": "Tools/Godot/tests/output_project/main.gd",
+      "path": "Test/Godot/tests/output_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/output_project/main.tscn",
+      "path": "Test/Godot/tests/output_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/output_project/project.godot",
+      "path": "Test/Godot/tests/output_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/output_startup_project/main.gd",
+      "path": "Test/Godot/tests/output_startup_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/output_startup_project/main.tscn",
+      "path": "Test/Godot/tests/output_startup_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/output_startup_project/project.godot",
+      "path": "Test/Godot/tests/output_startup_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/output_verifier_failures.py",
+      "path": "Test/Godot/tests/output_verifier_failures.py",
+      "name": "godot-tests-output-verifier-failures"
+    },
+    {
+      "source": "Tools/Godot/tests/package_integrity.py",
+      "path": "Test/Godot/tests/package_integrity.py",
+      "name": "godot-tests-package-integrity"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_key.py",
+      "path": "Test/Godot/tests/particle_key.py",
+      "name": "godot-tests-particle-key"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_pixels.py",
+      "path": "Test/Godot/tests/particle_pixels.py",
+      "name": "godot-tests-particle-pixels"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_project/main.gd",
+      "path": "Test/Godot/tests/particle_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_project/main.tscn",
+      "path": "Test/Godot/tests/particle_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_project/project.godot",
+      "path": "Test/Godot/tests/particle_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/particle_project/timing.gd",
+      "path": "Test/Godot/tests/particle_project/timing.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/pck_manifest.py",
+      "path": "Test/Godot/tests/pck_manifest.py",
+      "name": "godot-tests-pck-manifest"
+    },
+    {
+      "source": "Tools/Godot/tests/project/main.gd",
+      "path": "Test/Godot/tests/project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project/main.tscn",
+      "path": "Test/Godot/tests/project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/project/project.godot",
+      "path": "Test/Godot/tests/project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/project/state.gd",
+      "path": "Test/Godot/tests/project/state.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d.lua",
+      "path": "Test/Godot/tests/project_3d.lua",
+      "name": "godot-tests-project-3d"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d/fixture.gdshader",
+      "path": "Test/Godot/tests/project_3d/fixture.gdshader"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d/main.gd",
+      "path": "Test/Godot/tests/project_3d/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d/main.tscn",
+      "path": "Test/Godot/tests/project_3d/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d/model.gltf",
+      "path": "Test/Godot/tests/project_3d/model.gltf"
+    },
+    {
+      "source": "Tools/Godot/tests/project_3d/project.godot",
+      "path": "Test/Godot/tests/project_3d/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/project_boundary.lua",
+      "path": "Test/Godot/tests/project_boundary.lua",
+      "name": "godot-tests-project-boundary"
+    },
+    {
+      "source": "Tools/Godot/tests/protocol.sh",
+      "path": "Test/Godot/tests/protocol.sh",
+      "name": "godot-tests-protocol"
+    },
+    {
+      "source": "Tools/Godot/tests/render_boot.cpp",
+      "path": "Test/Godot/tests/render_boot.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/render_timing.cpp",
+      "path": "Test/Godot/tests/render_timing.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/reservation_verifier_failures.py",
+      "path": "Test/Godot/tests/reservation_verifier_failures.py",
+      "name": "godot-tests-reservation-verifier-failures"
+    },
+    {
+      "source": "Tools/Godot/tests/run_active_stop_linux.py",
+      "path": "Test/Godot/tests/run_active_stop_linux.py",
+      "name": "godot-tests-run-active-stop-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_active_stop_macos.py",
+      "path": "Test/Godot/tests/run_active_stop_macos.py",
+      "name": "godot-tests-run-active-stop-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_active_stop_windows.py",
+      "path": "Test/Godot/tests/run_active_stop_windows.py",
+      "name": "godot-tests-run-active-stop-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_cycles_macos.py",
+      "path": "Test/Godot/tests/run_cycles_macos.py",
+      "name": "godot-tests-run-cycles-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_direct_linux.py",
+      "path": "Test/Godot/tests/run_direct_linux.py",
+      "name": "godot-tests-run-direct-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_dodge_the_creeps_macos.py",
+      "path": "Test/Godot/tests/run_dodge_the_creeps_macos.py",
+      "name": "godot-tests-run-dodge-the-creeps-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_early_stop_linux.py",
+      "path": "Test/Godot/tests/run_early_stop_linux.py",
+      "name": "godot-tests-run-early-stop-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_early_stop_macos.py",
+      "path": "Test/Godot/tests/run_early_stop_macos.py",
+      "name": "godot-tests-run-early-stop-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_early_stop_windows.py",
+      "path": "Test/Godot/tests/run_early_stop_windows.py",
+      "name": "godot-tests-run-early-stop-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_gl_ab_linux.py",
+      "path": "Test/Godot/tests/run_gl_ab_linux.py",
+      "name": "godot-tests-run-gl-ab-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_init_failure.py",
+      "path": "Test/Godot/tests/run_init_failure.py",
+      "name": "godot-tests-run-init-failure"
+    },
+    {
+      "source": "Tools/Godot/tests/run_macos_node.py",
+      "path": "Test/Godot/tests/run_macos_node.py",
+      "name": "godot-tests-run-macos-node"
+    },
+    {
+      "source": "Tools/Godot/tests/run_ordinary_linux.py",
+      "path": "Test/Godot/tests/run_ordinary_linux.py",
+      "name": "godot-tests-run-ordinary-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_ordinary_macos.py",
+      "path": "Test/Godot/tests/run_ordinary_macos.py",
+      "name": "godot-tests-run-ordinary-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_ordinary_windows.py",
+      "path": "Test/Godot/tests/run_ordinary_windows.py",
+      "name": "godot-tests-run-ordinary-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_output.py",
+      "path": "Test/Godot/tests/run_output.py",
+      "name": "godot-tests-run-output"
+    },
+    {
+      "source": "Tools/Godot/tests/run_particles.py",
+      "path": "Test/Godot/tests/run_particles.py",
+      "name": "godot-tests-run-particles"
+    },
+    {
+      "source": "Tools/Godot/tests/run_project_3d_macos.py",
+      "path": "Test/Godot/tests/run_project_3d_macos.py",
+      "name": "godot-tests-run-project-3d-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_project_3d_native.py",
+      "path": "Test/Godot/tests/run_project_3d_native.py",
+      "name": "godot-tests-run-project-3d-native"
+    },
+    {
+      "source": "Tools/Godot/tests/run_project_3d_windows.py",
+      "path": "Test/Godot/tests/run_project_3d_windows.py",
+      "name": "godot-tests-run-project-3d-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/run_project_boundary_linux.py",
+      "path": "Test/Godot/tests/run_project_boundary_linux.py",
+      "name": "godot-tests-run-project-boundary-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/run_project_boundary_macos.py",
+      "path": "Test/Godot/tests/run_project_boundary_macos.py",
+      "name": "godot-tests-run-project-boundary-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/run_user_example_macos.py",
+      "path": "Test/Godot/tests/run_user_example_macos.py",
+      "name": "godot-tests-run-user-example-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/runtime_abi.py",
+      "path": "Test/Godot/tests/runtime_abi.py",
+      "name": "godot-tests-runtime-abi"
+    },
+    {
+      "source": "Tools/Godot/tests/sample_native_process.py",
+      "path": "Test/Godot/tests/sample_native_process.py",
+      "name": "godot-tests-sample-native-process"
+    },
+    {
+      "source": "Tools/Godot/tests/test_prepare_web.py",
+      "path": "Test/Godot/tests/test_prepare_web.py",
+      "name": "godot-tests-test-prepare-web"
+    },
+    {
+      "source": "Tools/Godot/tests/test_vm_protocol.py",
+      "path": "Test/Godot/tests/test_vm_protocol.py",
+      "name": "godot-tests-test-vm-protocol"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_project/main.gd",
+      "path": "Test/Godot/tests/timing_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_project/main.tscn",
+      "path": "Test/Godot/tests/timing_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_project/project.godot",
+      "path": "Test/Godot/tests/timing_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/timing_verifier_failures.py",
+      "path": "Test/Godot/tests/timing_verifier_failures.py",
+      "name": "godot-tests-timing-verifier-failures"
+    },
+    {
+      "source": "Tools/Godot/tests/unicode_windows.py",
+      "path": "Test/Godot/tests/unicode_windows.py",
+      "name": "godot-tests-unicode-windows"
+    },
+    {
+      "source": "Tools/Godot/tests/verifier_failures.py",
+      "path": "Test/Godot/tests/verifier_failures.py",
+      "name": "godot-tests-verifier-failures"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_active_stop_linux.py",
+      "path": "Test/Godot/tests/verify_active_stop_linux.py",
+      "name": "godot-tests-verify-active-stop-linux"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_active_stop_macos.py",
+      "path": "Test/Godot/tests/verify_active_stop_macos.py",
+      "name": "godot-tests-verify-active-stop-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_cycles.py",
+      "path": "Test/Godot/tests/verify_cycles.py",
+      "name": "godot-tests-verify-cycles"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_desktop_package.py",
+      "path": "Test/Godot/tests/verify_desktop_package.py",
+      "name": "godot-tests-verify-desktop-package"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_early_stop.py",
+      "path": "Test/Godot/tests/verify_early_stop.py",
+      "name": "godot-tests-verify-early-stop"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_macos.py",
+      "path": "Test/Godot/tests/verify_macos.py",
+      "name": "godot-tests-verify-macos"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_output.py",
+      "path": "Test/Godot/tests/verify_output.py",
+      "name": "godot-tests-verify-output"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_project_3d.py",
+      "path": "Test/Godot/tests/verify_project_3d.py",
+      "name": "godot-tests-verify-project-3d"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_project_boundary.py",
+      "path": "Test/Godot/tests/verify_project_boundary.py",
+      "name": "godot-tests-verify-project-boundary"
+    },
+    {
+      "source": "Tools/Godot/tests/verify_timing.py",
+      "path": "Test/Godot/tests/verify_timing.py",
+      "name": "godot-tests-verify-timing"
+    },
+    {
+      "source": "Tools/Godot/tests/web/acceptance_init.js",
+      "path": "Test/Godot/tests/web/acceptance_init.js"
+    },
+    {
+      "source": "Tools/Godot/tests/web/active_stop.lua",
+      "path": "Test/Godot/tests/web/active_stop.lua",
+      "name": "godot-tests-web-active-stop"
+    },
+    {
+      "source": "Tools/Godot/tests/web/active_stop_images.py",
+      "path": "Test/Godot/tests/web/active_stop_images.py",
+      "name": "godot-tests-web-active-stop-images"
+    },
+    {
+      "source": "Tools/Godot/tests/web/bootstrap_failure.lua",
+      "path": "Test/Godot/tests/web/bootstrap_failure.lua",
+      "name": "godot-tests-web-bootstrap-failure"
+    },
+    {
+      "source": "Tools/Godot/tests/web/dom_game/init.lua",
+      "path": "Test/Godot/tests/web/dom_game/init.lua",
+      "name": "godot-tests-web-dom-game-init"
+    },
+    {
+      "source": "Tools/Godot/tests/web/dom_project/main.gd",
+      "path": "Test/Godot/tests/web/dom_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/web/dom_project/main.tscn",
+      "path": "Test/Godot/tests/web/dom_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/web/dom_project/project.godot",
+      "path": "Test/Godot/tests/web/dom_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/web/gl_module.cpp",
+      "path": "Test/Godot/tests/web/gl_module.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/web/node_game/init.lua",
+      "path": "Test/Godot/tests/web/node_game/init.lua",
+      "name": "godot-tests-web-node-game-init"
+    },
+    {
+      "source": "Tools/Godot/tests/web/node_project/main.gd",
+      "path": "Test/Godot/tests/web/node_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/web/node_project/main.tscn",
+      "path": "Test/Godot/tests/web/node_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/web/node_project/project.godot",
+      "path": "Test/Godot/tests/web/node_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/web/pack_project.gd",
+      "path": "Test/Godot/tests/web/pack_project.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/web/persistence_game/init.lua",
+      "path": "Test/Godot/tests/web/persistence_game/init.lua",
+      "name": "godot-tests-web-persistence-game-init"
+    },
+    {
+      "source": "Tools/Godot/tests/web/persistence_project/main.gd",
+      "path": "Test/Godot/tests/web/persistence_project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/web/persistence_project/main.tscn",
+      "path": "Test/Godot/tests/web/persistence_project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/web/persistence_project/project.godot",
+      "path": "Test/Godot/tests/web/persistence_project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_dom_game.py",
+      "path": "Test/Godot/tests/web/prepare_dom_game.py",
+      "name": "godot-tests-web-prepare-dom-game"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_node_game.py",
+      "path": "Test/Godot/tests/web/prepare_node_game.py",
+      "name": "godot-tests-web-prepare-node-game"
+    },
+    {
+      "source": "Tools/Godot/tests/web/prepare_persistence_game.py",
+      "path": "Test/Godot/tests/web/prepare_persistence_game.py",
+      "name": "godot-tests-web-prepare-persistence-game"
+    },
+    {
+      "source": "Tools/Godot/tests/web/project/class_cache.cfg",
+      "path": "Test/Godot/tests/web/project/class_cache.cfg"
+    },
+    {
+      "source": "Tools/Godot/tests/web/project/main.gd",
+      "path": "Test/Godot/tests/web/project/main.gd"
+    },
+    {
+      "source": "Tools/Godot/tests/web/project/main.tscn",
+      "path": "Test/Godot/tests/web/project/main.tscn"
+    },
+    {
+      "source": "Tools/Godot/tests/web/project/project.godot",
+      "path": "Test/Godot/tests/web/project/project.godot"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_bootstrap_failure.cjs",
+      "path": "Test/Godot/tests/web/run_bootstrap_failure.cjs",
+      "name": "godot-tests-web-run-bootstrap-failure"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_browser.cjs",
+      "path": "Test/Godot/tests/web/run_browser.cjs",
+      "name": "godot-tests-web-run-browser"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_dom_input.cjs",
+      "path": "Test/Godot/tests/web/run_dom_input.cjs",
+      "name": "godot-tests-web-run-dom-input"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_node.cjs",
+      "path": "Test/Godot/tests/web/run_node.cjs",
+      "name": "godot-tests-web-run-node"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_node_matrix.py",
+      "path": "Test/Godot/tests/web/run_node_matrix.py",
+      "name": "godot-tests-web-run-node-matrix"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_persistence.cjs",
+      "path": "Test/Godot/tests/web/run_persistence.cjs",
+      "name": "godot-tests-web-run-persistence"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_runtime.py",
+      "path": "Test/Godot/tests/web/run_runtime.py",
+      "name": "godot-tests-web-run-runtime"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_safari.py",
+      "path": "Test/Godot/tests/web/run_safari.py",
+      "name": "godot-tests-web-run-safari"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_safari_matrix.py",
+      "path": "Test/Godot/tests/web/run_safari_matrix.py",
+      "name": "godot-tests-web-run-safari-matrix"
+    },
+    {
+      "source": "Tools/Godot/tests/web/run_transport.py",
+      "path": "Test/Godot/tests/web/run_transport.py",
+      "name": "godot-tests-web-run-transport"
+    },
+    {
+      "source": "Tools/Godot/tests/web/runtime.html",
+      "path": "Test/Godot/tests/web/runtime.html"
+    },
+    {
+      "source": "Tools/Godot/tests/web/task_queue_stop.py",
+      "path": "Test/Godot/tests/web/task_queue_stop.py",
+      "name": "godot-tests-web-task-queue-stop"
+    },
+    {
+      "source": "Tools/Godot/tests/web/transport.html",
+      "path": "Test/Godot/tests/web/transport.html"
+    },
+    {
+      "source": "Tools/Godot/tests/web/verify_active_stop.py",
+      "path": "Test/Godot/tests/web/verify_active_stop.py",
+      "name": "godot-tests-web-verify-active-stop"
+    },
+    {
+      "source": "Tools/Godot/tests/web/verify_node.py",
+      "path": "Test/Godot/tests/web/verify_node.py",
+      "name": "godot-tests-web-verify-node"
+    },
+    {
+      "source": "Tools/Godot/tests/web_context_loss.mjs",
+      "path": "Test/Godot/tests/web_context_loss.mjs",
+      "name": "godot-tests-web-context-loss"
+    },
+    {
+      "source": "Tools/Godot/tests/wgl/build.py",
+      "path": "Test/Godot/tests/wgl/build.py",
+      "name": "godot-tests-wgl-build"
+    },
+    {
+      "source": "Tools/Godot/tests/wgl/context.h",
+      "path": "Test/Godot/tests/wgl/context.h"
+    },
+    {
+      "source": "Tools/Godot/tests/wgl/run.py",
+      "path": "Test/Godot/tests/wgl/run.py",
+      "name": "godot-tests-wgl-run"
+    },
+    {
+      "source": "Tools/Godot/tests/wgl/runtime.cpp",
+      "path": "Test/Godot/tests/wgl/runtime.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/wgl/transport.cpp",
+      "path": "Test/Godot/tests/wgl/transport.cpp"
+    },
+    {
+      "source": "Tools/Godot/tests/with_weston.py",
+      "path": "Test/Godot/tests/with_weston.py",
+      "name": "godot-tests-with-weston"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/.gitignore",
+      "path": "Test/LibGodotMetalProbe/.gitignore"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/DoraMetalProbe.mm",
+      "path": "Test/LibGodotMetalProbe/DoraMetalProbe.mm"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/README.md",
+      "path": "Test/LibGodotMetalProbe/README.md"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/SCsub",
+      "path": "Test/LibGodotMetalProbe/godot_module/SCsub"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/bridge.h",
+      "path": "Test/LibGodotMetalProbe/godot_module/bridge.h"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/config.py",
+      "path": "Test/LibGodotMetalProbe/godot_module/config.py",
+      "name": "godot-LibGodotMetalProbe-godot-module-config"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/display_server_dora_metal.h",
+      "path": "Test/LibGodotMetalProbe/godot_module/display_server_dora_metal.h"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/exports.txt",
+      "path": "Test/LibGodotMetalProbe/godot_module/exports.txt"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/register_types.h",
+      "path": "Test/LibGodotMetalProbe/godot_module/register_types.h"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/godot_module/register_types.mm",
+      "path": "Test/LibGodotMetalProbe/godot_module/register_types.mm"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/prepare_godot.py",
+      "path": "Test/LibGodotMetalProbe/prepare_godot.py",
+      "name": "godot-LibGodotMetalProbe-prepare-godot"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/project/main.tscn",
+      "path": "Test/LibGodotMetalProbe/project/main.tscn"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/project/project.godot",
+      "path": "Test/LibGodotMetalProbe/project/project.godot"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/project/spin.gd",
+      "path": "Test/LibGodotMetalProbe/project/spin.gd"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/run.sh",
+      "path": "Test/LibGodotMetalProbe/run.sh",
+      "name": "godot-LibGodotMetalProbe-run"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/test_matrix.sh",
+      "path": "Test/LibGodotMetalProbe/test_matrix.sh",
+      "name": "godot-LibGodotMetalProbe-test-matrix"
+    },
+    {
+      "source": "Tools/LibGodotMetalProbe/verify_outputs.py",
+      "path": "Test/LibGodotMetalProbe/verify_outputs.py",
+      "name": "godot-LibGodotMetalProbe-verify-outputs"
+    },
+    {
+      "source": "Tools/Godot/build_ios_host.py",
+      "path": "Test/Godot/build_ios_host.py",
+      "name": "godot-build-ios-host"
     }
   ]
 }

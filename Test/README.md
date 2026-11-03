@@ -45,3 +45,9 @@ existing service. macOS and Linux profile isolation is supported. On headless
 Linux, provide Xvfb/Mesa and run the command under `xvfb-run -a`.
 These cases remain explicit native acceptance, outside the lightweight CI suites;
 no full engine build or graphical environment is added to ordinary Engine Tests.
+
+Godot integration tests, fixtures, source audits and manual acceptance tools live in
+[`Godot/`](Godot/README.md); the original Metal probe is in `LibGodotMetalProbe/`.
+Run `xmake dora-test --repo=/path/to/Dora-Example --suite=godot-contract` from
+the engine root. Native test-host builds use `DORA_TEST_REPO` or
+`--dora_test_repo=/path/to/Dora-Example`; normal runtime builds need no test checkout.

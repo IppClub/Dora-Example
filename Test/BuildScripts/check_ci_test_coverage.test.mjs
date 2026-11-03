@@ -10,7 +10,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(repo, 'Test/manifest.json'
 const suites = JSON.parse(fs.readFileSync(path.join(repo, 'Test/suites.json')));
 const baseline = JSON.parse(fs.readFileSync(path.join(repo, 'Test/ci-coverage.json')));
 const workflow = name => fs.readFileSync(path.join(engine, '.github/workflows', name), 'utf8');
-const names = manifest.filter(file => /Test\/(BuildScripts|WebIDE|StudioPrototype|Art|Agent|Engine|Frontend)\//.test(file.path) && /\.(mjs|lua|cjs|py)$/.test(file.path)).map(file => file.name || path.basename(file.path, path.extname(file.path)));
+const names = manifest.filter(file => /Test\/(BuildScripts|WebIDE|StudioPrototype|Art|Agent|Engine|Frontend|Godot|LibGodotMetalProbe)\//.test(file.path) && /\.(mjs|lua|cjs|py|sh)$/.test(file.path)).map(file => file.name || path.basename(file.path, path.extname(file.path)));
 // The test repository is published first. Older engine checkouts keep their
 // existing contract suite until the CI migration lands. Missing files in an
 // already migrated engine must still fail this audit.

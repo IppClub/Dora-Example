@@ -115,5 +115,16 @@
     "test_agent_command_content",
     "test_catalog_project_sync",
     "test_native_agent_lifecycle"
+  ],
+  "godot-contract": [
+    "godot-tests-protocol",
+    "godot-tests-package-integrity",
+    "godot-test-xmake-only"
+  ],
+  "godot-build": [
+    "godot-test-xmake-linux-manifest",
+    "godot-test-xmake-windows-manifest",
+    "godot-test-xmake-skeleton",
+    "godot-test-xmake-codegen"
   ]
 }
