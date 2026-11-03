@@ -1,0 +1,6 @@
+CACHE_CANCEL_OBSERVED state=loading
+CACHE_CANCEL_RESULT state=cancelled report={"version":1,"modelPath":"/Users/Jin/Workspace/Dora-Example/Test/Model3D/Assets/Model/DamagedHelmet.glb","state":"cancelled","diagnostics":[{"code":"LOAD_CANCELLED","severity":"error","stage":"cancel","resourcePath":"/Users/Jin/Workspace/Dora-Example/Test/Model3D/Assets/Model/DamagedHelmet.glb","message":"Load cancelled","textureSlot":null,"imageIndex":null,"materialIndex":null}]}
+CACHE_ERROR_RESULT state=failed report={"version":1,"modelPath":"Test/Model3D/Assets/Model/DoesNotExist.glb","state":"failed","diagnostics":[{"code":"RESOURCE_NOT_FOUND","severity":"error","stage":"read","resourcePath":"Test/Model3D/Assets/Model/DoesNotExist.glb","message":"Model resource not found","textureSlot":null,"imageIndex":null,"materialIndex":null}]}
+CACHE_RESTART_RESULT state=ready count=1
+CACHE_BUDGET_RESULT before=87080008 after=85410656 budget=1 count=1
+CACHE_SUMMARY status=PASS

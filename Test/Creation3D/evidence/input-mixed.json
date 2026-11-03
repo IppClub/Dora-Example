@@ -1,0 +1,205 @@
+{
+  "status": "passed",
+  "reviewedRounds": [
+    1,
+    2
+  ],
+  "review": "Retested after asynchronous loading fix using native CUA keyboard/mouse, including collision, collect, finish, freeze, centered button restart, second round and R. No direct gameplay calls.",
+  "observer": {
+    "events": [
+      {
+        "collisionHits": 0,
+        "collected": 0,
+        "round": 1,
+        "inputEvents": 0,
+        "time": 0.0213310718536377,
+        "started": false,
+        "x": 0,
+        "won": false,
+        "z": 5
+      },
+      {
+        "collisionHits": 0,
+        "collected": 0,
+        "round": 1,
+        "inputEvents": 1,
+        "time": 4.64887714385986,
+        "started": true,
+        "x": 0,
+        "won": false,
+        "z": 5
+      },
+      {
+        "collisionHits": 0,
+        "collected": 1,
+        "round": 1,
+        "inputEvents": 65,
+        "time": 5.43069911003113,
+        "started": true,
+        "x": 0,
+        "won": false,
+        "z": 3.2776792049408
+      },
+      {
+        "collisionHits": 1,
+        "collected": 1,
+        "round": 1,
+        "inputEvents": 145,
+        "time": 6.16409230232239,
+        "started": true,
+        "x": 1.32510852813721,
+        "won": false,
+        "z": 2.62762689590454
+      },
+      {
+        "collisionHits": 94,
+        "collected": 2,
+        "round": 1,
+        "inputEvents": 239,
+        "time": 13.5884032249451,
+        "started": true,
+        "x": -0.381459375045265,
+        "won": false,
+        "z": 0.00945717337854237
+      },
+      {
+        "collisionHits": 94,
+        "collected": 3,
+        "round": 1,
+        "inputEvents": 240,
+        "time": 17.7554032802582,
+        "started": true,
+        "x": 0.26946639517862,
+        "won": false,
+        "z": -3.16848758381575
+      },
+      {
+        "collisionHits": 94,
+        "collected": 3,
+        "round": 1,
+        "inputEvents": 241,
+        "time": 21.2390253543854,
+        "started": true,
+        "x": 0.0509242236109727,
+        "won": true,
+        "z": -4.85778559786335
+      },
+      {
+        "collisionHits": 94,
+        "collected": 0,
+        "round": 2,
+        "inputEvents": 301,
+        "time": 41.0959568023682,
+        "started": false,
+        "x": 0,
+        "won": false,
+        "z": 5
+      },
+      {
+        "collisionHits": 94,
+        "collected": 0,
+        "round": 2,
+        "inputEvents": 302,
+        "time": 49.5716516971588,
+        "started": true,
+        "x": 0,
+        "won": false,
+        "z": 4.97499823570251
+      },
+      {
+        "collisionHits": 94,
+        "collected": 1,
+        "round": 2,
+        "inputEvents": 369,
+        "time": 50.1300296783447,
+        "started": true,
+        "x": 0,
+        "won": false,
+        "z": 3.29986429214478
+      },
+      {
+        "collisionHits": 94,
+        "collected": 2,
+        "round": 2,
+        "inputEvents": 399,
+        "time": 55.5108919143677,
+        "started": true,
+        "x": -0.61777229757638,
+        "won": false,
+        "z": 0.0757622468707591
+      },
+      {
+        "collisionHits": 94,
+        "collected": 3,
+        "round": 2,
+        "inputEvents": 400,
+        "time": 59.6779568195343,
+        "started": true,
+        "x": 0.254007143018701,
+        "won": false,
+        "z": -3.17045746417018
+      },
+      {
+        "collisionHits": 94,
+        "collected": 3,
+        "round": 2,
+        "inputEvents": 401,
+        "time": 65.2851147651672,
+        "started": true,
+        "x": 0.0485238661454714,
+        "won": true,
+        "z": -4.85768103009138
+      },
+      {
+        "collisionHits": 94,
+        "collected": 0,
+        "round": 3,
+        "inputEvents": 402,
+        "time": 69.6086857318878,
+        "started": false,
+        "x": 0,
+        "won": false,
+        "z": 5
+      }
+    ],
+    "current": {
+      "collisionHits": 94,
+      "round": 3,
+      "inputEvents": 402,
+      "started": false,
+      "x": 0,
+      "won": false,
+      "collected": 0,
+      "z": 5
+    },
+    "loading": {
+      "createMs": 17.2910690307617,
+      "preparationMs": 412.217140197754
+    },
+    "inputMethod": "native window keys/mouse, observer only",
+    "status": "observing",
+    "keyboardFrames": {
+      "W": 90,
+      "Up": 97,
+      "Return": 16,
+      "D": 147,
+      "S": 59,
+      "R": 18
+    },
+    "completedRounds": {
+      "1": {
+        "time": 21.2390253543854,
+        "screenshot": "/Users/Jin/Workspace/Dora-Example/Test/Creation3D/evidence/input-Fox-round-1.tga"
+      },
+      "2": {
+        "time": 65.2851147651672,
+        "screenshot": "/Users/Jin/Workspace/Dora-Example/Test/Creation3D/evidence/input-Fox-round-2.tga"
+      }
+    },
+    "asset": "Fox"
+  },
+  "screenshots": [
+    "input-mixed-round-1.png",
+    "input-mixed-round-2.png"
+  ]
+}

@@ -1,6 +1,15 @@
 // @preview-file on clear
 import {App, Cache, Content, Model3D, sleep, thread} from "Dora";
 
+interface LoadDiagnostic { code: string; severity: string; message: string; }
+interface LoadReport { state: string; diagnostics: LoadDiagnostic[]; }
+const json = require("json") as {decode(this: void, text: string): LuaMultiReturn<[LoadReport | undefined, string | undefined]>};
+function diagnostics(file: string): LoadDiagnostic[] {
+	const [report, reason] = json.decode(Cache.getLoadDiagnostics(file));
+	if (!report) error(reason ?? "invalid_load_report");
+	return report!.diagnostics;
+}
+
 const modelFile = "Test/Model3D/Assets/Model/DamagedHelmet.glb";
 const secondFile = "Test/Model3D/Assets/Model/Duck.glb";
 const missingFile = "Test/Model3D/Assets/Model/DoesNotExist.glb";
@@ -43,23 +52,23 @@ thread(() => {
 	expect(cancelIssued, "cancel_request_was_not_accepted");
 	expect(!cancelledResult, "cancelled_load_reported_success");
 	expect(Cache.getLoadState(modelFile) === "cancelled", "cancelled_state_missing");
-	expect(Cache.getLoadError(modelFile).length > 0, "cancelled_error_missing");
-	emit(`CACHE_CANCEL_RESULT state=${Cache.getLoadState(modelFile)} error=${Cache.getLoadError(modelFile)}`);
+	expect(diagnostics(modelFile).some(d => d.code === "LOAD_CANCELLED"), "cancelled_error_missing");
+	emit(`CACHE_CANCEL_RESULT state=${Cache.getLoadState(modelFile)} report=${Cache.getLoadDiagnostics(modelFile)}`);
 
 	const missingResult = Cache.loadAsync(missingFile);
 	expect(!missingResult, "missing_load_reported_success");
 	expect(Cache.getLoadState(missingFile) === "failed", "missing_failed_state_missing");
-	expect(Cache.getLoadError(missingFile).length > 0, "missing_error_missing");
-	emit(`CACHE_ERROR_RESULT state=${Cache.getLoadState(missingFile)} error=${Cache.getLoadError(missingFile)}`);
+	expect(diagnostics(missingFile).some(d => d.code === "RESOURCE_NOT_FOUND"), "missing_error_missing");
+	emit(`CACHE_ERROR_RESULT state=${Cache.getLoadState(missingFile)} report=${Cache.getLoadDiagnostics(missingFile)}`);
 
 	const restarted = Cache.loadAsync(modelFile);
 	expect(restarted, "restart_after_cancel_failed");
 	expect(Cache.getLoadState(modelFile) === "ready", "restart_ready_state_missing");
-	expect(Cache.getLoadError(modelFile) === "", "restart_left_stale_error");
+	expect(diagnostics(modelFile).every(d => d.severity !== "error"), "restart_left_stale_error");
 	emit(`CACHE_RESTART_RESULT state=${Cache.getLoadState(modelFile)} count=${Cache.model3DCount}`);
 
 	const heldModel = Model3D(modelFile);
-	expect(!!heldModel, "held_model_create_failed");
+	expect(heldModel !== undefined, "held_model_create_failed");
 	const secondLoaded = Cache.loadAsync(secondFile);
 	expect(secondLoaded, "second_model_load_failed");
 	expect(Cache.model3DCount >= 2, "cache_did_not_retain_two_models");

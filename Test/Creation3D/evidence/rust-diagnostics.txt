@@ -1,0 +1,11 @@
+
+running 4 tests
+test dora_3d::model_loader::tests::diagnostics_reject_structural_validation_errors ... ok
+test dora_3d::model_loader::tests::diagnostics_guard_position_before_upstream_validation_hook ... ok
+test dora_3d::model_loader::tests::diagnostics_identify_shared_image_slots_and_do_not_leak_between_imports ... ok
+test dora_3d::model_loader::tests::diagnostics_distinguish_image_decode_and_buffer_failures ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 0.01s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running unittests src/lib.rs (build/runtime/cargo/debug/deps/dora_runtime-8270ea5019ce66f0)

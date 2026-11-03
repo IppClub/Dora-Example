@@ -1,0 +1,46 @@
+[
+  {
+    "file": "Fox.glb",
+    "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7",
+    "triangles": 576,
+    "animations": [
+      "Survey",
+      "Walk",
+      "Run"
+    ],
+    "images": 1,
+    "copyright": "CC-BY 4.0 Model by PixelMannen https://opengameart.org/content/fox-and-shiba and @tomkranis https://sketchfab.com/3d-models/low-poly-fox-by-pixelmannen-animated-371dea88d7e04a76af5763f2a36866bc and @AsoboStudio with @scurest https://github.com/KhronosGroup/glTF-Sample-Models/pull/150#issuecomment-406300118"
+  },
+  {
+    "file": "cube.glb",
+    "sha256": "d971050f6d39a6853a403332a1c5834fba14e1076a59aefccc242a57e8b602ea",
+    "triangles": 12,
+    "animations": [],
+    "images": 0,
+    "copyright": "Original primitive, MIT"
+  },
+  {
+    "file": "cylinder.glb",
+    "sha256": "4d0239244457d50e4b980fabe9d53aa084c34eba56f08cae5c1570a5bf96c861",
+    "triangles": 64,
+    "animations": [],
+    "images": 0,
+    "copyright": "Original primitive, MIT"
+  },
+  {
+    "file": "plane.glb",
+    "sha256": "6a9f93690238ee0c6cfe284178fb36907c851967396b9a5cb7472b6bb9e86c8c",
+    "triangles": 2,
+    "animations": [],
+    "images": 0,
+    "copyright": "Original primitive, MIT"
+  },
+  {
+    "file": "sphere.glb",
+    "sha256": "f49624a3abf87a9fd5e5aa8ea376988ada3713b96889cd1428f913856beff298",
+    "triangles": 224,
+    "animations": [],
+    "images": 0,
+    "copyright": "Original primitive, MIT"
+  }
+]

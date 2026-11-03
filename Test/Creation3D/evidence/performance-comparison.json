@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "scope": "three cold runs per mode, all 150 frames from loading included; local Debug/Metal only",
+  "checks": [
+    {
+      "name": "cold-sync-1",
+      "mode": "sync",
+      "readyMs": 330.173015594482,
+      "createMs": 330.169916152954,
+      "modelLoadMs": 306.632041931152,
+      "frameP95Ms": 8.33415985107422,
+      "maxFrameMs": 338.045835494995,
+      "maxUploadCommandUs": 2116
+    },
+    {
+      "name": "cold-sync-2",
+      "mode": "sync",
+      "readyMs": 335.354089736938,
+      "createMs": 335.345983505249,
+      "modelLoadMs": 306.13899230957,
+      "frameP95Ms": 8.33415985107422,
+      "maxFrameMs": 342.364072799683,
+      "maxUploadCommandUs": 2116
+    },
+    {
+      "name": "cold-sync-3",
+      "mode": "sync",
+      "readyMs": 330.692052841187,
+      "createMs": 330.689907073975,
+      "modelLoadMs": 308.403015136719,
+      "frameP95Ms": 8.33415985107422,
+      "maxFrameMs": 336.827039718628,
+      "maxUploadCommandUs": 2116
+    },
+    {
+      "name": "cold-async-1",
+      "mode": "async",
+      "readyMs": 435.094118118286,
+      "createMs": 17.1401500701904,
+      "modelLoadMs": 0.941991806030273,
+      "frameP95Ms": 8.33415985107422,
+      "maxFrameMs": 21.2938785552979,
+      "maxUploadCommandUs": 2116
+    },
+    {
+      "name": "cold-async-2",
+      "mode": "async",
+      "readyMs": 435.320854187012,
+      "createMs": 17.5011157989502,
+      "modelLoadMs": 1.12414360046387,
+      "frameP95Ms": 8.33415985107422,
+      "maxFrameMs": 22.1860408782959,
+      "maxUploadCommandUs": 2116
+    },
+    {
+      "name": "cold-async-3",
+      "mode": "async",
+      "readyMs": 442.121028900146,
+      "createMs": 17.1830654144287,
+      "modelLoadMs": 0.874042510986328,
+      "frameP95Ms": 8.33582878112793,
+      "maxFrameMs": 21.9249725341797,
+      "maxUploadCommandUs": 2116
+    }
+  ]
+}

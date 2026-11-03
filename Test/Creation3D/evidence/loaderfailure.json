@@ -1,0 +1,1 @@
+{"status":"passed","checks":["missing local asset rejects before async loading and creates no game","async decoder failure reports LOAD_FAILED with no synchronous fallback","loaded but degenerate model fails adaptation without stuck loading or ready success"]}

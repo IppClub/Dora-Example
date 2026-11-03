@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "case": "wide",
+      "changedKeys": [
+        "roadWidth"
+      ],
+      "actual": {
+        "movementDistance": 0.299999999999999,
+        "houseColor": 4293045366,
+        "movementSeconds": 0.1,
+        "roadWidth": 4.80000019073486
+      },
+      "layoutPreserved": true
+    },
+    {
+      "case": "recolor",
+      "changedKeys": [
+        "houseColor"
+      ],
+      "actual": {
+        "movementDistance": 0.299999999999999,
+        "houseColor": 4288328916,
+        "movementSeconds": 0.1,
+        "roadWidth": 3.40000009536743
+      },
+      "layoutPreserved": true
+    },
+    {
+      "case": "fast",
+      "changedKeys": [
+        "speed"
+      ],
+      "actual": {
+        "movementDistance": 0.450000000000001,
+        "houseColor": 4293045366,
+        "movementSeconds": 0.1,
+        "roadWidth": 3.40000009536743
+      },
+      "layoutPreserved": true
+    }
+  ]
+}

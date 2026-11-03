@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "date": "2026-10-27",
+  "engineSha256": "4fc7f77229e9dbd4c077854da3547abc05d22fa2825253ce576a23c2fe9b2281",
+  "nativeAssertions": 220,
+  "existingFixtures": 25,
+  "rustLoaderTests": 11,
+  "cacheLifecycle": "passed",
+  "asyncColdMaxFrameMs": 28.6078453063965,
+  "api": "Cache.getLoadDiagnostics",
+  "schemaVersion": 1,
+  "removedApi": "Cache.getLoadError"
+}

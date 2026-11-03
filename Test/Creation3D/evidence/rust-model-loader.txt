@@ -1,0 +1,18 @@
+
+running 11 tests
+test dora_3d::model_loader::tests::calculates_complete_rgba8_mip_chain_size ... ok
+test dora_3d::model_loader::tests::combines_multiple_morph_targets_and_preserves_tangent_handedness ... ok
+test dora_3d::model_loader::tests::groups_multi_target_weight_keyframes_in_gltf_order ... ok
+test dora_3d::model_loader::tests::packs_thickness_and_sheen_channels ... ok
+test dora_3d::model_loader::tests::packs_metallic_roughness_and_anisotropy_channels ... ok
+test dora_3d::model_loader::tests::diagnostics_reject_structural_validation_errors ... ok
+test dora_3d::model_loader::tests::diagnostics_guard_position_before_upstream_validation_hook ... ok
+test dora_3d::model_loader::tests::diagnostics_identify_shared_image_slots_and_do_not_leak_between_imports ... ok
+test dora_3d::model_loader::tests::diagnostics_distinguish_image_decode_and_buffer_failures ... ok
+test dora_3d::model_loader::tests::mesh_collider_extracts_scene_transform_and_triangle_indices ... ok
+test dora_3d::model_loader::tests::convex_hull_extracts_scene_transformed_points ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.01s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/lib.rs (build/runtime/cargo/debug/deps/dora_runtime-8270ea5019ce66f0)

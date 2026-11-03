@@ -1,0 +1,250 @@
+[
+  {
+    "file": "Example/Creation3D/Assets.lua",
+    "sha256": "191f343c57c44f5b4a680c1ce5a9dba6b565cb311cdc58d41a9b567aad82f1c7"
+  },
+  {
+    "file": "Example/Creation3D/Game.lua",
+    "sha256": "81241aa41535c21629db50c212cd170745fc5304f59457dd0587b484a05b36f4"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Adapter.lua",
+    "sha256": "2680df9189676bf2d2de125d414166a7de9cf9d80b8c4a6e7986fc4b699e0e3a"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Config.lua",
+    "sha256": "b74d7c99f30c0be5b5641f0cd2178db746cb1f7563b82a21ad81dc41a71ebb90"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Diagnostics.lua",
+    "sha256": "3bf422c2a464810e004a7e27e96daacdc59b0009876e95d293f46fcd52620161"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Loader.lua",
+    "sha256": "429bfb2e98adaf742d18237907f5167d08dcbe93078368e0b999aff075acbb09"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Motion.lua",
+    "sha256": "3f8b23e7db9f5e761ed86e453023d9f16d7284ebeed036aadbda13e17c9b7e16"
+  },
+  {
+    "file": "Example/Creation3D/Kit/Primitive.lua",
+    "sha256": "95defe9368fc59fbc667e96a1017715f024c84ecc32b1c583ed1a34e1dea3f1f"
+  },
+  {
+    "file": "Example/Creation3D/assets/Fox.glb",
+    "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7"
+  },
+  {
+    "file": "Example/Creation3D/assets/cube.glb",
+    "sha256": "d971050f6d39a6853a403332a1c5834fba14e1076a59aefccc242a57e8b602ea"
+  },
+  {
+    "file": "Example/Creation3D/assets/cylinder.glb",
+    "sha256": "4d0239244457d50e4b980fabe9d53aa084c34eba56f08cae5c1570a5bf96c861"
+  },
+  {
+    "file": "Example/Creation3D/assets/plane.glb",
+    "sha256": "6a9f93690238ee0c6cfe284178fb36907c851967396b9a5cb7472b6bb9e86c8c"
+  },
+  {
+    "file": "Example/Creation3D/assets/sphere.glb",
+    "sha256": "f49624a3abf87a9fd5e5aa8ea376988ada3713b96889cd1428f913856beff298"
+  },
+  {
+    "file": "Example/Creation3D/configs/basic.json",
+    "sha256": "f66b2c9804b8c6ca6c77ed11e0bec98bec97a625e5fe160768f9f8e76c06eaba"
+  },
+  {
+    "file": "Example/Creation3D/configs/mixed.json",
+    "sha256": "2ea08ee968b7d1faff764923a74f332c4a99130cc8c3b3473f036b7180f9cba8"
+  },
+  {
+    "file": "Example/Creation3D/fast.lua",
+    "sha256": "40dc04b0625a4d19b983c7101a7b4ee2a4f00ad241e6f0eb836e0c98d9a97877"
+  },
+  {
+    "file": "Example/Creation3D/generate_assets.py",
+    "sha256": "8ca0262827266f8b332a342d16c5706a0d495c5871924d5629924f5b13b28089"
+  },
+  {
+    "file": "Example/Creation3D/init.lua",
+    "sha256": "82cf1ef28edb0103d1aaec77164d68d51188e0a3f481476e797f6153746ee954"
+  },
+  {
+    "file": "Example/Creation3D/mixed.lua",
+    "sha256": "c3d2c57fd63a5f344b3d4106a3079472a376ac48df067ec7b10b085bdafca45c"
+  },
+  {
+    "file": "Example/Creation3D/recolor.lua",
+    "sha256": "fa7b74786fb9adc74cd4a19fc1a7a6c94f51c2e884b32dd41702ee01b5454d5b"
+  },
+  {
+    "file": "Example/Creation3D/wide.lua",
+    "sha256": "40d25390e599ae9bbe79684bd9bc0c6cae2c2c75bf0a5e64a4ffb03db44f5a10"
+  },
+  {
+    "file": "Test/Creation3D/Animation.lua",
+    "sha256": "c41fb0c7a6b3b838db214f13637ad82095472bacdb7dfd8683bd96b5a6a85e8e"
+  },
+  {
+    "file": "Test/Creation3D/CacheLifecycle.lua",
+    "sha256": "91964ac9566fdcdd2a1e00a71df5652a0da75811d729400df5258242bdd7dbf8"
+  },
+  {
+    "file": "Test/Creation3D/DiagnosticCompatibility.lua",
+    "sha256": "e317571f0fafab0f9fd7e1c925c52c7538c859c7f8a1ea4e297217445cf2caad"
+  },
+  {
+    "file": "Test/Creation3D/Diagnostics.lua",
+    "sha256": "e50ce16eb9e6f067432c39a8398e53ecd1db68dab2ea1afdf4ae7da81109be06"
+  },
+  {
+    "file": "Test/Creation3D/Failures.lua",
+    "sha256": "a6f87ec55b7fb915df3ee84f0083506cd579bfd4c72d516c81de6e23db827e2e"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/cancel.glb",
+    "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/decode-image.glb",
+    "sha256": "83d2a70fc0978ba44406c0e642c01ea4f13e797e0e7ed6dbe8f66fc07e308921"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/embedded-decode.glb",
+    "sha256": "c90510373f473c6bb87e9d7ea55687d3b6ccacc1a306fdd16ea4baf192e8e11f"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/empty.glb",
+    "sha256": "6c50a200245677fa28d0fd3537e06a8794d00b0f2d3462f048f67130b94133e1"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/invalid-index.glb",
+    "sha256": "24142ec52a3e850854824d1c7cdd2af39e199b7fe733140cda23f07c27b2bce4"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/missing-buffer.glb",
+    "sha256": "96b023f7257b3ced58056779458a3b652fee84e56f844f114b743ca7cb480ba8"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/missing-image.glb",
+    "sha256": "3e26b7c04fd6ed6f73e107f4a459aecf32ced7acc34c1a83b25a5df4efd052bd"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/parse.glb",
+    "sha256": "760a3d66fa3734d84ca09ea4a2cb24f49866be6fd2c22e4ebf4879ce951ae6f0"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/shared-image.glb",
+    "sha256": "592eeeb3a9ae208df4ca21cd8c5e141158297c0d37c29abadffedb7e21a4190a"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/short-buffer.glb",
+    "sha256": "277a1a0e675162a79ff1239f47a5594d92f3c72952375eacc605a3912a69e7c4"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/uri.glb",
+    "sha256": "93a890dc1ece0cc84612be2435ea9ee3dcc3a392da6050a4f5030bf8c8fe073d"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/valid.glb",
+    "sha256": "d971050f6d39a6853a403332a1c5834fba14e1076a59aefccc242a57e8b602ea"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/warning.glb",
+    "sha256": "b5685db0bf02f0165ff3964e8c83fdfd0e89ded902149a64fbb8c3661fcd93ec"
+  },
+  {
+    "file": "Test/Creation3D/Fixtures/Diagnostics/wide-texture.glb",
+    "sha256": "bf062e4c53d6a2c8cf6c206891163babc502f13420ca05e9a3c4437fd06e48c4"
+  },
+  {
+    "file": "Test/Creation3D/Input.lua",
+    "sha256": "c9374ecf1172eda13b17753f835c2c6d530966b6bc2abf986e13d59b211346d2"
+  },
+  {
+    "file": "Test/Creation3D/Jolt.lua",
+    "sha256": "6339662231b16ba2945345f7a736b04c1692b1ce3f6022f8cc8525ff7692a0e5"
+  },
+  {
+    "file": "Test/Creation3D/LoaderFailure.lua",
+    "sha256": "1cd0f8c089e4633924fdd849a1eb133eadcb76114706c9c84c77ba45e4d595be"
+  },
+  {
+    "file": "Test/Creation3D/Profile.lua",
+    "sha256": "c0001aa8ec5a7714f264270e283ef14e6bd1ad70211f1f03c796bccfedf87ec3"
+  },
+  {
+    "file": "Test/Creation3D/ProfileRun.lua",
+    "sha256": "7489a943e53798caf52dca9065e38f4e7505e1ae640a64c8f258dab2a1ff9203"
+  },
+  {
+    "file": "Test/Creation3D/Verify.lua",
+    "sha256": "3f4190f211751a50c364b95a5906e94f982251e016a53548675d1b90823cd24f"
+  },
+  {
+    "file": "Test/Creation3D/audit_assets.py",
+    "sha256": "8ec24e85abfb29152be94ff4acd186268d15647b92a4661952719960dd29109f"
+  },
+  {
+    "file": "Test/Creation3D/baseline.lua",
+    "sha256": "a699c7d4268454be56e53b9d6880159882b0dc5df893d9c64cf29bf1a40dcfdc"
+  },
+  {
+    "file": "Test/Creation3D/fast.lua",
+    "sha256": "3e01150a656b654fd52b1ea52c0b4fe4752c4cbf0a6a9ee566f90d37232a3a3c"
+  },
+  {
+    "file": "Test/Creation3D/generate_diagnostic_fixtures.py",
+    "sha256": "83201a8c57b69b29dc3211e68ad921cb7eb65b1904ff072492f0e4f8963f1d52"
+  },
+  {
+    "file": "Test/Creation3D/input-basic.lua",
+    "sha256": "d102c5e649a7a350fc8443ecdffe1a42651f3aa7b857f30b7ed9a74da7341e6d"
+  },
+  {
+    "file": "Test/Creation3D/input-mixed.lua",
+    "sha256": "bc1f4d2501b471a9f8f219901c16c6ba7b7be18921f1a8f92a7b7a35ec8910c9"
+  },
+  {
+    "file": "Test/Creation3D/mixed.lua",
+    "sha256": "d6f8951d7660b3da5f475f8f503c2fba704e3d4965471e9058dd38927b2e381b"
+  },
+  {
+    "file": "Test/Creation3D/profile-async.lua",
+    "sha256": "6dda45ba7ba9986d69cb122bb634420bcb008279cbf6483504f3255d952903b9"
+  },
+  {
+    "file": "Test/Creation3D/profile-basic.lua",
+    "sha256": "8046525b3b6f45cb6bfd10e948d44ae69047d299b44c89a75a3e7270cd1d26d6"
+  },
+  {
+    "file": "Test/Creation3D/profile-mixed.lua",
+    "sha256": "aedb4624234cfecaa0ea993fda8007d7260fcc07521107b1c8f0944574b042e4"
+  },
+  {
+    "file": "Test/Creation3D/profile-plain.lua",
+    "sha256": "44311ab699a46e8e6ecc428418254aeba62fdce689cbdc126c3d7cdae0d8829a"
+  },
+  {
+    "file": "Test/Creation3D/profile.py",
+    "sha256": "cf1f69eccc611284e1976e7fe3b7bd871278738a893b341169b8c832a6c50e2e"
+  },
+  {
+    "file": "Test/Creation3D/recolor.lua",
+    "sha256": "b5b5059f7768fd1c09a6b3a125a0a251fda65a72aa354b70309b5e4ec4428b8d"
+  },
+  {
+    "file": "Test/Creation3D/run.py",
+    "sha256": "b76096a86321e7c2017e5a93f1a704c75364b598ce14c88a1878f8081c8a2592"
+  },
+  {
+    "file": "Test/Creation3D/unit.lua",
+    "sha256": "679c380fff6f457aa6f670870485ed0932b3144e11d3a0aff07ed942b1069b9f"
+  },
+  {
+    "file": "Test/Creation3D/wide.lua",
+    "sha256": "77367975690c020b20eb2350a0fe05079db7e8b9a9021332ae3e0a11579d2aa1"
+  }
+]

@@ -1,0 +1,70 @@
+[
+  {
+    "file": "Assets/Script/Lib/Dora/en/Cache.d.tl",
+    "sha256": "6ff052a854036d61d10eec911faac67fdb7da78e7a03bc63971cbc2a2af61a13"
+  },
+  {
+    "file": "Assets/Script/Lib/Dora/en/Dora.d.ts",
+    "sha256": "02e7dd1773985645bb6b911251947d30a12913e69dc7a137eed355f200612e1a"
+  },
+  {
+    "file": "Assets/Script/Lib/Dora/zh-Hans/Cache.d.tl",
+    "sha256": "9e970a6512f610f1a96d642747d1b27191f700ba48c6366d61af7127a88e020c"
+  },
+  {
+    "file": "Assets/Script/Lib/Dora/zh-Hans/Dora.d.ts",
+    "sha256": "03123832f0c5ba46cae55804fa3feadc4a3dd1a1e7ee25371637d8f88ea73046"
+  },
+  {
+    "file": "Source/Cache/Cache.cpp",
+    "sha256": "1520e789dc33c9c9fdcfa42f83f5818374a9e5e00885788d736b0b8baf973961"
+  },
+  {
+    "file": "Source/Cache/Cache.h",
+    "sha256": "299ee1348ae6b777f08d746297e2d70c5560a44bda56b6610c37739d8bf11518"
+  },
+  {
+    "file": "Source/Cache/Model3DCache.cpp",
+    "sha256": "832ae3ddc1c1b604833da5c70ca64ae93263458aa7767e03ba886e7bf3092ce6"
+  },
+  {
+    "file": "Source/Cache/Model3DCache.h",
+    "sha256": "f41d5d543f7f2503b254ea04bd96f8e2dcf3ef30da572b94465e43e87b2c0306"
+  },
+  {
+    "file": "Source/Rust/src/dora_3d/c_api.rs",
+    "sha256": "918fb506cb3d250afa874ee1d2cbed18f62a073339a4b45786bc61a9aa61e89c"
+  },
+  {
+    "file": "Source/Rust/src/dora_3d/model_loader.rs",
+    "sha256": "6f1fa2f81976f1b6e2e6e0275c7cef225e1ae727251a18134a8008f8e42b75e4"
+  },
+  {
+    "file": "Source/Wasm/Dora/CacheWasm.hpp",
+    "sha256": "30a051d1e3556684de04c6248d3721bc5e99858790b6adb3c96b3649429cec67"
+  },
+  {
+    "file": "Tools/WasmGen/Dora.h",
+    "sha256": "a6ae0ebb7ebaaf373608f5b751aedebea4ec8f0d045d04047e0d3c004f8ad79e"
+  },
+  {
+    "file": "Tools/dora-cs/CSharpGen/Dora.h",
+    "sha256": "d2ea23ebd8b9903e309cb40c957a89903a9741b2ab8326ca9677c44c4985a211"
+  },
+  {
+    "file": "Tools/dora-cs/DoraCS/Dora/Cache.cs",
+    "sha256": "efcadfb583e30245516880147a59e10a7fb393a0ccaf6d79708af67a702ea76d"
+  },
+  {
+    "file": "Tools/dora-rust/dora/src/dora/cache.rs",
+    "sha256": "70e058316e8f8318a21b74278cbf35b95691181bf5f5c048d115bbdb9157799b"
+  },
+  {
+    "file": "Tools/dora-wa/vendor/dora/cache.wa",
+    "sha256": "b769185a76673756b4773a229542a3e80eac079e2b4afee53ece8b1481ae20c5"
+  },
+  {
+    "file": "Tools/tolua++/Dora.h",
+    "sha256": "baa2eac2972c6a2b8d3adf68b4f74026eeb5d4ca312c957fb1d24db5b1543e28"
+  }
+]

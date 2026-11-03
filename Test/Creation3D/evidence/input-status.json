@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "date": "2026-10-27",
+  "configs": [
+    "basic",
+    "mixed"
+  ],
+  "completedRoundsEach": 2,
+  "nativeInput": true,
+  "logicCallsUsedForNativeAcceptance": false,
+  "windowBlock": "Initial binding timeout resolved by ending this run's standalone debug process and binding current project Dora.app; no permission changes.",
+  "buttonFixes": [
+    "center background and label inside sized node",
+    "swallow touches to prevent ground click-through"
+  ],
+  "reports": [
+    "input-basic.json",
+    "input-mixed.json"
+  ],
+  "asynchronousLoadingRetested": true
+}
