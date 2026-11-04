@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import time
 
 
 def main():
@@ -58,10 +59,20 @@ target("combined")
     add_files("src/combined.c")
 target_end()
 '''
+    checks = []
     for value in (16, 160):
+        if value != 16:
+            # xmake 3.1.1 compares archive dependencies at whole-second
+            # resolution. Keep the synthetic macro edit in a later timestamp
+            # tick so fast CI builds actually exercise propagation/re-merging,
+            # rather than a same-second mtime alias. Do not force a rebuild.
+            previous = max(path.stat().st_mtime for path in (out / 'bin').glob('*.a'))
+            delay = int(max(previous, time.time())) + 1.05 - time.time()
+            if delay > 0:
+                time.sleep(delay)
         (out / 'xmake.lua').write_text(project.replace('@VALUE@', str(value)))
-        (out / 'src/main.c').write_text('extern int variant_16(void);\nextern int variant_32(void);\n'
-                                   f'int main(void) {{ return variant_16() == {value} && variant_32() == 32 ? 0 : 1; }}\n')
+        (out / 'src/main.c').write_text('#include <stdio.h>\nextern int variant_16(void);\nextern int variant_32(void);\n'
+            f'int main(void) {{ int a=variant_16(), b=variant_32(); printf("expected={value}/32 actual=%d/%d\\n",a,b); return a == {value} && b == 32 ? 0 : 1; }}\n')
         with (out / f'build-{value}.log').open('w') as log:
             if value == 16:
                 subprocess.run([a.xmake, 'f', '-P', str(out), '-c', '-m', 'release', '-y'],
@@ -72,10 +83,17 @@ target_end()
             # not conceal a missing variant in either intermediate archive.
             subprocess.run([cc, str(out / 'src/main.c'), str(out / 'bin/libcombined.a'),
                             '-o', str(out / 'proof')], stdout=log, stderr=subprocess.STDOUT, check=True)
-        subprocess.run([str(out / 'proof')], check=True)
+        proof = subprocess.run([str(out / 'proof')], capture_output=True, text=True)
+        (out / f'proof-{value}.log').write_text(proof.stdout + proof.stderr)
+        print(proof.stdout, end='', flush=True)
+        proof.check_returncode()
+        checks.append({'expected_variant_16': value, 'output': proof.stdout.strip(),
+                       'core_mtime_ns': (out / 'bin/libcore.a').stat().st_mtime_ns,
+                       'combined_mtime_ns': (out / 'bin/libcombined.a').stat().st_mtime_ns})
     result = {'passed': True, 'same_source_object_variants': True,
               'merged_archive_linked_without_transitive_libraries': True,
               'incremental_macro_change_executed': True,
+              'incremental_timestamp_tick_separated': True, 'checks': checks,
               'scope': 'Native C/xmake/archive regression only; no Godot runtime or GPU acceptance'}
     (out / 'verification.json').write_text(json.dumps(result, indent=2) + '\n')
     print('Native xmake variants: compile, merged archive and incremental execution PASS')
