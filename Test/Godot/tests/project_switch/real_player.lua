@@ -3,6 +3,8 @@ D.Content:insertSearchPath(1, D.Content.assetPath .. "/Script/Lib")
 local Player = require("GodotPlayer")
 D.App.devMode = false
 local output, items = @OUTPUT@, @PROJECTS@
+local minimalEdges, invalid = @MINIMAL_EDGES@, @INVALID@
+local edges = {cancel=false, failure=false, duplicate=false, repeated=false}
 local player = Player()
 local index, stage, closing, total = 0, nil, false, 0
 local control = D.Node():addTo(D.Director.ui)
@@ -27,6 +29,7 @@ local function nextProject()
                 D.Content:save(output .. "/failure.txt", message)
                 D.Content:save(output .. "/player.json", '{"passed":false}')
             else
+                if minimalEdges then assert(edges.cancel and edges.failure and edges.duplicate and edges.repeated, "Incomplete lifecycle edges") end
                 D.Content:save(output .. "/player.json", '{"passed":true,"projects":' .. #items .. ',"captures":' .. total .. '}')
                 print("DORA_REAL_SWITCH complete=" .. #items .. " captures=" .. total)
             end
@@ -36,13 +39,30 @@ local function nextProject()
         return
     end
     local item = items[index]
-    assert(player:switchAsync(item.path, {width=item.width,height=item.height,buffers=item.buffers}, function(ok, game, message)
+    local function openItem()
+    assert(player:switchAsync(item.path, {scene=item.scene or "",width=item.width,height=item.height,buffers=item.buffers}, function(ok, game, message)
         safe(function()
             assert(ok, message)
+            if minimalEdges and index==1 then
+                assert(D.GodotNode(item.path)==nil, "Second active client was accepted")
+                edges.duplicate=true
+                print("DORA_SWITCH_EDGE duplicate=1")
+            end
             stage = {game=game,elapsed=0,captures=0,pending=false}
             print("DORA_REAL_SWITCH ready=" .. index .. " name=" .. item.name .. " buffers=" .. item.buffers)
         end)
     end))
+    end
+    if minimalEdges and index==2 then
+        assert(player:switchAsync(invalid, {}, function(ok, game, message)
+            safe(function()
+                assert(not ok and not game and message=="Godot project has no main scene",message)
+                edges.failure=true
+                print("DORA_SWITCH_EDGE failure-recovered=1")
+                openItem()
+            end)
+        end))
+    else openItem() end
 end
 local function capture(s, name)
     s.pending = true
@@ -55,7 +75,18 @@ local function capture(s, name)
         end)
     end))
 end
-nextProject()
+if minimalEdges then
+    local canceled=assert(D.GodotNode(items[1].path))
+    assert(not canceled.running)
+    canceled:unloadAsync(function(ok, message)
+        safe(function()
+            assert(ok and canceled.unloaded,message)
+            edges.cancel=true
+            print("DORA_SWITCH_EDGE cancel-before-ready=1")
+            nextProject()
+        end)
+    end)
+else nextProject() end
 control:schedule(function(dt)
     safe(function()
         if closing or not stage then return end
@@ -82,7 +113,25 @@ control:schedule(function(dt)
         if s.captures==3 and s.ticks>=@MIN_TICKS@ and not s.pending then
             stage = nil
             print("DORA_REAL_SWITCH switching=" .. index)
-            nextProject() -- controller waits for the native unload acknowledgement
+            if minimalEdges and index==1 then
+                local calls=0
+                s.game:unloadAsync(function(ok,message)
+                    safe(function() assert(ok and s.game.unloaded,message);calls=calls+1 end)
+                end)
+                s.game:unloadAsync(function(ok,message)
+                    safe(function()
+                        assert(ok and s.game.unloaded and calls==1,message);calls=calls+1
+                        s.game:unloadAsync(function(ok,message)
+                            safe(function()
+                                assert(ok and s.game.unloaded and calls==2,message)
+                                edges.repeated=true
+                                print("DORA_SWITCH_EDGE repeated-notification=1")
+                                nextProject()
+                            end)
+                        end)
+                    end)
+                end)
+            else nextProject() end -- controller waits for the native acknowledgement
         end
     end)
     return false

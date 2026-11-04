@@ -37,7 +37,7 @@ items=[{'path':projects[name],'name':name,'width':480 if name.endswith('dodge') 
         'height':720 if name.endswith('dodge') else 540,'buffers':2+i%3} for i,name in enumerate(sequence)]
 lua_items='{'+','.join('{path='+lua_string(x['path'])+',name='+lua_string(x['name'])+',width='+str(x['width'])+',height='+str(x['height'])+',buffers='+str(x['buffers'])+'}' for x in items)+'}'
 template=(TEST_REPO/'Test/Godot/tests/project_switch/real_player.lua').read_text()
-command,binary,assets=host.install(out/'host',template.replace('@MIN_TICKS@','300' if sys.platform=='linux' else '0').replace('@OUTPUT@',lua_string(str(out))).replace('@PROJECTS@',lua_items))
+command,binary,assets=host.install(out/'host',template.replace('@MINIMAL_EDGES@','false').replace('@INVALID@','""').replace('@MIN_TICKS@','300' if sys.platform=='linux' else '0').replace('@OUTPUT@',lua_string(str(out))).replace('@PROJECTS@',lua_items))
 manifest=json.loads((runtime/'manifest.json').read_text());library=runtime/manifest['library']
 env={k:v for k,v in os.environ.items() if not k.startswith(('DORA_GODOT_','DORA_BUILD_'))}
 env.update(DORA_GODOT_LIBRARY=str(library))

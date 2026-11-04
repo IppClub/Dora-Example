@@ -29,7 +29,7 @@ def install(work,startup):
     return command,binary,assets
 
 def verify_gl_transport(log,expected):
-    if sys.platform!='linux':return
+    if sys.platform not in ('linux','win32'):return
     import re
     rows=re.findall(r'DORA_GODOT_GL_TRANSPORT phase=close mode=(\S+).*?buffers=(\d+) size=(\d+x\d+) blits=(\d+) direct_publications=(\d+)',log)
     assert len(rows)==expected and all(mode=='direct' and int(blits)==0 and int(publications)>0
