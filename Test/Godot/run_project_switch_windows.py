@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Windows x64 WGL lifecycle acceptance, with a targeted MSAA recheck mode."""
+"""Windows x64 WGL lifecycle acceptance, with a targeted 3D recheck mode."""
 import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Test/support'))
@@ -68,7 +68,7 @@ for i,name in enumerate(sequence,1):
     assert all(img.size==images[0].size and min(img.size)>=640 and len(img.getcolors(img.width*img.height) or [])>50 for img in images),(i,'blank or unexpected size')
     changes=[]
     for first,second in zip(images,images[1:]):
-        count=sum(n for value,n in enumerate(ImageChops.difference(first,second).convert('L').histogram()) if value>10);assert count>100,(i,count);changes.append(count)
+        changed=sum(n for value,n in enumerate(ImageChops.difference(first,second).convert('L').histogram()) if value>10);assert changed>100,(i,changed);changes.append(changed)
     movement=None
     if name=='dodge':
         centers=[]
