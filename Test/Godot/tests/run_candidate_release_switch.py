@@ -7,6 +7,7 @@ from godot_paths import ENGINE_ROOT,TEST_REPO
 p=argparse.ArgumentParser(description=__doc__)
 for n in ['artifact','output']:p.add_argument('--'+n,type=Path,required=True)
 p.add_argument('--engine-sha',required=True);p.add_argument('--run-id',required=True)
+p.add_argument('--runtime-package',type=Path,help='A separately built Release package when the source CI library is Debug')
 a=p.parse_args();root=ENGINE_ROOT;artifact=a.artifact.resolve();out=a.output.resolve()
 assert sys.platform.startswith('linux') and re.fullmatch('[0-9a-f]{40}',a.engine_sha) and a.run_id.isdigit()
 assert not out.exists(),'Use a fresh output directory';out.mkdir(parents=True)
@@ -30,7 +31,15 @@ try:
  subprocess.run(['git','fetch','--depth=1','origin',source_tests],cwd=TEST_REPO,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
  paths=['Test/support/godot_paths.py','Test/Godot/paths.json','Test/Godot/tests/with_weston.py','Test/Godot/tests/run_project_boundary_linux.py','Test/Godot/tests/verify_project_boundary.py','Test/Godot/tests/project_switch/linux_boundary.lua',*[f'Test/Godot/tests/project/{n}' for n in ['main.gd','main.tscn','project.godot','state.gd']]]
  for name in paths:assert git('show',source_tests+':'+name)==(TEST_REPO/name).read_bytes(),name
- report.update(source_tests_sha=source_tests,harness_tests_sha=harness_tests,artifact_receipt_sha256=sha(receipt_path),host_sha256=sha(binary),runtime_sha256=sha(library),production_case_unchanged=True)
+ report.update(source_tests_sha=source_tests,harness_tests_sha=harness_tests,artifact_receipt_sha256=sha(receipt_path),host_sha256=sha(binary),source_runtime_sha256=sha(library),production_case_unchanged=True)
+ sys.path.insert(0,str(root/'Tools/Godot'))
+ from verify_package import verify as verify_package
+ package=(a.runtime_package or library.parent).resolve();verify_package(package)
+ manifest=json.loads((package/'manifest.json').read_text())
+ assert manifest.get('build_target')=='template_release','A Debug LibGodot cannot satisfy full Release acceptance'
+ assert manifest['library']=='libdora_godot.so' and manifest.get('graphics_backend')=='egl'
+ library=package/manifest['library']
+ report.update(runtime_rebuilt=package!=(artifact/'godot-linux/package').resolve(),runtime_sha256=sha(library),runtime_manifest_sha256=sha(package/'manifest.json'),runtime_build_target=manifest['build_target'])
  binary.chmod(binary.stat().st_mode|0o111)
  env=os.environ.copy();env.update(DORA_ENGINE_ROOT=str(root),DORA_TEST_REPO=str(TEST_REPO),SDL_AUDIODRIVER='dummy',LIBGL_ALWAYS_SOFTWARE='1')
  case=out/'case'
@@ -41,6 +50,6 @@ try:
  assert len(rows)==3 and all(mode=='direct' and blits=='0' and int(frames)>0 for mode,blits,frames in rows),rows
  assert sha(binary)==report['host_sha256'] and sha(library)==report['runtime_sha256']
  report.update(passed=True,captures=5,renderer=result['godot_renderer'],case_report='case/verification.json',direct_targets=True,blits=0)
-except Exception as error:report['error']=repr(error);raise
+except Exception as error:report.update(passed=False,error=repr(error));raise
 finally:(out/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))
