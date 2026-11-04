@@ -40,6 +40,21 @@ public final class ReleaseLifecycle extends Instrumentation {
             }
         }
     }
+    private JSONObject shaderCacheHashes() throws Exception {
+        JSONObject result = new JSONObject();
+        File[] roots = { new File(getTargetContext().getFilesDir(), "shader_cache"),
+            new File(getTargetContext().getCacheDir(), "Dora/LibGodot-4.6/egl/shader_cache"),
+            new File(getTargetContext().getCacheDir(), "shader_cache") };
+        String[] prefixes = {"files/shader_cache/", "cache/Dora/LibGodot-4.6/egl/shader_cache/", "cache/shader_cache/"};
+        for (int i = 0; i < roots.length; ++i) {
+            if (!roots[i].isDirectory()) continue;
+            JSONObject files = new JSONObject();
+            hashProject(roots[i], roots[i], files);
+            java.util.Iterator<String> names = files.keys();
+            while (names.hasNext()) { String name = names.next(); result.put(prefixes[i] + name, files.get(name)); }
+        }
+        return result;
+    }
     private Bundle arguments;
     @Override public void onCreate(Bundle arguments) {
         super.onCreate(arguments);
@@ -139,9 +154,7 @@ public final class ReleaseLifecycle extends Instrumentation {
             if (projectSwitch && (full || dodge || missing || blit || buffers != 3))
                 throw new IllegalArgumentException("Project switching requires ordinary default-direct mode");
             boolean cacheAudit = "1".equals(arguments.getString("cache_audit", "0"));
-            File shaderCache = new File(getTargetContext().getFilesDir(), "shader_cache");
-            JSONObject shaderCacheBefore = new JSONObject();
-            if (cacheAudit && shaderCache.isDirectory()) hashProject(shaderCache, shaderCache, shaderCacheBefore);
+            JSONObject shaderCacheBefore = cacheAudit ? shaderCacheHashes() : new JSONObject();
             if (dodge && (full || missing || blit || buffers != 3))
                 throw new IllegalArgumentException("Dodge requires ordinary direct 3-buffer mode");
             if (full && missing) throw new IllegalArgumentException("Full acceptance cannot use a missing runtime");
@@ -214,8 +227,7 @@ public final class ReleaseLifecycle extends Instrumentation {
                 hashProject(new File(fixture, "squash"), new File(fixture, "squash"), packed);
                 projectHashes.put("dodge", source).put("squash", packed);
             }
-            JSONObject shaderCacheAfter = new JSONObject();
-            if (cacheAudit && shaderCache.isDirectory()) hashProject(shaderCache, shaderCache, shaderCacheAfter);
+            JSONObject shaderCacheAfter = cacheAudit ? shaderCacheHashes() : new JSONObject();
             write(new File(external, "controller.json"), new JSONObject()
                 .put("buffers", buffers).put("direct", directTarget).put("gl_policy", glPolicy)
                 .put("missing", missing).put("full", full)

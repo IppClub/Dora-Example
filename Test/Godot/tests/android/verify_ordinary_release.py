@@ -57,8 +57,9 @@ def audit_apk(apk, runtime, aapt, missing, engine_readback=False, await_cleanup=
                 if path.is_file():assert archive.read('assets/GodotTimingCap/'+path.name)==path.read_bytes()
             for path in Path(__file__).with_name('timing_cap_adapter').iterdir():
                 if path.is_file():assert archive.read('assets/GodotTimingCap/'+path.name)==path.read_bytes()
-        for name in ('main.gd', 'main.tscn', 'project.godot'):
-            assert 'assets/GodotProject/' + name in names
+        if not engine_readback:
+            for name in ('main.gd', 'main.tscn', 'project.godot'):
+                assert 'assets/GodotProject/' + name in names
         full_project = root / str(test_path('Tools/Godot/tests/project'))
         for name in ('main.gd', 'main.tscn', 'project.godot', 'state.gd'):
             entry = 'assets/GodotProjectFull/' + name

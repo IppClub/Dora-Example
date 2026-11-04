@@ -23,6 +23,8 @@ shutil.copytree(ROOT/'Assets',out)
 (out/'Script/init.lua').write_bytes(Path(__file__).with_name('ordinary_release.lua').read_bytes())
 for target,source in [('GodotProject',Path(__file__).with_name('release_project')),
                       ('GodotProjectFull',ROOT/str(test_path('Tools/Godot/tests/project')))]:
+    # The readback startup runs GodotTimingCap, not the optional ordinary fixture.
+    if target=='GodotProject' and a.engine_readback:continue
     shutil.copytree(source,out/target,ignore=shutil.ignore_patterns('.godot'))
 (out/'ffi-trap.wasm').write_bytes(fixture())
 if a.dodge_project:
