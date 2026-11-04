@@ -15,7 +15,7 @@ def verify(out,cycles,buffers,warmup,platform,max_metal_growth_bytes=None):
     log=(out/'run.log').read_text()
     assert f'GODOT_CYCLES_DONE count={cycles} captures={cycles*3} result=0' in log
     assert not any(s in log for s in ('BGFX LEAK:','C++ objects leaks','ERROR:','[error]'))
-    assert list(map(int,re.findall(r'GODOT_NODE_SCENE boots=(\d+) root_path_ok=1',log)))==list(range(1,cycles+1))
+    assert list(map(int,re.findall(r'GODOT_NODE_SCENE boots=(\d+) root_path_ok=1',log)))==([1]*cycles if 'DORA_GODOT_PROJECT_ID ' in log else list(range(1,cycles+1)))
     clients=re.findall(r'GodotRuntime client closed: produced=(\d+), completed=(\d+), gpuErrors=(\d+)',log)
     assert len(clients)==cycles and all(int(x)>0 and x==y and z=='0' for x,y,z in clients)
     readers=re.findall(r'GodotRuntime readers: buffers=(\d+), frames=(\d+), waits=(\d+), signals=(\d+), pending=(\d+), completed=(\d+), gpuErrors=(\d+)',log)

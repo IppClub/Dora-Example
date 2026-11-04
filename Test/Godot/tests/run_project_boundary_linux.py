@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run project rejection/recovery with an ordinary Linux host, inside Weston.
+"""Run project unloading/switching with an ordinary Linux host, inside Weston.
 
 Requires an ordinary Dora binary, not the native Godot test entrypoint.
 Stages its own assets and uses the default bundled-library lookup.
@@ -19,7 +19,7 @@ for name in ('binary','library','output'):p.add_argument('--'+name,type=Path,req
 a=p.parse_args();assert sys.platform=='linux'
 out=a.output.resolve();assert not out.exists(),'Use a fresh evidence directory'
 out.mkdir(parents=True);binary=a.binary.resolve();library=a.library.resolve()
-expected='GL runtime reopen requires the same project, dimensions and buffer count'
+expected=None
 def digest(path):
     with path.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 try:
@@ -35,7 +35,7 @@ try:
         shutil.copytree(root/str(test_path('Tools/Godot/tests/project')),project,ignore=shutil.ignore_patterns('.godot'))
         (project/'.godot').mkdir();(project/'.godot/global_script_class_cache.cfg').write_text('list=[]\n')
         projects.append(project)
-    code=Path(__file__).with_name('project_boundary.lua').read_text()
+    code=Path(__file__).parent.joinpath('project_switch/linux_boundary.lua').read_text()
     for key,value in [('OUTPUT',out),('FIRST',projects[0]),('OTHER',projects[1]),('EXPECTED_ERROR',expected)]:code=code.replace('@'+key+'@',json.dumps(str(value)))
     startup=assets/'Script/init.lua';startup.write_text(code)
     executed={str(path):digest(path) for path in (binary,bundled,startup)}
@@ -51,8 +51,8 @@ try:
     verified=verify(out,expected,failed_reader_reported=False)
     match=re.search(r'OpenGL API (.+)',(out/'run.log').read_text());assert match,'Actual Godot GL renderer missing'
     assert all(digest(Path(path))==sha for path,sha in {**original,**executed,**project_hashes}.items()),'Artifacts or project inputs changed'
-    (out/'verification.json').write_text(json.dumps({'passed':True,'platform':'Linux EGL','scope':'Ordinary Linux host with default bundled library: A animates, B is rejected, A reopens and animates; no multi-project or runtime unload support claimed','runtime_seconds':runtime_seconds,'godot_renderer':match.group(1),**verified,'artifacts':executed},indent=2)+'\n')
-    print('Linux ordinary project boundary rejection and recovery: PASS')
+    (out/'verification.json').write_text(json.dumps({'passed':True,'platform':'Linux EGL','scope':'Ordinary Linux host with default bundled library: A → B → A with unload acknowledgements, fresh SceneTrees and one LibGodot instance','runtime_seconds':runtime_seconds,'godot_renderer':match.group(1),**verified,'artifacts':executed},indent=2)+'\n')
+    print('Linux ordinary project unload and switching: PASS')
 except BaseException as error:
     (out/'verification.json').unlink(missing_ok=True)
     (out/'failure.json').write_text(json.dumps({'passed':False,'type':type(error).__name__,'error':str(error)},indent=2)+'\n');raise

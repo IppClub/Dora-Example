@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serial macOS Metal acceptance of GodotPlayer with untouched official 2D/3D games."""
+"""Serial macOS Metal / Linux EGL acceptance of GodotPlayer with untouched official 2D/3D games."""
 import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Test/support'))
@@ -11,10 +11,12 @@ import re
 import subprocess
 from PIL import Image,ImageChops,ImageStat
 import project_delivery as delivery
+import project_switch_host as host
 from project import lua_string
 p=argparse.ArgumentParser(description=__doc__)
-for name in ['godot','app','runtime-package','repository','output']:p.add_argument('--'+name,type=Path,required=True)
-a=p.parse_args();assert sys.platform=='darwin'
+for name in ['godot','runtime-package','repository','output']:p.add_argument('--'+name,type=Path,required=True)
+host.add_arguments(p)
+a=p.parse_args();host_args=host.arguments(a)
 out=a.output.resolve();assert not out.exists(),'Use a fresh output';out.mkdir(parents=True)
 repo=a.repository.resolve();editor=a.godot.resolve();runtime=a.runtime_package.resolve()
 revision=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
@@ -24,29 +26,27 @@ projects={}
 for name,path in inputs.items():
     delivery.prepare(path,out/('prepared-'+name),str(editor))
     projects[name]=str(out/('prepared-'+name)/'project')
-    delivery.export_game(path,out/('packed-'+name),out/('export-'+name),str(editor),'dora.official-'+name,'0.1.0',None,None,'macOS')
+    delivery.export_game(path,out/('packed-'+name),out/('export-'+name),str(editor),'dora.official-'+name,'0.1.0',None,None,'macOS' if sys.platform=='darwin' else 'Linux')
     projects['pck-'+name]=str(out/('packed-'+name)/'game.pck')
 cli=ENGINE_ROOT/'Tools/Godot/project.py'
 with (out/'prepare-host.log').open('w') as log:
-    subprocess.run([sys.executable,str(cli),'run',str(out/'packed-dodge'),'--app',str(a.app.resolve()),
+    subprocess.run([sys.executable,str(cli),'run',str(out/'packed-dodge'),*host_args,
         '--runtime-package',str(runtime),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True,cwd=ENGINE_ROOT)
 sequence=['dodge','squash','pck-dodge','pck-squash']*2
 items=[{'path':projects[name],'name':name,'width':480 if name.endswith('dodge') else 960,
         'height':720 if name.endswith('dodge') else 540,'buffers':2+i%3} for i,name in enumerate(sequence)]
 lua_items='{'+','.join('{path='+lua_string(x['path'])+',name='+lua_string(x['name'])+',width='+str(x['width'])+',height='+str(x['height'])+',buffers='+str(x['buffers'])+'}' for x in items)+'}'
-app=out/'host/Dora.app'
 template=(TEST_REPO/'Test/Godot/tests/project_switch/real_player.lua').read_text()
-(app/'Contents/Resources/Script/init.lua').write_text(template.replace('@OUTPUT@',lua_string(str(out))).replace('@PROJECTS@',lua_items))
-subprocess.run(['codesign','--force','--deep','--timestamp=none','--sign','-',str(app)],capture_output=True,check=True)
+command,binary,assets=host.install(out/'host',template.replace('@MIN_TICKS@','300' if sys.platform=='linux' else '0').replace('@OUTPUT@',lua_string(str(out))).replace('@PROJECTS@',lua_items))
 manifest=json.loads((runtime/'manifest.json').read_text());library=runtime/manifest['library']
 env={k:v for k,v in os.environ.items() if not k.startswith(('DORA_GODOT_','DORA_BUILD_'))}
 env.update(DORA_GODOT_LIBRARY=str(library))
-delivery.run_command([str(app/'Contents/MacOS/Dora')],out/'run.log',240,env=env,cwd=app/'Contents/MacOS')
+delivery.run_command(command,out/'run.log',240,env=env,cwd=binary.parent)
 state=json.loads((out/'player.json').read_text());assert state.get('passed') and state['captures']==24,state
-log=(out/'run.log').read_text();assert 'SCRIPT ERROR:' not in log and 'BGFX LEAK:' not in log and 'C++ objects leaks' not in log
+log=(out/'run.log').read_text();host.verify_gl_transport(log,8);assert 'ERROR:' not in log and '[error]' not in log and 'BGFX LEAK:' not in log and 'C++ objects leaks' not in log
 ids=re.findall(r'DORA_GODOT_PROJECT_ID instance=(\d+) tree=(\d+)',log)
 assert len(ids)==8 and len({i for i,t in ids})==1 and len({t for i,t in ids})==8,ids
-frames=re.findall(r'DORA_GODOT_METAL_DIRECT completed frames=(\d+) blits=0',log)
+frames=re.findall(r'DORA_GODOT_(?:METAL|GL)_DIRECT completed frames=(\d+) blits=0',log)
 assert len(frames)==8 and all(int(n)>=60 for n in frames),frames
 readers=re.findall(r'GodotRuntime readers:.*pending=(\d+), completed=\d+, gpuErrors=(\d+)',log)
 assert len(readers)==8 and all(x==('0','0') for x in readers),readers
@@ -87,8 +87,8 @@ for i,name in enumerate(sequence,1):
         'post_unload_objects':clean[i-1][0],'post_unload_resources':clean[i-1][1],'post_unload_nodes':clean[i-1][2]})
 for name,path in inputs.items():assert delivery.fingerprint(path)==before[name],('Author project changed',name)
 report={'passed':True,'scope':__doc__,'source_revision':revision,'sources_unchanged':True,
-        'host_sha256':delivery.digest(app/'Contents/MacOS/Dora'),'runtime_sha256':delivery.digest(library),'experimental_environment_present':'DORA_GODOT_PROJECT_SWITCH' in env,
-        'controller_sha256':delivery.digest(app/'Contents/Resources/Script/Lib/GodotPlayer.lua'),
+        'host_sha256':delivery.digest(binary),'runtime_sha256':delivery.digest(library),'experimental_environment_present':'DORA_GODOT_PROJECT_SWITCH' in env,
+        'controller_sha256':delivery.digest(assets/'Script/Lib/GodotPlayer.lua'),
         'single_libgodot_instance':ids[0][0],'scene_trees':[t for i,t in ids],'cases':cases,
         'gpu_errors':0,'gpu_pending':0,'blits':0,'captures':24,'source_and_pck':True}
 delivery.write_json(out/'verification.json',report)

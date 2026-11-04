@@ -79,7 +79,7 @@ control:schedule(function(dt)
             s.afterAt=s.elapsed;capture(s,"b")
         end
         if s.afterAt and s.elapsed-s.afterAt>1.5 and s.captures==2 and not s.pending then capture(s,"c") end
-        if s.captures==3 and not s.pending then
+        if s.captures==3 and s.ticks>=@MIN_TICKS@ and not s.pending then
             stage = nil
             print("DORA_REAL_SWITCH switching=" .. index)
             nextProject() -- controller waits for the native unload acknowledgement

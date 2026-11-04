@@ -37,7 +37,8 @@ elif args.platform=='Windows D3D12':
     assert 'DORA_GODOT_D3D12_CPU enabled' in log, 'Godot D3D12 bridge missing'
 else:
     assert 'OpenGL API' in log and 'Compatibility' in log, 'Godot GL renderer missing'
-for message in ['GODOT_NODE_SCENE boots=1 root_path_ok=1','GODOT_NODE_SCENE boots=2 root_path_ok=1','GODOT_NODE_SCENE boots=3 root_path_ok=1',
+assert re.findall(r'GODOT_NODE_SCENE boots=(\d+) root_path_ok=1',log)==(['1','2','1'] if 'DORA_GODOT_PROJECT_ID ' in log else ['1','2','3'])
+for message in ['GODOT_NODE_SCENE boots=1 root_path_ok=1','GODOT_NODE_SCENE boots=2 root_path_ok=1',f'GODOT_NODE_SCENE boots={1 if "DORA_GODOT_PROJECT_ID " in log else 3} root_path_ok=1',
                 'GODOT_NODE_FOCUS released=1','GODOT_NODE_INPUT_STATE mouse=1','GODOT_NODE_INPUT_STATE key=1 action=1','GODOT_NODE_POINTER x=240 y=310','GODOT_NODE_KEY space=1','GODOT_NODE_TEXT value=Dora',f'frames={(1000 if args.resize else 720)+args.soak_frames} captures={(9 if args.aliases else 8)+args.soak_frames//300+(6 if args.resize else 0)} recreated=1 result=0']:
     assert message in log, message
 assert log.count('GODOT_NODE_PREBOOT_PAUSE paused=1 ticking=1')==2

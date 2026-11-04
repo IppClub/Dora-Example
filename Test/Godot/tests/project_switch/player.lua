@@ -3,6 +3,7 @@ D.App.devMode = false
 local projects = @PROJECTS@
 local output = @OUTPUT@
 local index, elapsed, captured, pending = 0, 0, false, false
+local ticks = 0
 local game, closing = nil, false
 local rejecting, rejected, duplicate = false, false, false
 local function state(value)
@@ -26,7 +27,7 @@ local function load()
     local item = projects[index]
     game = assert(D.GodotNode(item.path, "", 640, 360, item.buffers), "Cannot load project " .. index)
     game:addTo(D.Director.ui)
-    elapsed, captured, pending, closing = 0, false, false, false
+    elapsed, captured, pending, closing, ticks = 0, false, false, false, 0
     print("DORA_SWITCH_HOST opened=" .. index .. " tag=" .. item.tag)
 end
 assert(D.Director:beginGameCapture())
@@ -59,6 +60,7 @@ control:schedule(function(dt)
             duplicate = true
             print("DORA_SWITCH_HOST duplicate-client-rejected")
         end
+        if game.running then ticks = ticks + 1 end
         local size, viewport = D.View.size, game.viewportSize
         game.scaleX, game.scaleY = size.width / viewport.width, size.height / viewport.height
         if elapsed > 0.65 and not pending and not captured then
@@ -68,7 +70,7 @@ control:schedule(function(dt)
                 captured, pending = true, false
             end))
         end
-        if elapsed > 1.0 and captured and not pending then
+        if elapsed > 1.0 and ticks >= @MIN_TICKS@ and captured and not pending then
             local old, closedIndex = game, index
             closing = true
             local calls = 0
