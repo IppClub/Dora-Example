@@ -28,8 +28,8 @@ def install(work,startup):
         subprocess.run(['codesign','--force','--deep','--timestamp=none','--sign','-',str(work/'Dora.app')],capture_output=True,check=True)
     return command,binary,assets
 
-def verify_gl_transport(log,expected):
-    if sys.platform not in ('linux','win32'):return
+def verify_gl_transport(log,expected,force=False):
+    if not force and sys.platform not in ('linux','win32'):return
     import re
     rows=re.findall(r'DORA_GODOT_GL_TRANSPORT phase=close mode=(\S+).*?buffers=(\d+) size=(\d+x\d+) blits=(\d+) direct_publications=(\d+)',log)
     assert len(rows)==expected and all(mode=='direct' and int(blits)==0 and int(publications)>0

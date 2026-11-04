@@ -118,7 +118,7 @@ public final class ReleaseLifecycle extends Instrumentation {
         if (files == null) throw new IllegalStateException("Cannot list " + source);
         for (File file : files) {
             String name = file.getName();
-            if (file.isFile() && (name.endsWith(".png") || name.equals("result.json")))
+            if (file.isFile() && (name.endsWith(".png") || name.equals("result.json") || name.equals("player.json") || name.equals("failure.txt")))
                 Files.copy(file.toPath(), new File(destination, name).toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -135,6 +135,9 @@ public final class ReleaseLifecycle extends Instrumentation {
             boolean missing = "1".equals(arguments.getString("missing", "0"));
             boolean full = "1".equals(arguments.getString("full", "0"));
             boolean dodge = "1".equals(arguments.getString("dodge", "0"));
+            boolean projectSwitch = "1".equals(arguments.getString("project_switch", "0"));
+            if (projectSwitch && (full || dodge || missing || blit || buffers != 3))
+                throw new IllegalArgumentException("Project switching requires ordinary default-direct mode");
             boolean cacheAudit = "1".equals(arguments.getString("cache_audit", "0"));
             File shaderCache = new File(getTargetContext().getFilesDir(), "shader_cache");
             JSONObject shaderCacheBefore = new JSONObject();
@@ -164,7 +167,7 @@ public final class ReleaseLifecycle extends Instrumentation {
             if (initialPid <= 0) throw new IllegalStateException("Target process not found");
             boolean immersiveConfirmationDismissed = full && dismissImmersiveConfirmation();
             File complete = new File(fixture, "result.json");
-            long deadline = System.nanoTime() + (full ? 150_000_000_000L : 90_000_000_000L);
+            long deadline = System.nanoTime() + (projectSwitch ? 180_000_000_000L : (full ? 150_000_000_000L : 90_000_000_000L));
             if (full) {
                 File exercise = new File(fixture, "exercise.json");
                 waitFor(exercise, deadline, "Lua exercise readiness");
@@ -204,12 +207,19 @@ public final class ReleaseLifecycle extends Instrumentation {
             exportEvidence(fixture, external);
             JSONObject projectHashes = new JSONObject();
             if (dodge) hashProject(new File(fixture, "project"), new File(fixture, "project"), projectHashes);
+            if (projectSwitch) {
+                if (!json.optBoolean("project_switch", false)) throw new IllegalStateException("Wrong Lua fixture");
+                JSONObject source = new JSONObject(), packed = new JSONObject();
+                hashProject(new File(fixture, "dodge"), new File(fixture, "dodge"), source);
+                hashProject(new File(fixture, "squash"), new File(fixture, "squash"), packed);
+                projectHashes.put("dodge", source).put("squash", packed);
+            }
             JSONObject shaderCacheAfter = new JSONObject();
             if (cacheAudit && shaderCache.isDirectory()) hashProject(shaderCache, shaderCache, shaderCacheAfter);
             write(new File(external, "controller.json"), new JSONObject()
                 .put("buffers", buffers).put("direct", directTarget).put("gl_policy", glPolicy)
                 .put("missing", missing).put("full", full)
-                .put("dodge", dodge).put("project_sha256", projectHashes)
+                .put("dodge", dodge).put("project_switch", projectSwitch).put("project_sha256", projectHashes)
                 .put("shader_cache_audited", cacheAudit)
                 .put("shader_cache_before", shaderCacheBefore).put("shader_cache_after", shaderCacheAfter)
                 .put("initial_pid", initialPid).put("final_pid", targetPid())
