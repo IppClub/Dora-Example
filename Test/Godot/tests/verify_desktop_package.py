@@ -45,17 +45,19 @@ notices = asset_root / "GodotRuntimeNotices"
 assert executable.is_file() and library.is_file()
 assert hashlib.sha256(library.read_bytes()).hexdigest() == manifest["library_sha256"]
 assert (notices / "manifest.json").read_bytes() == manifest_bytes
-license_hashes = {}
-for relative in manifest["licenses"]:
+artifact_hashes = {}
+for relative in manifest["artifacts"]:
+    if relative == manifest["library"]:
+        continue
     source = runtime / relative
     staged = notices / relative
     assert source.is_file() and staged.is_file()
     assert staged.read_bytes() == source.read_bytes()
-    license_hashes[relative] = hashlib.sha256(staged.read_bytes()).hexdigest()
+    artifact_hashes[relative] = hashlib.sha256(staged.read_bytes()).hexdigest()
 
 report = {
     "passed": True,
-    "scope": "Staged desktop package layout, sealed runtime bytes and declared license inventory only; installation, signature and runtime/GPU behavior are separate checks.",
+    "scope": "Staged desktop package layout, sealed runtime bytes and complete declared auxiliary artifact inventory only; installation, signature and runtime/GPU behavior are separate checks.",
     "platform": args.platform,
     "package_root": str(package_root),
     "executable": str(executable.relative_to(package_root)),
@@ -64,7 +66,8 @@ report = {
     "runtime_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
     "runtime_package_verification": runtime_check,
     "architectures": manifest.get("architectures"),
-    "licenses": license_hashes,
+    "licenses": {name: artifact_hashes[name] for name in manifest["licenses"]},
+    "auxiliary_artifacts": artifact_hashes,
 }
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text(json.dumps(report, indent=2) + "\n")
