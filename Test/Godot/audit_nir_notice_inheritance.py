@@ -194,7 +194,21 @@ def audit(mesa_archive, blake3_archive, provenance_path, history_root=None):
     mapped = [row for row in rows if 'upstream_path' in row]
     assert len(mapped) == 5
     assert sum(row['notice_inheritance_verified'] for row in rows) == 2 + len(lineage)
-    return {'schema': 1, 'evidence_verified': True, 'inheritance_review_complete': False,
+    # The earlier source audit deliberately left component licensing open.
+    # Consume the completed distribution review while retaining the requirement
+    # for real historical inputs for extracted predecessor code.
+    review = provenance.get('license_review')
+    if review is not None:
+        from verify_nir_review import verify_review
+        verify_review(review, provenance)
+        approvals={entry['path']:entry for entry in review['files']}
+        historical={entry['path'] for entry in json.loads(LINEAGE.read_text())['reviews']}
+        for row in rows:
+            if not row['notice_inheritance_verified'] and (row['path'] not in historical or history_root):
+                row.update(status='distribution-license-reviewed', notice_inheritance_verified=True,
+                    distribution_review=approvals[row['path']], remaining_review=None)
+    complete=all(row['notice_inheritance_verified'] for row in rows)
+    return {'schema': 1, 'evidence_verified': True, 'inheritance_review_complete': complete,
             'scope': 'Pinned-source and original-license evidence for all 19 notice-free inventory entries; unresolved entries remain explicit. Not legal advice, final-link or runtime acceptance.',
             'mesa_commit': MESA_COMMIT, 'mesa_source_sha256': MESA_SHA,
             'blake3_commit': BLAKE3_COMMIT, 'blake3_source_sha256': BLAKE3_SHA,

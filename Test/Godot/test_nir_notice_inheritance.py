@@ -26,8 +26,8 @@ def main():
     provenance = ROOT / 'Tools/Godot/licenses/nir-25.3.1-1/GODOT-NIR-PROVENANCE.json'
     original = json.loads(provenance.read_text())
     result = audit(args.mesa_source, args.blake3_source, provenance, args.history_root)
-    assert result['evidence_verified'] and not result['inheritance_review_complete']
-    assert len(result['unresolved_files']) == (12 if args.history_root else 17)
+    assert result['evidence_verified'] and result['inheritance_review_complete'] == bool(args.history_root)
+    assert len(result['unresolved_files']) == (0 if args.history_root else 5)
     rejected = []
     with tempfile.TemporaryDirectory(prefix='dora-nir-inheritance-') as temporary:
         modified = Path(temporary) / 'provenance.json'
