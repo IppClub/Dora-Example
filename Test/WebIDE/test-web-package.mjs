@@ -12,7 +12,7 @@ const directory = await mkdtemp(path.join(tmpdir(), 'dora-web-package-'));
 try {
   const outfile = path.join(directory, 'package.mjs');
   await build({entryPoints: ['src/WebPackage/Archive.ts'], outfile, bundle: true, platform: 'node', format: 'esm'});
-  const {createWebArchive, readProjectZip} = await import(pathToFileURL(outfile).href);
+  const {createWebArchive, readProjectZip, godotRuntimeFiles} = await import(pathToFileURL(outfile).href);
   const {zipSync, unzipSync, strToU8, strFromU8} = await import('fflate');
   const runtime = {
     'runtime.json': strToU8(JSON.stringify({engineVersion})),
@@ -37,6 +37,53 @@ try {
     'LICENSE': strToU8('license'),
   };
   const archive = unzipSync(await createWebArchive(readProjectZip(zipSync(project)), runtime));
+
+  const godotCapable = {...runtime,
+    'dora-web-features.json': strToU8(JSON.stringify({...JSON.parse(strFromU8(runtime['dora-web-features.json'])), modules: {...JSON.parse(strFromU8(runtime['dora-web-features.json'])).modules, godotNode: true}})),
+    'dora-player-runtime.js': strToU8('(function(){if(!globalThis.crossOriginIsolated)return;})();'),
+    ...Object.fromEntries(godotRuntimeFiles.map(name => [name, strToU8('godot fixture')])),
+    'runtime.json': strToU8(JSON.stringify({engineVersion, files: Object.fromEntries(godotRuntimeFiles.map(name => [name, {size: 13, sha256: 'old'}]))})),
+  };
+  const plain = unzipSync(await createWebArchive(project, godotCapable));
+  for (const [name, code] of [['init.lua', '-- GodotNode example\nprint("plain")'], ['init.ts', '// GodotNode example\n/* GodotPlayer */ console.log("plain")']]) {
+    const commentsOnly = unzipSync(await createWebArchive({...project, [name]: strToU8(code)}, godotCapable));
+    assert.ok(!Object.keys(commentsOnly).some(file => file.startsWith('godot/')));
+  }
+  assert.ok(!Object.keys(plain).some(name => name.startsWith('godot/')));
+  assert.ok(!Object.keys(JSON.parse(strFromU8(plain['runtime.json'])).files).some(name => name.startsWith('godot/')));
+  assert.match(strFromU8(plain['index.html']), /doraGodotEnabled: false/);
+  // An isolated ordinary game must never touch the omitted Godot runtime.
+  const hook = {Module: {doraGodotEnabled: false}, globalThis: {crossOriginIsolated: true}};
+  vm.runInNewContext(strFromU8(plain['dora-player-runtime.js']), hook);
+  for (const game of [
+    {'init.lua': strToU8('local G = require("Dora").GodotNode; G("game")')},
+    {...project, 'main.ts': strToU8('import {GodotNode as G} from "Dora"')},
+    {...project, 'main.wasm': new Uint8Array([255, ...strToU8('godotnode_create'), 254])},
+    {...project, 'game/project.godot': strToU8('config_version=5')},
+    {...project, 'game.pck': strToU8('GDPC')},
+    {...project, 'game/main.tscn': strToU8('[gd_scene]')},
+  ]) {
+    const withGodot = unzipSync(await createWebArchive(game, godotCapable));
+    for (const name of godotRuntimeFiles) assert.ok(withGodot[name], name);
+    assert.match(strFromU8(withGodot['index.html']), /doraGodotEnabled: true/);
+    await assert.rejects(createWebArchive(game, runtime), /Godot runtime is unavailable/);
+    await assert.rejects(createWebArchive(game, godotCapable, 'html'), /Godot projects require/);
+  }
+  // Exercise the production bootstrap on an isolated origin without Godot files.
+  const bootstrapSource = await readFile('../../Projects/Web/web-godot.js', 'utf8');
+  for (const code of [bootstrapSource, strFromU8(unzipSync(await createWebArchive(project, {...godotCapable,
+    'dora-player-runtime.js': strToU8(bootstrapSource.replace('if(Module.doraGodotEnabled===false||!globalThis.crossOriginIsolated)return;', 'if(!globalThis.crossOriginIsolated)return;')),
+  }))['dora-player-runtime.js'])]) {
+    const boot = {Module: {doraGodotEnabled: false}, crossOriginIsolated: true,
+      addRunDependency: () => assert.fail('Ordinary games must not initialize Godot'),
+      document: {head: {append: () => assert.fail('Unexpected Godot request')}}};
+    vm.runInNewContext(code, boot);
+    for (const preRun of boot.Module.preRun) preRun();
+  }
+  const incompleteGodot = {...godotCapable}; delete incompleteGodot['godot/dora-godot.wasm'];
+  await createWebArchive(project, incompleteGodot); // No dependency: missing optional files are fine.
+  await assert.rejects(createWebArchive({'init.lua': strToU8('Dora.GodotNode("game")')}, incompleteGodot), /Missing Godot runtime/);
+
   const manifest = JSON.parse(strFromU8(archive['dora-web-manifest.json']));
   const context = {URL};
   vm.runInNewContext(await readFile('../../Projects/Web/web-loader.js', 'utf8'), context);
@@ -74,6 +121,10 @@ try {
     throw new Error('Run pnpm prepare:web-runtime before testing HTML runtime compatibility.');
   }));
   const htmlRuntime = {...runtime, 'dora-player-runtime.js': realRuntime};
+  const ordinaryHtml = unzipSync(await createWebArchive(project, {...godotCapable, 'dora-player-runtime.js': realRuntime}, 'html'));
+  assert.ok(!Object.keys(ordinaryHtml).some(name => name.startsWith('godot/')));
+  assert.match(strFromU8(ordinaryHtml['index.html']), /doraGodotEnabled: false/);
+
   // Export owns its shell; compiler/gallery HTML formatting must not affect it.
   const foreignShell = '<html><body><canvas id=canvas></canvas><script async src=dora-player-runtime.js></script></body></html>';
   for (const format of ['html', 'http']) {
