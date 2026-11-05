@@ -12,7 +12,7 @@ const ast=ts.createSourceFile('index.tsx',source,ts.ScriptTarget.Latest,true,ts.
 const names=new Set(['origFetch','checkAuthRequired','showAuthDialog','setupAuth']);
 const declarations=ast.statements.filter(s=>ts.isVariableStatement(s)&&s.declarationList.declarations.some(d=>names.has(d.name.getText(ast))));
 assert.equal(declarations.length,names.size,'Authentication bootstrap boundary changed');
-const {outputFiles}=await build({stdin:{contents:`import {canonicalizeAuthPath,createAuthHeaders,signAuthPayload,authNonce} from './src/AuthSignature';\n${declarations.map(s=>s.getText(ast)).join('\n')}\nwindow.setupAuth=setupAuth;`,loader:'tsx',resolveDir:new URL('../',(process.env.DORA_TEST_ORIGIN_URL || import.meta.url)).pathname},bundle:true,write:false,format:'iife',jsxFactory:'React.createElement'});
+const {outputFiles}=await build({stdin:{contents:`import {canonicalizeAuthPath,createAuthHeaders,signAuthPayload,authNonce} from './src/AuthSignature';\nimport {isNativeIDE} from './src/NativeIDERun';\n${declarations.map(s=>s.getText(ast)).join('\n')}\nwindow.setupAuth=setupAuth;`,loader:'tsx',resolveDir:new URL('../',(process.env.DORA_TEST_ORIGIN_URL || import.meta.url)).pathname},bundle:true,write:false,format:'iife',jsxFactory:'React.createElement'});
 const newSession={sessionId:'new-session',sessionSecret:'new-secret'};
 function fixture({enabled=true,cached=true,mode="production",insecure=false}={}) {
  const state={enabled,probeStatus:null,offline:false,dialog:null,shown:0,required:null,requests:[]};
