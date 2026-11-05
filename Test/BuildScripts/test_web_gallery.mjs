@@ -52,6 +52,16 @@ try {
 	write(`${player}dora-web-features.json`, JSON.stringify({activeProfile:'dora-preset', modules:{crossOriginIsolationRequired:false,
 		machineLearning:true, yueCompiler:true, playRho2D:true, entity:true, platformer:true, builtinLuaLibraries:true,
 		model3D:true, jolt3D:true, rustBridge:true}}));
+	const featureFile = path.join(temp, player, 'dora-web-features.json');
+	const doraOnly = fs.readFileSync(featureFile);
+	const withGodot = JSON.parse(doraOnly);
+	withGodot.modules.godotNode = true;
+	fs.writeFileSync(featureFile, JSON.stringify(withGodot));
+	assert.match(run().stderr, /must not enable Godot/);
+	fs.writeFileSync(featureFile, doraOnly);
+	write(`${player}godot/dora-godot.wasm`, 'unexpected runtime');
+	assert.match(run().stderr, /must not ship a Godot runtime/);
+	fs.rmSync(path.join(temp, player, 'godot'), {recursive:true});
 	write(`${game}init.lua`, data.replace('demo', 'oops'));
 	const corrupt = run();
 	assert.notEqual(corrupt.status, 0);

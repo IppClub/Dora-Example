@@ -32,6 +32,8 @@ assert.ok(WebAssembly.validate(file('dora-audio-mixer.wasm', player)), 'invalid 
 const features = JSON.parse(file('dora-web-features.json', player));
 assert.equal(features.activeProfile, 'dora-preset');
 assert.equal(features.modules.crossOriginIsolationRequired, false);
+assert.notEqual(features.modules.godotNode, true, 'Docs gallery must not enable Godot');
+assert.ok(!fs.existsSync(path.join(player, 'godot')), 'Docs gallery must not ship a Godot runtime');
 for (const name of ['machineLearning', 'yueCompiler', 'playRho2D', 'entity', 'platformer', 'builtinLuaLibraries', 'model3D', 'jolt3D', 'rustBridge']) assert.equal(features.modules[name], true, `missing runtime feature: ${name}`);
 const ids = new Set();
 let count = 0;
