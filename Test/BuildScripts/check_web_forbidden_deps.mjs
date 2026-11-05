@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import {hasHostBuildPaths,hasCredentialMaterial} from './web_artifact_policy.mjs';
 
 const args = process.argv.slice(2);
 const allowAsyncify = args.includes("--allow-asyncify");
@@ -120,14 +121,12 @@ const forbiddenArtifacts = allFiles
 	.filter((file) => /(?:\.(?:so|dylib|dll|a|o|bc)|(?:pthread-main|wasm-worker)\.js)$/i.test(file))
 	.map((file) => path.relative(outputDir, file));
 
-const absolutePathPattern = /(?:\/Users\/[A-Za-z0-9._-]+\/|\/home\/[A-Za-z0-9._-]+\/|[A-Za-z]:\\(?:Users|src|work)\\)/;
-const secretPattern = /(?:-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|github_pat_[A-Za-z0-9_]{20,}|ghp_[A-Za-z0-9]{30,})/;
 const leakedPaths = [];
 const leakedSecrets = [];
 for (const file of allFiles) {
 	const contents = fs.readFileSync(file).toString("latin1");
-	if (absolutePathPattern.test(contents)) leakedPaths.push(path.relative(outputDir, file));
-	if (secretPattern.test(contents)) leakedSecrets.push(path.relative(outputDir, file));
+	if (hasHostBuildPaths(contents, path.relative(outputDir, file))) leakedPaths.push(path.relative(outputDir, file));
+	if (hasCredentialMaterial(contents, path.relative(outputDir, file))) leakedSecrets.push(path.relative(outputDir, file));
 }
 
 const asyncify = glue.includes("_asyncify_start_unwind") || glue.includes("Asyncify");

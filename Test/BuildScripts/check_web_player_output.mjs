@@ -51,6 +51,16 @@ if (manifest.format !== "dora-web-game" || manifest.version !== 1 || !Array.isAr
 }
 
 const features = JSON.parse(fs.readFileSync(path.join(outputDir, "dora-web-features.json"), "utf8"));
+if (features.modules?.godotNode) {
+    const runtimeDir = path.join(outputDir, 'godot');
+    const runtime = JSON.parse(fs.readFileSync(path.join(runtimeDir, 'manifest.json'), 'utf8'));
+    if (runtime.package_format !== 'dora-godot-runtime' || runtime.godot_version !== '4.6-stable'
+        || runtime.bridge_abi !== 1 || runtime.graphics_backend !== 'webgl2') throw new Error('Invalid production Godot runtime');
+    for (const file of ['dora-godot.js', 'dora-godot.wasm', 'shared_gl.mjs', 'runtime_bridge.mjs', 'LICENSE.txt', 'COPYRIGHT.txt', 'AUTHORS.md']) {
+        const bytes = fs.readFileSync(path.join(runtimeDir, file));
+        if (!bytes.length || crypto.createHash('sha256').update(bytes).digest('hex') !== runtime.artifacts[file]) throw new Error('Godot runtime integrity failed: ' + file);
+    }
+}
 if (features.format !== "dora-web-features" || features.version !== 2 || features.activeProfile !== "dora-preset") {
 	throw new Error("Web feature profile format or active profile is invalid");
 }

@@ -13,7 +13,8 @@ try {
   const source = path.join(root, 'runtime-source');
   const script = path.join(ide, 'scripts/prepare-web-runtime.mjs');
   const runtimeNames = ['dora-player-runtime.js', 'dora-player-runtime.wasm', 'dora-player-runtime.data',
-    'dora-web-features.json', 'audio-worklet.js', 'dora-audio-mixer.wasm'];
+    'dora-web-features.json', 'audio-worklet.js', 'dora-audio-mixer.wasm',
+    ...['dora-godot.js', 'dora-godot.wasm', 'shared_gl.mjs', 'runtime_bridge.mjs', 'manifest.json', 'LICENSE.txt', 'COPYRIGHT.txt', 'AUTHORS.md'].map(n => 'godot/' + n)];
   await mkdir(path.dirname(script), {recursive: true});
   await mkdir(path.join(ide, 'public'), {recursive: true});
   await mkdir(path.join(root, 'Source/Basic'), {recursive: true});
@@ -47,9 +48,10 @@ printf '%s' "\${DORA_WEB_FEATURE_MUSIC:-}" > "$PWD/music-feature"
 printf '%s' "\${DORA_WEB_FEATURE_LOVE:-}" > "$PWD/love-feature"
 printf '%s' "\${DORA_WEB_FEATURE_YUE:-}" > "$PWD/yue-feature"
 mkdir -p "$DORA_WEB_PLAYER_PACKAGE_DIR"
-for name in dora-player-runtime.js dora-player-runtime.wasm dora-player-runtime.data dora-web-features.json audio-worklet.js dora-audio-mixer.wasm; do
+for name in dora-player-runtime.js dora-player-runtime.wasm dora-player-runtime.data dora-web-features.json audio-worklet.js dora-audio-mixer.wasm godot/dora-godot.js godot/dora-godot.wasm godot/shared_gl.mjs godot/runtime_bridge.mjs godot/manifest.json godot/LICENSE.txt godot/COPYRIGHT.txt godot/AUTHORS.md; do
+  mkdir -p "$(dirname "$DORA_WEB_PLAYER_PACKAGE_DIR/$name")"
   if [[ "$name" == "dora-web-features.json" ]]; then
-    printf '%s' '{"modules":{"model3D":true,"jolt3D":true,"rustBridge":true,"loveNode":true,"yueCompiler":false,"tealCompiler":false,"xmlCompiler":false}}' > "$DORA_WEB_PLAYER_PACKAGE_DIR/$name"
+    printf '%s' '{"modules":{"model3D":true,"jolt3D":true,"rustBridge":true,"loveNode":true,"godotNode":true,"yueCompiler":false,"tealCompiler":false,"xmlCompiler":false}}' > "$DORA_WEB_PLAYER_PACKAGE_DIR/$name"
   else
     printf 'locally built %s' "$name" > "$DORA_WEB_PLAYER_PACKAGE_DIR/$name"
   fi
@@ -130,8 +132,9 @@ done
   const lockFiles = {};
   for (const name of runtimeNames) {
     const bytes = Buffer.from(name === featureName
-      ? '{"modules":{"model3D":true,"jolt3D":true,"rustBridge":true,"loveNode":true,"yueCompiler":false,"tealCompiler":false,"xmlCompiler":false}}'
+      ? '{"modules":{"model3D":true,"jolt3D":true,"rustBridge":true,"loveNode":true,"godotNode":true,"yueCompiler":false,"tealCompiler":false,"xmlCompiler":false}}'
       : `override ${name}`);
+    await mkdir(path.dirname(path.join(source, name)), {recursive: true});
     await writeFile(path.join(source, name), bytes);
     lockFiles[name] = {size: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex')};
   }
