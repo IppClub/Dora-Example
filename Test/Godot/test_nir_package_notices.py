@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory(prefix='dora-nir-package-') as temporary:
     manifest = json.loads((package / 'manifest.json').read_text())
     provenance = package / 'GODOT-NIR-PROVENANCE.json'
     original = provenance.read_bytes()
-    assert json.loads(original)['schema'] == 2
+    assert json.loads(original)['schema'] == 3
     notice = package / 'GODOT-NIR-THIRD-PARTY-NOTICES.txt'
     original_notice = notice.read_bytes()
     for case in ('missing-history', 'changed-history', 'missing-historical-text'):
@@ -54,6 +54,18 @@ with tempfile.TemporaryDirectory(prefix='dora-nir-package-') as temporary:
         else:
             raise AssertionError('Resealed package accepted invalid historical notices: ' + case)
         notice.write_bytes(original_notice)
+    for case in ('missing-review', 'missing-review-digest', 'incomplete-review', 'changed-review-source', 'unknown-review-license'):
+        altered=json.loads(original)
+        if case == 'missing-review': altered.pop('license_review')
+        elif case == 'missing-review-digest': altered.pop('license_review_sha256')
+        elif case == 'incomplete-review': altered['license_review']['inheritance_review_complete']=False
+        elif case == 'changed-review-source': altered['license_review']['files'][0]['sha256']='0'*64
+        else: altered['license_review']['files'][0]['license']='unknown'
+        provenance.write_text(json.dumps(altered))
+        (package/'manifest.json').write_text(json.dumps(seal(package,manifest)))
+        try: verify(package)
+        except ValueError as error: assert 'NIR license review' in str(error), (case,error)
+        else: raise AssertionError('Invalid license review accepted: '+case)
     altered = json.loads(original)
     altered['notice_sha256'] = '0' * 64
     provenance.write_text(json.dumps(altered))
@@ -73,4 +85,4 @@ with tempfile.TemporaryDirectory(prefix='dora-nir-package-') as temporary:
         assert 'dependency notices/provenance missing' in str(error), error
     else:
         raise AssertionError('Resealed package missing NIR provenance was accepted')
-print('PASS: D3D12 packaging fixture includes inherited NIR notices; five resealed corrupt/missing evidence cases rejected')
+print('PASS: D3D12 packaging fixture includes inherited NIR notices; ten resealed corrupt/missing evidence cases rejected')
