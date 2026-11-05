@@ -73,6 +73,11 @@ test('push and PR triggers cover source inputs, shared dependencies and test ent
     assert.deepEqual(filters[0], filters[1], `${name}: push/PR drift`);
     assert.equal(new Set(filters[0]).size, filters[0].length, `${name}: duplicate paths`);
     for (const input of inputs) assert.ok(filters[0].some(glob => matches(glob, input)), `${name} misses ${input}`);
+    // Asset-only changes keep their lightweight Engine Tests owner. The build
+    // workflow policy deliberately excludes these formerly broad triggers.
+    for (const input of baseline.triggerExcludedInputs?.[name] || []) {
+      assert.ok(!filters[0].some(glob => matches(glob, input)), `${name} unexpectedly triggers on ${input}`);
+    }
     assert.match(source, /xmake dora-test-deps --env-file="\$GITHUB_ENV"/);
   }
   assert.doesNotMatch(workflow('ui.yml'), /setup-go|suite=studio|test_http_|test_shutdown_watchdog/);

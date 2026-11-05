@@ -68,7 +68,6 @@
       "Tools/dora-dora/scripts/ide-dev-proxy.mjs",
       "Studio/packages/agent-ui/src/index.tsx",
       "Studio/scripts/agent-session-types.mjs",
-      "Assets/Script/Lib/Agent/Session.ts",
       "Projects/xmake/tasks/test.lua",
       "Source/Basic/Application.cpp",
       "Tools/dora-rust/Cargo.toml",
@@ -94,9 +93,17 @@
       "Studio/cmd/studio-server/main.go",
       "Studio/packages/agent-ui/src/index.tsx",
       "Source/Lua/Builtin/tl.lua",
-      "Assets/Script/Lib/Agent/Session.ts",
-      "Tools/dora-dora/src/AgentPatchBatch.ts",
       "Projects/xmake/tasks/test.lua"
+    ]
+  },
+  "triggerExcludedInputs": {
+    "ui.yml": [
+      "Assets/Script/Lib/Agent/Session.ts",
+      "Assets/Script/Dev/WebServer.yue"
+    ],
+    "studio.yml": [
+      "Assets/Script/Lib/Agent/Session.ts",
+      "Tools/dora-dora/src/AgentPatchBatch.ts"
     ]
   }
 }
