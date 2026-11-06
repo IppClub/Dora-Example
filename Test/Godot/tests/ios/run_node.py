@@ -81,7 +81,7 @@ if a.dora_only:
  log=(out/'run.log').read_text(errors='replace')
  assert finished=={'result':0,'captures':2},finished
  assert 'DORA_ONLY_TEST frames=180 captures=2 result=0' in log
- assert 'Godot Engine v4.6' not in log
+ assert 'Godot Engine v' not in log
  assert 'Metal API Validation Enabled' in log
  assert 'BGFX Shutdown complete.' in log
  centers=[]
@@ -97,7 +97,7 @@ if a.expect_unsupported_gpu:
  assert finished=={'result':2,'captures':0},finished
  assert 'Godot requires Apple4 Metal GPU capabilities' in log
  assert 'GODOT_CAPABILITY_QUERY matches=1 reason=Godot requires Apple4' in log,'Lua capability query did not match the native hardware rejection'
- assert 'Godot Engine v4.6' not in log,'Runtime was started before rejecting the unsupported GPU'
+ assert 'Godot Engine v' not in log,'Runtime was started before rejecting the unsupported GPU'
  assert 'destroy: Logger.' in log,'Host cleanup did not finish'
  record={'rejected_as_expected':True,'gpu_shared_output_verified':False,'scope':'Simulator hardware rejection before Godot runtime initialization; not a renderer/GPU-sharing pass','required_apple_family':4,'native_finish':finished,'runtime_library_sha256':runtime_hash,'native_host_sha256':artifacts['native_host_sha256'],'udid':a.udid}
  (out/'unsupported-gpu.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2));sys.exit(0)

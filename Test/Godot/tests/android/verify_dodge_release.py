@@ -4,7 +4,7 @@
 import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[4] / 'Test/support'))
-from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
+from godot_paths import ENGINE_ROOT, TEST_REPO, test_path, GODOT_ENGINE_BANNER
 import hashlib
 import io
 import json
@@ -41,7 +41,7 @@ def verify_case(case, buffers, metadata, controller, *, web_host=False):
     result = json.loads((case / 'files/result.json').read_text())
     assert result == {'complete': True, 'dodge': True, 'full': False, 'captures': 12, 'buffers': 3, 'recreated': True}
     assert controller['dodge'] and controller['project_sha256'] == metadata['upstream_project_files']
-    assert log.count('Godot Engine v4.6') == 1 and 'DORA_DODGE complete=1 captures=12 ticks=625' in log
+    assert log.count(GODOT_ENGINE_BANNER) == 1 and 'DORA_DODGE complete=1 captures=12 ticks=625' in log
     assert 'DORA_DODGE recreated=1' in log
     assert not re.search(r'ERROR:|\[error\]|\[critical\]|FATAL EXCEPTION|Fatal signal|BGFX LEAK:|C\+\+ objects leaks', log)
     warnings = [line for line in log.splitlines() if 'WARNING:' in line or '[warning]' in line]

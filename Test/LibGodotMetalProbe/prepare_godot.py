@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the experimental windowless Metal host patches to Godot 4.6-stable."""
+"""Historical Godot 4.6 patch helper; current builds use Dora's vendored source."""
 
 # Resolve engine inputs separately from the external test checkout.
 import sys as _test_sys

@@ -40,7 +40,7 @@ try:
     source_project = a.project.resolve()
     assert source_binary.is_file() and library.is_file()
     assert (source_project / 'project.godot').is_file()
-    assert (source_project / '.godot/imported').is_dir(), 'Import the upstream project with Godot 4.6 before running'
+    assert (source_project / '.godot/imported').is_dir(), 'Import the upstream project with the matching pinned Godot editor before running'
     assert '_dora_godot_node_test_main' not in subprocess.check_output(
         ['nm', '-gU', str(source_binary)], text=True), 'Use an ordinary Dora host'
     subprocess.run(['codesign', '--verify', '--deep', '--strict', str(source_app)], check=True, capture_output=True)

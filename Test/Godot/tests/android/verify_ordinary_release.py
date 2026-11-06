@@ -10,7 +10,7 @@ or physical Android coverage. APK source provenance is recorded separately.
 import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[4] / 'Test/support'))
-from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
+from godot_paths import ENGINE_ROOT, TEST_REPO, test_path, GODOT_ENGINE_BANNER
 import argparse, hashlib, json, re, subprocess, sys, zipfile
 from pathlib import Path
 from PIL import Image, ImageChops
@@ -112,7 +112,7 @@ def verify_case(case, buffers, missing, direct=False, full=False):
     else:
         assert len(errors) == 1 and 'unreachable' in errors[0], errors
         assert 'DORA_RELEASE running=1' in log and 'DORA_RELEASE ffi_trap_recovered=1' in log
-        assert 'Godot Engine v4.6' in log
+        assert GODOT_ENGINE_BANNER in log
         assert ('GODOT_NODE_AUDIO' if full else 'GODOT_RELEASE_AUDIO') in log
         assert result['buffers'] == buffers
         enabled = re.findall(r'DORA_GODOT_GL_DIRECT enabled buffers=(\d+) size=(\d+)x(\d+) blits=0', log)

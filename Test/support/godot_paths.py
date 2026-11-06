@@ -17,6 +17,11 @@ sys.path.insert(0, str(ENGINE_ROOT / 'Tools/Godot'))
 os.environ.setdefault('DORA_ENGINE_ROOT', str(ENGINE_ROOT))
 os.environ.setdefault('DORA_TEST_REPO', str(TEST_REPO))
 _PATHS = json.loads((TEST_REPO / 'Test/Godot/paths.json').read_text())
+GODOT_UPSTREAM = json.loads((ENGINE_ROOT / 'Source/3rdParty/Godot/UPSTREAM.json').read_text())
+GODOT_VERSION = GODOT_UPSTREAM['version']
+GODOT_ENGINE_VERSION = GODOT_VERSION.split('-', 1)[0]
+GODOT_RUNTIME_PREFIX = 'Godot ' + GODOT_VERSION + ' / Dora bridge'
+GODOT_ENGINE_BANNER = 'Godot Engine v' + GODOT_ENGINE_VERSION + '.'
 
 def test_path(relative):
     """Resolve an original engine test path; production paths stay in the engine."""

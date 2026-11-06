@@ -92,6 +92,11 @@ for relative in (
 ):
     copy(relative)
 
+# Preserve the source version pin consumed by the relocated test resolver.
+upstream = output / 'Source/3rdParty/Godot/UPSTREAM.json'
+upstream.parent.mkdir(parents=True, exist_ok=True)
+shutil.copy2(ENGINE_ROOT / 'Source/3rdParty/Godot/UPSTREAM.json', upstream)
+
 # Include the external test resolver so the bundle remains relocatable.
 for relative in ('Test/support/godot_paths.py', 'Test/Godot/paths.json'):
     destination = output / relative

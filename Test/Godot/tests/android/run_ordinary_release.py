@@ -53,6 +53,8 @@ controller_package = 'org.dora.godotrc1.lifecycle'
 external = '/sdcard/Android/media/' + package + '/dora-godot-evidence'
 aapt = a.sdk / 'build-tools/34.0.0/aapt'
 artifacts = audit_apk(a.apk, a.runtime_package, aapt, a.missing, a.engine_readback, a.await_cleanup)
+cache_version = json.loads((a.runtime_package / 'manifest.json').read_text())['godot_version'].split('-', 1)[0]
+assert re.fullmatch(r'\d+\.\d+(?:\.\d+)?', cache_version), 'Invalid runtime cache version'
 if a.dodge_manifest:
     from verify_dodge_release import audit_assets, verify_case as verify_dodge
     dodge_metadata = audit_assets(a.apk, a.dodge_manifest)
@@ -83,6 +85,7 @@ instrument_command = adb + ['shell', 'am', 'instrument', '-w',
     '-e', 'full', str(int(a.full)),
     '-e', 'dodge', str(int(bool(a.dodge_manifest))),
     '-e', 'cache_audit', str(int(a.cache_audit)),
+    '-e', 'godot_cache_version', cache_version,
     'org.dora.godotrc1.lifecycle/org.dora.godotrc1.ReleaseLifecycle']
 instrument = subprocess.Popen(instrument_command, stdout=instrument_log, stderr=subprocess.STDOUT)
 launch_deadline = time.monotonic() + 30
@@ -127,6 +130,7 @@ assert controller['missing'] == a.missing and controller['full'] == a.full, cont
 assert isinstance(controller['initial_pid'], int) and isinstance(controller['final_pid'], int), controller
 if a.cache_audit:
     assert controller['shader_cache_audited']
+    assert controller['shader_cache_version'] == cache_version, 'Controller audited a different runtime cache'
     assert isinstance(controller['shader_cache_before'], dict) and isinstance(controller['shader_cache_after'], dict)
 if a.await_cleanup:
     result = verify_await_case(out)

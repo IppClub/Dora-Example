@@ -5,7 +5,7 @@
 import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[3] / 'Test/support'))
-from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
+from godot_paths import ENGINE_ROOT, TEST_REPO, test_path, GODOT_UPSTREAM, GODOT_ENGINE_VERSION
 from pathlib import Path
 import hashlib
 import argparse,json,re
@@ -20,7 +20,10 @@ catchup=None
 if a.physics_catchup_reference:
     catchup=json.loads(a.physics_catchup_reference.read_text())
     assert catchup['passed'] and catchup['contract']=='upstream_uncapped_render_step_before_physics_catchup_cap'
-    assert set(catchup['components'])=={'official-godot-4.6','dora-metal','dora-egl-arm64','dora-egl-x64'}
+    assert catchup['reference_commit']==GODOT_UPSTREAM['upstream_commit'], 'Clock reference is from a different Godot source revision'
+    expected_official=GODOT_UPSTREAM['version'].replace('-', '.')+'.official.'+GODOT_UPSTREAM['upstream_commit'][:9]
+    assert catchup['official_version']==expected_official, 'Clock reference is from a different official editor'
+    assert set(catchup['components'])=={'official-godot-'+GODOT_ENGINE_VERSION,'dora-metal','dora-egl-arm64','dora-egl-x64'}
     for item in catchup['components'].values():
         path=Path(item['report'])
         if not path.is_absolute():path=a.physics_catchup_reference.resolve().parent/path

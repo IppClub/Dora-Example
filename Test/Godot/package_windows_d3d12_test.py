@@ -90,6 +90,11 @@ for relative in (
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
 
+# Preserve the source version pin consumed by the relocated test resolver.
+upstream = output / 'Source/3rdParty/Godot/UPSTREAM.json'
+upstream.parent.mkdir(parents=True, exist_ok=True)
+shutil.copy2(ENGINE_ROOT / 'Source/3rdParty/Godot/UPSTREAM.json', upstream)
+
 # Include the external test resolver so the bundle remains relocatable.
 for relative in ('Test/support/godot_paths.py', 'Test/Godot/paths.json'):
     destination = output / relative
@@ -171,7 +176,7 @@ Real-project acceptance remains separate.
 Scope
 -----
 This bundle contains an {architecture} Dora host linked only with the D3D12 Godot bridge,
-an {architecture} Godot 4.6 D3D12 runtime, the test project, and strict image/GPU-accounting
+an {architecture} Godot {godot_version} D3D12 runtime, the test project, and strict image/GPU-accounting
 verification. It does not contain the WGL bridge. {boundary}
 
 Prerequisites
@@ -195,6 +200,7 @@ animation changes, stable paused frames, resize success, and clean process exit.
 ''').format(
     title='virtual-machine WARP validation' if args.acceptance_mode == 'virtual-warp' else 'physical Windows acceptance',
     architecture=architecture,
+    godot_version=runtime_manifest['godot_version'],
     boundary=('A passing run proves software-adapter resource sharing and synchronization in a Windows VM, '
               'not physical GPU/driver acceptance.' if args.acceptance_mode == 'virtual-warp' else
               'It does not claim GPU acceptance until a native physical-adapter run passes.'),

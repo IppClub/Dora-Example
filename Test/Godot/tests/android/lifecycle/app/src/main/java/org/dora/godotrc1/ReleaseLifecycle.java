@@ -42,10 +42,14 @@ public final class ReleaseLifecycle extends Instrumentation {
     }
     private JSONObject shaderCacheHashes() throws Exception {
         JSONObject result = new JSONObject();
+        String version = arguments.getString("godot_cache_version", "");
+        if (!version.matches("[0-9]+\\.[0-9]+(?:\\.[0-9]+)?"))
+            throw new IllegalArgumentException("Cache audit requires the runtime's godot_cache_version");
+        String runtimeCache = "Dora/LibGodot-" + version + "/egl/shader_cache";
         File[] roots = { new File(getTargetContext().getFilesDir(), "shader_cache"),
-            new File(getTargetContext().getCacheDir(), "Dora/LibGodot-4.6/egl/shader_cache"),
+            new File(getTargetContext().getCacheDir(), runtimeCache),
             new File(getTargetContext().getCacheDir(), "shader_cache") };
-        String[] prefixes = {"files/shader_cache/", "cache/Dora/LibGodot-4.6/egl/shader_cache/", "cache/shader_cache/"};
+        String[] prefixes = {"files/shader_cache/", "cache/" + runtimeCache + "/", "cache/shader_cache/"};
         for (int i = 0; i < roots.length; ++i) {
             if (!roots[i].isDirectory()) continue;
             JSONObject files = new JSONObject();
@@ -233,6 +237,7 @@ public final class ReleaseLifecycle extends Instrumentation {
                 .put("missing", missing).put("full", full)
                 .put("dodge", dodge).put("project_switch", projectSwitch).put("project_sha256", projectHashes)
                 .put("shader_cache_audited", cacheAudit)
+                .put("shader_cache_version", arguments.getString("godot_cache_version", ""))
                 .put("shader_cache_before", shaderCacheBefore).put("shader_cache_after", shaderCacheAfter)
                 .put("initial_pid", initialPid).put("final_pid", targetPid())
                 .put("immersive_confirmation_dismissed", immersiveConfirmationDismissed).toString());

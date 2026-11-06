@@ -5,7 +5,7 @@
 import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[3] / 'Test/support'))
-from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
+from godot_paths import ENGINE_ROOT, TEST_REPO, test_path, GODOT_RUNTIME_PREFIX
 import ctypes as c
 import json
 from pathlib import Path
@@ -24,7 +24,7 @@ api.size=c.sizeof(api)
 assert get(1,c.byref(api))==1 and api.abi_version==1
 assert all(getattr(api,name) for name,_ in API._fields_[2:])
 version=c.CFUNCTYPE(c.c_char_p)(api.version)().decode()
-assert '4.6' in version
+assert version.startswith(GODOT_RUNTIME_PREFIX), version
 assert not c.CFUNCTYPE(c.c_void_p,c.c_void_p)(api.open)(None)
 error=c.CFUNCTYPE(c.c_char_p,c.c_void_p)(api.last_error)(None).decode()
 assert 'invalid' in error

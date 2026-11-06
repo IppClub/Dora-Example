@@ -29,8 +29,11 @@ def python(code):
     raise RuntimeError(result.stderr+result.stdout)
 production = [
     'xmake.lua',
+    'Source/3rdParty/Godot/UPSTREAM.json',
+    'Source/3rdParty/Godot/modules/dora_bridge/runtime_project.h',
+    'Source/3rdParty/Godot/modules/dora_bridge/register_types_gl.cpp',
     *['Source/Godot/'+name for name in ('GodotBridge.h', 'GodotBridgeGL.h',
-      'GodotBridgeMetalTargets.h', 'GodotBridgeAudio.h', 'GodotAudioQueue.h',
+      'GodotBridgeMetalTargets.h', 'GodotBridgeAudio.h', 'GodotBridgeViewport.h', 'GodotBridgeGLTargets.h', 'GodotAudioQueue.h',
       'GodotFrameRing.h', 'GodotRenderBootQueue.h', 'GodotGpuReads.h')],
     'Source/Web/WebTaskQueue.h', 'Source/Web/WebTaskQueue.cpp',
     'Source/3rdParty/Godot/modules/dora_bridge/runtime_timing.h',
@@ -41,6 +44,10 @@ production = [
 fixtures = ['Test/Godot/tests/'+name for name in ('frame_ring.cpp', 'render_boot.cpp',
     'render_timing.cpp', 'audio_queue.cpp', 'gpu_reads.cpp', 'bridge_abi.c',
     'gl/target_policy.cpp', 'protocol.sh', 'embedded_shader.py', 'web/task_queue_stop.py')]
+fixtures += ['Test/Godot/'+name for name in ('test_project_orphan_cleanup.py', 'test_runtime_version_guards.py')]
+fixtures += ['Test/Godot/tests/'+name for name in ('check_library.py', 'verify_timing.py',
+    'ios/run_node.py', 'android/verify_dodge_release.py', 'android/verify_ordinary_release.py',
+    'android/run_ordinary_release.py', 'android/lifecycle/app/src/main/java/org/dora/godotrc1/ReleaseLifecycle.java')]
 for name in production + fixtures + ['Test/support/godot_paths.py',
                                     'Test/support/godot-paths.sh', 'Test/Godot/paths.json']:
     path=prefix+'/'+name

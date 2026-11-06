@@ -45,3 +45,9 @@ ordinary macOS hosts; it does not claim same-process project switching.
 限macOS Metal、普通宿主，macOS Metal默认启用，驱动不设置实验环境变量；七次源码/PCK加载使用同一个LibGodot实例，核对静态/资源/单例/输入、音频、像素、GPU和失败恢复。完整限制见引擎 `Tools/Godot/PROJECT_SWITCH.md`；不进入无需GPU的自动套件。
 
 卸载通知及生产GodotPlayer控制器：`tests/project_switch/controller_contract.lua`含8项不依赖GPU的队列/回调/错误/关闭契约；`run_real_project_switch.py`在macOS串行验证未修改的官方2D/3D源码及PCK反复切换、像素/音频/对象与GPU计数；`run_project_lifecycle_edges.py`验证启动取消和默认配置切换及旧运行库的明确拒绝。完整命令和边界见引擎`Tools/Godot/PROJECT_SWITCH.md`。
+
+版本检查从引擎 `Source/3rdParty/Godot/UPSTREAM.json` 读取固定版本；共享库 ABI、
+Android 启动日志与暖缓存路径均使用该版本（缓存版本来自实际运行库清单）。
+`test_runtime_version_guards.py` 纳入 CPU 协议回归，覆盖旧版误接受和 iOS 意外启动。
+旧 4.6 时钟参考及其封存工具保留历史含义；新版时钟验收不得复用旧参考，需重新采集。
+旧工程兼容测试中的 4.6 特征字段和来源审计的精确版本/摘要固定值保留。

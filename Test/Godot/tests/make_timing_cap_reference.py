@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Seal the pinned upstream and three native-host capped-clock GPU references."""
+"""Seal the frozen Godot 4.6 capped-clock baseline, not a current-version result.
+
+Keep its official archive hash and source pin intact. New runtimes require a
+fresh reference; verify_timing rejects cross-version reference reuse.
+"""
 
 # Resolve engine inputs separately from the external test checkout.
 import sys as _test_sys

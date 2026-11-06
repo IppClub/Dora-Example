@@ -5,7 +5,7 @@
 import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[3] / 'Test/support'))
-from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
+from godot_paths import ENGINE_ROOT, TEST_REPO, test_path, GODOT_RUNTIME_PREFIX
 import argparse,ctypes as C,hashlib,json,platform
 from pathlib import Path
 p=argparse.ArgumentParser()
@@ -66,7 +66,7 @@ def table(getter,kind,name,version=1):
     return result
 api=table(lib.dora_godot_get_api,API,'runtime')
 version=api.version().decode('utf8')
-check(version.startswith('Godot 4.7.2-stable / Dora bridge'),'runtime version')
+check(version.startswith(GODOT_RUNTIME_PREFIX),'runtime version')
 backend={'Metal':1,'EGL':3,'WGL':3,'D3D12':4}[a.backend]
 def config():return Config(C.sizeof(Config),backend,640,360,3,b'.',b'',1)
 check(not api.open(None),'null config rejected')
