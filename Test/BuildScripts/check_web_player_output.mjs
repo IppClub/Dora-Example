@@ -54,7 +54,9 @@ const features = JSON.parse(fs.readFileSync(path.join(outputDir, "dora-web-featu
 if (features.modules?.godotNode) {
     const runtimeDir = path.join(outputDir, 'godot');
     const runtime = JSON.parse(fs.readFileSync(path.join(runtimeDir, 'manifest.json'), 'utf8'));
-    if (runtime.package_format !== 'dora-godot-runtime' || runtime.godot_version !== '4.6-stable'
+    const engineRoot = path.resolve(process.env.DORA_SSR_ROOT || process.env.DORA_ENGINE_ROOT || process.cwd());
+    const expectedVersion = JSON.parse(fs.readFileSync(path.join(engineRoot, 'Source/3rdParty/Godot/UPSTREAM.json'), 'utf8')).version;
+    if (runtime.package_format !== 'dora-godot-runtime' || runtime.godot_version !== expectedVersion
         || runtime.bridge_abi !== 1 || runtime.graphics_backend !== 'webgl2') throw new Error('Invalid production Godot runtime');
     for (const file of ['dora-godot.js', 'dora-godot.wasm', 'shared_gl.mjs', 'runtime_bridge.mjs', 'LICENSE.txt', 'COPYRIGHT.txt', 'AUTHORS.md']) {
         const bytes = fs.readFileSync(path.join(runtimeDir, file));
