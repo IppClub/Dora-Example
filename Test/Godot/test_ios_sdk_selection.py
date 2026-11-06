@@ -47,6 +47,9 @@ raise SystemExit(99)
             assert '--xcode_sdkver=' + version in args, args
             if mismatch:
                 assert 'AssertionError' in result.stdout
+    metalfx = 'source("servers/rendering/renderer_rd/effects/metal_fx.cpp")'
+    assert metalfx in (root / 'Projects/xmake/godot/ios_device_arm64_sources.lua').read_text()
+    assert metalfx not in (root / 'Projects/xmake/godot/ios_simulator_arm64_sources.lua').read_text()
     source = root / 'Source/3rdParty/Godot/thirdparty/metal-cpp/metal_cpp.cpp'
     for variant, sdk_name, triple in [
         ('ios_device_arm64', 'iphoneos', 'arm64-apple-ios14.0'),
@@ -66,5 +69,6 @@ raise SystemExit(99)
                 '-I' + str(source.parent), '-fsyntax-only', str(source)],
                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             assert result.returncode == 0, (variant, mode, result.stdout)
+print('PASS MetalFX source enabled for device, excluded for simulator render-buffer guards')
 print('PASS active Xcode/SDK forwarded for device and simulator; wrong SDK rejected before compilation')
 print('PASS actual metal-cpp compilation with Clang modules for device/simulator, Debug/Release; no GPU')
