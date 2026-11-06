@@ -63,12 +63,20 @@ raise SystemExit(99)
         assert all(flag in flags for flag in required), (variant, 'metal-cpp module/include flags drifted')
         sdk = subprocess.check_output(['xcrun', '--sdk', sdk_name, '--show-sdk-path'], text=True).strip()
         for mode in ['debug', 'release']:
+            obj = base / (variant + '-' + mode + '.o')
+            dylib = obj.with_suffix('.dylib')
             result = subprocess.run(['xcrun', '--sdk', sdk_name, 'clang++', '-target', triple,
                 '-isysroot', sdk, *required, '-DDEBUG_ENABLED' if mode == 'debug' else '-DNDEBUG',
                 '-fmodules-cache-path=' + str(base / (variant + '-modules')),
-                '-I' + str(source.parent), '-fsyntax-only', str(source)],
+                '-I' + str(source.parent), *(['-DIOS_SIMULATOR'] if variant == 'ios_simulator_arm64' else []),
+                '-c', str(source), '-o', str(obj)],
                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             assert result.returncode == 0, (variant, mode, result.stdout)
+            link = subprocess.run(['xcrun', '--sdk', sdk_name, 'clang++', '-target', triple,
+                '-isysroot', sdk, '-dynamiclib', str(obj), '-framework', 'Foundation',
+                '-framework', 'Metal', '-framework', 'QuartzCore', '-o', str(dylib)],
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            assert link.returncode == 0, (variant, mode, link.stdout)
 print('PASS MetalFX source enabled for device, excluded for simulator render-buffer guards')
 print('PASS active Xcode/SDK forwarded for device and simulator; wrong SDK rejected before compilation')
-print('PASS actual metal-cpp compilation with Clang modules for device/simulator, Debug/Release; no GPU')
+print('PASS actual metal-cpp compilation and framework link with Clang modules for device/simulator, Debug/Release; no GPU')
