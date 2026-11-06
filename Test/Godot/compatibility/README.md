@@ -75,4 +75,3 @@ cached resource. Warm JumpBox object counts are 254/254; Bridge counts are
 250/250. JumpBox emits silence in this tested segment; Bridge emits valid PCM.
 Other platforms' shared code received targeted compilation, not new dynamic
 acceptance. Detailed evidence: Dora-SSR `build/godot-project-orphan-cleanup/`.
-

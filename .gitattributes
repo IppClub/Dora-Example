@@ -1,1 +1,4 @@
 *.mock binary
+
+# Unified diff context prefixes are data, not source indentation.
+Test/Godot/compatibility/*.patch -whitespace
