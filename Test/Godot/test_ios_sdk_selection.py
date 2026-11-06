@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Exercise active-Xcode forwarding and reject a mismatched SDK before compilation."""
+"""Exercise SDK selection and compile metal-cpp with the production module flags."""
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import re
 
 if sys.platform != 'darwin':
     print('SKIP iOS SDK selection requires macOS/Xcode')
@@ -46,4 +47,24 @@ raise SystemExit(99)
             assert '--xcode_sdkver=' + version in args, args
             if mismatch:
                 assert 'AssertionError' in result.stdout
+    source = root / 'Source/3rdParty/Godot/thirdparty/metal-cpp/metal_cpp.cpp'
+    for variant, sdk_name, triple in [
+        ('ios_device_arm64', 'iphoneos', 'arm64-apple-ios14.0'),
+        ('ios_simulator_arm64', 'iphonesimulator', 'arm64-apple-ios14.0-simulator'),
+    ]:
+        text = (root / 'Projects/xmake/godot' / (variant + '_sources.lua')).read_text()
+        block = next(b for b in re.findall(r'target\("[^"\n]+"\).*?target_end\(\)', text, re.S)
+                     if 'source("thirdparty/metal-cpp/metal_cpp.cpp")' in b)
+        flags = [json.loads('"' + f + '"') for f in re.findall(r'flag\("((?:[^"\\]|\\.)*)"\)', block)]
+        required = ['-std=gnu++20', '-fmodules', '-fcxx-modules', '-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES', '-includecstddef']
+        assert all(flag in flags for flag in required), (variant, 'metal-cpp module/include flags drifted')
+        sdk = subprocess.check_output(['xcrun', '--sdk', sdk_name, '--show-sdk-path'], text=True).strip()
+        for mode in ['debug', 'release']:
+            result = subprocess.run(['xcrun', '--sdk', sdk_name, 'clang++', '-target', triple,
+                '-isysroot', sdk, *required, '-DDEBUG_ENABLED' if mode == 'debug' else '-DNDEBUG',
+                '-fmodules-cache-path=' + str(base / (variant + '-modules')),
+                '-I' + str(source.parent), '-fsyntax-only', str(source)],
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            assert result.returncode == 0, (variant, mode, result.stdout)
 print('PASS active Xcode/SDK forwarded for device and simulator; wrong SDK rejected before compilation')
+print('PASS actual metal-cpp compilation with Clang modules for device/simulator, Debug/Release; no GPU')
