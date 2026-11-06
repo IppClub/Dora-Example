@@ -1,0 +1,14 @@
+diff --git a/scenes/player.tscn b/scenes/player.tscn
+index 2553ebe..a8d141b 100644
+--- a/scenes/player.tscn
++++ b/scenes/player.tscn
+@@ -11,8 +11,7 @@
+ [ext_resource type="Texture2D" uid="uid://dff1y1jiibqb" path="res://assets/ui/gdb-keyboard-2.png" id="9_ur7pv"]
+ 
+ [sub_resource type="GDScript" id="GDScript_dqkch"]
+-script/source = "class_name Hurtbox
+-extends Area2D
++script/source = "extends Area2D
+ "
+ 
+ [sub_resource type="RectangleShape2D" id="RectangleShape2D_dqkch"]

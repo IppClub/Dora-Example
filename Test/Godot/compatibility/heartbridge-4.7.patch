@@ -1,0 +1,153 @@
+diff --git a/addons/dialogic/Core/DialogicGameHandler.gd b/addons/dialogic/Core/DialogicGameHandler.gd
+index 1d07f93..bea013a 100644
+--- a/addons/dialogic/Core/DialogicGameHandler.gd
++++ b/addons/dialogic/Core/DialogicGameHandler.gd
+@@ -102,58 +102,76 @@ signal text_signal(argument: String)
+ # Careful, this section is repopulated automatically at certain moments.
+ #region SUBSYSTEMS
+ 
+-var Animations := preload("res://addons/dialogic/Modules/Core/subsystem_animation.gd").new():
++const _AnimationsType = preload("res://addons/dialogic/Modules/Core/subsystem_animation.gd")
++var Animations: _AnimationsType:
+ 	get: return get_subsystem("Animations")
+ 
+-var Audio := preload("res://addons/dialogic/Modules/Audio/subsystem_audio.gd").new():
++const _AudioType = preload("res://addons/dialogic/Modules/Audio/subsystem_audio.gd")
++var Audio: _AudioType:
+ 	get: return get_subsystem("Audio")
+ 
+-var Backgrounds := preload("res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd").new():
++const _BackgroundsType = preload("res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd")
++var Backgrounds: _BackgroundsType:
+ 	get: return get_subsystem("Backgrounds")
+ 
+-var Choices := preload("res://addons/dialogic/Modules/Choice/subsystem_choices.gd").new():
++const _ChoicesType = preload("res://addons/dialogic/Modules/Choice/subsystem_choices.gd")
++var Choices: _ChoicesType:
+ 	get: return get_subsystem("Choices")
+ 
+-var Expressions := preload("res://addons/dialogic/Modules/Core/subsystem_expression.gd").new():
++const _ExpressionsType = preload("res://addons/dialogic/Modules/Core/subsystem_expression.gd")
++var Expressions: _ExpressionsType:
+ 	get: return get_subsystem("Expressions")
+ 
+-var Glossary := preload("res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd").new():
++const _GlossaryType = preload("res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd")
++var Glossary: _GlossaryType:
+ 	get: return get_subsystem("Glossary")
+ 
+-var History := preload("res://addons/dialogic/Modules/History/subsystem_history.gd").new():
++const _HistoryType = preload("res://addons/dialogic/Modules/History/subsystem_history.gd")
++var History: _HistoryType:
+ 	get: return get_subsystem("History")
+ 
+-var Inputs := preload("res://addons/dialogic/Modules/Core/subsystem_input.gd").new():
++const _InputsType = preload("res://addons/dialogic/Modules/Core/subsystem_input.gd")
++var Inputs: _InputsType:
+ 	get: return get_subsystem("Inputs")
+ 
+-var Jump := preload("res://addons/dialogic/Modules/Jump/subsystem_jump.gd").new():
++const _JumpType = preload("res://addons/dialogic/Modules/Jump/subsystem_jump.gd")
++var Jump: _JumpType:
+ 	get: return get_subsystem("Jump")
+ 
+-var PortraitContainers := preload("res://addons/dialogic/Modules/Character/subsystem_containers.gd").new():
++const _PortraitContainersType = preload("res://addons/dialogic/Modules/Character/subsystem_containers.gd")
++var PortraitContainers: _PortraitContainersType:
+ 	get: return get_subsystem("PortraitContainers")
+ 
+-var Portraits := preload("res://addons/dialogic/Modules/Character/subsystem_portraits.gd").new():
++const _PortraitsType = preload("res://addons/dialogic/Modules/Character/subsystem_portraits.gd")
++var Portraits: _PortraitsType:
+ 	get: return get_subsystem("Portraits")
+ 
+-var Save := preload("res://addons/dialogic/Modules/Save/subsystem_save.gd").new():
++const _SaveType = preload("res://addons/dialogic/Modules/Save/subsystem_save.gd")
++var Save: _SaveType:
+ 	get: return get_subsystem("Save")
+ 
+-var Settings := preload("res://addons/dialogic/Modules/Settings/subsystem_settings.gd").new():
++const _SettingsType = preload("res://addons/dialogic/Modules/Settings/subsystem_settings.gd")
++var Settings: _SettingsType:
+ 	get: return get_subsystem("Settings")
+ 
+-var Styles := preload("res://addons/dialogic/Modules/Style/subsystem_styles.gd").new():
++const _StylesType = preload("res://addons/dialogic/Modules/Style/subsystem_styles.gd")
++var Styles: _StylesType:
+ 	get: return get_subsystem("Styles")
+ 
+-var Text := preload("res://addons/dialogic/Modules/Text/subsystem_text.gd").new():
++const _TextType = preload("res://addons/dialogic/Modules/Text/subsystem_text.gd")
++var Text: _TextType:
+ 	get: return get_subsystem("Text")
+ 
+-var TextInput := preload("res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd").new():
++const _TextInputType = preload("res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd")
++var TextInput: _TextInputType:
+ 	get: return get_subsystem("TextInput")
+ 
+-var VAR := preload("res://addons/dialogic/Modules/Variable/subsystem_variables.gd").new():
++const _VARType = preload("res://addons/dialogic/Modules/Variable/subsystem_variables.gd")
++var VAR: _VARType:
+ 	get: return get_subsystem("VAR")
+ 
+-var Voice := preload("res://addons/dialogic/Modules/Voice/subsystem_voice.gd").new():
++const _VoiceType = preload("res://addons/dialogic/Modules/Voice/subsystem_voice.gd")
++var Voice: _VoiceType:
+ 	get: return get_subsystem("Voice")
+ 
+ #endregion
+diff --git a/addons/dialogic/Core/DialogicUtil.gd b/addons/dialogic/Core/DialogicUtil.gd
+index 831d2ca..9676dc8 100644
+--- a/addons/dialogic/Core/DialogicUtil.gd
++++ b/addons/dialogic/Core/DialogicUtil.gd
+@@ -91,7 +91,7 @@ static func _update_autoload_subsystem_access() -> void:
+ 	)
+ 
+ 	for subsystem: Dictionary in subsystems_sorted:
+-		new_subsystem_access_list += '\nvar {name} := preload("{script}").new():\n\tget: return get_subsystem("{name}")\n'.format(subsystem)
++		new_subsystem_access_list += '\nconst _{name}Type = preload("{script}")\nvar {name}: _{name}Type:\n\tget: return get_subsystem("{name}")\n'.format(subsystem)
+ 
+ 	new_subsystem_access_list += "\n#endregion"
+ 	script.source_code = RegEx.create_from_string(r"#region SUBSYSTEMS\n#*\n((?!#endregion)(.*\n))*#endregion").sub(script.source_code, new_subsystem_access_list)
+diff --git a/addons/dialogic/Modules/Text/node_name_label.gd b/addons/dialogic/Modules/Text/node_name_label.gd
+index 6546e2b..52ca20e 100644
+--- a/addons/dialogic/Modules/Text/node_name_label.gd
++++ b/addons/dialogic/Modules/Text/node_name_label.gd
+@@ -23,3 +23,4 @@ func _set(property, what):
+ 		else:
+ 			name_label_root.show()
+ 		return true
++	return false
+diff --git a/addons/dialogic/Modules/Variable/subsystem_variables.gd b/addons/dialogic/Modules/Variable/subsystem_variables.gd
+index ff5c142..96c413c 100644
+--- a/addons/dialogic/Modules/Variable/subsystem_variables.gd
++++ b/addons/dialogic/Modules/Variable/subsystem_variables.gd
+@@ -184,6 +184,7 @@ func _get(property):
+ 			return VariableFolder.new(dialogic.current_state_info['variables'][property], property, self)
+ 		else:
+ 			return DialogicUtil.logical_convert(dialogic.current_state_info['variables'][property])
++	return null
+ 
+ 
+ func folders() -> Array:
+@@ -245,6 +246,7 @@ class VariableFolder:
+ 				return VariableFolder.new(data[property], path+"."+property, outside)
+ 			else:
+ 				return DialogicUtil.logical_convert(data[property])
++		return null
+ 
+ 
+ 	func _set(property:StringName, value:Variant) -> bool:
+diff --git a/addons/dialogic/plugin.gd b/addons/dialogic/plugin.gd
+index 75df7e6..907f667 100644
+--- a/addons/dialogic/plugin.gd
++++ b/addons/dialogic/plugin.gd
+@@ -49,7 +49,6 @@ func _enter_tree() -> void:
+ 
+ func _exit_tree() -> void:
+ 	if editor_view:
+-		remove_control_from_bottom_panel(editor_view)
+ 		editor_view.queue_free()
+ 
+ 	if inspector_plugin:
