@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     }
     const auto api = table<DoraGodotAPI>(library, "dora_godot_get_api");
     const char *version = api.version();
-    check(version && std::strstr(version, "Godot 4.6-stable / Dora bridge") == version, "runtime version");
+    check(version && std::strstr(version, "Godot 4.7.2-stable / Dora bridge") == version, "runtime version");
     check(!api.open(nullptr), "null config rejected");
     for (int i = 0; i < 13; ++i) {
         auto c = config();

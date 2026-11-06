@@ -35,6 +35,13 @@ def main():
         assert 'if is_mode("debug") and value == "-DNDEBUG"' in text, path
         assert '-DMONO_ENABLED' not in text, path
         assert 'source("modules/mono/' not in text, path
+        sources = re.findall(r'source\("([^"\n]+)"\)', text)
+        for name in sources:
+            if '.gen.' not in name:
+                assert (ROOT / 'Source/3rdParty/Godot' / name).is_file(), (path, name)
+        for name in ('core/object/callable_mp.cpp', 'modules/gdscript/gdscript_resource_format.cpp',
+                     'modules/visual_shader/register_types.cpp'):
+            assert name in sources, (path, name)
 
     for profile in (ROOT / 'Projects/xmake/godot').glob('template_release*.json'):
         assert 'mono' not in json.loads(profile.read_text())['enabled_modules'], profile
@@ -68,8 +75,37 @@ def main():
             rejected = subprocess.run([sys.executable, str(path), '--builder', 'scons'],
                                       text=True, capture_output=True)
             assert rejected.returncode == 2 and 'invalid choice' in rejected.stderr, path
+    # A source upgrade must advance Java/host/CI SDK inputs together.
+    upstream = ROOT / 'Source/3rdParty/Godot'
+    android = (upstream / 'platform/android/java/app/config.gradle').read_text()
+    ndk = re.search(r"ndkVersion\s*:\s*'([^']+)'", android)[1]
+    compile_sdk = re.search(r'compileSdk\s*:\s*(\d+)', android)[1]
+    build_tools = re.search(r"buildTools\s*:\s*'([^']+)'", android)[1]
+    version_ns = {}
+    exec(compile((upstream / 'version.py').read_text(), 'version.py', 'exec'), version_ns)
+    java_version = '.'.join(str(version_ns[k]) for k in ('major', 'minor', 'patch', 'status'))
+    assert java_version in (tools / 'build_android_java.py').read_text()
+    assert java_version in (tools / 'prepare_android_aar.py').read_text()
+    gradle = (ROOT / 'Projects/Android/Dora/app/build.gradle').read_text()
+    assert 'godot-java-' + java_version + '.aar' in gradle
+    assert ndk in gradle and build_tools in gradle
+    agp = re.search(r"androidGradlePlugin\s*:\s*'([^']+)'", android)[1]
+    kotlin = re.search(r"kotlinVersion\s*:\s*'([^']+)'", android)[1]
+    assert agp in (ROOT / 'Projects/Android/Dora/build.gradle').read_text()
+    assert 'kotlin-stdlib:' + kotlin in gradle
+    wrapper = 'platform/android/java/gradle/wrapper/gradle-wrapper.properties'
+    expected_gradle = re.search(r'gradle-[0-9.]+-bin.zip', (upstream / wrapper).read_text())[0]
+    assert expected_gradle in (ROOT / 'Projects/Android/Dora/gradle/wrapper/gradle-wrapper.properties').read_text()
+    assert 'godotEnabled ? ' + compile_sdk in gradle
+    for name in ('Tools/Godot/build_android_runtime.py', 'Projects/xmake/tasks/android.lua',
+                 'Projects/xmake/tasks/doctor.lua', '.github/workflows/android.yml', '.github/workflows/release.yml'):
+        assert ndk in (ROOT / name).read_text(), name
+    for name in ('.github/workflows/android.yml', '.github/workflows/release.yml'):
+        text = (ROOT / name).read_text()
+        assert 'platforms;android-' + compile_sdk in text and 'build-tools;' + build_tools in text, name
+    assert json.loads((ROOT / 'Projects/xmake/godot/web_link.json').read_text())['upstream_commit'] == json.loads((upstream / 'UPSTREAM.json').read_text())['upstream_commit']
     assert (ROOT / 'Source/3rdParty/Godot/SConstruct').is_file()
-    assert len(list((ROOT / 'Source/3rdParty/Godot').rglob('SCsub'))) == 208
+    assert len(list((ROOT / 'Source/3rdParty/Godot').rglob('SCsub'))) == 210
     probe = (ROOT / str(test_path('Tools/LibGodotMetalProbe/run.sh'))).read_text()
     assert 'test_macos.sh' in probe and 'scons' not in probe.lower()
     print(json.dumps({'passed': True, 'source_manifests': len(manifests),

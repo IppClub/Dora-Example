@@ -16,7 +16,7 @@ ROOT = ENGINE_ROOT
 def main():
     text = (ROOT / "Projects/xmake/godot/windows_x86_64_sources.lua").read_text()
     sources = re.findall(r'^\s+source\("([^"]+)"\),$', text, re.MULTILINE)
-    assert len(sources) == 2342
+    assert len(sources) == 2385
     assert validate_native_variants(text) == 110
     for source in sources:
         assert not Path(source).is_absolute(), source
@@ -28,7 +28,7 @@ def main():
         assert f'-D{macro}' not in text, macro
     for source in ("platform/windows/os_windows.cpp", "platform/windows/display_server_windows.cpp"):
         assert source in sources, source
-    print("validated Windows x64 WGL manifest: 2342 actions, 110 native codec-variant actions; manifest audit only")
+    print("validated Windows x64 WGL manifest: 2385 actions, 110 native codec-variant actions; manifest audit only")
 
 
 if __name__ == "__main__":

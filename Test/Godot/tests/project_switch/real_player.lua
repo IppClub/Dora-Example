@@ -97,6 +97,9 @@ control:schedule(function(dt)
         local scale = math.min(view.width / size.width, view.height / size.height)
         s.game.scaleX, s.game.scaleY = scale, scale
         s.ticks = (s.ticks or 0) + 1
+        if s.ticks % 50 == 0 then
+            print("DORA_REAL_SWITCH progress=" .. index .. " ticks=" .. s.ticks .. " captures=" .. s.captures)
+        end
         if s.ticks == 3 then s.game:sendKey("Space",true) end
         if s.ticks == 10 then s.game:sendKey("Space",false);s.startReleased=s.elapsed end
         if s.startReleased and s.elapsed-s.startReleased>0.4 and s.ticks>22 and s.captures==0 and not s.pending then capture(s,"a") end

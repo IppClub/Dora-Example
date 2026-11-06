@@ -17,8 +17,8 @@ def pck(path, version=3, name='project.binary'):
     encoded = name.encode() + b'\0'
     encoded += b'\0' * (-len(encoded) % 4)
     start = 96 + 4 + 4 + len(encoded) + 36
-    header = b'GDPC' + struct.pack('<IIIIIQ', version, 4, 6, 0, 0, 0)
-    header += struct.pack('<Q', 96) if version == 3 else b''
+    header = b'GDPC' + struct.pack('<IIIIIQ', version, 4, 7 if version == 4 else 6, 0, 0, 0)
+    header += struct.pack('<Q', 96) if version >= 3 else b''
     header += bytes(96 - len(header))
     body = struct.pack('<II', 1, len(encoded)) + encoded
     body += struct.pack('<QQ', start, 4) + bytes(16) + struct.pack('<I', 0)
@@ -48,6 +48,21 @@ class DeliveryTests(unittest.TestCase):
                                            'bytes':(package/'game.pck').stat().st_size}}}
         delivery.write_json(package/'game.json', manifest)
         return package
+
+    def test_pck_v4_plain_and_unsupported_modes(self):
+        path = self.root/'v4.pck'
+        pck(path, version=4)
+        self.assertEqual(delivery.inspect_pck(path)['pack_version'], 4)
+        original = path.read_bytes()
+        for flags in (1, 4):  # encrypted directory and sparse bundle stay unsupported
+            data = bytearray(original)
+            struct.pack_into('<I', data, 20, flags)
+            path.write_bytes(data)
+            with self.assertRaises(delivery.ProjectError): delivery.inspect_pck(path)
+        data = bytearray(original)
+        struct.pack_into('<I', data, 4, 5)
+        path.write_bytes(data)
+        with self.assertRaises(delivery.ProjectError): delivery.inspect_pck(path)
 
     def test_project_file_and_nested_repository(self):
         project = self.project('repo/games/demo')

@@ -60,3 +60,29 @@ with tempfile.TemporaryDirectory(prefix='dora-component-error-') as temporary:
             raise AssertionError('Missing log must not hide the original failure')
     assert output.getvalue() == ''
 print('PASS component failure log tails, output limit, platform paths and original exit status')
+
+# Exercise production staging: SDK provenance is not necessarily a license.
+with tempfile.TemporaryDirectory(prefix='dora-component-sidecars-') as temporary:
+    base = Path(temporary)
+    package = base / 'package'; package.mkdir()
+    (package / 'libdora_godot.so').write_bytes(b'fixture native library')
+    (package / 'LICENSE.txt').write_text('fixture license')
+    (package / 'SDK-PROVENANCE.json').write_text('{"version":"fixture"}')
+    (package / 'manifest.json').write_text('{"fixture":true}')
+    metadata = {'library': 'libdora_godot.so', 'licenses': ['LICENSE.txt'],
+                'dependency_provenance': ['SDK-PROVENANCE.json'],
+                'artifacts': {'libdora_godot.so': '', 'LICENSE.txt': '', 'SDK-PROVENANCE.json': ''}}
+    for platform in ('linux', 'macosx', 'windows'):
+        target = base / platform
+        assert module.stage(package, target, platform, metadata)
+        assert (target / 'GodotRuntimeNotices/SDK-PROVENANCE.json').read_bytes() == (package / 'SDK-PROVENANCE.json').read_bytes()
+        assert not (target / 'GodotRuntimeNotices/libdora_godot.so').exists()
+        assert not module.stage(package, target, platform, metadata), 'Unchanged inputs must remain incremental'
+    jni = package / 'jni/arm64-v8a'; jni.mkdir(parents=True)
+    (jni / 'libdora_godot.so').write_bytes(b'fixture JNI payload')
+    metadata['artifacts']['jni/arm64-v8a/libdora_godot.so'] = ''
+    target = base / 'android'
+    assert module.stage(package, target, 'android', metadata)
+    assert (target / 'GodotRuntimeNotices/SDK-PROVENANCE.json').is_file()
+    assert not (target / 'GodotRuntimeNotices/jni').exists()
+print('PASS production component sidecars, incremental staging and JNI payload isolation')

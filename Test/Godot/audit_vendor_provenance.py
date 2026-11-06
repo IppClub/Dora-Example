@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Audit fixed upstream Godot, its initial import, and registered Dora source delta.
+"""Audit fixed upstream Godot and registered Dora source delta.
+
+The original vendor import pins EOL attributes only; the current upstream tree
+and archive independently establish the source baseline.
 
 Only registered/non-ignored source is inventoried. Ignored SCons caches and
 build outputs are not asserted absent or safe. No source, Git index or refs are
@@ -25,9 +28,9 @@ import tempfile
 ROOT = ENGINE_ROOT
 SOURCE = ROOT / 'Source/3rdParty/Godot'
 PREFIX = 'Source/3rdParty/Godot/'
-UPSTREAM = '89cea143987d564363e15d207438530651d943ac'
+UPSTREAM = 'ed1daf0bf001b61586d9930840f2f1394092c079'
 IMPORT = '199c2c69c0e707808ad189200922bf71d04057b8'
-ARCHIVE_SHA = 'b451eaa16d3abe0c7430e9ce1c4e83b146e5670e5b683dd8995c931fc82b57a0'
+ARCHIVE_SHA = 'e954996374cbd1cb5d72e0e3781cc537408e6ce73b010b12c6c2f308a820690a'
 REGISTRY = ROOT / 'Tools/Godot/vendor/SOURCE_DELTA.json'
 
 
@@ -75,7 +78,7 @@ def canonical(data, attrs):
 
 def source_names(source):
     if source.resolve()==SOURCE.resolve():
-        return {n.decode().removeprefix(PREFIX) for n in git(['ls-files','-z','--cached','--others','--exclude-standard','--',PREFIX]).split(b'\0')[:-1]}
+        return {n.decode().removeprefix(PREFIX) for n in git(['ls-files','-z','--cached','--others','--exclude-standard','--',PREFIX]).split(b'\0')[:-1] if (ROOT/n.decode()).exists() or (ROOT/n.decode()).is_symlink()}
     # Replicas used for negative controls contain source only, no ignored caches.
     return {p.relative_to(source).as_posix() for p in source.rglob('*') if not p.is_dir() or p.is_symlink()}
 
@@ -90,8 +93,8 @@ def read_source(source,name):
 
 def inventory(archive,upstream_git,source):
     assert sha(archive.read_bytes())==ARCHIVE_SHA, 'Unrecognized Godot source archive'
-    official=tree(['--git-dir='+str(upstream_git.resolve())]);initial=tree([],PREFIX)
-    assert len(official)==13842 and set(initial)-set(official)=={'UPSTREAM.json','UPSTREAM.md'}
+    official=tree(['--git-dir='+str(upstream_git.resolve())])
+    assert len(official)==13989, 'Unexpected pinned upstream inventory'
     names=source_names(source);assert set(official)<=names, 'Missing vendored upstream source'
     attrs=attributes(names|official.keys());deltas=[];snapshots={};before={};patches={};normalized=[];raw_identical=0
     def read(name):
@@ -100,11 +103,10 @@ def inventory(archive,upstream_git,source):
     with tarfile.open(archive) as tar:
         for member in tar:
             if member.isdir():continue
-            assert member.isfile() and member.name.startswith('godot-4.6-stable/'), 'Unexpected source archive member'
-            name=member.name.removeprefix('godot-4.6-stable/');safe(name);assert name not in seen;seen.add(name)
+            assert member.isfile() and member.name.startswith('godot-4.7.2-stable/'), 'Unexpected source archive member'
+            name=member.name.removeprefix('godot-4.7.2-stable/');safe(name);assert name not in seen;seen.add(name)
             data=tar.extractfile(member).read();mode='100755' if member.mode&0o111 else '100644';value=canonical(data,attrs[name]);identity=(mode,blob(value))
             assert official[name]==identity, 'Archive differs from fixed upstream Git object: '+name
-            assert initial[name]==identity, 'Initial vendor import differs from fixed upstream: '+name
             if blob(data)!=blob(value):
                 assert attrs[name]['text'] in ('set','auto') and attrs[name]['eol']=='crlf', 'Unexplained import EOL conversion'
                 normalized.append(name)
@@ -116,18 +118,17 @@ def inventory(archive,upstream_git,source):
     assert seen==official.keys()
     for name in sorted(names-official.keys()):
         data,content,mode=read(name)
-        if name in ('UPSTREAM.json','UPSTREAM.md'):assert initial[name]==(mode,blob(content)), 'Original provenance metadata changed'
         deltas.append({'path':name,'status':'added','mode':mode,'canonical_sha256':sha(content),'upstream_canonical_sha256':None});patches[name]=(b'',content)
-    metadata=json.loads((source/'UPSTREAM.json').read_text());assert metadata['upstream_commit']==UPSTREAM and metadata['source_archive_sha256']==ARCHIVE_SHA and metadata['upstream_file_count']==13842
+    metadata=json.loads((source/'UPSTREAM.json').read_text());assert metadata['upstream_commit']==UPSTREAM and metadata['source_archive_sha256']==ARCHIVE_SHA and metadata['upstream_file_count']==len(official)
     deltas.sort(key=lambda x:x['path']);patch=[]
     for row in deltas:
         name=row['path'];old,new=patches[name]
         assert (not old or old.endswith(b'\n')) and (not new or new.endswith(b'\n')), 'Non-newline-terminated patch needs explicit support'
         patch.extend(difflib.unified_diff(old.decode().splitlines(True),new.decode().splitlines(True),fromfile='a/'+name if row['status']=='modified' else '/dev/null',tofile='b/'+name))
     patch=''.join(patch).encode()
-    proposal={'schema':1,'upstream_commit':UPSTREAM,'source_archive_sha256':ARCHIVE_SHA,'initial_vendor_commit':IMPORT,
+    proposal={'schema':2,'upstream_commit':UPSTREAM,'source_archive_sha256':ARCHIVE_SHA,'attributes_baseline_commit':IMPORT,
         'policy':'Canonical Git text/EOL content using attributes from the fixed initial import; no other content normalization',
-        'upstream_files':13842,'registered_current_files':len(names),'archive_crlf_to_git_lf_files':sorted(normalized),
+        'upstream_files':len(official),'registered_current_files':len(names),'archive_crlf_to_git_lf_files':sorted(normalized),
         'delta_patch_sha256':sha(patch),'files':deltas}
     for name,value in before.items():
         data,mode=read_source(source,name)
@@ -164,7 +165,7 @@ def main():
     (args.output/'source-inventory.json').write_text(json.dumps(snapshots,sort_keys=True,indent=2)+'\n')
     assert sha(Path(__file__).read_bytes())==code_sha
     if not args.propose:assert sha(args.registry.read_bytes())==registry_sha, 'Source registry changed during audit'
-    result={'scope':__doc__,'upstream_archive_git_and_initial_import_files_verified':13842,'current_registered_files':len(snapshots),
+    result={'scope':__doc__,'upstream_archive_git_files_verified':proposal['upstream_files'],'current_registered_files':len(snapshots),
         'modified_files':sum(x['status']=='modified' for x in proposal['files']),'added_files':sum(x['status']=='added' for x in proposal['files']),
         'thirdparty_delta_files':[x['path'] for x in proposal['files'] if x['path'].startswith('thirdparty/')],
         'archive_crlf_files_verified':len(proposal['archive_crlf_to_git_lf_files']),'current_raw_upstream_identical_files':raw_identical,
@@ -174,7 +175,7 @@ def main():
         result.update(proposal_generated=True,registered_delta_verified=False);filename='proposal-verification.json'
     else:
         result.update(passed=True,complete=False,registered_delta_verified=True,registry_sha256=sha(args.registry.read_bytes()));filename='verification.json'
-    (args.output/filename).write_text(json.dumps(result,indent=2)+'\n');print(('PROPOSAL' if args.propose else 'PASS')+f": 13842 upstream/import files, {result['modified_files']} modifications, {result['added_files']} additions; no source changed")
+    (args.output/filename).write_text(json.dumps(result,indent=2)+'\n');print(('PROPOSAL' if args.propose else 'PASS')+f": {proposal['upstream_files']} upstream files, {result['modified_files']} modifications, {result['added_files']} additions; no source changed")
 
 
 if __name__=='__main__':main()

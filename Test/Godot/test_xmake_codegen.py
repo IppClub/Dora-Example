@@ -39,14 +39,17 @@ def main() -> None:
     first_log = run("xmake", "build", "-r", "-vD", "godot-codegen")
     first = snapshot()
     state = json.loads((OUTPUT / ".xmake-codegen.json").read_text(encoding="utf-8"))
-    assert len(state["outputs"]) == 143, len(state["outputs"])
+    assert len(state["outputs"]) == 147, len(state["outputs"])
     required = {
         "core/version_generated.gen.h",
-        "core/object/gdvirtual.gen.inc",
+        "core/object/gdvirtual.gen.h",
         "core/extension/gdextension_interface.gen.h",
+        "core/extension/ext_wrappers.gen.h",
+        "servers/rendering/storage/ltc_lut.gen.h",
         "modules/register_module_types.gen.cpp",
         "platform/register_platform_apis.gen.cpp",
         "drivers/gles3/shaders/canvas.glsl.gen.h",
+        "drivers/gles3/shaders/tex_blit.glsl.gen.h",
         "servers/rendering/renderer_rd/shaders/forward_mobile/scene_forward_mobile.glsl.gen.h",
     }
     assert required.issubset(state["outputs"]), required - set(state["outputs"])
@@ -54,9 +57,9 @@ def main() -> None:
     second_log = run("xmake", "build", "-r", "-vD", "godot-codegen")
     second = snapshot()
     assert first == second, "unchanged inputs rewrote generated outputs"
-    assert "unchanged: 143 outputs" in second_log, second_log
-    assert "generated: 143 outputs" in first_log or "unchanged: 143 outputs" in first_log, first_log
-    print("validated xmake-driven Godot codegen: 143 outputs; incremental rebuild unchanged")
+    assert "unchanged: 147 outputs" in second_log, second_log
+    assert "generated: 147 outputs" in first_log or "unchanged: 147 outputs" in first_log, first_log
+    print("validated xmake-driven Godot codegen: 147 outputs; incremental rebuild unchanged")
 
 
 if __name__ == "__main__":

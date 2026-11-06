@@ -37,6 +37,7 @@ def validate_manifest(name: str, actions: int, variant_actions: int) -> tuple[st
         "UNIX_ENABLED",
         "GLES3_ENABLED",
         "EGL_ENABLED",
+        "GLAD_GLES2",
     ):
         assert f'-D{define}' in text, define
     for forbidden in ("MONO_ENABLED", "X11_ENABLED", "WAYLAND_ENABLED", "VULKAN_ENABLED"):
@@ -45,8 +46,8 @@ def validate_manifest(name: str, actions: int, variant_actions: int) -> tuple[st
 
 
 def main() -> None:
-    arm_text, arm_sources = validate_manifest("linux", 2322, 110)
-    x86_text, x86_sources = validate_manifest("linux_x86_64", 2328, 110)
+    arm_text, arm_sources = validate_manifest("linux", 2362, 110)
+    x86_text, x86_sources = validate_manifest("linux_x86_64", 2368, 110)
     targets = TARGETS.read_text(encoding="utf-8")
     build_script = BUILD_SCRIPT.read_text(encoding="utf-8")
 
@@ -73,7 +74,7 @@ def main() -> None:
     assert '"$XMAKE" build -P "$ROOT"' in build_script
 
     print(
-        "validated Linux ARM64/x86_64 manifests: 2322/2328 compile actions, "
+        "validated Linux ARM64/x86_64 manifests: 2362/2368 compile actions, "
         "110 native variant actions each and architecture-isolated output"
     )
 

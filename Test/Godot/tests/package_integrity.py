@@ -6,7 +6,7 @@ import sys as _test_sys
 from pathlib import Path as _TestPath
 _test_sys.path.insert(0, str(_TestPath(__file__).resolve().parents[3] / 'Test/support'))
 from godot_paths import ENGINE_ROOT, TEST_REPO, test_path
-import json,sys,tempfile,unittest
+import json,sys,tempfile,unittest,subprocess,shutil
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from package_manifest import seal,digest
@@ -54,6 +54,50 @@ class PackageIntegrity(unittest.TestCase):
         self.manifest['graphics_backend']='d3d12';self.save()
         self.manifest=seal(self.root,self.manifest);self.save()
         self.assertEqual(verify(self.root)['graphics_backend'],'d3d12')
+    def test_metal_static_sdk_notices_and_repeated_packaging(self):
+        library=self.root/'fixture.dylib';library.write_bytes(b'fixture, no runtime execution')
+        package=self.root/'metal'
+        command=[sys.executable,str(ENGINE_ROOT/'Tools/Godot/package_runtime.py'),
+                 '--source',str(ENGINE_ROOT/'Source/3rdParty/Godot'),'--library',str(library),
+                 '--output',str(package),'--architecture','arm64','--graphics-backend','metal']
+        for _ in range(2): subprocess.run(command,check=True,capture_output=True)
+        self.assertTrue(verify(package)['passed'])
+        # Reseal to exercise semantic checks, beyond the existing digest guards.
+        manifest=json.loads((package/'manifest.json').read_text())
+        notice='GODOT-ACCESSKIT-NOTICES.txt'
+        manifest['licenses'].remove(notice);(package/notice).unlink()
+        (package/'manifest.json').write_text(json.dumps(seal(package,manifest)))
+        with self.assertRaisesRegex(ValueError,'notices/provenance missing'): verify(package)
+
+    def test_linux_static_accesskit_inventory(self):
+        library=self.root/'fixture.so';library.write_bytes(b'fixture, no runtime execution')
+        package=self.root/'linux'
+        command=[sys.executable,str(ENGINE_ROOT/'Tools/Godot/package_runtime.py'),
+                 '--source',str(ENGINE_ROOT/'Source/3rdParty/Godot'),'--library',str(library),
+                 '--output',str(package),'--architecture','arm64','--graphics-backend','egl',
+                 '--static-accesskit-sdk','linux']
+        subprocess.run(command,check=True,capture_output=True)
+        self.assertTrue(verify(package)['passed'])
+        manifest=json.loads((package/'manifest.json').read_text())
+        provenance=package/'GODOT-ACCESSKIT-PROVENANCE.json'
+        data=json.loads(provenance.read_text());data['source_archive_sha256']='0'*64
+        provenance.write_text(json.dumps(data))
+        (package/'manifest.json').write_text(json.dumps(seal(package,manifest)))
+        with self.assertRaisesRegex(ValueError,'provenance mismatch'): verify(package)
+
+    def test_accesskit_rejects_untrusted_archive(self):
+        from ensure_accesskit_sdk import ensure
+        archive=self.root/'bad.zip';archive.write_bytes(b'untrusted download')
+        with self.assertRaisesRegex(ValueError,'archive hash mismatch'):
+            ensure(self.root/'sdk',archive)
+
+    def test_accesskit_rejects_bad_cached_library(self):
+        from ensure_accesskit_sdk import ensure
+        sdk=self.root/'sdk';(sdk/'include').mkdir(parents=True)
+        shutil.copy2(ENGINE_ROOT/'Source/3rdParty/Godot/thirdparty/accesskit/include/accesskit.h',sdk/'include/accesskit.h')
+        library=sdk/'lib/macos/arm64/static/libaccesskit.a';library.parent.mkdir(parents=True);library.write_bytes(b'corrupt')
+        with self.assertRaisesRegex(ValueError,'SDK hash mismatch'): ensure(sdk)
+
     def test_unknown_graphics_backend(self):
         self.manifest['graphics_backend']='d3d11';self.save();self.rejects()
     def test_seal_preserves_identity(self):
