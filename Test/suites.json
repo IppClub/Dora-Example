@@ -19,7 +19,8 @@
     "test_web_gallery",
     "test_lualib_utf8_trim",
     "check_ci_test_coverage.test",
-    "test_read_sync"
+    "test_read_sync",
+    "test_bootstrap_lua_load"
   ],
   "web": [
     "check_web_output",

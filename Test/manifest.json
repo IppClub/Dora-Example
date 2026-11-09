@@ -2160,6 +2160,10 @@
     {
       "source": "Tools/tests/test_read_sync.lua",
       "path": "Test/Engine/test_read_sync.lua"
+    },
+    {
+      "source": "Tools/tests/test_bootstrap_lua_load.lua",
+      "path": "Test/Engine/test_bootstrap_lua_load.lua"
     }
   ]
 }
