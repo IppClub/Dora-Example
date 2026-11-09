@@ -2156,6 +2156,10 @@
     {
       "source": "Tools/Godot/tests/project_switch/default_player.lua",
       "path": "Test/Godot/tests/project_switch/default_player.lua"
+    },
+    {
+      "source": "Tools/tests/test_read_sync.lua",
+      "path": "Test/Engine/test_read_sync.lua"
     }
   ]
 }

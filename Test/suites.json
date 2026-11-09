@@ -18,7 +18,8 @@
     "test_web_ogv_harness",
     "test_web_gallery",
     "test_lualib_utf8_trim",
-    "check_ci_test_coverage.test"
+    "check_ci_test_coverage.test",
+    "test_read_sync"
   ],
   "web": [
     "check_web_output",
