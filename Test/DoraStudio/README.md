@@ -34,7 +34,7 @@ The temporary mirror is deleted after each run. Test evidence and application
 artifacts continue to be written to the paths selected by each script in the
 Dora-SSR checkout.
 
-From the engine root, use `xmake dora-test --suite=studio`. The default run
+From the engine root, use `xmake test-suite --suite=studio`. The default run
 uses xmake-managed Emscripten for the Teal/Yarn compilers and regenerates
 bilingual tutorial assets from the canonical Docs sources before it
 refreshes workspace packages and bilingual documentation with `pnpm -r build`;

@@ -21,7 +21,7 @@ const splitCi = launcher.includes('contract|engine|ui|')
 const applicability = {skip: !splitCi && 'CI split has not landed in this engine revision'};
 const planned = [];
 if (splitCi) for (const owner of ['ui.yml', 'engine-tests.yml', 'studio.yml']) {
-  for (const match of workflow(owner).matchAll(/^\s*(?:run:\s*)?xmake dora-test(?=\s|$)([^\n]*)/gm)) {
+  for (const match of workflow(owner).matchAll(/^\s*(?:run:\s*)?xmake test-suite(?=\s|$)([^\n]*)/gm)) {
     const single = match[1].match(/--case=([^\s]+)/)?.[1];
     const suite = match[1].match(/--suite=([^\s]+)/)?.[1] || 'contract';
     for (const name of single ? [single] : suites[suite]) planned.push({name, owner});
@@ -53,9 +53,9 @@ test('migrated tests have one external owner and manual acceptance stays discove
     if (baseline.manualCases.includes(name)) continue;
     assert.equal(planned.filter(item => item.name === name).length, 1, name);
   }
-  assert.match(workflow('macos.yml'), /xmake dora-test --case=test_macos_bundle -- --bundle/);
-  assert.match(workflow('web.yml'), /xmake dora-test --case=web-package-names.test/);
-  assert.match(workflow('webbuilder.yml'), /xmake dora-test --case=test_webbuild/);
+  assert.match(workflow('macos.yml'), /xmake test-suite --case=test_macos_bundle -- --bundle/);
+  assert.match(workflow('web.yml'), /xmake test-suite --case=web-package-names.test/);
+  assert.match(workflow('webbuilder.yml'), /xmake test-suite --case=test_webbuild/);
 });
 
 function matches(glob, filename) {
@@ -78,13 +78,13 @@ test('push and PR triggers cover source inputs, shared dependencies and test ent
     for (const input of baseline.triggerExcludedInputs?.[name] || []) {
       assert.ok(!filters[0].some(glob => matches(glob, input)), `${name} unexpectedly triggers on ${input}`);
     }
-    assert.match(source, /xmake dora-test-deps --env-file="\$GITHUB_ENV"/);
+    assert.match(source, /xmake test-deps --env-file="\$GITHUB_ENV"/);
   }
   assert.doesNotMatch(workflow('ui.yml'), /setup-go|suite=studio|test_http_|test_shutdown_watchdog/);
   assert.doesNotMatch(workflow('engine-tests.yml'), /pnpm install|setup-pnpm/);
   assert.match(workflow('ui.yml'), /node Studio\/packages\/agent-contracts\/build\.mjs/);
   for (const name of ['web.yml', 'webbuilder.yml', 'macos.yml', 'static.yml', 'release.yml']) {
-    assert.match(workflow(name), /xmake dora-test-deps --env-file="\$GITHUB_ENV"/);
+    assert.match(workflow(name), /xmake test-deps --env-file="\$GITHUB_ENV"/);
   }
 });
 
@@ -108,7 +108,7 @@ test('Lua CI consumers share engine sources and trigger on interpreter setup cha
     const source = workflow(name);
     assert.equal(source.split("      - '.github/actions/setup-engine-lua/**'").length - 1, 2, name);
     assert.equal(source.split('uses: ./.github/actions/setup-engine-lua').length - 1, 1, name);
-    assert.ok(source.indexOf('uses: ./.github/actions/setup-engine-lua') < source.indexOf('run: xmake dora-test --suite='), name);
+    assert.ok(source.indexOf('uses: ./.github/actions/setup-engine-lua') < source.indexOf('run: xmake test-suite --suite='), name);
   }
   for (const name of fs.readdirSync(path.join(engine, '.github/workflows')).filter(name => name.endsWith('.yml'))) {
     assert.doesNotMatch(workflow(name), /lua5\.[0-4]\b|DORA_LUA:\s*lua\b/, name);

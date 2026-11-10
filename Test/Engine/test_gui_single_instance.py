@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test production GUI single-instance behavior; optionally check a real desktop engine.
 
-xmake dora-test --case=test_gui_single_instance --repo=/path/to/Dora-Example
+xmake test-suite --case=test_gui_single_instance --repo=/path/to/Dora-Example
 Append -- --engine /absolute/path/Dora for GUI/CLI integration (desktop required).
 """
 import argparse

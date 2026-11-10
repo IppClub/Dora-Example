@@ -1,7 +1,7 @@
 Run the video regressions against the engine being edited:
 
 ```sh
-xmake dora-test --repo=/path/to/Dora-Example --suite=engine --case=test_video_playback
+xmake test-suite --repo=/path/to/Dora-Example --suite=engine --case=test_video_playback
 ```
 
 The runner isolates CMake build directories by test source path so local overrides

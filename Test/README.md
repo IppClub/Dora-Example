@@ -1,6 +1,6 @@
 # Dora-SSR test programs
 
-Run these tests through the engine checkout's `xmake dora-test` command. Set
+Run these tests through the engine checkout's `xmake test-suite` command. Set
 `DORA_TEST_REPO` to this checkout while developing; CI fetches the latest published
 default branch once per job and executes a revision snapshot.
 
@@ -17,12 +17,12 @@ missing or duplicate cases and missing push/PR trigger inputs.
 From the engine root:
 
 ```sh
-xmake dora-test --repo=/path/to/Dora-Example --suite=engine
-xmake dora-test --repo=/path/to/Dora-Example --suite=ui
-xmake dora-test --repo=/path/to/Dora-Example --suite=studio
-xmake dora-test --repo=/path/to/Dora-Example --case=check_ci_test_coverage.test
-xmake dora-test --repo=/path/to/Dora-Example --case=test_shutdown_watchdog -- --engine /absolute/path/Dora
-xmake dora-test --repo=/path/to/Dora-Example --case=test_http_access_native -- --engine /absolute/path/Dora --require-lan
+xmake test-suite --repo=/path/to/Dora-Example --suite=engine
+xmake test-suite --repo=/path/to/Dora-Example --suite=ui
+xmake test-suite --repo=/path/to/Dora-Example --suite=studio
+xmake test-suite --repo=/path/to/Dora-Example --case=check_ci_test_coverage.test
+xmake test-suite --repo=/path/to/Dora-Example --case=test_shutdown_watchdog -- --engine /absolute/path/Dora
+xmake test-suite --repo=/path/to/Dora-Example --case=test_http_access_native -- --engine /absolute/path/Dora --require-lan
 ```
 
 Graphical, paid-model, and project-specific acceptance programs remain manual,
@@ -36,7 +36,7 @@ also checks cleanup after assertions, Lua failures, CLI/startup timeouts and an
 unresponsive engine. Run the three cases sequentially (they use ports 8866/8868):
 
 ```sh
-xmake dora-test --repo=/path/to/Dora-Example --suite=native-agent -- --engine /absolute/path/Dora
+xmake test-suite --repo=/path/to/Dora-Example --suite=native-agent -- --engine /absolute/path/Dora
 ```
 
 `--dora` remains an alias for `--engine`; both now launch an isolated service.
@@ -48,6 +48,6 @@ no full engine build or graphical environment is added to ordinary Engine Tests.
 
 Godot integration tests, fixtures, source audits and manual acceptance tools live in
 [`Godot/`](Godot/README.md); the original Metal probe is in `LibGodotMetalProbe/`.
-Run `xmake dora-test --repo=/path/to/Dora-Example --suite=godot-contract` from
+Run `xmake test-suite --repo=/path/to/Dora-Example --suite=godot-contract` from
 the engine root. Native test-host builds use `DORA_TEST_REPO` or
 `--dora_test_repo=/path/to/Dora-Example`; normal runtime builds need no test checkout.

@@ -9,15 +9,15 @@ integrity checks remain in Dora-SSR.
 From the engine checkout:
 
 ```sh
-xmake dora-test --repo=/path/to/Dora-Example --suite=godot-contract
-xmake dora-test --repo=/path/to/Dora-Example --suite=godot-build
+xmake test-suite --repo=/path/to/Dora-Example --suite=godot-contract
+xmake test-suite --repo=/path/to/Dora-Example --suite=godot-build
 ```
 
 The contract suite compiles native protocol fixtures and checks package integrity
 and build dispatch. The build suite inspects manifests, configures the standalone
 xmake graph and checks codegen; it does not rebuild every Godot runtime or claim
 GPU acceptance. Manual runners retain their required arguments and acceptance
-thresholds. List cases with `xmake dora-test --repo=/path/to/Dora-Example --list`.
+thresholds. List cases with `xmake test-suite --repo=/path/to/Dora-Example --list`.
 
 For individual scripts set both roots explicitly:
 

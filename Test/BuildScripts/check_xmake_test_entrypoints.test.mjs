@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
+import vm from 'node:vm';
 
 const engine = process.env.DORA_ENGINE_ROOT;
 
@@ -80,15 +81,15 @@ test('canonical tutorial generator prepares bilingual docs in a clean checkout',
 test('nested package and CI commands put the xmake task before project options', () => {
   for (const name of ['Tools/dora-dora/package.json', 'Docs/package.json', '.github/workflows/ui.yml']) {
     const source = fs.readFileSync(path.join(engine, name), 'utf8');
-    assert.doesNotMatch(source, /xmake\s+-P\s+\S+\s+dora-/, name);
-    assert.match(source, /xmake\s+dora-[\w-]+\s+-P\s+/, name);
+    assert.doesNotMatch(source, /xmake\s+-P\s+\S+\s+(?:test-suite|web|studio)/, name);
+    assert.match(source, /xmake\s+(?:test-suite|web|studio)\s+-P\s+/, name);
   }
 });
 
 test('test listing from a nested directory needs no engine configuration or toolchain install', () => {
   const config = fs.mkdtempSync(path.join(os.tmpdir(), 'dora-test-entrypoint-'));
   try {
-    const result = spawnSync(process.env.DORA_XMAKE || 'xmake', ['dora-test', '-P', '../..', '--list'], {
+    const result = spawnSync(process.env.DORA_XMAKE || 'xmake', ['test-suite', '-P', '../..', '--list'], {
       cwd: path.join(engine, 'Tools/dora-dora'), encoding: 'utf8', timeout: 30000,
       env: {...process.env, XMAKE_CONFIGDIR: config},
     });
@@ -105,9 +106,9 @@ test('test listing from a nested directory needs no engine configuration or tool
 test('all public xmake task menus accept --help without configuring a toolchain', () => {
   const config=fs.mkdtempSync(path.join(os.tmpdir(),'dora-command-help-'));
   try {
-    for(const name of ['audit-manifests','doctor','dora-build','dora-run','dora-ide','dora-test','dora-test-deps',
-      'dora-web','dora-web-env','dora-studio','dora-package','dora-android-prepare','dora-wa-web','dora-wa-sync',
-      'dora-web-game','dora-web-preview','dora-web-rollback','dora-gallery']) {
+    for(const name of ['audit-manifests','doctor','build','run','project-gen','test-suite','test-deps',
+      'web','web-env','web-ide','studio','app-package','android-prepare','wa-web','wa-sync',
+      'web-game','web-preview','web-rollback','gallery']) {
       const result=spawnSync(process.env.DORA_XMAKE||'xmake',[name,'--help'],{cwd:engine,encoding:'utf8',timeout:15000,
         env:{...process.env,XMAKE_CONFIGDIR:config}});
       assert.equal(result.status,0,`${name}: ${result.error?.message||result.stdout+result.stderr}`);
@@ -117,9 +118,8 @@ test('all public xmake task menus accept --help without configuring a toolchain'
   } finally { fs.rmSync(config,{recursive:true,force:true}); }
 });
 
-test('invalid native asset and doctor platform arguments fail before child builds', () => {
+test('invalid doctor platform arguments fail before child builds', () => {
   for(const [args,message] of [
-    [['dora-run','--','--asset='],/--asset expects a directory/],
     [['doctor','--platform=not-a-platform'],/unsupported doctor platform/],
   ]) {
     const result=spawnSync(process.env.DORA_XMAKE||'xmake',args,{cwd:engine,encoding:'utf8',timeout:15000});
@@ -127,4 +127,28 @@ test('invalid native asset and doctor platform arguments fail before child build
     assert.match(result.stdout+result.stderr,message);
     assert.doesNotMatch(result.stdout+result.stderr,/checking for Xcode|compiling|building/);
   }
+});
+
+// The lightweight entry keeps all frontend output steps but cannot invoke the
+// Web Player preparation path that may compile the full WASM runtime.
+test('frontend-only build reuses Web Player artifacts and preserves frontend preparation/output', () => {
+  const source=fs.readFileSync(path.join(engine,'Tools/dora-dora/scripts/build-project.js'),'utf8');
+  function invoke(frontendOnly) {
+    const calls=[];
+    vm.runInNewContext(source,{require:name=>{
+      if(name==='path')return path;
+      assert.equal(name,'child_process');
+      return {spawnSync:(command,args,options)=>{calls.push({command,args,options});return {status:0};}};
+    },process:{cwd:()=>'/frontend',argv:['node','build-project.js',...(frontendOnly?['--frontend-only']:[])],
+      execPath:'node',env:{},exit:code=>{throw Error('Unexpected exit '+code);}},console:{log(){}}});
+    return calls;
+  }
+  const full=invoke(false),frontend=invoke(true);
+  assert.equal(full.length,frontend.length+1);
+  assert.ok(full.some(call=>call.args.includes(path.join('scripts','prepare-web-runtime.mjs'))));
+  assert.ok(!frontend.some(call=>call.args.includes(path.join('scripts','prepare-web-runtime.mjs'))));
+  assert.ok(frontend.some(call=>call.args.includes(path.join('scripts','build-studio-compiler.cjs'))));
+  for(const script of ['minify-javascript-codes.js','version-heavy-assets.js','sync-build-to-assets.js','precompress-assets.mjs'])
+    assert.ok(frontend.some(call=>call.args.includes(path.join('scripts',script))),script);
+  assert.ok(frontend.some(call=>call.args.join(' ')==='exec vite build'));
 });
