@@ -14,7 +14,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'support'))
 from godot_paths import ENGINE_ROOT
 
 source = (ENGINE_ROOT / 'Source/3rdParty/Godot/modules/dora_bridge/runtime_project.h').read_text()
-policy = source[source.index('inline std::set<uint64_t> preserved_nodes;'):source.index('inline bool supported(')]
+# Exercise the orphan policy without pulling in project startup and its engine dependencies.
+policy = (
+    source[source.index('inline std::set<uint64_t> preserved_nodes;'):source.index('inline bool start(')]
+    + source[source.index('inline bool contains_preserved_node('):source.index('inline bool supported(')]
+)
 stub = r'''
 #include <cassert>
 #include <cstdint>
@@ -65,9 +69,6 @@ struct MessageQueue {
     static MessageQueue *get_singleton(){static MessageQueue queue;return &queue;}
     void flush(){assert(!Object::locked);}
 };
-constexpr int OK=0;
-struct Main {static inline int result=OK;static int setup2(){return result;}};
-struct GodotInstance {bool start_embedded_project(){return true;}};
 template<class... Args> std::string vformat(const char *s,Args...){return s;}
 void print_line(const std::string&){}
 void checked_delete(Node *node){if(!node->cancel_free)delete node;}
