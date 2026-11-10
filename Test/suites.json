@@ -20,7 +20,9 @@
     "test_lualib_utf8_trim",
     "check_ci_test_coverage.test",
     "test_read_sync",
-    "test_bootstrap_lua_load"
+    "test_bootstrap_lua_load",
+    "test_native_run_transition",
+    "test_xmake_native_tasks"
   ],
   "web": [
     "check_web_output",

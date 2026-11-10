@@ -99,3 +99,32 @@ test('test listing from a nested directory needs no engine configuration or tool
     fs.rmSync(config, {recursive: true, force: true});
   }
 });
+
+// Help must remain available even for tasks with no task-specific arguments.
+// This launches the real parser without building or installing anything.
+test('all public xmake task menus accept --help without configuring a toolchain', () => {
+  const config=fs.mkdtempSync(path.join(os.tmpdir(),'dora-command-help-'));
+  try {
+    for(const name of ['audit-manifests','doctor','dora-build','dora-run','dora-ide','dora-test','dora-test-deps',
+      'dora-web','dora-web-env','dora-studio','dora-package','dora-android-prepare','dora-wa-web','dora-wa-sync',
+      'dora-web-game','dora-web-preview','dora-web-rollback','dora-gallery']) {
+      const result=spawnSync(process.env.DORA_XMAKE||'xmake',[name,'--help'],{cwd:engine,encoding:'utf8',timeout:15000,
+        env:{...process.env,XMAKE_CONFIGDIR:config}});
+      assert.equal(result.status,0,`${name}: ${result.error?.message||result.stdout+result.stderr}`);
+      assert.match(result.stdout,/Usage:/,name);
+      assert.doesNotMatch(result.stdout+result.stderr,/checking for platform|must be installed/,name);
+    }
+  } finally { fs.rmSync(config,{recursive:true,force:true}); }
+});
+
+test('invalid native asset and doctor platform arguments fail before child builds', () => {
+  for(const [args,message] of [
+    [['dora-run','--','--asset='],/--asset expects a directory/],
+    [['doctor','--platform=not-a-platform'],/unsupported doctor platform/],
+  ]) {
+    const result=spawnSync(process.env.DORA_XMAKE||'xmake',args,{cwd:engine,encoding:'utf8',timeout:15000});
+    assert.notEqual(result.status,0);
+    assert.match(result.stdout+result.stderr,message);
+    assert.doesNotMatch(result.stdout+result.stderr,/checking for Xcode|compiling|building/);
+  }
+});

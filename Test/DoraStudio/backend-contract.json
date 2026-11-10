@@ -9,13 +9,13 @@
     "TestInvitationQuotaManagement",
     "TestLegacyTaggedNanoScope",
     "TestLoginRateLimitIsSharedAndExpires",
+    "TestModelProfilesOmitLegacyDecisionMode",
     "TestObsoleteInvitationSchemaRequiresDatabaseRebuild",
     "TestRuntimeHandlerDedicatedStaticSurface",
     "TestRuntimeHandlerRejectsIncompleteBuild",
     "TestStreamProviderResponseRequiresDoneAndPreservesUsage",
     "TestUserProjectLifecycle",
     "TestWebHandlerRejectsUnsafeOrIncompleteTree",
-    "TestWebHandlerServesAssetsRoutesAndAPI",
-    "TestXYWHSoftUsesXMLAgentDecisions"
+    "TestWebHandlerServesAssetsRoutesAndAPI"
   ]
 }

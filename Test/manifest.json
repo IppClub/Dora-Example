@@ -2164,6 +2164,14 @@
     {
       "source": "Tools/tests/test_bootstrap_lua_load.lua",
       "path": "Test/Engine/test_bootstrap_lua_load.lua"
+    },
+    {
+      "source": "Tools/tests/test_native_run_transition.lua",
+      "path": "Test/Engine/test_native_run_transition.lua"
+    },
+    {
+      "source": "Tools/tests/test_xmake_native_tasks.lua",
+      "path": "Test/Engine/test_xmake_native_tasks.lua"
     }
   ]
 }

@@ -49,7 +49,11 @@
     "test-tic80-runtime-lifecycle",
     "test_video_playback",
     "test_web_ogv_harness",
-    "test_gui_single_instance"
+    "test_gui_single_instance",
+    "test_read_sync",
+    "test_bootstrap_lua_load",
+    "test_native_run_transition",
+    "test_xmake_native_tasks"
   ],
   "manualCases": [
     "emoji-label",
