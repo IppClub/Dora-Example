@@ -50,3 +50,14 @@ test('original workspace build preserves per-file failure, cancellation and miss
   assert.equal((await build({ workDir: 'other', path: '.' })).message, 'invalid path or workDir');
   assert.equal((await build({ workDir: 'p', path: 'missing.ts' })).message, 'path not existed');
 });
+
+test('Studio workspace traversal compiles Dora sources without native Godot hooks', async () => {
+  const { build, calls } = fixture(new Map([
+    ['p/project.godot', 'config_version=5'], ['p/main.gd', 'extends Node'], ['p/main.ts', 'export const ready = true;'],
+  ]));
+  const result = await build({ workDir: 'p', path: '.' });
+  assert.equal(result.success, true);
+  assert.equal(result.total, 1);
+  assert.deepEqual(calls, ['p/main.ts']);
+  assert.equal(result.messages[0].file, 'main.ts');
+});

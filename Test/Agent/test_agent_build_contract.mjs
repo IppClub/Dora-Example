@@ -75,8 +75,10 @@ const nativeClass={checkCodeAsync:(project,file,content,callback)=>{
  nativeCalls.push({project,file,content});nativeHook?.();
  callback(available,available?JSON.stringify(nativeResult):'bundled compiler API unavailable');
 }};
-const nativePath=Object.assign((...parts)=>nodePath.posix.join(...parts),{getPath:nodePath.posix.dirname,getRelative:(file,base)=>nodePath.posix.relative(base,file),getFilename:nodePath.posix.basename});
-const doraCheck={Content:{load:()=>'config_version=5',glob:()=>[]},GodotNode:nativeClass,Path:nativePath,once:fn=>fn,sleep:()=>{},Director:{systemScheduler:{schedule:fn=>nativeQueue.push(fn)}}};
+// Dora preserves a single path argument and a trailing slash from joining '.'.
+// node:path.join alone hides the native workspace-root regression.
+const nativePath=Object.assign((...parts)=>parts.length===1?parts[0]:nodePath.posix.join(...parts)+(parts.at(-1)==='.'?'/':''),{getPath:nodePath.posix.dirname,getRelative:(file,base)=>nodePath.posix.relative(base,file),getFilename:nodePath.posix.basename});
+const doraCheck={Content:{load:()=>'config_version=5',glob:()=>[],isAbsolutePath:nodePath.posix.isAbsolute},GodotNode:nativeClass,Path:nativePath,once:fn=>fn,sleep:()=>{},Director:{systemScheduler:{schedule:fn=>nativeQueue.push(fn)}}};
 const check=await load('Assets/Script/Lib/Agent/Tool/GodotCheck.ts',{
  __nativeDora:doraCheck,string:{match:text=>[text.match(/config_version\s*=\s*(\d+)/)?.[1]]},type:v=>v===undefined?'nil':typeof v==='object'?'table':typeof v,
 },{Dora:'module.exports=__nativeDora;','Agent/Utils':'module.exports={safeJsonDecode:text=>{try{return[JSON.parse(text)]}catch{return[]}}};'});
@@ -93,6 +95,15 @@ assert.equal(nativeAnswer.info[0][0],'tool');assert.match(nativeAnswer.info[0][4
 const stale=check.checkGodotFile('/project','/project/main.gd','old');const fresh=check.checkGodotFile('/project','/project/main.gd','new');drainNative();
 assert.equal((await stale).skipped,true);assert.equal((await fresh).success,true);assert.equal(nativeCalls.at(-1).content,'new');
 assert.equal((await check.checkGodotFile('/project','/outside/main.gd','')).success,false);
+for(const project of ['/project/',nativePath('/project','.'),'/project/.']){
+ const promise=check.checkGodotFile(project,nativePath(project,'project.godot'),'config_version=5');drainNative();
+ assert.equal((await promise).success,true,project);
+ assert.equal(nativeCalls.at(-1).project,'/project');
+}
+for(const file of ['/project-other/main.gd','/project/../outside/main.gd','/project']){
+ const before=nativeCalls.length;assert.equal((await check.checkGodotFile('/project/',file,'')).success,false);assert.equal(nativeCalls.length,before);
+}
+const rootCheck=check.checkGodotFile('/','/project.godot','config_version=5');drainNative();assert.equal((await rootCheck).success,true);
 const savedNative=nativeClass.checkCodeAsync;delete nativeClass.checkCodeAsync;
 assert.equal((await check.checkGodotFile('/project','/project/main.gd','')).success,false);nativeClass.checkCodeAsync=savedNative;
 const fs=require('node:fs');
@@ -110,10 +121,16 @@ const godot=await load('Assets/Script/Lib/Agent/Tool/GodotBuild.ts',{
 },{Dora:'module.exports=__buildDora;','Agent/Tool/GodotCheck':'module.exports={checkGodotFile:__checkNative};'});
 assert.equal(godot.findGodotProject('/project','/project/scenes/main.gd'),'/project');
 assert.equal(godot.findGodotProject('/project','/other/main.gd'),undefined);
+assert.equal(godot.findGodotProject('/project/','/project/main.gd'),'/project');
+assert.equal(godot.findGodotProject('/project/','/project'),'/project');
 assert.equal(godot.GODOT_RUNTIME_VERSION,JSON.parse(fs.readFileSync(join(root,'Source/3rdParty/Godot/UPSTREAM.json'))).version.replace('-stable',''));
 const nativeSuccess=await godot.buildGodotProject('/project');assert.equal(nativeSuccess.success,true);assert.deepEqual(buildChecks,['/project/project.godot','/project/main.gd','/project/main.tscn','/project/effect.gdshader','/project/common.gdshaderinc']);
 assert.deepEqual(nativeBuildLogs.map(item=>item.message),['Built Godot project/project.godot','Built Godot project/main.gd','Built Godot project/main.tscn','Built Godot project/effect.gdshader','Built Godot project/common.gdshaderinc']);
 assert.equal(nativeSuccess.messages.length,5);assert.ok(nativeSuccess.messages.every(item=>item.success&&item.message.includes('Godot validation passed')));
+for(const project of ['/project/','/project/.']){
+ buildChecks=[];assert.equal((await godot.buildGodotProject(project)).success,true);
+ assert.deepEqual(buildChecks,['/project/project.godot','/project/main.gd','/project/main.tscn','/project/effect.gdshader','/project/common.gdshaderinc']);
+}
 compiledResult={success:false,info:[['syntax','/project/main.gd',2,1,'Parse Error']]};let nativeBuild=await godot.buildGodotProject('/project');assert.match(nativeBuild.message,/res:\/\/main.gd:2:1/);
 compiledResult={success:false,info:[['tool','/project/main.gd',1,0,'compiler bridge missing']]};assert.equal((await godot.buildGodotProject('/project')).failureKind,'tool');
 assert.equal((await godot.buildGodotProject('/project',()=>true)).interrupted,true);
@@ -161,3 +178,13 @@ const shaderModel=JSON.parse(projectMessagesForLLMContext([{role:'tool',name:'bu
 assert.equal(shaderModel.success,false);assert.match(shaderModel.results[0].messages.at(-1).message,/common\.gdshaderinc:2:0/);
 assert.ok(vm.runInNewContext(extractJS)({result:shaderHandler.output}).some(item=>!item.success&&item.message.includes('common.gdshaderinc:2:0')));
 console.log('PASS: shader/include success and nested diagnostic details survive Agent aggregation, model history and build-results UI.');
+
+// A compiler capability/path failure with file diagnostics must retain the
+// build result, rather than throw away its messages as a step exception.
+handlerBuildResult={success:false,failureKind:'tool',message:'compiler bridge missing',total:2,passed:1,failed:1,messages:[{success:true,file:'project.godot',message:'Godot validation passed'},{success:false,file:'main.gd',failureKind:'tool',message:'compiler bridge missing'}]};
+const bridgeFailure=await handlerModule.AGENT_TOOL_HANDLERS.build(handlerContext,{paths:['.']});
+assert.equal(bridgeFailure.output.success,false);assert.equal(handlerContext.workflow.lastBuildSucceeded,false);assert.equal(handlerContext.workflow.buildRepairPending,true);
+const bridgeModel=JSON.parse(projectMessagesForLLMContext([{role:'tool',name:'build',content:JSON.stringify(bridgeFailure.output)}])[0].content);
+assert.equal(bridgeModel.results[0].messages.length,2);assert.equal(bridgeModel.results[0].failed,1);
+assert.ok(vm.runInNewContext(extractJS)({result:bridgeFailure.output}).some(item=>item.file==='main.gd'&&!item.success&&item.message==='compiler bridge missing'));
+console.log('PASS: tool-level compiler diagnostics retain file cards, model details and completion blocking.');

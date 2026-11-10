@@ -90,6 +90,21 @@ for _,mode in ipairs({"throw","reported"}) do
  assert(policy.getAuthoredCompletionBlocker(context.workflow)==nil)
 end
 local executions=0
+context.workflow={}
+T.build=function(req)
+ return l.__TS__Promise.resolve({success=false,failureKind="tool",message="controlled compiler bridge failure",total=2,passed=1,failed=1,messages={
+  {success=true,file="project.godot",message="Godot validation passed"},
+  {success=false,file="main.gd",failureKind="tool",message="controlled compiler bridge failure"}
+ }})
+end
+local diagnosed=run({"."})
+assert(diagnosed.execution.status=="DONE" and diagnosed.output.success==false)
+assert(context.workflow.lastBuildSucceeded==false and context.workflow.buildRepairPending==true)
+assert(policy.getAuthoredCompletionBlocker(context.workflow)~=nil)
+local diagnosedModel=H.projectBuildResultForModel(diagnosed.output,diagnosed.execution)
+assert(diagnosedModel.success==false and #diagnosedModel.results[1].messages==2)
+assert(diagnosedModel.results[1].messages[2].file=="main.gd")
+assert(diagnosedModel.results[1].messages[2].message=="controlled compiler bridge failure")
 T.build=function(req)
  executions=executions+1
  if executions==1 then error("controlled build invocation failure") end
