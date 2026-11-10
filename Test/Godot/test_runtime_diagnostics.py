@@ -23,6 +23,20 @@ tests = r'''
 int main() {
  using namespace DoraGodotDiagnostics;
  begin(); assert(active && std::string(get()).empty());
+ {
+  ScopedMetadataQuery query;
+  capture(nullptr,"inspect","scene.tscn",2,"query failure","",false,ERR_HANDLER_ERROR);
+  assert(std::string(get()).empty());
+  {ScopedMetadataQuery nested;capture(nullptr,"inspect","nested.tscn",3,"nested failure","",false,ERR_HANDLER_ERROR);}
+  capture(nullptr,"inspect","scene.tscn",4,"still muted","",false,ERR_HANDLER_ERROR);
+  assert(std::string(get()).empty());
+  std::thread worker([]{capture(nullptr,"worker","res://live.gd",6,"real game failure","",false,ERR_HANDLER_SCRIPT);});worker.join();
+  assert(std::string(get()).find("real game failure")!=std::string::npos);
+ }
+ begin(); capture(nullptr,"game","res://main.gd",7,"owner game failure","",false,ERR_HANDLER_SCRIPT);
+ {ScopedMetadataQuery query;capture(nullptr,"inspect","scene.tscn",2,"query failure","",false,ERR_HANDLER_ERROR);}
+ assert(std::string(get()).find("owner game failure")!=std::string::npos);
+ begin(); assert(std::string(get()).empty());
  capture(nullptr,"_ready","res://main.gd",4,"warning","",false,ERR_HANDLER_WARNING);
  assert(std::string(get()).empty());
  capture(nullptr,"_process","res://main.gd",8,"invalid call","missing_method on null",false,ERR_HANDLER_SCRIPT);

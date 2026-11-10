@@ -12,16 +12,21 @@ static int imports(uint32_t version,DoraGodotImportAPI *api) {
     assert(version==DORA_GODOT_IMPORT_ABI_VERSION);
     *api={sizeof(*api),mode==2?99u:version,mode==3?nullptr:invoke};if(mode==5)api->size=0;return mode!=1;
 }
+static int scenes(uint32_t version,DoraGodotSceneAPI *api) {
+    assert(version==DORA_GODOT_SCENE_ABI_VERSION);
+    *api={sizeof(*api),mode==2?99u:version,mode==3?nullptr:invoke};if(mode==5)api->size=0;return mode!=1;
+}
 int main() {
     DoraGodotConfig config{};
-    for(bool importing:{false,true}) {
+    for(int operation:{GodotRuntimeServices::Check,GodotRuntimeServices::Import,GodotRuntimeServices::InspectScene}) {
         auto resolve=[](const char *name)->void * {
             if(mode==6)return nullptr;
             if(std::strcmp(name,"dora_godot_get_check_api")==0)return reinterpret_cast<void *>(checks);
-            assert(std::strcmp(name,"dora_godot_get_import_api")==0);return reinterpret_cast<void *>(imports);
+            if(std::strcmp(name,"dora_godot_get_import_api")==0)return reinterpret_cast<void *>(imports);
+            assert(std::strcmp(name,"dora_godot_get_scene_api")==0);return reinterpret_cast<void *>(scenes);
         };
-        for(mode=1;mode<=6;++mode)assert(!GodotRuntimeServices::call(importing,config,"file","source",resolve).first);
-        mode=0;auto result=GodotRuntimeServices::call(importing,config,"file","source",resolve);assert(result.first);
+        for(mode=1;mode<=6;++mode)assert(!GodotRuntimeServices::call(operation,config,"file","source",resolve).first);
+        mode=0;auto result=GodotRuntimeServices::call(operation,config,"file","source",resolve);assert(result.first);
         storage="invalidated by next runtime call";assert(result.second=="{\"success\":true}");
     }
 }
