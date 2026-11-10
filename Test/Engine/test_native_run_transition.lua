@@ -21,8 +21,8 @@ local function fixture(options)
 	dora.tolua = {cast = function(value, name) assert(name == 'GodotNode'); return value.lastError and value or nil end}
 	local env = setmetatable({require = function(name) assert(name == 'Dora'); return dora end}, {__index = _G})
 	local module = assert(loadfile(root .. '/Assets/Script/Dev/RunTransition.lua', 't', env))()
-	local ok, err = module.waitForFrameAsync({getCurrentEntryStatus = function() return status end}, 1, options.expected)
-	return ok, err, app.frame
+	local ok, err, monitor = module.waitForFrameAsync({getCurrentEntryStatus = function() return status end}, 1, options.expected, options.checkPreview)
+	return ok, err, app.frame, {monitor=monitor, node=node, status=status, app=app}
 end
 local ok, err, frame = fixture({tick = function(app, node) node.running = app.frame >= 5 end})
 assert(ok and not err and frame == 7, 'must wait for Godot readiness and two submitted frames')
@@ -48,6 +48,19 @@ ok, err = fixture({step = 15})
 assert(not ok and err:find('timed out', 1, true))
 ok, err, frame = fixture({tick = function(app, node) node.running = app.frame ~= 2 end})
 assert(ok and frame == 5, 'readiness lost during drain must restart the frame wait')
+local observed
+ok, err, frame, observed = fixture({tick=function(_,node) node.running=true end})
+assert(ok and observed.monitor())
+observed.app.runningTime=120
+assert(observed.monitor(), 'the first-frame timeout must not expire a ready run monitor')
+observed.node.lastError='res://main.gd:8: invalid call'
+local healthy, runtimeError=observed.monitor()
+assert(not healthy and runtimeError=='res://main.gd:8: invalid call')
+observed.node.lastError=''; observed.node.parent=nil
+assert(not observed.monitor(), 'node removal during preview must fail')
+local checks=0
+ok, err = fixture({tick=function(_,node) node.running=true end,checkPreview=function() checks=checks+1 end})
+assert(ok and checks>0, 'preview cancellation and startup budgets must run while waiting')
 print('PASS: native run transition waits for asynchronous Godot readiness and submitted frames; failures, removal, timeout, cancellation and superseded runs never switch views')
 
 -- Exercise the generated /run handler: only embedded callers opt into the
