@@ -19,10 +19,10 @@ try {
         : '#!/bin/sh\nprintf "python\\n" >> "$DORA_PYTHON_GUARD_LOG"\nexit 99\n', {mode: 0o755});
   }
   const output = path.join(temporary, 'generated');
-  const env = {...process.env, PATH: guard + path.delimiter + process.env.PATH, DORA_PYTHON_GUARD_LOG: marker};
-  function run(extra = []) {
+  const env = {...process.env, LC_ALL: 'C', PATH: guard + path.delimiter + process.env.PATH, DORA_PYTHON_GUARD_LOG: marker};
+  function run(extra = [], environment = {}) {
     return spawnSync(process.env.DORA_XMAKE || 'xmake', ['lua', path.join(root, 'Tools/Godot/generate_xmake_sources.lua'), '--output', output, ...extra],
-      {cwd: root, env, encoding: 'utf8', timeout: 60000});
+      {cwd: root, env: {...env, ...environment}, encoding: 'utf8', timeout: 60000});
   }
   let result = run(); assert.equal(result.status, 0, result.stdout + result.stderr);
   const state = JSON.parse(fs.readFileSync(path.join(output, '.xmake-codegen.json')));
@@ -36,6 +36,14 @@ try {
     const bytes = header.match(new RegExp(symbol + '\\[\\] = \\{([^}]+)\\}'))[1].match(/\d+/g).map(Number);
     assert.deepEqual(inflateSync(Buffer.from(bytes)), fs.readFileSync(path.join(root, 'Source/3rdParty/Godot', input)));
   }
+  // Reproduce macOS CI's locale-dependent icon ordering. Keep the same golden
+  // hashes: accepting a second baseline would hide nondeterministic builds.
+  if (process.platform === 'darwin') {
+    fs.rmSync(output, {recursive: true});
+    result = run([], {LC_ALL: 'en_US.UTF-8'});
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    for (const [name, expected] of Object.entries(fixture.files)) assert.equal(hash(fs.readFileSync(path.join(output, name))), expected, 'en_US.UTF-8: ' + name);
+  }
   const mtimes = Object.fromEntries(state.outputs.map(name => [name, fs.statSync(path.join(output, name)).mtimeMs]));
   result = run(); assert.equal(result.status, 0, result.stdout + result.stderr); assert.match(result.stdout, /unchanged/);
   for (const [name, value] of Object.entries(mtimes)) assert.equal(fs.statSync(path.join(output, name)).mtimeMs, value);
@@ -46,5 +54,5 @@ try {
     result = run(); assert.notEqual(result.status, 0); assert.equal(fs.readFileSync(outside, 'utf8'), 'preserve');
   }
   assert.equal(fs.existsSync(marker), false, 'Lua codegen invoked Python');
-  console.log('PASS: 147 Lua outputs; 145 baseline hashes, two decompressed payloads, incremental behavior, invalid modules/symlinks and Python exclusion');
+  console.log('PASS: 147 Lua outputs; 145 baseline hashes, two decompressed payloads, locale independence, incremental behavior, invalid modules/symlinks and Python exclusion');
 } finally {fs.rmSync(temporary, {recursive: true, force: true});}
