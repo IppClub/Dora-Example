@@ -17,9 +17,9 @@ for case in ('absolute-control','relative-fixed'):
     root=out/case;manifest=root/'Projects/xmake/godot/probe.lua';manifest.parent.mkdir(parents=True)
     header=root/'Source/3rdParty/Godot/platform/android/platform_config.h';header.parent.mkdir(parents=True);header.write_text('#define DORA_PLATFORM_FLAG 29\n')
     db=root/'compile_commands.json';db.write_text(json.dumps([{'directory':str(root),'file':'main/probe.gen.cpp','command':'clang++ -o bin/obj/main/probe.android.template_release.arm64.o -c -std=gnu++17 -DDORA_IMPORT_FLAG=73 -Iplatform/android -I. main/probe.gen.cpp'}]))
-    importer='import_macos_compile_db.py' if a.importer=='macos' else 'import_compile_db.py'
+    importer='import_macos_compile_db.lua' if a.importer=='macos' else 'import_compile_db.lua'
     extra=['--variant','generated_flags_fixture_readonly'] if a.importer=='macos' else ['--variant','generated_flags_fixture_readonly','--object-platform','android','--generated-root','build/generated']
-    subprocess.run([sys.executable,str(ROOT/'Tools/Godot'/importer),str(db),str(manifest),*extra],check=True,stdout=subprocess.DEVNULL)
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'),'lua',str(ROOT/'Tools/Godot'/importer),str(db),str(manifest),*extra],check=True,stdout=subprocess.DEVNULL)
     if a.importer=='macos':manifest.write_text(manifest.read_text().replace('build/godot-xmake/generated','build/generated'))
     if case=='absolute-control':
         text=manifest.read_text();assert 'return path.relative(path.join(generated_root, relative), os.scriptdir())' in text

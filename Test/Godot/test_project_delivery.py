@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise project discovery and game-package corruption/extraction boundaries."""
 import sys
+import os
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Test/support'))
 from godot_paths import ENGINE_ROOT
@@ -36,6 +37,37 @@ class DeliveryTests(unittest.TestCase):
         project.mkdir(parents=True)
         (project/'project.godot').write_text('config_version=5\n[application]\nconfig/name="Delivery"\nrun/main_scene="res://main.tscn"\n')
         return project
+
+    @unittest.skipUnless(os.name == 'posix', 'POSIX fake editor fixture')
+    def test_lua_preparation_export_and_deterministic_archive(self):
+        project = self.project()
+        before = delivery.fingerprint(project)
+        fixture = self.root/'fixture.pck'; pck(fixture)
+        editor = self.root/'editor'
+        editor.write_text('''#!/bin/sh
+if [ "$1" = "--version" ]; then echo 4.7.2.stable.fixture; exit 0; fi
+previous=""; project=""; destination=""
+for argument do
+    if [ "$previous" = "--path" ]; then project="$argument"; fi
+    previous="$argument"; destination="$argument"
+done
+case " $* " in
+    *" --import "*) mkdir -p "$project/.godot/imported" ;;
+    *" --export-pack "*) cp "$(dirname "$0")/fixture.pck" "$destination" ;;
+    *) exit 29 ;;
+esac
+''')
+        editor.chmod(0o755)
+        result = delivery.export_game(project, self.root/'exported', self.root/'work', str(editor),
+                                      'dora.lua-fixture', platform='macOS')
+        self.assertTrue(result['verified'])
+        self.assertEqual(delivery.fingerprint(project), before)
+        self.assertFalse((project/'.godot').exists())
+        first, second = self.root/'first.zip', self.root/'second.zip'
+        delivery.archive_game(self.root/'exported', first)
+        delivery.archive_game(self.root/'exported', second)
+        self.assertEqual(first.read_bytes(), second.read_bytes())
+        self.assertTrue(delivery.install_game(first, self.root/'installed')['verified'])
 
     def game(self):
         package = self.root/'game'

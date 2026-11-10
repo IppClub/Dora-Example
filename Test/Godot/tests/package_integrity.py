@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """Negative deployment checks; no runtime or GPU execution."""
 
@@ -57,7 +58,7 @@ class PackageIntegrity(unittest.TestCase):
     def test_metal_static_sdk_notices_and_repeated_packaging(self):
         library=self.root/'fixture.dylib';library.write_bytes(b'fixture, no runtime execution')
         package=self.root/'metal'
-        command=[sys.executable,str(ENGINE_ROOT/'Tools/Godot/package_runtime.py'),
+        command=[os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/package_runtime.lua'),
                  '--source',str(ENGINE_ROOT/'Source/3rdParty/Godot'),'--library',str(library),
                  '--output',str(package),'--architecture','arm64','--graphics-backend','metal']
         for _ in range(2): subprocess.run(command,check=True,capture_output=True)
@@ -72,7 +73,7 @@ class PackageIntegrity(unittest.TestCase):
     def test_linux_static_accesskit_inventory(self):
         library=self.root/'fixture.so';library.write_bytes(b'fixture, no runtime execution')
         package=self.root/'linux'
-        command=[sys.executable,str(ENGINE_ROOT/'Tools/Godot/package_runtime.py'),
+        command=[os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/package_runtime.lua'),
                  '--source',str(ENGINE_ROOT/'Source/3rdParty/Godot'),'--library',str(library),
                  '--output',str(package),'--architecture','arm64','--graphics-backend','egl',
                  '--static-accesskit-sdk','linux']

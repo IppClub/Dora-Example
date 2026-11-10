@@ -87,12 +87,15 @@ for relative in (
     "Test/Godot/tests/project/main.tscn",
     "Test/Godot/tests/project/project.godot",
     "Test/Godot/tests/project/state.gd",
-    "Tools/Godot/verify_package.py",
-    "Tools/Godot/package_manifest.py",
+    "Tools/Godot/verify_package.lua",
+    "Tools/Godot/package_manifest.lua",
 ):
     copy(relative)
 
 # Preserve the source version pin consumed by the relocated test resolver.
+from lua_tools import bundle_verifier
+bundle_verifier(output)
+
 upstream = output / 'Source/3rdParty/Godot/UPSTREAM.json'
 upstream.parent.mkdir(parents=True, exist_ok=True)
 shutil.copy2(ENGINE_ROOT / 'Source/3rdParty/Godot/UPSTREAM.json', upstream)

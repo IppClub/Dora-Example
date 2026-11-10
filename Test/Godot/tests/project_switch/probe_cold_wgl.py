@@ -14,7 +14,7 @@ p.add_argument('--direct',choices=['0','1'],required=True)
 p.add_argument('--inspect-msaa',action='store_true')
 a=p.parse_args();out=a.output;assert not out.exists();out.mkdir(parents=True)
 with (out/'prepare.log').open('w') as log:
- subprocess.run([sys.executable,str(ENGINE_ROOT/'Tools/Godot/project.py'),'run',str(a.project),'--binary',str(a.binary),'--asset-source',str(ENGINE_ROOT/'Assets'),'--runtime-package',str(a.runtime_package),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True)
+ subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/project.lua'),'run',str(a.project),'--binary',str(a.binary),'--asset-source',str(ENGINE_ROOT/'Assets'),'--runtime-package',str(a.runtime_package),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True)
 template=(TEST_REPO/'Test/Godot/tests/project_switch/real_player.lua').read_text()
 scene=''
 if a.inspect_msaa:

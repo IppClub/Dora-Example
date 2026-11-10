@@ -1,65 +1,23 @@
 #!/usr/bin/env python3
-"""Failed production component builders expose bounded compiler diagnostics."""
-import contextlib
-import importlib.util
-import io
-import os
+"""Exercise the production Lua failure handler and staging implementation."""
+import os, sys, subprocess, tempfile
 from pathlib import Path
-import subprocess
-import sys
-import tempfile
-from unittest.mock import patch
-
-root = Path(os.environ.get('DORA_ENGINE_ROOT', Path.cwd()))
-sys.path.insert(0, str(root / 'Tools/Godot'))
-spec = importlib.util.spec_from_file_location('production_component', root / 'Tools/Godot/build_component.py')
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
-
+from types import SimpleNamespace
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'support'))
+from godot_paths import ENGINE_ROOT
+from lua_tools import call
+module = SimpleNamespace(stage=lambda *args: call('Tools.Godot.build_component','stage',*args))
 with tempfile.TemporaryDirectory(prefix='dora-component-error-') as temporary:
-    build = Path(temporary)
-    (build / 'build.log').write_text('\n'.join(f'old line {i}' for i in range(250))
-                                  + '\ncompiler fatal error: fixture \U0001f3d7\n')
-    (build / 'link.log').write_bytes((build / 'build.log').read_bytes())
-    error = subprocess.CalledProcessError(17, ['fixture-builder'])
-    for script, arguments, env in [
-        ('build_linux_runtime.sh', (), {'DORA_GODOT_BUILD_DIR': str(build)}),
-        ('build_windows_runtime.py', ('--build-dir', build), {}),
-        ('build_android_runtime.py', ('--build-dir', build), {'DORA_GODOT_BUILD_DIR': '/unused'}),
-        ('link_ios_runtime.py', ('--build-dir', build), {}),
-    ]:
-        output = io.StringIO()
-        with patch.object(module.subprocess, 'run', side_effect=error), contextlib.redirect_stderr(output):
-            try:
-                module.run(script, *arguments, env=env)
-            except subprocess.CalledProcessError as caught:
-                assert caught is error
-            else:
-                raise AssertionError('Failure must remain a failure')
-        text = output.getvalue()
-        assert 'compiler fatal error: fixture \U0001f3d7' in text
-        assert 'old line 0\n' not in text
-        assert len(text.splitlines()) == 181
-    raw = io.BytesIO()
-    legacy_stderr = io.TextIOWrapper(raw, encoding='cp1252')
-    with patch.object(module.subprocess, 'run', side_effect=error), contextlib.redirect_stderr(legacy_stderr):
-        try:
-            module.run('build_windows_runtime.py', '--build-dir', build)
-        except subprocess.CalledProcessError as caught:
-            assert caught is error
-        else:
-            raise AssertionError('Legacy stderr must preserve the compiler failure')
-    assert 'compiler fatal error: fixture \U0001f3d7' in raw.getvalue().decode('utf-8')
-    output = io.StringIO()
-    with patch.object(module.subprocess, 'run', side_effect=error), contextlib.redirect_stderr(output):
-        try:
-            module.run('build_web_runtime.py', '--build-dir', build / 'missing')
-        except subprocess.CalledProcessError as caught:
-            assert caught is error
-        else:
-            raise AssertionError('Missing log must not hide the original failure')
-    assert output.getvalue() == ''
-print('PASS component failure log tails, output limit, platform paths and original exit status')
+    directory = Path(temporary)
+    text = '\n'.join(f'old line {i}' for i in range(250))+'\ncompiler fatal error: fixture 🏗\n'
+    for name in ('build.log','link.log'): (directory/name).write_text(text, encoding='utf-8')
+    result = subprocess.run([os.environ.get('DORA_XMAKE','xmake'),'lua',str(Path(__file__).with_suffix('.lua')),str(ENGINE_ROOT),str(directory)],capture_output=True)
+    assert result.returncode == 0, result.stdout+result.stderr
+    output = result.stdout.decode('utf-8')
+    assert output.count('compiler fatal error: fixture 🏗') == 2
+    assert 'old line 0\n' not in output and 'old line 249\n' in output
+    assert output.count('Godot compiler log:') == 2
+print('PASS bounded UTF-8 Lua compiler log tails, link/build paths, missing logs and preserved failures')
 
 # Exercise production staging: SDK provenance is not necessarily a license.
 with tempfile.TemporaryDirectory(prefix='dora-component-sidecars-') as temporary:

@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """Mac native acceptance: clone/import/play, then export/archive/install/play.
 
@@ -47,10 +48,10 @@ subprocess.run(['git','-C',str(repository),'add','.'],check=True)
 subprocess.run(['git','-C',str(repository),'-c','user.name=Dora test','-c','user.email=test@example.invalid',
                 'commit','-qm','Create delivery fixture'],check=True)
 original=delivery.fingerprint(repository)
-cli=ENGINE_ROOT/'Tools/Godot/project.py'
+cli=ENGINE_ROOT/'Tools/Godot/project.lua'
 def run(name,args):
     with (out/(name+'.log')).open('w') as log:
-        subprocess.run([sys.executable,str(cli),*map(str,args)],cwd=ENGINE_ROOT,
+        subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(cli),*map(str,args)],cwd=ENGINE_ROOT,
                        stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
 run('source-preview',['run',repository.as_uri(),'--project','game','--godot',editor,'--app',app,
     '--runtime-package',runtime,'--work-dir',out/'source-preview','--duration','2',

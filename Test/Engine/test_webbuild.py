@@ -8,6 +8,8 @@ import unittest
 
 import os
 import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'support'))
+from godot_paths import ENGINE_ROOT
 sys.path.insert(0, str(Path(os.environ.get('DORA_ENGINE_ROOT', Path.cwd())) / 'Tools/WebBuilder'))
 import webbuild
 

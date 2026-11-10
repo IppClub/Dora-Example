@@ -77,7 +77,7 @@ if args.ime:env['DORA_GODOT_TEST_IME']='1'
 if args.controller:env['DORA_GODOT_TEST_CONTROLLER']='1'
 if not args.skip_build:
     if not args.skip_runtime_build:
-        runtime_build=[sys.executable,str(root/'Tools/Godot/build_windows_runtime.py'),'--jobs',str(args.jobs),
+        runtime_build=[os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root/'Tools/Godot/build_windows_runtime.lua'),'--jobs',str(args.jobs),
             '--arch',args.arch,'--backend',args.backend]
         if args.backend=='D3D12':
             assert args.mesa_libs and args.mesa_libs.is_dir(), '--mesa-libs is required when building the D3D12 runtime'

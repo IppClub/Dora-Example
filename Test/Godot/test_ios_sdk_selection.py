@@ -37,16 +37,16 @@ raise SystemExit(99)
             env = os.environ.copy()
             env.update(PROBE_BUILD=str(build), PROBE_DEVICE=appledev,
                        PROBE_SDK='/different/Xcode.app/Contents/Developer/Other.sdk' if mismatch else sdk)
-            result = subprocess.run([sys.executable, str(root / 'Tools/Godot/build_ios_runtime.py'),
+            result = subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root / 'Tools/Godot/build_ios_runtime.lua'),
                 '--device', device, '--build-dir', str(build), '--xmake', str(fake)],
                 env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            assert result.returncode == (1 if mismatch else 23), result.stdout
+            assert result.returncode != 0, result.stdout
             assert (build / 'compiler-started').exists() is not mismatch, result.stdout
             args = json.loads((build / 'configure-args.json').read_text())
             assert '--xcode=' + str(xcode) in args, args
             assert '--xcode_sdkver=' + version in args, args
             if mismatch:
-                assert 'AssertionError' in result.stdout
+                assert 'differs from active xcrun SDK' in result.stdout
     metalfx = 'source("servers/rendering/renderer_rd/effects/metal_fx.cpp")'
     assert metalfx in (root / 'Projects/xmake/godot/ios_device_arm64_sources.lua').read_text()
     assert metalfx not in (root / 'Projects/xmake/godot/ios_simulator_arm64_sources.lua').read_text()

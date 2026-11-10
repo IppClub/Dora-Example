@@ -20,7 +20,7 @@ binary=a.binary.resolve();runtime=a.runtime_package.resolve();project_a=a.projec
 b=binary.read_bytes();assert struct.unpack_from('<H',b,struct.unpack_from('<I',b,60)[0]+4)[0]==0x8664
 assert b'dora_godot_node_test_main' not in b,'Use an ordinary host'
 manifest=json.loads((runtime/'manifest.json').read_text());assert manifest['graphics_backend']=='wgl';library=runtime/manifest['library']
-subprocess.run([sys.executable,str(ENGINE_ROOT/'Tools/Godot/verify_package.py'),str(runtime),'--output',str(out/'package-integrity.json')],check=True)
+subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/verify_package.lua'),str(runtime),'--output',str(out/'package-integrity.json')],check=True)
 class ProjectAPI(ctypes.Structure):
     _fields_=[('size',ctypes.c_uint32),('abi_version',ctypes.c_uint32),('get_state',ctypes.CFUNCTYPE(ctypes.c_uint32))]
 module=ctypes.CDLL(str(library));get=module.dora_godot_get_project_api;get.argtypes=[ctypes.c_uint32,ctypes.POINTER(ProjectAPI)];get.restype=ctypes.c_int
@@ -29,7 +29,7 @@ assert get(1,ctypes.byref(table)) and table.size>=ctypes.sizeof(table) and table
 (out/'preflight.json').write_text(json.dumps({'passed':True,'project_api':1,'state_before_start':2,'architecture':'x86_64'})+'\n')
 before=(delivery.fingerprint(project_a),delivery.digest(project_b));artifacts={str(x):delivery.digest(x) for x in (binary,library)}
 with (out/'prepare-host.log').open('w') as log:
-    subprocess.run([sys.executable,str(ENGINE_ROOT/'Tools/Godot/project.py'),'run',str(project_b),'--binary',str(binary),'--asset-source',str(a.asset_source.resolve()),'--runtime-package',str(runtime),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True)
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/project.lua'),'run',str(project_b),'--binary',str(binary),'--asset-source',str(a.asset_source.resolve()),'--runtime-package',str(runtime),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True)
 sequence=['pck-squash','dodge','pck-squash'] if a.targeted_msaa else ['dodge','pck-squash','dodge','pck-squash','dodge']
 buffers=[3,4,2] if a.targeted_msaa else [2,3,4,2,3];count=len(sequence)
 items=[{'name':n,'path':str(project_a if n=='dodge' else project_b),'width':480 if n=='dodge' else 960,'height':720 if n=='dodge' else 540,'buffers':buffers[i]} for i,n in enumerate(sequence)]

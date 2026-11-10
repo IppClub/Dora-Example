@@ -63,7 +63,7 @@ for (const source of [tools, fetchTool, gitCommand, toolsLua, fetchToolLua, gitC
 }
 assert.doesNotMatch(gitCommand, /function getDirectorySizeUpTo/);
 assert.match(registry, /name: "search_dora_doc"/);
-assert.match(registry, /enum: \["dora-tutorial", "dora-api", "love-api", "tic80-api"\]/);
+assert.match(registry, /enum: \["dora-tutorial", "dora-api", "love-api", "tic80-api", "godot-api"\]/);
 assert.match(codingAgent, /action\.tool === "search_dora_doc"/);
 assert.match(codingAgent, /main\.on\("batch_tools", batch\)/);
 assert.doesNotMatch(codingAgent, /main\.on\("search_dora_doc", searchDora\)/);

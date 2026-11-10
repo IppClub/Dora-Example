@@ -5,7 +5,11 @@ from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
 for name in ('engine','source','editor','work','package','runtime'):p.add_argument('--'+name,type=Path,required=True)
 p.add_argument('--smoke',action='store_true');a=p.parse_args()
-spec=importlib.util.spec_from_file_location('delivery',a.engine/'Tools/Godot/project_delivery.py');delivery=importlib.util.module_from_spec(spec);spec.loader.exec_module(delivery)
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[3]/'support'))
+os.environ['DORA_ENGINE_ROOT']=str(a.engine)
+from godot_paths import ENGINE_ROOT
+import project_delivery as delivery
 w=a.work.resolve();w.mkdir(parents=True,exist_ok=True)
 if not (w/'dodge/prepared.json').exists():delivery.prepare(a.source/'2d/dodge_the_creeps',w/'dodge',str(a.editor))
 if not (w/'squash-package/game.pck').exists():delivery.export_game(a.source/'3d/squash_the_creeps',w/'squash-package',w/'squash',str(a.editor),'official-squash',platform='Web')

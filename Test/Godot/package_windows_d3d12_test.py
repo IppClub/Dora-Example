@@ -82,8 +82,8 @@ for relative in (
     'Test/Godot/tests/verify_timing.py',
     'Test/Godot/tests/verify_macos.py',
     'Test/Godot/tests/pck_manifest.py',
-    'Tools/Godot/verify_package.py',
-    'Tools/Godot/package_manifest.py',
+    'Tools/Godot/verify_package.lua',
+    'Tools/Godot/package_manifest.lua',
 ):
     source = test_path(relative)
     destination = output / relative
@@ -91,6 +91,9 @@ for relative in (
     shutil.copy2(source, destination)
 
 # Preserve the source version pin consumed by the relocated test resolver.
+from lua_tools import bundle_verifier
+bundle_verifier(output)
+
 upstream = output / 'Source/3rdParty/Godot/UPSTREAM.json'
 upstream.parent.mkdir(parents=True, exist_ok=True)
 shutil.copy2(ENGINE_ROOT / 'Source/3rdParty/Godot/UPSTREAM.json', upstream)
@@ -226,15 +229,15 @@ scope_sources = [
     'Source/3rdParty/bgfx/xmake.lua',
     'Source/3rdParty/Godot/modules/dora_bridge/SCsub',
     'Source/3rdParty/Godot/modules/dora_bridge/register_types_d3d12.cpp',
-    'Tools/Godot/package_runtime.py',
+    'Tools/Godot/package_runtime.lua',
     'Test/Godot/package_windows_d3d12_test.py',
-    'Tools/Godot/prepare.py',
+    'Tools/Godot/prepare.lua',
     'Test/Godot/test_windows.py',
     'Test/Godot/tests/runtime_abi.py',
     'Test/Godot/tests/run_windows_runtime_matrix.py',
     'Test/Godot/tests/verify_timing.py',
     'Test/Godot/tests/verify_macos.py',
-    'Tools/Godot/verify_package.py',
+    'Tools/Godot/verify_package.lua',
 ]
 
 def digest(path):

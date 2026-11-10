@@ -30,8 +30,8 @@ def digest() -> dict[str, str]:
 
 before = digest()
 for _ in range(2):
-    subprocess.run(["python3", str(root / "Tools/Godot/prepare.py"), str(source)], check=True)
-    subprocess.run(["python3", str(root / "Tools/Godot/prepare_web.py"), str(source)], check=True)
+    subprocess.run(["xmake", "lua", str(root / "Tools/Godot/prepare.lua"), str(source)], check=True)
+    subprocess.run(["xmake", "lua", str(root / "Tools/Godot/prepare_web.lua"), str(source)], check=True)
 assert digest() == before, "vendored Web validation changed source bytes"
 
 scsub = (source / paths[0]).read_text()

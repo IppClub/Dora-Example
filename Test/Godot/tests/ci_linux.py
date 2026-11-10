@@ -47,7 +47,7 @@ try:
     assert binary.is_file() and library.is_file()
     artifacts={str(path):digest(path) for path in (binary,library)}
     (out/'artifacts.json').write_text(json.dumps(artifacts,indent=2)+'\n')
-    run([sys.executable,'Tools/Godot/verify_package.py',str(library.parent),'--output',str(out/'package-integrity.json')],'package-integrity.log')
+    run([os.environ.get('DORA_XMAKE','xmake'), 'lua', 'Tools/Godot/verify_package.lua',str(library.parent),'--output',str(out/'package-integrity.json')],'package-integrity.log')
     init_failure_reports=[]
     for mode in ('exit','recover'):
         case=out/('init-failure-'+mode)

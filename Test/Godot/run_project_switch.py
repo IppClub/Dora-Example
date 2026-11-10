@@ -29,9 +29,9 @@ for tag in ['a','b']:
     delivery.export_game(fixture/tag,out/('packed-'+tag),out/('export-'+tag),str(a.godot.resolve()),
         'dora.switch-'+tag,'0.1.0',None,None,'macOS' if sys.platform=='darwin' else 'Linux')
     projects['pck-'+tag]=str(out/('packed-'+tag)/'game.pck')
-cli=ENGINE_ROOT/'Tools/Godot/project.py'
+cli=ENGINE_ROOT/'Tools/Godot/project.lua'
 with (out/'prepare-host.log').open('w') as log:
-    subprocess.run([sys.executable,str(cli),'run',projects['a'],'--godot',str(a.godot.resolve()),
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(cli),'run',projects['a'],'--godot',str(a.godot.resolve()),
         *host_args,'--runtime-package',str(a.runtime_package.resolve()),
         '--work-dir',str(out/'host'),'--no-run'],cwd=ENGINE_ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
 sequence=['a','a','b','a','pck-b','pck-a','b']

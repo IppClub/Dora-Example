@@ -40,7 +40,7 @@ for path in (a.emulator, a.abi_python):
     if path:
         inputs[str(path.resolve())] = digest(path)
 assert b'dora_godot_node_test_main' in binary.read_bytes(), 'Use a test host'
-subprocess.run([sys.executable, str(root / 'Tools/Godot/verify_package.py'), str(package),
+subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root / 'Tools/Godot/verify_package.lua'), str(package),
                 '--output', str(out / 'package-integrity.json')], check=True)
 reports = []
 for scenario in a.scenarios:

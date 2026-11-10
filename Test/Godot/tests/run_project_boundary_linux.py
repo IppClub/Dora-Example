@@ -26,7 +26,7 @@ try:
     symbols=subprocess.check_output(['nm','--defined-only',str(binary)],text=True)
     assert 'dora_godot_node_test_main' not in symbols,'Build an ordinary host without DORA_BUILD_GODOT_NODE_TEST'
     original={str(path):digest(path) for path in (binary,library)}
-    subprocess.run([sys.executable,str(root/'Tools/Godot/verify_package.py'),str(library.parent),'--output',str(out/'package-integrity.json')],check=True)
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root/'Tools/Godot/verify_package.lua'),str(library.parent),'--output',str(out/'package-integrity.json')],check=True)
     assets=out/'assets';shutil.copytree(root/'Assets',assets)
     bundled=assets/'libdora_godot.so';shutil.copy2(library,bundled)
     projects=[]

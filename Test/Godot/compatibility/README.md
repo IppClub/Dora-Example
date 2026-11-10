@@ -35,7 +35,7 @@ passes another 493 frames / four captures with mouse input and valid PCM.
 This is not full-game completion or a claim about other platforms.
 
 The generic runner `../run_community_project_switch.py` consumes JSON with
-`host` (a production `project.py run --no-run` staging directory), `runtime`,
+`host` (a production `project.lua run --no-run` staging directory), `runtime`,
 fresh `output`, and sequential `items`. Items supply prepared project `path`,
 `name`, `width`, `height`, `buffers`, optional `scene`, optional four
 `captureTimes`, and optional `minColors` (at least 16, for a verified monochrome menu), and `events` containing `time` / `pressed` plus `key` or `x/y`.

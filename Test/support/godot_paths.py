@@ -14,6 +14,7 @@ else:
     if ENGINE_ROOT is None:
         raise RuntimeError('Set DORA_ENGINE_ROOT to the Dora-SSR checkout')
 sys.path.insert(0, str(ENGINE_ROOT / 'Tools/Godot'))
+sys.path.insert(0, str(Path(__file__).with_name('lua_build_tools')))
 os.environ.setdefault('DORA_ENGINE_ROOT', str(ENGINE_ROOT))
 os.environ.setdefault('DORA_TEST_REPO', str(TEST_REPO))
 _PATHS = json.loads((TEST_REPO / 'Test/Godot/paths.json').read_text())

@@ -32,9 +32,9 @@ for name,path in inputs.items():
     projects[name]=str(out/('prepared-'+name)/'project')
     delivery.export_game(path,out/('packed-'+name),out/('export-'+name),str(editor),'dora.official-'+name,'0.1.0',None,None,'macOS' if sys.platform=='darwin' else 'Linux')
     projects['pck-'+name]=str(out/('packed-'+name)/'game.pck')
-cli=ENGINE_ROOT/'Tools/Godot/project.py'
+cli=ENGINE_ROOT/'Tools/Godot/project.lua'
 with (out/'prepare-host.log').open('w') as log:
-    subprocess.run([sys.executable,str(cli),'run',str(out/'packed-dodge'),*host_args,
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(cli),'run',str(out/'packed-dodge'),*host_args,
         '--runtime-package',str(runtime),'--work-dir',str(out/'host'),'--no-run'],stdout=log,stderr=subprocess.STDOUT,check=True,cwd=ENGINE_ROOT)
 sequence=['dodge','pck-squash','dodge'] if a.minimal else ['dodge','squash','pck-dodge','pck-squash']*2
 count=len(sequence)

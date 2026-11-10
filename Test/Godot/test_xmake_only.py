@@ -60,21 +60,19 @@ def main():
                 sources = re.findall(r'source\("([^"]+)"\)', block)
                 assert sources and all(s.startswith('thirdparty/embree/') for s in sources), name
 
-    scripts = [tools / ('build_' + platform + '_runtime.py')
-               for platform in ('windows', 'android', 'ios', 'web')]
-    scripts += [tools / 'build_runtime.sh', tools / 'build_linux_runtime.sh']
+    scripts = [tools / ('build_' + platform + '_runtime.lua') for platform in ('windows','android','ios','web')]
+    scripts += [tools/'build_runtime.sh', tools/'build_linux_runtime.sh']
+    shared = (tools/'platform_build.lua').read_text()
+    assert '--dora_godot_standalone=y' in shared
+    assert not list(tools.glob('*.py')), 'Production tools must be Lua'
     for path in scripts:
         text = path.read_text()
-        assert '--dora_godot_standalone=y' in text, path
-        assert not re.search(r'\b(?:pip\S*\s+install[^\n]*scons|SCons\b|venv\b)', text), path
-        if path.suffix == '.py':
-            for node in ast.walk(ast.parse(text)):
-                if isinstance(node, (ast.Import, ast.ImportFrom)):
-                    names = [node.module or ''] if isinstance(node, ast.ImportFrom) else [n.name for n in node.names]
-                    assert not any(n.lower().startswith('scons') for n in names), path
-            rejected = subprocess.run([sys.executable, str(path), '--builder', 'scons'],
-                                      text=True, capture_output=True)
-            assert rejected.returncode == 2 and 'invalid choice' in rejected.stderr, path
+        assert not re.search(r'\\b(?:pip\\S*\\s+install[^\\n]*scons|venv\\b)', text), path
+        if path.suffix == '.lua':
+            rejected = subprocess.run(['xmake','lua',str(path),'--builder','scons'],text=True,capture_output=True)
+            assert rejected.returncode != 0 and 'Unsupported value' in rejected.stdout+rejected.stderr, path
+        else:
+            assert '--dora_godot_standalone=y' in text, path
     # A source upgrade must advance Java/host/CI SDK inputs together.
     upstream = ROOT / 'Source/3rdParty/Godot'
     android = (upstream / 'platform/android/java/app/config.gradle').read_text()
@@ -84,8 +82,8 @@ def main():
     version_ns = {}
     exec(compile((upstream / 'version.py').read_text(), 'version.py', 'exec'), version_ns)
     java_version = '.'.join(str(version_ns[k]) for k in ('major', 'minor', 'patch', 'status'))
-    assert java_version in (tools / 'build_android_java.py').read_text()
-    assert java_version in (tools / 'prepare_android_aar.py').read_text()
+    assert java_version in (tools / 'build_android_java.lua').read_text()
+    assert java_version in (tools / 'prepare_android_aar.lua').read_text()
     gradle = (ROOT / 'Projects/Android/Dora/app/build.gradle').read_text()
     assert 'godot-java-' + java_version + '.aar' in gradle
     assert ndk in gradle and build_tools in gradle
@@ -97,7 +95,7 @@ def main():
     expected_gradle = re.search(r'gradle-[0-9.]+-bin.zip', (upstream / wrapper).read_text())[0]
     assert expected_gradle in (ROOT / 'Projects/Android/Dora/gradle/wrapper/gradle-wrapper.properties').read_text()
     assert 'godotEnabled ? ' + compile_sdk in gradle
-    for name in ('Tools/Godot/build_android_runtime.py', 'Projects/xmake/tasks/android.lua',
+    for name in ('Tools/Godot/platform_build.lua', 'Projects/xmake/tasks/android.lua',
                  'Projects/xmake/tasks/doctor.lua', '.github/workflows/android.yml', '.github/workflows/release.yml'):
         assert ndk in (ROOT / name).read_text(), name
     for name in ('.github/workflows/android.yml', '.github/workflows/release.yml'):

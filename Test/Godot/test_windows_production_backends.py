@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """Exercise the real production component validator for both Windows flavours."""
 import sys
@@ -20,13 +21,14 @@ with tempfile.TemporaryDirectory(prefix='windows-component-backends-') as temp:
     })
 end
 ''')
-    spec=importlib.util.spec_from_file_location('windows_package',root/'Tools/WindowsPackage/package_windows.py')
-    packager=importlib.util.module_from_spec(spec);spec.loader.exec_module(packager)
+    from types import SimpleNamespace
+    from lua_tools import call
+    packager=SimpleNamespace(package=lambda *args: call('Tools.WindowsPackage.package_windows','package_windows',*args))
     for backend in ['d3d12','wgl']:
         package=temp/backend
-        subprocess.run([sys.executable,str(root/'Tools/Godot/package_runtime.py'),'--source',str(root/'Source/3rdParty/Godot'),
+        subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root/'Tools/Godot/package_runtime.lua'),'--source',str(root/'Source/3rdParty/Godot'),
             '--library',str(dll),'--output',str(package),'--architecture','x86_64','--build-target','template_release','--graphics-backend',backend],check=True,capture_output=True)
-        command=[sys.executable,str(root/'Tools/Godot/build_component.py'),'--platform','windows','--arch','x64','--mode','release',
+        command=[os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root/'Tools/Godot/build_component.lua'),'--platform','windows','--arch','x64','--mode','release',
             '--stage-only','--runtime-package',str(package),'--stage',str(temp/('stage-'+backend))]
         explicit=command+['--windows-backend',backend]
         result=subprocess.run(explicit,capture_output=True,text=True)

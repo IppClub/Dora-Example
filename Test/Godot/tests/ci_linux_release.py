@@ -64,7 +64,7 @@ def run(command, name, timeout=7200):
 
 try:
     started = time.monotonic()
-    run([sys.executable, 'Tools/Godot/verify_package.py', str(library.parent), '--output', str(out / 'package-integrity.json')], 'package-integrity')
+    run([os.environ.get('DORA_XMAKE','xmake'), 'lua', 'Tools/Godot/verify_package.lua', str(library.parent), '--output', str(out / 'package-integrity.json')], 'package-integrity')
     runtime_sha = digest(library)
     inputs = (str(test_path('Tools/Godot/tests/ci_linux_release.py')), 'Source/Basic/Application.cpp', 'Source/Godot/GodotNode.cpp', 'Source/Godot/GodotNode.h', 'Projects/xmake/engine.lua',
               str(test_path('Tools/Godot/tests/run_active_stop_linux.py')), str(test_path('Tools/Godot/tests/verify_active_stop_linux.py')),

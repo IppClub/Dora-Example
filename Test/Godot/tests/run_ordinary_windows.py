@@ -36,7 +36,7 @@ def digest(path):
 def pixels(image):return image.get_flattened_data() if hasattr(image,'get_flattened_data') else image.getdata()
 try:
     assert b'dora_godot_node_test_main' not in binary.read_bytes(),'Use an ordinary host'
-    subprocess.run([sys.executable,str(root/'Tools/Godot/verify_package.py'),str(library.parent),'--output',str(out/'package-integrity.json')],check=True)
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root/'Tools/Godot/verify_package.lua'),str(library.parent),'--output',str(out/'package-integrity.json')],check=True)
     manifest=json.loads((library.parent/'manifest.json').read_text());assert manifest['library']==library.name
     assert manifest.get('graphics_backend')==a.backend.lower(),'Runtime package backend does not match --backend'
     original={str(path):digest(path) for path in (binary,library)}

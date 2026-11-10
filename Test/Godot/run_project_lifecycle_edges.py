@@ -21,7 +21,7 @@ for name in ['default','cancel']+(['legacy'] if a.legacy_runtime_package else []
     case_library=case_runtime/case_manifest['library']
     work=out/name
     with (out/(name+'-prepare.log')).open('w') as log:
-        subprocess.run([sys.executable,str(ENGINE_ROOT/'Tools/Godot/project.py'),'run',str(a.project_b.resolve()),
+        subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ENGINE_ROOT/'Tools/Godot/project.lua'),'run',str(a.project_b.resolve()),
             *host_args,'--godot',a.godot,'--runtime-package',str(case_runtime),'--work-dir',str(work),'--no-run'],
             stdout=log,stderr=subprocess.STDOUT,check=True,cwd=ENGINE_ROOT)
     script=(TEST_REPO/f'Test/Godot/tests/project_switch/{name}_player.lua').read_text()

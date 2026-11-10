@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """Exercise dependency notice inclusion and rejection after a valid reseal.
 
@@ -23,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='dora-nir-package-') as temporary:
     dll = work / 'fixture.dll'
     dll.write_bytes(b'Packaging fixture only: not an executable DLL')
     package = work / 'package'
-    subprocess.run([sys.executable, str(ROOT / 'Tools/Godot/package_runtime.py'),
+    subprocess.run([os.environ.get('DORA_XMAKE','xmake'), 'lua', str(ROOT / 'Tools/Godot/package_runtime.lua'),
                     '--source', str(ROOT / 'Source/3rdParty/Godot'),
                     '--library', str(dll), '--output', str(package),
                     '--graphics-backend', 'd3d12', '--architecture', 'x86_64'],

@@ -82,7 +82,7 @@ environment.update(
 report = output / "verification.json"
 try:
     subprocess.run(
-        [sys.executable, str(root / "Tools/Godot/verify_package.py"), str(library.parent),
+        [os.environ.get('DORA_XMAKE','xmake'), 'lua', str(root / "Tools/Godot/verify_package.lua"), str(library.parent),
          "--output", str(output / "package-verification.json")],
         cwd=root, check=True, env=environment,
     )
