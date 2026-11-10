@@ -1,3 +1,5 @@
+#include "Source/Godot/GodotBridgeCheck.h"
+#include "Source/Godot/GodotBridgeImport.h"
 #include "Source/Godot/GodotBridgeGL.h"
 #include "Source/Godot/GodotBridgeAudio.h"
 #include "Source/Godot/GodotBridgeViewport.h"
@@ -16,4 +18,6 @@ _Static_assert(sizeof(uint64_t) == 8, "fixed-width event timelines");
 _Static_assert(offsetof(DoraGodotAPI, abi_version) == 4, "API version prefix");
 _Static_assert(offsetof(DoraGodotConfig, backend) == 4, "backend prefix");
 _Static_assert(offsetof(DoraGodotInput, kind) == 4, "input prefix");
+_Static_assert(offsetof(DoraGodotCheckAPI, check) == 8, "compiler extension prefix");
+_Static_assert(offsetof(DoraGodotImportAPI, import_asset) == 8, "import extension prefix");
 int main(void) { DoraGodotAPI api = {0}; api.size = sizeof(api); return api.abi_version; }
