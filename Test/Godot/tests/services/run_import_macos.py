@@ -7,7 +7,18 @@ p.add_argument('--runtime',type=pathlib.Path,required=True);p.add_argument('--ou
 a=p.parse_args();out=a.output.resolve();assert not out.exists(),'Use a fresh output directory'
 assert sys.platform=='darwin';out.mkdir(parents=True);project=out/'project';project.mkdir()
 (project/'project.godot').write_text('config_version=5\n[application]\nrun/main_scene="res://main.tscn"\n[autoload]\nSentinel="*res://sentinel.gd"\n')
-(project/'main.tscn').write_text('[gd_scene format=3]\n[node name="Main" type="Node"]\n')
+(project/'main.tscn').write_text('[gd_scene load_steps=2 format=3]\n[ext_resource type="Script" path="res://verify.gd" id="1"]\n[node name="Main" type="Node"]\nscript=ExtResource("1")\n')
+(project/'verify.gd').write_text('''extends Node
+func _ready():
+	var texture = load("res://sprite.svg")
+	var wav = load("res://sound.wav")
+	var ogg = load("res://tone.ogg")
+	var mp3 = load("res://tone.mp3")
+	if not texture.get_image().has_mipmaps() or wav.loop_mode != AudioStreamWAV.LOOP_FORWARD or wav.loop_end <= wav.loop_begin or not ogg.loop or not mp3.loop or abs(ogg.loop_offset - 0.02) > 0.0001 or abs(mp3.loop_offset - 0.02) > 0.0001:
+		push_error("Imported resource settings did not survive reload")
+		return
+	FileAccess.open("res://IMPORT_SETTINGS_VERIFIED", FileAccess.WRITE).store_string("ok")
+''')
 (project/'sentinel.gd').write_text('extends Node\nfunc _ready():\n\tFileAccess.open("res://AUTOLOAD_EXECUTED", FileAccess.WRITE).store_string("bad")\n')
 (project/'tool.gd').write_text('@tool\nextends Node\nfunc _init():\n\tFileAccess.open("res://TOOL_EXECUTED", FileAccess.WRITE).store_string("bad")\n')
 svg='<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="red"/></svg>'
@@ -34,4 +45,5 @@ assert (project/'managed.svg.import').read_text()=='[remap]\nimporter="texture"\
 assert (project/'broken.svg.import').read_text()=='[remap\nthis is broken'
 metadata=(project/'sprite.svg.import').read_text();assert '[dora]' in metadata and 'importer="texture"' in metadata
 assert (project/'.godot/uid_cache.bin').exists()
+assert (project/'IMPORT_SETTINGS_VERIFIED').read_text()=='ok'
 print('PASS: six asset families, cache/force/edit/corruption, preload, path escape, metadata preservation, no script execution, check/run/import lifecycle and clean shutdown')
