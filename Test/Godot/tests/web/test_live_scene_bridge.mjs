@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+import path from 'node:path';
+const root=process.env.DORA_ENGINE_ROOT||process.env.DORA_SSR_ROOT;
+if(!root)throw new Error('Set DORA_ENGINE_ROOT to the engine checkout');
+const {GodotWebBridge,installDoraGodot}=await import(pathToFileURL(path.join(root,'Tools/Godot/web/runtime_bridge.js')));
+const strings=new Map(),freed=[],activated=[];let id=0;
+const options=JSON.stringify({nodePath:'Main/角色',properties:['position','script:hp']});
+const expected={success:true,nodes:[{path:'Main/角色',properties:{'script:hp':{type:'int',value:3}}}]};
+const g={stringToNewUTF8:value=>{strings.set(++id,value);return id;},UTF8ToString:ptr=>strings.get(ptr),_free:ptr=>freed.push(ptr),
+ _dora_web_inspect_runtime_scene:(project,query)=>{assert.equal(strings.get(project),'/工程');assert.equal(strings.get(query),options);return g.stringToNewUTF8(JSON.stringify(expected));}};
+const bridge=new GodotWebBridge({},g,{activate:value=>activated.push(value)});
+bridge.copyProject=bridge.releaseProjectCopy=()=>{throw Error('Live snapshots must not copy or release project files');};
+assert.deepEqual(JSON.parse(bridge.inspectRuntimeScene('/工程',options)),expected);
+assert.equal(freed.length,2);assert.deepEqual(activated,['godot','host']);
+g._dora_web_inspect_runtime_scene=()=>{throw Error('controlled live query failure');};
+assert.throws(()=>bridge.inspectRuntimeScene('/工程',options),/controlled/);assert.equal(freed.length,4);assert.equal(activated.at(-1),'host');
+g._dora_web_inspect_runtime_scene=()=>0;assert.throws(()=>bridge.inspectRuntimeScene('/工程',options),/no report/);assert.equal(freed.length,6);assert.equal(activated.at(-1),'host');
+delete g._dora_web_inspect_runtime_scene;assert.throws(()=>bridge.inspectRuntimeScene('/工程',options),/no live scene inspection API/);
+const facade=installDoraGodot({},g,{getContext:()=>null},class {});
+assert.equal(JSON.parse(facade.inspectRuntimeScene('/工程','',options)).success,false);
+console.log('PASS: live scene UTF-8 heap transfer, immutable project ownership, context restoration, allocation cleanup and missing/idle runtime handling');
