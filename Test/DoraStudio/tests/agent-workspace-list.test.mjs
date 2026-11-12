@@ -12,8 +12,8 @@ test('original listing adds safe exclusions, preserves variants and reports trun
     toWorkspaceRelativePath: (_workDir, path) => path.replace(/^\/project\//, ''),
     Content: { glob: (path, globs, levels) => { calls.push({ path, globs, levels }); return ['/project/a.lua', '/project/a.ts']; } },
   });
-  const handler = createSearchHandlers({ listFiles }).glob_files;
-  const definition = { ...getToolDefinition('glob_files'), validateInput: value => validateSearchInput('glob_files', value), handler };
+  const handler = createSearchHandlers({ listFiles }).grep_files;
+  const definition = { ...getToolDefinition('grep_files'), validateInput: value => validateSearchInput('grep_files', value), handler };
   const context = { workingDir: 'A', role: 'main', workMode: 'code', disabledAgentTools: [],
     cancellation: { isCancelled: () => false, reason: () => undefined } };
   const globs = ['**/*.ts'];
