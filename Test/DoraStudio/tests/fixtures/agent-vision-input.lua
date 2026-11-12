@@ -58,6 +58,20 @@ gateway.studioVision.model='unregistered-model'
 assert(not Binding.resolveVisionBinding(gateway),'unregistered Studio model enabled vision')
 gateway.studioVision=nil
 assert(not Binding.resolveVisionBinding(gateway),'missing Studio route enabled vision')
+local customUrl='https://relay.invalid/CaseSensitive/chat/completions?route=Vision'
+for _,name in ipairs({'','   '})do
+ assert(not Binding.resolveVisionBinding({url=customUrl,apiKey='test-only',customOptions={visionModel=name}}),'blank override enabled an unsupported route')
+ local b=Binding.resolveVisionBinding({url=routes[1][1],apiKey='test-only',customOptions={visionModel=name}})
+ assert(b.model=='deepseek-flash' and not b.customModel,'blank override changed official default')
+end
+local custom=Binding.resolveVisionBinding({url=customUrl,apiKey='test-only',customOptions={visionModel=' custom-vl '}})
+assert(custom and custom.model=='custom-vl' and custom.provider=='custom' and custom.url==customUrl and custom.customModel,'custom model binding changed endpoint or model')
+assert(not Binding.resolveVisionBinding({url='file:///secret',apiKey='test-only',customOptions={visionModel='custom-vl'}}),'non-HTTP custom endpoint enabled')
+local official=Binding.resolveVisionBinding({url=routes[3][1],apiKey='test-only',customOptions={visionModel='chosen-vl'}})
+assert(official.model=='chosen-vl' and official.url==routes[3][1] and official.provider=='glm-coding-cn','official override lost provider profile')
+local managed={url='https://studio.invalid/agent-host/chat',apiKey='studio-agent',studioGateway=true,customOptions={visionModel='unauthorized-model'},studioVision={provider='deepseek',model='deepseek-flash',url='https://studio.invalid/agent-host/1/vision/deepseek'}}
+assert(Binding.resolveVisionBinding(managed).model=='deepseek-flash','local override bypassed managed Studio model grant')
+print('PASS: explicit custom/official vision models, exact endpoint preservation, blank defaults and managed grant isolation.')
 print('PASS: vision route and role/mode capability matrix; unsupported endpoints and empty credentials stay disabled; Studio route validation.')
 local question='Describe ["gold"] literally; do not reinterpret this text.'
 local function validate(paths)
