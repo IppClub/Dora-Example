@@ -7,8 +7,6 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.STUDIO_PLAYWRIGHT_MODULE || 'playwright');
 const bundle = await build({ stdin: { contents: `export * from './workspace'; export * from './agent-project-writeback'; export * from './agent-project-writeback-flow'; export * from './agent-edit-backend'; export * from './agent-captures'; export * from './agent-capture-batch';
 export {createEditHandler} from '../../../packages/agent-contracts/dist/edit-handler.js';
-export {createDeleteHandler} from '../../../packages/agent-contracts/dist/delete-handler.js';
-export {validateDeleteFile} from '../../../packages/agent-contracts/dist/delete-validation.js';
 export {getToolDefinition} from '../../../packages/agent-contracts/dist/index.js';
 export {validateEditFile} from '../../../packages/agent-contracts/dist/edit-validation.js';
 export {executeAgentToolDefinition} from '../../../packages/agent-contracts/dist/executor.js';`, loader: 'ts', resolveDir: new URL('../apps/web/src/', import.meta.url).pathname },
@@ -356,7 +354,7 @@ try {
       tx.oncomplete = resolve; tx.onabort = () => reject(tx.error);
     });
     legacy.close();
-    const { LocalWorkspace, createLocalEditBackend, createEditHandler, createDeleteHandler, validateDeleteFile, getToolDefinition, validateEditFile, executeAgentToolDefinition } = await import('/workspace.js');
+    const { LocalWorkspace, createLocalEditBackend, createEditHandler, getToolDefinition, validateEditFile, executeAgentToolDefinition } = await import('/workspace.js');
     const upgraded = await LocalWorkspace.open(name);
     const before = await upgraded.load('legacy');
     await upgraded.save(before.name, { ...before.snapshot, revision: 8 }, 7, true);
@@ -374,8 +372,8 @@ try {
       cancellation: { isCancelled: () => false, reason: () => undefined } };
     const toolResult = await executeAgentToolDefinition(definition, { edits: [
       { path: 'main.lua', old_str: 'return 9', new_str: 'return 10' },
-      { path: '../outside.lua', old_str: '', new_str: 'unsafe' },
-      { path: 'asset.bin', old_str: '', new_str: 'binary overwrite' }
+      { path: '../outside.lua', old_str: 'old', new_str: 'unsafe' },
+      { path: 'asset.bin', old_str: 'old', new_str: 'binary overwrite' }
     ] }, toolContext, { searchDoraDocLimitMax: 20 });
     reopened.close();
     const finalStore = await LocalWorkspace.open(name);
@@ -386,8 +384,8 @@ try {
     try { await finalStore.restoreCheckpoint('legacy', 9, 10); } catch (error) { staleRestore = error.code; }
     const afterStaleRestore = await finalStore.load('legacy');
     const deleteBackend = createLocalEditBackend(finalStore, afterStaleRestore, 4);
-    const deleteDefinition = { ...getToolDefinition('delete_file'), validateInput: validateDeleteFile, handler: createDeleteHandler(deleteBackend) };
-    const deletion = await executeAgentToolDefinition(deleteDefinition, { target_file: 'asset.bin' }, { ...toolContext, taskId: 4, workflow: {} }, { searchDoraDocLimitMax: 20 });
+    const deleteDefinition = { ...getToolDefinition('edit_file'), validateInput: validateEditFile, handler: createEditHandler(deleteBackend) };
+    const deletion = await executeAgentToolDefinition(deleteDefinition, { path: 'asset.bin', delete: true }, { ...toolContext, taskId: 4, workflow: {} }, { searchDoraDocLimitMax: 20 });
     const deletedProject = await finalStore.load('legacy');
     const restoredDeletion = await finalStore.restoreCheckpoint('legacy', 11, 12);
     const invalidDeletion = await createLocalEditBackend(finalStore, restoredDeletion, 5).deleteFile(5, 'legacy', 'main.lua');

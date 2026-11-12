@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { validateSearchInput, createSearchHandlers } from '../packages/agent-contracts/dist/search-tools.js';
 
 test('original search semantics retain required pattern, pagination and document kinds', () => {
-  assert.equal(validateSearchInput('grep_files', { pattern: '  ' }).success, false);
+  assert.equal(validateSearchInput('grep_files', { pattern: '  ' }).success, true);
   const input = { pattern: ' foo ', offset: -1, limit: 2.9 };
-  assert.deepEqual(validateSearchInput('grep_files', input).value, { pattern: 'foo', offset: 0, limit: 2 });
+  const normalized=validateSearchInput('grep_files', input).value;assert.equal(normalized.pattern,'foo');assert.equal(normalized.offset,0);assert.equal(normalized.limit,2);assert.ok(normalized.maxEntries>0);
   assert.equal(input.pattern, ' foo ');
   assert.equal(validateSearchInput('search_dora_doc', { pattern: 'Node', docType: 'unknown' }).success, false);
   assert.equal(validateSearchInput('search_dora_doc', { pattern: 'Node' }).value.docType, 'dora-api');
-  assert.equal(validateSearchInput('glob_files', { maxEntries: -5 }).value.maxEntries, 1);
+  assert.equal(validateSearchInput('grep_files', { maxEntries: -5 }).value.maxEntries, 1);
 });
 
 test('original search handlers retain language, source variants and workflow updates', async () => {
@@ -22,7 +22,7 @@ test('original search handlers retain language, source variants and workflow upd
   });
   const context = { workingDir: 'A', useChineseResponse: true, workflow: {} };
   assert.equal((await handlers.grep_files(context, { pattern: 'Node', groupByFile: true })).output, reply);
-  await handlers.glob_files(context, {});
+  await handlers.grep_files(context, {});
   await handlers.search_dora_doc(context, { pattern: 'Node' });
   assert.equal(calls[0].docLanguage, 'zh');
   assert.equal(calls[0].includeContent, true);

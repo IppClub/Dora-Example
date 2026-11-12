@@ -32,8 +32,8 @@ try {
     const pending = api.createSnapshotListBackend(snapshot, createMatcher);
     snapshot.files.push({ path: 'late.ts', kind: 'text', text: '' });
     const listFiles = await pending;
-    const definition = { ...api.getToolDefinition('glob_files'), validateInput: input => api.validateSearchInput('glob_files', input),
-      handler: api.createSearchHandlers({ listFiles }).glob_files };
+    const definition = { ...api.getToolDefinition('grep_files'), validateInput: input => api.validateSearchInput('grep_files', input),
+      handler: api.createSearchHandlers({ listFiles }).grep_files };
     const context = { role: 'main', workMode: 'code', workingDir: 'A', disabledAgentTools: [],
       cancellation: { isCancelled: () => false, reason: () => undefined } };
     const run = (input, ctx = context) => api.executeAgentToolDefinition(definition, input, ctx, { searchDoraDocLimitMax: 20 });

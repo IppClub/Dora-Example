@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDeleteHandler } from '../packages/agent-contracts/dist/delete-handler.js';
-import { validateDeleteFile } from '../packages/agent-contracts/dist/delete-validation.js';
+import { createEditHandler } from '../packages/agent-contracts/dist/edit-handler.js';
+import { validateEditFile } from '../packages/agent-contracts/dist/edit-validation.js';
 import { getToolDefinition } from '../packages/agent-contracts/dist/index.js';
 import { executeAgentToolDefinition } from '../packages/agent-contracts/dist/executor.js';
 
 test('original delete tool protects Agent documents and waits for backend success', async () => {
   let calls = 0;
   const workflow = {};
-  const definition = { ...getToolDefinition('delete_file'), validateInput: validateDeleteFile,
-    handler: createDeleteHandler({ deleteFile: async () => { calls++; return { success: true, checkpointed: true, reversible: true, binary: false, checkpointId: 1, checkpointSeq: 2 }; } }) };
+  const definition = { ...getToolDefinition('edit_file'), validateInput: validateEditFile,
+    handler: createEditHandler({ deleteFile: async () => { calls++; return { success: true, checkpointed: true, reversible: true, binary: false, checkpointId: 1, checkpointSeq: 2 }; } }) };
   const context = { role: 'main', workMode: 'code', taskId: 1, workingDir: 'A', workflow, disabledAgentTools: [], cancellation: { isCancelled: () => false, reason: () => undefined } };
-  const run = path => executeAgentToolDefinition(definition, { target_file: path }, context, { searchDoraDocLimitMax: 20 });
+  const run = path => executeAgentToolDefinition(definition, { path, delete:true }, context, { searchDoraDocLimitMax: 20 });
   assert.equal((await run(' ')).output.code, 'INVALID_TOOL_INPUT');
   assert.equal((await run('.agent/plan/PLAN.md')).output.code, 'PROTECTED_AGENT_DOCUMENT');
   assert.equal((await run('.agent/main/memory.md')).output.code, 'PROTECTED_AGENT_MEMORY');

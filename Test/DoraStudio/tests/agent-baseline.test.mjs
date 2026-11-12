@@ -30,14 +30,12 @@ test('Agent migration baseline includes every upstream registered tool, not para
     assert.ok(name && ts.isPropertyAssignment(name) && ts.isStringLiteral(name.initializer));
     return name.initializer.text;
   });
-  assert.deepEqual(names, ['read_file', 'edit_file', 'delete_file', 'grep_files', 'glob_files',
-    'search_dora_doc', 'build', 'fetch_url', 'analyze_image', 'execute_command', 'finish',
-    'list_sub_agents', 'spawn_sub_agent', 'ask_user'],
+  assert.deepEqual(names, ['read_file','edit_file','write_file','grep_files','search_dora_doc','build','fetch_url','analyze_image','execute_command','spawn_agent','ask_user'],
   'Upstream Agent registry changed: review the Studio parity inventory before accepting the new baseline');
 });
 test('upstream tool declarations produce JSON contracts without loading native handlers', async () => {
   const contracts = await loadAgentContracts();
-  assert.equal(contracts.length, 14);
+  assert.equal(contracts.length, 11);
   assert.deepEqual(JSON.parse(JSON.stringify(contracts)), contracts);
   for (const contract of contracts) {
     assert.ok(contract.roles.length && contract.workModes.length);
@@ -54,15 +52,14 @@ test('original Agent selectors retain mode restrictions, disabled tools and sub-
   const names = (role, options) => registry.buildDecisionToolSchema(role, 20, options).map(tool => tool.function.name);
   const mainCode = names('main', { workMode: 'code' });
   const mainPlan = names('main', { workMode: 'plan' });
-  assert.ok(mainCode.includes('spawn_sub_agent'));
+  assert.ok(mainCode.includes('spawn_agent'));
   assert.ok(!mainCode.includes('ask_user'));
   assert.ok(mainPlan.includes('ask_user'));
-  assert.ok(!mainPlan.includes('spawn_sub_agent'));
+  assert.ok(!mainPlan.includes('spawn_agent'));
   for (const role of ['main', 'sub']) for (const workMode of ['code', 'plan']) {
     const tools = names(role, { workMode, disabledAgentTools: ['read_file', 'analyze_image'] });
     assert.ok(!tools.includes('read_file') && !tools.includes('analyze_image'));
-    if (role === 'sub') assert.ok(!tools.includes('ask_user') && !tools.includes('spawn_sub_agent'));
+    if (role === 'sub') assert.ok(!tools.includes('ask_user') && !tools.includes('spawn_agent'));
   }
-  const finish = registry.buildDecisionToolSchema('sub', 20).find(tool => tool.function.name === 'finish');
-  assert.deepEqual(finish.function.parameters.required, ['message', 'outcome', 'validation', 'knownIssues', 'assumptions', 'learningCandidates']);
+  assert.ok(!names('sub',{workMode:'code'}).includes('finish'),'completion uses plain text, not a removed finish tool');
 });
