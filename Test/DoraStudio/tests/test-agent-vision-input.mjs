@@ -41,6 +41,12 @@ for(const role of ['main','sub'])for(const workMode of ['code','plan']){
  assert.doesNotMatch(context.buildAgentSystemPrompt(shared),/unavailable|disabled/);
 }
 console.log('PASS: decision validation and system prompt explain unavailable vision versus explicit task disabling in both roles and modes.');
+context.isFinalDecisionTurn=()=>true;
+for(const role of ['main','sub']) {
+ const denied=context.validateDecisionForShared({role},'read_file',{},true);
+ assert.equal(denied.success,false);assert.match(denied.message,/plain-text completion/);assert.doesNotMatch(denied.message,/call finish/);
+}
+console.log('PASS: final-turn refusal uses plain-text completion for main and sub roles.');
 
 const temp=await mkdtemp(join(tmpdir(),'dora-vision-input-'));
 try{
@@ -49,7 +55,7 @@ try{
  }
  await writeFile(join(temp,'lualib_bundle.lua'),await readFile('../Assets/Script/Lib/lualib_bundle.lua'));
  let output='';
- for(const fixture of ['agent-vision-input.lua','agent-vision-failures.lua']){
+ for(const fixture of ['agent-vision-input.lua','agent-vision-failures.lua','agent-vision-chain.lua']){
   await writeFile(join(temp,'test.lua'),`package.path=${JSON.stringify(temp+'/?.lua;')}..package.path\n`+await readFile(new URL('./fixtures/'+fixture,import.meta.url),'utf8'));
   const result=execFileSync(process.env.LUA||'lua',[join(temp,'test.lua')],{encoding:'utf8'});output+=result;process.stdout.write(result);
  }

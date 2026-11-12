@@ -47,7 +47,12 @@ try {
     if(name.startsWith('missing-'))await page.waitForFunction(()=>window.failures.length>0);
     const failures=await page.evaluate(()=>window.failures);
     assert.equal(failures.length,name.startsWith('missing-')?1:0);
-    if(failures.length)assert.deepEqual(failures[0],{type:'studio-agent-failed',version:1,projectId:name,generation:'g',code:'initialization-failed'});
+    if(failures.length){
+      const {message,...failure}=failures[0];
+      assert.deepEqual(failure,{type:'studio-agent-failed',version:1,projectId:name,generation:'g',code:'initialization-failed'});
+      assert.equal(typeof message,'string');assert.ok(message.length>0 && message.length<=1024);
+      if(name==='missing-features')assert.equal(message,'Host configuration unavailable');
+    }
     assert.equal(counts[name].engine,name==='missing-engine'?1:0);
     assert.equal(counts[name].features,name.startsWith('missing-')?1:0);
     await page.close();
