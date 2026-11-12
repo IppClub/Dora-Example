@@ -299,3 +299,10 @@ ctx.workflow={}
 tool('edit_file',{path='init.ts',delete=true})
 assert(ctx.workflow.unbuiltEdits and ctx.workflow.editsSinceBuild==1)
 print('UTF-8 budget enforcement, Chinese compression packing, and document/source build-debt regressions passed.')
+
+local configured={visionModel='custom-vl',auxiliaryOptions={},temperature=0.4}
+local provider=U.applyCustomLLMOptions({model='main-model'},configured)
+assert(provider.visionModel==nil and provider.auxiliaryOptions==nil and provider.model=='main-model' and provider.temperature==0.4,'vision configuration leaked into provider text request')
+assert(U.validateAgentLLMConfig({customOptions=configured}).success,'valid vision setting rejected')
+assert(not U.validateAgentLLMConfig({customOptions={visionModel={},auxiliaryOptions={}}}).success,'non-string vision model accepted')
+print('Vision model metadata stays out of text requests; invalid configuration rejected.')
