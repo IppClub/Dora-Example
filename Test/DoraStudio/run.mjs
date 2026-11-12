@@ -29,9 +29,10 @@ for(const candidate of candidates){if(await isStudioRoot(candidate)){doraRoot=re
 if(!doraRoot)throw new Error('Set DORA_SSR_ROOT to the Dora-SSR checkout that contains Studio/package.json');
 
 const studioRoot=join(doraRoot,'Studio');
-const requested=[];let build=true;
+const requested=[];let build=true,userTest=false;
 for(const argument of process.argv.slice(2)){
   if(argument==='--no-build'){build=false;continue;}
+  if(argument==='--user-test'){userTest=true;continue;}
   if(argument.startsWith('-'))throw new Error(`Unknown option: ${argument}`);
   const name=basename(argument);
   if(name!==argument&&argument!==`tests/${name}`)throw new Error(`Test names cannot contain directories: ${argument}`);
@@ -74,7 +75,7 @@ try{
   const unit=selected.filter(name=>name.endsWith('.test.mjs'));
   const scripts=selected.filter(name=>!name.endsWith('.test.mjs'));
   if(unit.length)await run(process.execPath,['--test','--test-concurrency=4',...unit.map(name=>join(mirrorTests,name))],studioRoot);
-  for(const name of scripts)await run(process.execPath,[join(mirrorTests,name)],studioRoot);
+  for(const name of scripts)await run(process.execPath,[join(mirrorTests,name),...(userTest?['--user-test']:[])],studioRoot);
 }finally{
   await rm(temporary,{recursive:true,force:true});
 }
