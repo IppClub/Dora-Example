@@ -42,6 +42,7 @@ local routes={
 }
 for _,route in ipairs(routes)do
  local binding=Binding.resolveVisionBinding({url=route[1],apiKey='test-only',model='text-model'})
+ if binding and route[2]=='glm-coding-cn' then assert(binding.url==route[1] and binding.model=='glm-5.3-flash','GLM vision must keep Coding endpoint') end
  assert((binding and binding.provider)==route[2],'unexpected vision route: '..route[1])
  for _,role in ipairs({'main','sub'})do for _,mode in ipairs({'code','plan'})do
   local tools=Registry.getAllowedToolsForRole(role,{workMode=mode,disabledAgentTools=binding and {} or {'analyze_image'}})

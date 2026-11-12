@@ -19,7 +19,7 @@ package.preload['Dora']=function()return {
  App=app,Path=Path,Content=Content,json={null=J.null,encode=J.encode,decode=decode},DB={query=function()return records end},
  Director={systemScheduler={schedule=function(_,fn)jobs[#jobs+1]=fn end}},once=function(fn)return fn end,
  HttpClient={cancel=function(_,id)cancels[#cancels+1]=id end,post=function(_,url,headers,body,timeout,callback)
-  requests[#requests+1]={body=assert(decode(body)),callback=callback,timeout=timeout}
+  requests[#requests+1]={url=url,headers=headers,body=assert(decode(body)),callback=callback,timeout=timeout}
   if mode=='reject'then return 0 end
   if mode=='network'then callback(nil)
   elseif mode=='huge'then callback(string.rep('x',512*1024+1))
@@ -138,5 +138,12 @@ test('cancel after provider response preserves issued accounting without report'
  pumpHook=function(round)if round==2 then cancelled=true end end
  local r=run();assert(not r.success and r.cancelled and r.requestIssued,'issued request accounting lost in ready-response cancellation race')
  assert(not r.report and r.usage.total_tokens==20 and persist(r).totalTokens==20 and Budget.getVisionTaskUsage(1).requestCount==1)
+end)
+test('GLM Coding vision keeps endpoint, model and native image payload',function()
+ local r=run({binding={provider='glm-coding-cn',url='https://open.bigmodel.cn/api/coding/paas/v4/chat/completions',model='glm-5.3-flash',apiKey='fixture-secret'}})
+ -- The deterministic provider deliberately returns another model: the transport contract is still inspectable.
+ assert(not r.success and r.requestIssued)
+ local q=requests[1];assert(q.url:find('/api/coding/paas/v4/chat/completions',1,true))
+ assert(q.body.model=='glm-5.3-flash' and q.body.messages[2].content[3].type=='image_url')
 end)
 print('PASS: '..passed..' extended vision lifecycle scenarios.')

@@ -1,3 +1,4 @@
+import {compileAgentCommand} from './helpers/compile-agent-command.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -22,4 +23,12 @@ test('trusted host support artifact matches its manifest and original Lua bridge
   const code=await readFile(new URL('host.js',root),'utf8');
   const api=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
   assert.deepEqual(Object.keys(api).sort(),['acquireAgentStorage','agentStorageId','decodeAgentHostConfig','prepareAgentBootstrap','prepareAgentHostRuntime']);
+});
+
+test('packaged Agent Lua matches a fresh production compilation of current sources',async()=>{
+  const files=await compileAgentCommand({fullAgent:true,lineComments:true});
+  for(const file of files) {
+    assert.equal(await readFile(new URL('../dist/agent-host/lua/'+file.path,import.meta.url),'utf8'),file.text,
+      `Packaged Agent module is stale: ${file.path}`);
+  }
 });
