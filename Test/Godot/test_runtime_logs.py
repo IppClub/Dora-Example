@@ -69,7 +69,8 @@ int main(){
  // Draining and producers can run concurrently without borrowing Godot objects.
  std::vector<std::thread> workers;
  for(int i=0;i<4;++i)workers.emplace_back([]{for(int n=0;n<10;++n)emit("thread.gd",n,"thread error");});
- for(auto &worker:workers)worker.join();host.pump();assert(forwarded.size()==45);
+ for(auto &worker:workers) { worker.join(); }
+ host.pump();assert(forwarded.size()==45);
  host.beginProject();assert(host.failureText(first)==first);
  // Overflow retains the oldest records and reports the exact dropped count.
  for(int i=0;i<140;++i)printerr("overflow "+std::to_string(i));
