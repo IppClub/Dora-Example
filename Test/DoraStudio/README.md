@@ -54,3 +54,18 @@ HTTP/SQLite/quota/model/queue/static-host tests with `-race -count=1`, checks
 that every registered Go group actually passed, and fails on missing coverage
 or a failing process. This is current-backend acceptance, not a claim of
 one-to-one preservation of every obsolete Node internal-unit assertion.
+
+Agent memory, vision and follow-up regression scripts and their fixtures also live
+here. They compile the production Agent through the shared Dora-SSR compiler.
+Run from Dora-Example (Node.js, Studio dependencies, Lua and dkjson required):
+
+```sh
+pnpm --dir Test/DoraStudio install --frozen-lockfile
+DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build test-agent-memory.mjs test-agent-vision-input.mjs
+DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build test-agent-followup.mjs
+DORA_SSR_ROOT=/path/to/Dora-SSR node Test/DoraStudio/run.mjs --no-build --user-test test-agent-followup.mjs
+```
+
+The follow-up scripts additionally require the built `build/studio-agent-host`
+runtime and Playwright/Chromium. `--user-test` enables browser interaction checks
+for the follow-up script. Outputs remain under the Dora-SSR `build/` directory.
