@@ -306,3 +306,29 @@ assert(provider.visionModel==nil and provider.auxiliaryOptions==nil and provider
 assert(U.validateAgentLLMConfig({customOptions=configured}).success,'valid vision setting rejected')
 assert(not U.validateAgentLLMConfig({customOptions={visionModel={},auxiliaryOptions={}}}).success,'non-string vision model accepted')
 print('Vision model metadata stays out of text requests; invalid configuration rejected.')
+
+-- Optional custom parameters: absent auxiliary settings use the same compressor
+-- defaults as an explicit empty auxiliary object; real overrides still apply.
+local defaultCompressionOptions
+for _, variant in ipairs({'absent', 'empty', 'no-auxiliary', 'explicit-empty'}) do
+  local compressor, opts, cfg = fixture(64000, 8000)
+  if variant == 'absent' then cfg.customOptions = nil
+  elseif variant == 'empty' then cfg.customOptions = {}
+  elseif variant == 'no-auxiliary' then cfg.customOptions = {visionModel='custom-vl'} end
+  assert(U.validateAgentLLMConfig(cfg).success, variant .. ' rejected')
+  local compressed = compress(compressor, opts, history(3, 400))
+  assert(compressed.success and #requests == 1, variant .. ' compression failed')
+  local encoded = assert(U.safeJsonEncode(requests[1].options))
+  if defaultCompressionOptions then
+    assert(encoded == defaultCompressionOptions, variant .. ' changed default compression request options')
+  else defaultCompressionOptions = encoded end
+end
+local compressor, opts, cfg = fixture(64000, 8000)
+cfg.customOptions = {temperature=0.7, auxiliaryOptions={temperature=0.2}}
+assert(compress(compressor, opts, history(3,400)).success and requests[1].options.temperature==0.2, 'explicit auxiliary overrides were lost')
+for _, invalid in ipairs({false, 'invalid', 7, J.null, {1,2}}) do
+  assert(not U.validateAgentLLMConfig({customOptions={auxiliaryOptions=invalid}}).success, 'invalid explicit auxiliary options accepted')
+end
+assert(U.validateAgentLLMConfig({customOptions={temperature=0.5}}).success, 'provider options should not require auxiliaryOptions')
+assert(U.applyCustomLLMOptions({temperature=0.1},{temperature=0.5}).temperature==0.5, 'provider override lost')
+print('Optional custom parameters preserve default compression; explicit overrides and malformed auxiliary validation verified.')
