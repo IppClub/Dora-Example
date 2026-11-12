@@ -35,7 +35,8 @@ try{
  const method=source.slice(methodStart,source.indexOf(' NSArray<NSString*>* parts =',methodStart));assert.match(method,/doraIDEEdit/);
  const port=server.address().port;
  await writeFile(join(output,'WebViewShortcutProduction.inc'),`${webview}\n@interface DoraIDEHost:NSObject<WKScriptMessageHandler>\n@property(weak) NSWindow* window;\n@property(strong) WKWebView* view;\n@property BOOL visible;\n@end\n@implementation DoraIDEHost\n${method.replace('url.port.intValue != 8866',`url.port.intValue != ${port}`)}\n}\n@end\nstatic void installEditMenu(BOOL zh){${menu}}\n`);
+ await writeFile(join(output,'clipboard-document.txt'),'Native clipboard document 中文');
  const cli=join(output,'webview-command-test'),frameworks=['Cocoa','WebKit','IOKit','Carbon','CoreAudio','AudioToolbox','CoreVideo','ForceFeedback','GameController','CoreHaptics','Metal','AVFoundation'];
  await promisify(execFile)('clang++',['-std=c++20','-fobjc-arc','-DSDL_MAIN_HANDLED',`-I${join(root,'Source/3rdParty/SDL2/include')}`,`-I${output}`,new URL('./WebViewCommandShortcuts.mm',import.meta.url).pathname,process.env.DORA_SDL_LIBRARY||join(root,'build/macosx/arm64/release/libSDL2.a'),...frameworks.flatMap(x=>['-framework',x]),'-o',cli]);
- const {stdout,stderr}=await promisify(execFile)(cli,[`http://localhost:${port}/`,join(root,'Assets/Image/banner.jpg')],{timeout:60000});console.log(stdout+stderr);await writeFile(join(output,process.env.DORA_CLIPBOARD_ONLY?'clipboard-regression.log':'regression.log'),stdout+stderr);
+ const {stdout,stderr}=await promisify(execFile)(cli,[`http://localhost:${port}/`,join(root,'Assets/Image/banner.jpg'),join(output,'clipboard-document.txt')],{timeout:60000});console.log(stdout+stderr);await writeFile(join(output,process.env.DORA_CLIPBOARD_ONLY?'clipboard-regression.log':'regression.log'),stdout+stderr);
 }finally{await new Promise(done=>server.close(done));}

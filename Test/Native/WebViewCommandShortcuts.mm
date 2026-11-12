@@ -77,6 +77,11 @@ int main(int argc,char** argv){@autoreleasepool{
   NSURL* fileURL=[NSURL fileURLWithPath:@(argv[2])];[clipboard clearContents];[clipboard writeObjects:@[fileURL]];
   js(view,@"pasteFiles=[];pasteCount=0");press(window,@"v",9);expectJS(view,@"pasteFiles.length===1 && /image\\/(png|jpeg)/.test(pasteFiles[0].type)",@"Finder image file paste exposes a supported File");expectJS(view,@"pasteCount===1",@"Finder image is pasted once");
  }
+ if(argc>3){
+  [clipboard clearContents];[clipboard writeObjects:@[[NSURL fileURLWithPath:@(argv[3])]]];
+  js(view,@"pasteFiles=[];pasteCount=0");press(window,@"v",9);
+  expectJS(view,@"pasteCount===1 && pasteFiles.length===1 && pasteFiles[0].name==='clipboard-document.txt' && pasteFiles[0].size>0",@"Command+V exposes a Finder non-image file once");
+ }
  js(view,@"t.removeEventListener('paste',capturePaste)");
  if(!getenv("DORA_CLIPBOARD_ONLY")){
  js(view,@"editor.focus();editor.setPosition({lineNumber:1,column:1})");pump(.1);press(window,@"a",0);
