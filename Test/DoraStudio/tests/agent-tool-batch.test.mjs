@@ -53,11 +53,29 @@ test('single calls and per-call failures retain their original handling',async()
  assert.equal(result.decisions[0].preExecutionFailure.code,'INVALID_TOOL_INPUT');
  assert.equal(result.decisions[1].preExecutionFailure,undefined);
 });
-test('ask_user mixed-call restriction remains unchanged',async()=>{
- const f=fixture([call('ask_user','question'),call('grep_files','read')]);
+test('ask_user is accepted in any position and deferred without reordering ordinary calls',async()=>{
+ for(const names of [['ask_user','grep_files','read_file'],['read_file','ask_user','write_file','grep_files'],['grep_files','ask_user']]){
+  const f=fixture(names.map((tool,i)=>call(tool,String(i))));
+  const result=await new f.DecisionUnderTest().callDecisionByToolCalling(f.shared);
+  assert.ok(result.decisions.every(d=>d.preExecutionFailure===undefined));
+  assert.deepEqual(plain(result.decisions.map(d=>d.tool)),[...names.filter(n=>n!=='ask_user'),'ask_user']);
+  assert.deepEqual(plain(result.decisions.map(d=>d.toolCallId)),[...names.map((n,i)=>[n,String(i)]).filter(([n])=>n!=='ask_user').map(([,id])=>id),String(names.indexOf('ask_user'))]);
+ }
+ const single=fixture([call('ask_user','question')]);
+ assert.equal((await new single.DecisionUnderTest().callDecisionByToolCalling(single.shared)).toolCallId,'question');
+});
+test('deferred ask_user waits for all preceding reads and uses existing waiting transition',async()=>{
+ const f=fixture([call('ask_user','question'),call('grep_files','read1'),call('read_file','read2')]);
  const result=await new f.DecisionUnderTest().callDecisionByToolCalling(f.shared);
- assert.equal(result.decisions[0].preExecutionFailure.code,'INVALID_TOOL_COMBINATION');
- assert.equal(result.decisions[1].preExecutionFailure,undefined);
+ const actions=result.decisions.map(d=>({...d,params:{}}));
+ const run=new f.BatchToolAction();const promise=run.exec({shared:f.shared,actions});
+ await tick();assert.deepEqual(f.starts,['read1','read2']);
+ f.pending.get('read2')();await tick();assert.deepEqual(f.starts,['read1','read2']);
+ f.pending.get('read1')();await tick();assert.deepEqual(f.starts,['read1','read2','question']);
+ f.shared.workflow.waitingQuestionnaireId=42;f.pending.get('question')();await promise;
+ assert.equal(await run.post(f.shared), 'done');
+ assert.equal(f.shared.pendingToolActions,undefined);
+ assert.deepEqual(f.finishes,['read1','read2','question']);
 });
 test('real batch executor overlaps adjacent reads but never crosses a write barrier',async()=>{
  const f=fixture();
@@ -70,4 +88,17 @@ test('real batch executor overlaps adjacent reads but never crosses a write barr
  f.pending.get('2')();await tick();assert.deepEqual(f.starts,['0','1','2','3']);
  f.pending.get('3')();const result=await promise;
  assert.deepEqual(plain(result.map(a=>a.result.id)),['0','1','2','3']);
+});
+
+test('mixed calls are deferred until the full model response completes',async()=>{
+ const calls=[call('ask_user','question'),call('grep_files','read')];
+ const f=fixture(calls);let complete,settled=false;
+ f.box.AgentUtils.callLLMStreamAggregated=async(_messages,_options,_stop,_config,onStream)=>{
+  onStream({choices:[{message:{content:'partial',tool_calls:[calls[0]]}}]});
+  return new Promise(resolve=>{complete=()=>resolve({success:true,response:{choices:[{finish_reason:'tool_calls',message:{tool_calls:calls}}]}});});
+ };
+ const pending=new f.DecisionUnderTest().callDecisionByToolCalling(f.shared).then(result=>{settled=true;return result;});
+ await tick();assert.equal(settled,false);assert.deepEqual(f.starts,[]);
+ complete();const result=await pending;
+ assert.deepEqual(plain(result.decisions.map(d=>d.toolCallId)),['read','question']);
 });
