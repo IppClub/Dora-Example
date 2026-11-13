@@ -97,7 +97,7 @@ threadLoop(function() -- 73
 		local instantiateStart = App.runningTime -- 91
 		model = Model3D(file) -- 92
 		instantiateSeconds = App.runningTime - instantiateStart -- 93
-		if not model then -- 93
+		if model == nil then -- 93
 			finish("FAIL", "cached_model_create_failed") -- 95
 			return true -- 96
 		end -- 96

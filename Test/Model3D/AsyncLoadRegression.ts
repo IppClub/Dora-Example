@@ -91,7 +91,7 @@ threadLoop(() => {
 		const instantiateStart = App.runningTime;
 		model = Model3D(file);
 		instantiateSeconds = App.runningTime - instantiateStart;
-		if (!model) {
+		if (model === undefined) {
 			finish("FAIL", "cached_model_create_failed");
 			return true;
 		}
