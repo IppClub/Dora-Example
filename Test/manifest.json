@@ -2177,6 +2177,14 @@
       "source": "Tools/Godot/test_lua_codegen.mjs",
       "path": "Test/Godot/test_lua_codegen.mjs",
       "name": "godot-lua-codegen-contract"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-ime-input.mjs",
+      "path": "Test/WebIDE/test-ime-input.mjs"
+    },
+    {
+      "source": "Tools/dora-dora/scripts/test-agent-input-browser.mjs",
+      "path": "Test/WebIDE/test-agent-input-browser.mjs"
     }
   ]
 }
