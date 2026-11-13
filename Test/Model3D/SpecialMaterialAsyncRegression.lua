@@ -117,7 +117,7 @@ local function startNextCase() -- 94
 			return -- 125
 		end -- 125
 		model = Model3D(item.file) -- 127
-		if not model then -- 127
+		if model == nil then -- 127
 			finish("FAIL", item.name .. "_instantiate_failed") -- 129
 			return -- 130
 		end -- 130

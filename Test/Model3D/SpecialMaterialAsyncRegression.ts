@@ -125,7 +125,7 @@ function startNextCase() {
 			return;
 		}
 		model = Model3D(item.file);
-		if (!model) {
+		if (model === undefined) {
 			finish("FAIL", `${item.name}_instantiate_failed`);
 			return;
 		}
