@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {webcrypto} from 'node:crypto';
 import {EventEmitter} from 'node:events';
 import {readFile} from 'node:fs/promises';
 import ts from 'typescript';
@@ -8,14 +9,19 @@ const source = await readFile(new URL('../src/Service.ts', (process.env.DORA_TES
 const code = ts.transpileModule(source, {compilerOptions: {module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022}}).outputText;
 const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve(); };
 function fixture(warmup = async () => {}) {
- const sockets = [], timers = new Map(), listeners = new Map(); let timer = 0;
+ const sockets = [], timers = new Map(), intervals = new Map(), listeners = new Map(); let timer = 0;
  class Socket {
   constructor(url) { this.url = url; this.closed = false; sockets.push(this); }
   close() { this.closed = true; this.onclose?.(); }
  }
  const exports = {};
  const window = {location: {hostname: 'localhost', href: 'http://localhost:8866/', search: ''},
-  addEventListener(name, handler) { listeners.set(name, handler); }};
+  addEventListener(name, handler) {
+   if (!listeners.has(name)) listeners.set(name, []);
+   listeners.get(name).push(handler);
+  },
+  setInterval(callback) { intervals.set(++timer, callback); return timer; },
+  clearInterval(id) { intervals.delete(id); }};
  const require = name => {
   if (name === './utils/typedEmitter') return {TypedEmitter: EventEmitter};
   if (name === './LogBuffer') return {LogBuffer: class {}};
@@ -24,9 +30,9 @@ function fixture(warmup = async () => {}) {
   if (name === './TranspileTS') return {warmupTypescriptTranspiler: warmup};
   throw new Error(`Unexpected import ${name}`);
  };
- vm.runInNewContext(code, {exports, require, window, URL, URLSearchParams, process: {env: {NODE_ENV: "production"}}, WebSocket: Socket, console,
+ vm.runInNewContext(code, {exports, require, window, crypto: webcrypto, Blob, document: {hasFocus: () => true}, URL, URLSearchParams, process: {env: {NODE_ENV: "production"}}, WebSocket: Socket, console,
   setTimeout(callback) { timers.set(++timer, callback); return timer; }, clearTimeout(id) { timers.delete(id); }});
- return {service: exports, window, sockets, timers, dispatch: (name, event = {}) => listeners.get(name)?.(event)};
+ return {service: exports, window, sockets, timers, dispatch: (name, event = {}) => listeners.get(name)?.forEach(handler => handler(event))};
 }
 test('native Close disconnects and cancels pending reconnect', async () => {
  const f = fixture(); f.service.openWebSocket(); await flush();

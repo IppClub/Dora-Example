@@ -3,9 +3,9 @@ local root = arg[1] or '.'
 local file = assert(io.open(root .. '/Assets/Script/Dev/WebServer.lua', 'rb'))
 local source = file:read('a'); file:close()
 local marker = assert(source:find('\tlocal doraWeb = Path', 1, true))
-local first = assert(source:sub(1, marker - 1):match('.*()thread%(function%(%)'))
 local last = assert(source:find('\n\tif App.platform == "Emscripten"', marker, true))
-local code = source:sub(first, last - 1) .. '\nend)'
+-- Execute the resource bootstrap body independently of its scheduler wrapper.
+local code = 'return function()\n' .. source:sub(marker, last - 1) .. '\nend'
 
 local function fixture(compressed)
  local stored, copies = {}, 0
@@ -36,8 +36,8 @@ local function fixture(compressed)
  end
  if compressed then stored[prefix .. 'precompressed-assets.json'] = 'manifest-1' end
  local env = {Content = content, App = app, Path = function(...) return table.concat({...}, '/') end,
-  thread = function(fn) fn() end, table = table, print = function() end}
- local run = assert(load(code, '@production-web-bootstrap', 't', env))
+  table = table, print = function() end}
+ local run = assert(load(code, '@production-web-bootstrap', 't', env))()
  run(); assert(copies == 1 and stored[ready]); assert(stored['/app/.www/index.html' .. suffix])
  local initial = stored[ready]
  run(); assert(copies == 1 and stored[ready] == initial)
