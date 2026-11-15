@@ -30,18 +30,21 @@ test('Agent migration baseline includes every upstream registered tool, not para
     assert.ok(name && ts.isPropertyAssignment(name) && ts.isStringLiteral(name.initializer));
     return name.initializer.text;
   });
-  assert.deepEqual(names, ['read_file','edit_file','write_file','grep_files','search_dora_doc','build','fetch_url','analyze_image','execute_command','spawn_agent','ask_user'],
+  assert.deepEqual(names, ['context_handoff','read_file','edit_file','write_file','grep_files','search_dora_doc','build','fetch_url','analyze_image','execute_command','spawn_agent','ask_user'],
   'Upstream Agent registry changed: review the Studio parity inventory before accepting the new baseline');
 });
 test('upstream tool declarations produce JSON contracts without loading native handlers', async () => {
   const contracts = await loadAgentContracts();
-  assert.equal(contracts.length, 11);
+  assert.equal(contracts.length, 12);
   assert.deepEqual(JSON.parse(JSON.stringify(contracts)), contracts);
   for (const contract of contracts) {
     assert.ok(contract.roles.length && contract.workModes.length);
     assert.equal(contract.inputSchema.type, 'object');
     assert.equal(contract.handler, undefined);
   }
+  const handoff = contracts.find(tool => tool.name === 'context_handoff');
+  assert.deepEqual(handoff.roles, ['main']);
+  assert.deepEqual(handoff.inputSchema.required, ['goal_constraints','progress_evidence','open_work_next_action']);
   const read = contracts.find(tool => tool.name === 'read_file');
   assert.equal(read.parallelSafe, true);
   assert.deepEqual(read.inputSchema.anyOf, [{ required: ['path'] }, { required: ['reads'] }]);
@@ -52,6 +55,9 @@ test('original Agent selectors retain mode restrictions, disabled tools and sub-
   const names = (role, options) => registry.buildDecisionToolSchema(role, 20, options).map(tool => tool.function.name);
   const mainCode = names('main', { workMode: 'code' });
   const mainPlan = names('main', { workMode: 'plan' });
+  assert.ok(mainCode.includes('context_handoff') && mainPlan.includes('context_handoff'));
+  assert.ok(!names('main',{workMode:'code',disabledAgentTools:['context_handoff']}).includes('context_handoff'));
+  assert.ok(!names('sub',{workMode:'code'}).includes('context_handoff'));
   assert.ok(mainCode.includes('spawn_agent'));
   assert.ok(!mainCode.includes('ask_user'));
   assert.ok(mainPlan.includes('ask_user'));

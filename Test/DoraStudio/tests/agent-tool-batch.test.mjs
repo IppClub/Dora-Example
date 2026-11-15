@@ -11,7 +11,9 @@ const classes=source.statements.filter(ts.isClassDeclaration);
 const decision=classes.find(c=>c.name?.text==='MainDecisionAgent').members.find(m=>m.name?.getText(source)==='callDecisionByToolCalling');
 const batch=classes.find(c=>c.name?.text==='BatchToolAction');
 const batchSource=await readFile(path+'Tool/Batch.ts','utf8');
-const text=`${batchSource.replace(/^import .*;$/mg,'').replace(/^export /mg,'')}\nclass DecisionUnderTest {${decision.getText(source)}}\n${batch.getText(source)}\nglobalThis.api={DecisionUnderTest,BatchToolAction,partitionAgentToolCalls};`;
+const decisionHelpers=source.statements.filter(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='decisionTools').map(node=>node.getText(source)).join('\n');
+assert.ok(decisionHelpers,'original decision schema helper must be present');
+const text=`${decisionHelpers}\n${batchSource.replace(/^import .*;$/mg,'').replace(/^export /mg,'')}\nclass DecisionUnderTest {${decision.getText(source)}}\n${batch.getText(source)}\nglobalThis.api={DecisionUnderTest,BatchToolAction,partitionAgentToolCalls};`;
 const code=ts.transpileModule(text,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
 function fixture(calls=[]){
  const starts=[],finishes=[],pending=new Map();
@@ -19,7 +21,7 @@ function fixture(calls=[]){
  const box={Node:class{},Promise,Map,Set,Math,math:Math,
   AgentConfig:{AGENT_LIMITS:{searchDoraDocLimitMax:20}},
   AgentToolRegistry:{buildDecisionToolSchema:()=>[],canRunToolInParallel:tool=>['read_file','grep_files','search_dora_doc'].includes(tool)},
-  AgentUtils:{Log(){},sanitizeUTF8:x=>x,callLLMStreamAggregated:async()=>({success:true,response:{choices:[{finish_reason:'tool_calls',message:{tool_calls:calls}}]}})},
+  AgentUtils:{useFastGlmToolDecision:()=>false,Log(){},sanitizeUTF8:x=>x,callLLMStreamAggregated:async()=>({success:true,response:{choices:[{finish_reason:'tool_calls',message:{tool_calls:calls}}]}})},
   getDecisionDisabledAgentTools:()=>[],buildDecisionMessages:()=>[],getRemainingAgentWorkSteps:()=>20,
   emitLLMContextMetrics(){},saveStepLLMDebugInput(){},saveStepLLMDebugOutput(){},recordLLMTokenUsage(){},encodeDebugJSON:JSON.stringify,
   emitAssistantMessageUpdated(){},interceptRepeatedOutput:async()=>undefined,
