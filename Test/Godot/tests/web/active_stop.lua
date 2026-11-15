@@ -35,8 +35,13 @@ controller:schedule(function()
     end
     if frame >= 120 then
         assert(#aliases == 3, "Retain every native texture slot before host stop")
-        assert(D.Content:save("/user/active-stop.json", string.format(
-            '{"running":true,"frame":%d,"aliases":%d,"buffers":3}', frame, #aliases)))
+        if frame == 120 then
+            -- Publish once by rename: native readers must never see a truncated marker.
+            local marker = "/user/active-stop.json"
+            assert(D.Content:save(marker .. ".tmp", string.format(
+                '{"running":true,"frame":%d,"aliases":%d,"buffers":3}', frame, #aliases)))
+            assert(D.Content:move(marker .. ".tmp", marker))
+        end
         if frame == 120 then print("DORA_WEB_ACTIVE_STOP_READY") end
     end
     -- Keep the node, aliases, animation and PCM alive until the host stops.
