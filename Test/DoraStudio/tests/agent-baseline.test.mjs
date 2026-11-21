@@ -8,7 +8,7 @@ test('built Agent contracts match source schemas for every role and mode', async
   const built = await import('../packages/agent-contracts/dist/index.js');
   const upstream = await loadAgentRegistry();
   for (const role of ['main', 'sub']) for (const workMode of ['code', 'plan']) {
-    const options = { workMode, disabledAgentTools: ['fetch_url'] };
+    const options = { workMode, disabledAgentTools: ['read_file'] };
     assert.deepEqual(built.buildDecisionToolSchema(role, 7, options), upstream.buildDecisionToolSchema(role, 7, options));
   }
 });
@@ -30,12 +30,12 @@ test('Agent migration baseline includes every upstream registered tool, not para
     assert.ok(name && ts.isPropertyAssignment(name) && ts.isStringLiteral(name.initializer));
     return name.initializer.text;
   });
-  assert.deepEqual(names, ['context_handoff','read_file','edit_file','write_file','grep_files','search_dora_doc','build','fetch_url','analyze_image','execute_command','spawn_agent','ask_user'],
+  assert.deepEqual(names, ['context_handoff','read_file','edit_file','write_file','grep_files','search_dora_doc','build','analyze_image','execute_command','spawn_agent','ask_user'],
   'Upstream Agent registry changed: review the Studio parity inventory before accepting the new baseline');
 });
 test('upstream tool declarations produce JSON contracts without loading native handlers', async () => {
   const contracts = await loadAgentContracts();
-  assert.equal(contracts.length, 12);
+  assert.equal(contracts.length, 11);
   assert.deepEqual(JSON.parse(JSON.stringify(contracts)), contracts);
   for (const contract of contracts) {
     assert.ok(contract.roles.length && contract.workModes.length);

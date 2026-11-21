@@ -39,7 +39,7 @@ test('step list exposes the original Agent execution details instead of a tool-o
   const state={session:{title:'示例',status:'RUNNING',workMode:'code',currentTaskId:2,currentTaskStatus:'RUNNING'},messages:collection([]),steps:collection([{id:8,sessionId:1,taskId:2,step:3,tool:'execute_command',status:'FAILED',reason:'运行检查脚本',reasoningContent:'',params:{mode:'lua',code:'print("check")',cwd:'Script'},result:{success:false,message:'脚本执行失败',output:'line 1: error'},files:[{op:'write',path:'main.ts'}],createdAt:1,updatedAt:1}]),checkpoints:collection([]),hasEarlierMessages:false,pendingQuestionnaire:null,deleted:false};
   const html=render({state});
   assert.match(html,/执行命令/);assert.match(html,/运行检查脚本/);assert.match(html,/工作目录/);assert.match(html,/Script/);
-  assert.match(html,/脚本代码/);assert.match(html,/输出结果/);assert.match(html,/脚本执行失败/);assert.match(html,/main.ts/);
+  assert.match(html,/脚本代码/);assert.match(html,/输出结果/);assert.match(html,/line 1: error/);assert.doesNotMatch(html,/脚本执行失败/);assert.match(html,/main.ts/);
 });
 test('running task shows an explicit automatic shared-model queue state',()=>{
   const state={session:{title:'示例',status:'RUNNING',workMode:'code',currentTaskId:2,currentTaskStatus:'RUNNING'},messages:collection([{id:1,taskId:2,role:'user',content:'继续完善'}]),steps:collection([]),checkpoints:collection([]),hasEarlierMessages:false,pendingQuestionnaire:null,deleted:false};
@@ -63,9 +63,9 @@ test('each task keeps the user request first, execution steps in the middle and 
 });
 test('connected session exposes the continuation composer only when the project gate allows it',()=>{
   const state={session:{title:'示例',status:'DONE',workMode:'code'},messages:collection([]),steps:collection([]),checkpoints:collection([]),hasEarlierMessages:false,pendingQuestionnaire:null,deleted:false};
-  const enabled=render({state,composer:{value:'增加雨滴',onChange(){},onSubmit(){},disabled:false,busy:false,status:'可继续第 2 轮创作，不限制轮次',planMode:false,fetchUrlEnabled:false,executeCommandEnabled:true,models:[{id:'grant-a',name:'DeepSeek · deepseek-chat'}],modelId:'grant-a',onPlanModeChange(){},onFetchUrlEnabledChange(){},onExecuteCommandEnabledChange(){},onModelChange(){}}});
+  const enabled=render({state,composer:{value:'增加雨滴',onChange(){},onSubmit(){},disabled:false,busy:false,status:'可继续第 2 轮创作，不限制轮次',planMode:false,models:[{id:'grant-a',name:'DeepSeek · deepseek-chat'}],modelId:'grant-a',onPlanModeChange(){},onModelChange(){}}});
   assert.match(enabled,/继续描述你希望修改的玩法/);assert.match(enabled,/增加雨滴/);assert.match(enabled,/不限制轮次/);
-  assert.match(enabled,/计划/);assert.match(enabled,/网络/);assert.match(enabled,/命令/);assert.match(enabled,/DeepSeek/);
+  assert.match(enabled,/规划模式/);assert.match(enabled,/DeepSeek/);
   assert.doesNotMatch(enabled,/<textarea[^>]* disabled=""/);
   assertSendDisabled(enabled,false);
   const uncertain=render({state,composer:{value:'',onChange(){},onSubmit(){},disabled:true,busy:false,status:'上轮投递结果待核对，不能自动重发'}});

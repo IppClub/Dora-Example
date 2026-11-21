@@ -106,14 +106,14 @@ test('project sync verifies bytes, waits for installation, and excludes simultan
 });
 test('dedicated host port acknowledges one bound prompt without accepting a foreign grant or echoing host errors',async()=>{
   const {port1,port2}=new MessageChannel(),requestId=crypto.randomUUID();let calls=0;
-  const options={workMode:'plan',disabledAgentTools:['fetch_url']};
+  const options={workMode:'plan'};
   const host=serve(port2,binding,{subscribe:()=>()=>{},capture:()=>snapshot},{persist:async()=>{},sendPrompt:async(prompt,grant,id,received)=>{calls++;assert.equal(prompt,'make a game');assert.equal(grant,'grant');assert.equal(id,requestId);assert.deepEqual(received,options);return 17;}});
   const client=await connect(port1,binding,new AbortController().signal,1000);
   try{
     assert.equal(client.canSendPrompt,true);
     assert.equal(await client.sendPrompt('make a game','grant',requestId,options),17);
     await assert.rejects(client.sendPrompt('make a game','../foreign',crypto.randomUUID(),options),/invalid/);
-    await assert.rejects(client.sendPrompt('make a game','grant',crypto.randomUUID(),{workMode:'code',disabledAgentTools:['unknown']}),/invalid/);
+    await assert.rejects(client.sendPrompt('make a game','grant',crypto.randomUUID(),{workMode:'code',submission:{delivery:'unknown'}}),/invalid/);
     assert.equal(calls,1);
   }finally{client.close();host.close();}
 });
