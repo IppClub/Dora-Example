@@ -48,9 +48,9 @@ test('quiesce uses fixed native operation and rejects contradictory completion',
   }
 });
 test('prompt request delivers trusted model binding to original Agent and requires a matching acknowledgement',async()=>{
-  const id=crypto.randomUUID(),config={url:'https://host.example/agent-host/launch/model/grant',model:'fixture',apiKey:'studio-agent',studioGateway:true},options={workMode:'plan',disabledAgentTools:['fetch_url']};
+  const id=crypto.randomUUID(),config={url:'https://host.example/agent-host/launch/model/grant',model:'fixture',apiKey:'studio-agent',studioGateway:true},options={workMode:'plan',submission:{delivery:'steer'}};
   const module={ccall:(name,result,types,args)=>{
-    const request=JSON.parse(args[0]);assert.equal(request.operation,'prompt');assert.equal(request.requestId,id);assert.deepEqual(request.llmConfig,config);assert.equal(request.workMode,'plan');assert.deepEqual(request.disabledAgentTools,['fetch_url']);
+    const request=JSON.parse(args[0]);assert.equal(request.operation,'prompt');assert.equal(request.requestId,id);assert.deepEqual(request.llmConfig,config);assert.equal(request.workMode,'plan');assert.deepEqual(request.submission,{delivery:'steer'});
     module.doraStudioAgentEvent(JSON.stringify({kind:'command',sessionId:1,sequence:0,requestId:id,payload:JSON.stringify({success:true,sessionId:1,taskId:12})}));
   }};
   const source=create(module,1);
