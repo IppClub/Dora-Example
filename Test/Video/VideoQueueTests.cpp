@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Li Jin. SPDX-License-Identifier: MIT
 #include "AudioExtraction.h"
+#include "VideoContent.h"
 #include "theora/theoradec.h"
 #include <atomic>
 #include <chrono>
@@ -22,23 +23,7 @@ void check(bool value, const char* message) {
  if (!value) throw std::runtime_error(message);
 }
 template<class T, class U> T s_cast(U value) { return static_cast<T>(value); }
-struct String : std::string {
- using std::string::string;
- std::string toString() const { return *this; }
-};
 struct VideoDataImpl { virtual ~VideoDataImpl() = default; };
-// Only the Content file read is replaced; the complete VideoData state machine
-// and queue are compiled from the production source below.
-struct Content {
- auto load(const String& name) {
-  std::ifstream file(name, std::ios::binary | std::ios::ate);
-  size_t size = file ? size_t(file.tellg()) : 0;
-  auto bytes = std::make_unique<uint8_t[]>(size);
-  file.seekg(0);
-  file.read(reinterpret_cast<char*>(bytes.get()), size);
-  return std::make_pair(std::move(bytes), size);
- }
-} SharedContent;
 namespace AudioDetail = Dora::AudioDetail;
 #include "VideoBufferPolicy.inc"
 // Expose queue counters only in this isolated harness, never in the engine API.
@@ -57,6 +42,7 @@ struct Worker {
 void boundedQueue() {
  VideoData video;
  check(video.init(String(DORA_VIDEO_FIXTURES "/1080p.ogv")), "1080p fixture failed");
+ check(video.file && !video.fileData,"ordinary file was loaded into memory");
  check(video.maxBufferedFrames == 4, "1080p queue limit changed");
  Worker worker(video);
  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
@@ -78,6 +64,13 @@ void boundedQueue() {
  std::this_thread::sleep_for(std::chrono::milliseconds(100));
  std::scoped_lock lock(video.framesMutex);
  check(video.frames.size() == 4, "stalled consumer did not apply backpressure");
+}
+void packagedFallback() {
+ SharedContent.usePackage = true;
+ VideoData video;
+ check(video.init(String(DORA_VIDEO_FIXTURES "/motion.ogv")), "packaged fixture failed");
+ check(!video.file && video.fileData && video.duration == 20, "packaged data fallback failed");
+ SharedContent.usePackage = false;
 }
 void timelineAndLoop() {
  VideoData video;
@@ -101,7 +94,7 @@ void timelineAndLoop() {
   if (!frame) { std::this_thread::yield(); continue; }
   check(frame->cycle == cycle, "incorrect loop cycle");
   if (frame->rgba.empty()) {
-   check(!frame->final && frames == 600 && std::abs(frame->time - 20.0) < 1e-8,
+   check(frame->end == VideoFrame::End::Loop && frames == 600 && std::abs(frame->time - 20.0) < 1e-8,
     "loop ended before all frame intervals");
    ++cycle;
    frames = 0;
@@ -116,6 +109,7 @@ void timelineAndLoop() {
 int main() {
  try {
   boundedQueue();
+  packagedFallback();
   timelineAndLoop();
   std::cout << "VIDEO_QUEUE_PASS 1080p=4 frames/33177600 bytes, backpressure, stop/join, duplicate duration, two loops\n";
  } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }

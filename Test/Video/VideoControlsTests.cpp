@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Li Jin. SPDX-License-Identifier: MIT
 #include "AudioExtraction.h"
+#include "VideoContent.h"
 #include "theora/theoradec.h"
 #include <atomic>
 #include <chrono>
@@ -23,23 +24,7 @@ void check(bool value, const char* message) {
  if (!value) throw std::runtime_error(message);
 }
 template<class T, class U> T s_cast(U value) { return static_cast<T>(value); }
-struct String : std::string {
- using std::string::string;
- std::string toString() const { return *this; }
-};
 struct VideoDataImpl { virtual ~VideoDataImpl() = default; };
-// Only the Content file read is replaced; the complete VideoData state machine
-// and queue are compiled from the production source below.
-struct Content {
- auto load(const String& name) {
-  std::ifstream file(name, std::ios::binary | std::ios::ate);
-  size_t size = file ? size_t(file.tellg()) : 0;
-  auto bytes = std::make_unique<uint8_t[]>(size);
-  file.seekg(0);
-  file.read(reinterpret_cast<char*>(bytes.get()), size);
-  return std::make_pair(std::move(bytes), size);
- }
-} SharedContent;
 namespace AudioDetail = Dora::AudioDetail;
 #include "VideoBufferPolicy.inc"
 // Expose queue counters only in this isolated harness, never in the engine API.
@@ -77,13 +62,15 @@ uint64_t imageHash(const std::vector<uint8_t>& rgba) {
  return result;
 }
 struct VideoNode:Sprite {
- enum class UpdateFlag {Wait,Done,Loop,Stop};
+ enum class UpdateFlag {Wait,Done,Loop,End,Stop};
  std::shared_ptr<VideoDataImpl> _videoData;
  std::shared_ptr<AudioSource> _audioSource;
  double _playbackTime=0,_duration=0,_audioDuration=0,_seekTime=0;
  bool _seeking=false,_ended=false;
  uint64_t _cycle=0;
- bool _started=false,_videoEnded=false,_decoderEnded=false,_audioEnded=true;
+ bool _started=false,_audioEnded=true;
+ UpdateFlag _videoEnd=UpdateFlag::Wait;
+ unsigned endedEvents=0;
  bool _looped=false,_paused=false;
  std::thread worker;
  uint64_t image=0;
@@ -102,10 +89,19 @@ struct VideoNode:Sprite {
  bool isPlaying()const noexcept;bool isPaused()const;
  void onEnter()override;void onExit()override;bool update(double)override;
  bool beginPlayback();
+ void emit(const String& name) {
+  check(name=="VideoEnd" && !isPlaying() && getCurrentTime()==getDuration(),"incorrect VideoEnd callback state");
+  ++endedEvents;
+ }
  UpdateFlag updateTexture() {
   auto frame=static_cast<VideoData*>(_videoData.get())->getFrame(_playbackTime,_cycle);
   if(!frame)return UpdateFlag::Wait;
-  if(frame->rgba.empty())return frame->final?UpdateFlag::Stop:UpdateFlag::Loop;
+  switch(frame->end) {
+   case VideoFrame::End::Loop: return UpdateFlag::Loop;
+   case VideoFrame::End::Natural: return UpdateFlag::End;
+   case VideoFrame::End::Failed: return UpdateFlag::Stop;
+   case VideoFrame::End::None: break;
+  }
   image=imageHash(frame->rgba);return UpdateFlag::Done;
  }
  void step(double dt) {
@@ -116,6 +112,7 @@ struct VideoNode:Sprite {
   update(dt);
  }
 };
+constexpr auto operator""_slice(const char* value, size_t) { return value; }
 #define Warn(...) ((void)0)
 #include "VideoControls.inc"
 #include "VideoUpdate.inc"
@@ -132,7 +129,7 @@ template<class Predicate> void await(VideoNode& node,Predicate done, const std::
  const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
  while(!done() && std::chrono::steady_clock::now()<deadline){node.update(0);std::this_thread::yield();}
  if(!done()) {
-  std::cerr<<"await line="<<where.line()<<" time="<<node._playbackTime<<" seek="<<node._seeking<<" started="<<node._started<<" ended="<<node._ended<<" videoEnd="<<node._videoEnded<<" audioEnd="<<node._audioEnded<<" cycle="<<node._cycle<<" image="<<node.image<<"\n";
+  std::cerr<<"await line="<<where.line()<<" time="<<node._playbackTime<<" seek="<<node._seeking<<" started="<<node._started<<" ended="<<node._ended<<" videoEnd="<<static_cast<int>(node._videoEnd)<<" audioEnd="<<node._audioEnded<<" cycle="<<node._cycle<<" image="<<node.image<<"\n";
   throw std::runtime_error("controls did not reach requested state");
  }
 }
@@ -167,12 +164,16 @@ void controls(const char* fixture,size_t frameCount,double fps) {
  check(node.isPlaying() && !node._audioSource->paused,"re-entry did not resume");
  seekFrame(node,node.getDuration()+100,frames,fps);
  check(!node.isPlaying() && node.getCurrentTime()==node.getDuration(),"seek beyond end");
+ check(node.endedEvents==0,"seek, pause or scene exit emitted VideoEnd");
  node.play();await(node,[&]{return !node._seeking && node._started && node.image==frames[0];});
  check(node.getCurrentTime()==0 && node.isPlaying(),"play after end did not restart");
  seekFrame(node,videoDuration+1,frames,fps);await(node,[&]{return node._started;});
  check(node._audioSource->position==videoDuration+1,"longer audio tail did not seek");
+ await(node,[&]{return node._videoEnd==VideoNode::UpdateFlag::End;});
+ check(node.endedEvents==0 && node.isPlaying(),"VideoEnd preceded the audio tail");
  node.step(1.1);await(node,[&]{return node._ended;});
  check(!node.isPlaying() && node.getCurrentTime()==node.getDuration(),"natural EOF state");
+ node.step(1);check(node.endedEvents==1,"natural EOF must emit VideoEnd once");
  node.play();await(node,[&]{return !node._seeking && node._started && node.image==frames[0];});
  check(node.isPlaying() && node.getCurrentTime()==0,"natural EOF replay");
  node.pause();seekFrame(node,-1,frames,fps);check(node.getCurrentTime()==0,"negative seek clamp");
@@ -187,6 +188,9 @@ void shortAudioAndLoop(const char* fixture) {
  silent.step(7.5);await(silent,[&]{return silent._ended;});
  silent.play();await(silent,[&]{return !silent._seeking && silent._started && silent.image==frames[0];});
  check(silent.getCurrentTime()==0 && silent.isPlaying(),"silent EOF replay");
+ seekFrame(silent,19.9,frames,30);await(silent,[&]{return silent._started;});
+ silent.step(.2);await(silent,[&]{return silent._ended;});
+ check(silent.endedEvents==2,"replay must emit VideoEnd again");
  VideoNode shortAudio(fixture,1.25);
  seekFrame(shortAudio,18,frames,30);await(shortAudio,[&]{return shortAudio._started;});
  check(shortAudio._audioEnded && !shortAudio._audioSource->playing,"short audio restarted past EOF");
@@ -196,6 +200,7 @@ void shortAudioAndLoop(const char* fixture) {
  const auto cycle=loop._cycle;loop.step(.2);
  await(loop,[&]{return loop._cycle>cycle && loop._started && loop.image==frames.front();});
  check(loop.isPlaying() && loop.getCurrentTime()==0,"seeked loop did not restart both tracks");
+ check(loop.endedEvents==0,"loop transition emitted VideoEnd");
 }
 }
 int main(){
