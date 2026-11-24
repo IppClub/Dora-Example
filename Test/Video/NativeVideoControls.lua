@@ -16,6 +16,13 @@ return function(filename, output)
  end
  local video = make(false)
  local duration = video.duration
+ local endEvents = 0
+ local endStateOK = false
+ local audio = assert(video:getChildByTag('VideoAudio'))
+ video:slot("VideoEnd", function(...)
+  endEvents = endEvents + 1
+  endStateOK = select('#', ...) == 0 and not video.playing and not audio.playing and video.currentTime == duration
+ end)
  assert(duration > 1, 'fixture needs at least one second')
  video.position = D.Vec2(video.width/2, video.height/2)
  local target = D.RenderTarget(math.floor(video.width), math.floor(video.height))
@@ -46,11 +53,14 @@ return function(filename, output)
    D.sleep(.2); capture('latest-seek')
    video:play(); D.sleep(.1); video:seek(duration*.3)
    D.sleep(.25); video:pause(); D.sleep(.1); capture('playing-seek')
+   assert(endEvents == 0, 'pause or seek emitted VideoEnd')
    video:seek(duration-.15); video:play()
    local deadline=D.App.runningTime+4
    while video.playing and D.App.runningTime<deadline do D.sleep() end
    assert(not video.playing and math.abs(video.currentTime-duration)<1e-6, 'EOF state')
    D.sleep(.1); capture('ended')
+   assert(endEvents == 1, 'natural EOF must emit VideoEnd once')
+   assert(endStateOK, 'VideoEnd fired before the final playback state')
    video:play(); assert(video.playing)
    D.sleep(.25); video:pause(); D.sleep(.1); capture('replayed')
    assert(video.currentTime>0 and video.currentTime<.6, 'EOF replay clock')
@@ -61,12 +71,16 @@ return function(filename, output)
    video:seek(0/0); assert(video.currentTime==0)
    video:seek(duration+10); D.sleep(.2); capture('clamped-end')
    assert(not video.playing and video.currentTime==duration)
+   assert(endEvents == 1, 'seeking to duration emitted VideoEnd')
    local loop=make(true)
+   local loopEndEvents = 0
+   loop:slot("VideoEnd", function() loopEndEvents = loopEndEvents + 1 end)
    assert(math.abs(loop.duration-duration)<1e-6)
    loop:seek(duration-.15); loop:play()
    deadline=D.App.runningTime+4
    while loop.currentTime>1 and D.App.runningTime<deadline do D.sleep() end
    assert(loop.playing and loop.currentTime<1, 'loop did not restart after seek')
+   assert(loopEndEvents == 0, 'loop transition emitted VideoEnd')
   end, debug.traceback)
   for _, node in ipairs(nodes) do node:removeFromParent(true) end
   assert(D.Content:save(output..'/result.json',assert(json.encode({success=ok,
