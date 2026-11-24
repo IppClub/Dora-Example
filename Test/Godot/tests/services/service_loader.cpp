@@ -16,6 +16,10 @@ static int scenes(uint32_t version,DoraGodotSceneAPI *api) {
     assert(version==DORA_GODOT_SCENE_ABI_VERSION);
     *api={sizeof(*api),mode==2?99u:version,mode==3?nullptr:invoke};if(mode==5)api->size=0;return mode!=1;
 }
+static int legacyImports(uint32_t version,DoraGodotImportAPI *api) {
+    if(version!=1)return 0;
+    *api={sizeof(*api),1,invoke};return 1;
+}
 int main() {
     DoraGodotConfig config{};
     for(int operation:{GodotRuntimeServices::Check,GodotRuntimeServices::Import,GodotRuntimeServices::InspectScene}) {
@@ -28,5 +32,10 @@ int main() {
         for(mode=1;mode<=6;++mode)assert(!GodotRuntimeServices::call(operation,config,"file","source",resolve).first);
         mode=0;auto result=GodotRuntimeServices::call(operation,config,"file","source",resolve);assert(result.first);
         storage="invalidated by next runtime call";assert(result.second=="{\"success\":true}");
+        if(operation==GodotRuntimeServices::Import) {
+            auto legacy=[](const char*)->void*{return reinterpret_cast<void*>(legacyImports);};
+            auto rejected=GodotRuntimeServices::call(operation,config,"file","{\"settings\":{\"mipmaps\":true}}",legacy);
+            assert(!rejected.first && rejected.second.find("settings API")!=std::string::npos);
+        }
     }
 }

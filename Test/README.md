@@ -51,3 +51,18 @@ Godot integration tests, fixtures, source audits and manual acceptance tools liv
 Run `xmake test-suite --repo=/path/to/Dora-Example --suite=godot-contract` from
 the engine root. Native test-host builds use `DORA_TEST_REPO` or
 `--dora_test_repo=/path/to/Dora-Example`; normal runtime builds need no test checkout.
+
+IME and Agent input regressions live in `WebIDE/test-ime-input.mjs` (included in
+UI CI) and `WebIDE/test-agent-input-browser.mjs` (explicit browser acceptance).
+The browser case uses disposable Chrome profiles and synthetic composition/key
+events; it does not require an engine service or call an LLM. Set
+`DORA_TEST_CHROME` if Chrome/Chromium is not at a standard install path. Reports
+and screenshots are written to the engine's `build/agent-input-qa/` directory.
+It covers draft clearing during delayed responses, failure without draft
+restoration, continued typing, attachments, and immediate message-editor closure
+on resend. System IME acceptance remains a separate manual check.
+
+```sh
+xmake test-suite --repo=/path/to/Dora-Example --suite=ui --case=test-ime-input
+xmake test-suite --repo=/path/to/Dora-Example --suite=web-ide --case=test-agent-input-browser
+```

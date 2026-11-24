@@ -308,7 +308,19 @@ extern "C" DORA_GODOT_TEST_EXPORT int dora_godot_node_test_main() {
             return false;
         }
         if ((*tick==30 || *tick==530) && godot) {
-            if (!bindingCommand("probe")) { godot->sendKey("F9",true); godot->sendKey("F9",false); }
+            if (!bindingCommand("probe")) {
+                // Exercise host SDL event -> Dora Keyboard -> GodotNode before any click,
+                // including the second node created after unloading the first.
+                if (!godot->isKeyboardEnabled()) result=2;
+                Dora::Event::send("AppEvent"_slice,std::string("WindowFocusGained"));
+                SDL_Event key{};
+                key.type=SDL_KEYDOWN;
+                key.key.keysym.scancode=SDL_SCANCODE_F9;
+                key.key.keysym.sym=SDLK_F9;
+                if (SDL_PushEvent(&key)!=1) result=2;
+                key.type=SDL_KEYUP;
+                if (SDL_PushEvent(&key)!=1) result=2;
+            }
         }
         if ((*tick==60 || *tick==540) && godot && !bindingCommand("resume")) godot->resume();
         if (testIME && (*tick==75 || *tick==470 || *tick==550)) {

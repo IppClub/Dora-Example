@@ -53,7 +53,8 @@
     "test_read_sync",
     "test_bootstrap_lua_load",
     "test_native_run_transition",
-    "test_xmake_native_tasks"
+    "test_xmake_native_tasks",
+    "test-ime-input"
   ],
   "manualCases": [
     "emoji-label",
@@ -63,7 +64,8 @@
     "test_http_access_native",
     "test_webide_paid_models",
     "test_webide_services",
-    "test_native_agent_lifecycle"
+    "test_native_agent_lifecycle",
+    "test-agent-input-browser"
   ],
   "triggerInputs": {
     "ui.yml": [

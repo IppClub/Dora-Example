@@ -57,6 +57,45 @@ test('Dora and lualib declarations compile against the actual bundled assets', (
   assert.ok(result.output.has('/project/lualib_bundle.lua'));
 });
 
+test('native ImGui binding keeps its runtime module name instead of a declaration path', async () => {
+  const data = input({ 'main.ts': 'import * as ImGui from "ImGui"; export const draw = () => ImGui.Text("test");' });
+  data.files.push({ file: '/dora/ImGui.d.ts', moduleName: 'ImGui',
+    content: await readFile(new URL('../../Assets/Script/Lib/Dora/en/ImGui.d.ts', import.meta.url), 'utf8') });
+  const result = compile(data);
+  assert.deepEqual(messages(result), []);
+  assert.match(result.output.get('/project/main.lua').content, /require\("ImGui"\)/);
+  assert.doesNotMatch(result.output.get('/project/main.lua').content, /require\("[^"\n]*ImGui\.d"\)/);
+});
+
+for (const sourceRoot of ['/engine/Assets/Script', '/engine/Assets', 'C:/engine/Assets/Script', 'C:/engine/Assets']) {
+  test(`original SelfUpdater sources compile under ${sourceRoot} without generated dependency Lua`, async () => {
+    const names = ['SelfUpdater/View.ts', 'SelfUpdater/Service.ts', 'SelfUpdater/UpdateSync.ts',
+      'SelfUpdater/Manifest.ts', 'ResourceDownloader/Git.ts'];
+    const data = input({}, sourceRoot);
+    const scriptRoot = sourceRoot.endsWith('/Script') ? sourceRoot : sourceRoot + '/Script';
+    data.rootNames = [scriptRoot + '/Tools/SelfUpdater/View.ts'];
+    const prefix = sourceRoot.endsWith('/Script') ? 'Script/' : '';
+    for (const name of names) data.files.push({
+      file: `${scriptRoot}/Tools/${name}`, moduleName: `${prefix}Tools/${name.slice(0, -3)}`,
+      content: await readFile(new URL(`../../Assets/Script/Tools/${name}`, import.meta.url), 'utf8'),
+    });
+    data.files.push({ file: '/dora/ImGui.d.ts', moduleName: 'ImGui',
+      content: await readFile(new URL('../../Assets/Script/Lib/Dora/en/ImGui.d.ts', import.meta.url), 'utf8') });
+    const unaliased = {...data, files: data.files.map(file => file.moduleName === 'ImGui' ? file : {...file, moduleName: undefined})};
+    assert.ok(compile(unaliased).diagnostics.length > 0, 'Original import failure must reproduce without builtin aliases');
+    const result = compile(data);
+    assert.deepEqual(messages(result), []);
+    const lua = result.output.get(scriptRoot + '/Tools/SelfUpdater/View.lua').content;
+    assert.match(lua, /require\("ImGui"\)/);
+    const emittedPrefix = sourceRoot.endsWith('/Script') ? '' : 'Script.';
+    assert.ok(lua.includes(`require("${emittedPrefix}Tools.SelfUpdater.Service")`));
+    const sync = result.output.get(scriptRoot + '/Tools/SelfUpdater/UpdateSync.lua').content;
+    assert.ok(sync.includes(`require("${emittedPrefix}Tools.ResourceDownloader.Git")`));
+    data.files = data.files.filter(file => !file.file.endsWith('/SelfUpdater/Manifest.ts'));
+    assert.ok(compile(data).diagnostics.length > 0, 'Missing builtin dependency must still be rejected');
+  });
+}
+
 test('missing snapshot dependency is an error, never satisfied from disk or prior build', () => {
   const valid = compile(input({ 'main.ts': 'import { x } from "other"; export const y = x;', 'other.ts': 'export const x = 1;' }));
   assert.deepEqual(messages(valid), []);
