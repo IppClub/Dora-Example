@@ -4,7 +4,23 @@ import {build} from 'esbuild';
 import {resolve} from 'node:path';
 import {createRequire} from 'node:module';
 const reactRoot = createRequire(resolve('apps/web/package.json')).resolve('react/package.json').replace(/\/package.json$/, '');
-const bundle = await build({stdin:{contents:`import {createElement} from 'react'; import {renderToStaticMarkup} from 'react-dom/server'; import {AgentPanel,isAgentTranscriptAtBottom} from './AgentPanel'; export const render = props => renderToStaticMarkup(createElement(AgentPanel,props)); export {isAgentTranscriptAtBottom};`,resolveDir:resolve('apps/web/src'),loader:'tsx'},bundle:true,alias:{react:reactRoot},write:false,format:'cjs',platform:'node',jsx:'automatic',loader:{'.css':'empty'}});
+const bundle = await build({
+  stdin: {
+    contents: `
+      import {createElement} from 'react';
+      import {renderToStaticMarkup} from 'react-dom/server';
+      import {StudioI18nProvider} from './i18n';
+      import {AgentPanel,isAgentTranscriptAtBottom} from './AgentPanel';
+      export const render = props => renderToStaticMarkup(
+        createElement(StudioI18nProvider,null,createElement(AgentPanel,props))
+      );
+      export {isAgentTranscriptAtBottom};
+    `,
+    resolveDir: resolve('apps/web/src'),
+    loader: 'tsx',
+  },
+  bundle:true,alias:{react:reactRoot},write:false,format:'cjs',platform:'node',jsx:'automatic',loader:{'.css':'empty'},
+});
 const mod={exports:{}};
 new Function('module','exports','require',bundle.outputFiles[0].text)(mod,mod.exports,createRequire(import.meta.url));
 const {render,isAgentTranscriptAtBottom}=mod.exports;
@@ -44,7 +60,7 @@ test('step list exposes the original Agent execution details instead of a tool-o
 test('running task shows an explicit automatic shared-model queue state',()=>{
   const state={session:{title:'示例',status:'RUNNING',workMode:'code',currentTaskId:2,currentTaskStatus:'RUNNING'},messages:collection([{id:1,taskId:2,role:'user',content:'继续完善'}]),steps:collection([]),checkpoints:collection([]),hasEarlierMessages:false,pendingQuestionnaire:null,deleted:false};
   const queued=render({state,modelQueue:{version:1,state:'queued',queuedAt:123,position:3}});
-  assert.match(queued,/共享模型繁忙，正在自动排队等待/);assert.match(queued,/前方 2 个请求/);
+  assert.match(queued,/共享模型繁忙，正在自动排队等待/);assert.match(queued,/前方请求数：2/);
   assert.doesNotMatch(queued,/正在准备上下文并请求模型/);
   const idle=render({state,modelQueue:{version:1,state:'idle'}});
   assert.match(idle,/正在准备上下文并请求模型/);assert.doesNotMatch(idle,/共享模型繁忙/);

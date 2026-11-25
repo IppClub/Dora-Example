@@ -21,13 +21,13 @@ test('ordinary source archives import without a player manifest and preserve fut
  const titled=restoreDoraArchive([{path:'wrapper/init.lua',data:encoder.encode('print(1)')},{path:'wrapper/dora-package.json',data:encoder.encode(JSON.stringify({format:'dora-game',version:1,title:'Dora 导入验收'}))}],'import-test.dora');
  assert.equal(titled.name,'Dora 导入验收');assert.equal(titled.snapshot.files.find(file=>file.path==='dora-package.json').text,JSON.stringify({format:'dora-game',version:1,title:'Dora 导入验收'}));
  assert.equal(restoreDoraArchive([{path:'init.lua',data:encoder.encode('')},{path:'dora-package.json',data:encoder.encode('{broken')}],'fallback.dora').name,'fallback');
- assert.throws(()=>restoreDoraArchive([{path:'one/init.lua',data:encoder.encode('')},{path:'two/init.lua',data:encoder.encode('')}],'multi.zip'),/明确的源码入口/);
+ assert.throws(()=>restoreDoraArchive([{path:'one/init.lua',data:encoder.encode('')},{path:'two/init.lua',data:encoder.encode('')}],'multi.zip'),{message:'projects.missingSourceEntry'});
  assert.throws(()=>restoreDoraArchive([{path:'init.ts',data:encoder.encode('')},{path:'../escape',data:new Uint8Array()}],'bad.zip'));
  const deep=restoreDoraArchive([{path:'download/repo/game/init.ts',data:encoder.encode('export {};')},{path:'download/repo/game/assets/a.bin',data:new Uint8Array([5])}],'deep.zip');
  assert.deepEqual(deep.snapshot.files.map(file=>file.path),['init.ts','assets/a.bin']);
- assert.throws(()=>restoreDoraArchive([{path:'../init.ts',data:encoder.encode('')}],'unsafe.zip'),/非法路径/);
- assert.throws(()=>restoreDoraArchive([{path:'repo/README.md',data:encoder.encode('keep me')},{path:'repo/game/init.ts',data:encoder.encode('')}],'siblings.zip'),/明确的源码入口/);
- assert.throws(()=>restoreDoraArchive([],'empty.zip'),/为空/);
+ assert.throws(()=>restoreDoraArchive([{path:'../init.ts',data:encoder.encode('')}],'unsafe.zip'),{message:'projects.invalidSourceArchive'});
+ assert.throws(()=>restoreDoraArchive([{path:'repo/README.md',data:encoder.encode('keep me')},{path:'repo/game/init.ts',data:encoder.encode('')}],'siblings.zip'),{message:'projects.missingSourceEntry'});
+ assert.throws(()=>restoreDoraArchive([],'empty.zip'),{message:'projects.invalidSourceArchive'});
 });
 test('source import prefers authored entry over its generated Lua sibling',()=>{
  const pair=[{path:'init.lua',data:encoder.encode('generated')},{path:'init.ts',data:encoder.encode('export {};')}];
@@ -64,5 +64,5 @@ test('validated Dora packages preserve sources and binary assets with an indepen
   assert.notEqual(a.snapshot.projectId, b.snapshot.projectId);
   pack.files[1].data[0] = 99;
   assert.equal(a.snapshot.files[1].bytes[0], 0);
-  assert.throws(() => restoreDoraPackage({ ...pack, files: [] }), /Wasm/);
+  assert.throws(() => restoreDoraPackage({ ...pack, files: [] }), {message:'projects.wasmOnlyImport'});
 });

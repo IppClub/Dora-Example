@@ -23,7 +23,7 @@ test('opening a project that only exists on another device materializes it befor
  const store=storeFixture(undefined,undefined),stages=[];let choices=0;
  const result=await synchronizeProjectForOpen({store,projectId:'remote-only',accountId:'account',signal:new AbortController().signal,progress:stage=>stages.push(stage),chooseNewer:async()=>{choices++;return true;}},{loadRemote:async()=>({cloudRevision:3,updatedAt:400,name:'共享名称',snapshot:snapshot('remote-only',9,'remote')})});
  assert.equal(result.name,'共享名称');assert.equal(result.snapshot.revision,0);assert.equal(result.snapshot.files[0].text,'remote');assert.equal(choices,0);
- assert.ok(stages.some(stage=>stage.label==='正在保存到当前浏览器…'));
+ assert.ok(stages.some(stage=>stage.label==='projects.savingInBrowser'));
 });
 
 test('a genuinely newer synchronized copy asks once and applies the selected content',async()=>{
@@ -42,5 +42,5 @@ test('resuming the browser own pending upload does not masquerade as a newer-dev
 
 test('missing synchronized server content blocks opening instead of pretending the project is current',async()=>{
  const store=storeFixture(local('missing',2,'local'),{accountId:'account',projectId:'missing',cloudRevision:4,syncedLocalRevision:2});
- await assert.rejects(()=>synchronizeProjectForOpen({store,projectId:'missing',accountId:'account',signal:new AbortController().signal,progress:()=>{},chooseNewer:async()=>false},{loadRemote:async()=>undefined}),/无法找到已同步/);
+ await assert.rejects(()=>synchronizeProjectForOpen({store,projectId:'missing',accountId:'account',signal:new AbortController().signal,progress:()=>{},chooseNewer:async()=>false},{loadRemote:async()=>undefined}),{message:'projects.syncedProjectMissing'});
 });

@@ -11,9 +11,9 @@ test('upload preserves bytes, refuses collisions and leaves the original list un
   assert.equal(original.length, 1);
   assert.equal(result[1].path, 'Resources/sound.bin');
   assert.deepEqual([...result[1].bytes], [0, 255, 9]);
-  await assert.rejects(appendResources(result, [file]), /冲突/);
-  await assert.rejects(appendResources(original, [file, file]), /冲突/);
-  await assert.rejects(appendResources(original, [new File(['x'], '../escape')]), /无效/);
-  await assert.rejects(appendResources(original, [{ name: 'large', size: 64 * 1024 * 1024 + 1 }]), /64 MiB/);
-  await assert.rejects(appendResources(original, [{ name: 'short', size: 2, arrayBuffer: async () => new ArrayBuffer(1) }]), /不完整/);
+  await assert.rejects(appendResources(result, [file]), {message:'projects.assetPathConflict'});
+  await assert.rejects(appendResources(original, [file, file]), {message:'projects.assetPathConflict'});
+  await assert.rejects(appendResources(original, [new File(['x'], '../escape')]), {message:'projects.invalidAssetName'});
+  await assert.rejects(appendResources(original, [{ name: 'large', size: 64 * 1024 * 1024 + 1 }]), {message:'projects.assetTooLarge'});
+  await assert.rejects(appendResources(original, [{ name: 'short', size: 2, arrayBuffer: async () => new ArrayBuffer(1) }]), {message:'projects.assetReadIncomplete'});
 });

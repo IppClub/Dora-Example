@@ -7,7 +7,7 @@ const { runtimeSupportProblem } = await import(`data:text/javascript;base64,${Bu
 test('runtime prerequisites report missing environment features without pretending success', () => {
   const supported = { secure: true, isolated: true, sharedMemory: true, offscreen: true, transferCanvas: true };
   assert.equal(runtimeSupportProblem(supported), null);
-  assert.match(runtimeSupportProblem({ ...supported, secure: false }), /HTTPS/);
-  for (const key of ['isolated', 'sharedMemory']) assert.match(runtimeSupportProblem({ ...supported, [key]: false }), /COOP/);
-  for (const key of ['offscreen', 'transferCanvas']) assert.match(runtimeSupportProblem({ ...supported, [key]: false }), /画布/);
+  assert.equal(runtimeSupportProblem({ ...supported, secure: false }), 'projects.runtimeSecureRequired');
+  for (const key of ['isolated', 'sharedMemory']) assert.equal(runtimeSupportProblem({ ...supported, [key]: false }), 'projects.runtimeIsolationRequired');
+  for (const key of ['offscreen', 'transferCanvas']) assert.equal(runtimeSupportProblem({ ...supported, [key]: false }), 'projects.runtimeCanvasUnsupported');
 });
