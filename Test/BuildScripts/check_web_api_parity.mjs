@@ -44,6 +44,7 @@ const exclusions = {
 	'yarncompile': 'Yarn compiler excluded',
 	'bgfxProbeDraw': 'native diagnostic probe excluded',
 	'bgfxProbeClearRed': 'native diagnostic probe excluded',
+	'_loveCompilerModules': 'native compiler discovery hook; Studio generates its module list from the Player profile',
 };
 const ignored = key => Object.keys(exclusions).some(prefix => key === prefix || key.startsWith(`${prefix}.`));
 const missing = [];

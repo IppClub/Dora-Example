@@ -20,7 +20,7 @@ const declarations = await Promise.all(['Dora.d.ts', 'es6-subset.d.ts', 'lua.d.t
   file: `/dora/${name}`, content: await readFile(new URL(`../../Assets/Script/Lib/Dora/en/${name}`, import.meta.url), 'utf8'),
 })));
 const lualib = await readFile(new URL('../../Assets/Script/Lib/lualib_bundle.lua', import.meta.url), 'utf8');
-const options = doraCompilerOptions(ts, tstl.LuaTarget.Lua55, tstl.LuaLibImportKind.Require);
+const options = doraCompilerOptions(ts, tstl.LuaTarget.Lua55, tstl.LuaLibImportKind.Require, ['Dora', 'ImGui']);
 function input(sources, root = '/project') {
   return {
     rootNames: [`${root}/main.ts`], projectRoot: root, options, defaultLibFileName: '/dora/Dora.d.ts',
@@ -82,7 +82,7 @@ for (const sourceRoot of ['/engine/Assets/Script', '/engine/Assets', 'C:/engine/
     data.files.push({ file: '/dora/ImGui.d.ts', moduleName: 'ImGui',
       content: await readFile(new URL('../../Assets/Script/Lib/Dora/en/ImGui.d.ts', import.meta.url), 'utf8') });
     const unaliased = {...data, files: data.files.map(file => file.moduleName === 'ImGui' ? file : {...file, moduleName: undefined})};
-    assert.ok(compile(unaliased).diagnostics.length > 0, 'Original import failure must reproduce without builtin aliases');
+    assert.deepEqual(messages(compile(unaliased)), [], 'Builtin source roots resolve without explicit aliases');
     const result = compile(data);
     assert.deepEqual(messages(result), []);
     const lua = result.output.get(scriptRoot + '/Tools/SelfUpdater/View.lua').content;

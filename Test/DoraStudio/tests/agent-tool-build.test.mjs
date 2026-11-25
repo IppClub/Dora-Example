@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
+import {studioCompilerResourcesPath} from '../packages/compiler/dist/index.js';
 
 const bundled=await build({entryPoints:['apps/web/src/agent-tool-build.ts'],bundle:true,write:false,format:'esm',platform:'node',plugins:[{name:'compiler-fixture',setup(builder){
   builder.onResolve({filter:/^@dora-studio\/compiler-web$/},()=>({path:'compiler',namespace:'fixture'}));
-  builder.onLoad({filter:/.*/,namespace:'fixture'},()=>({loader:'js',contents:'export const createBrowserCompiler=()=>({compile:async()=>globalThis.__agentBuildReply,dispose(){}});'}));
+  builder.onLoad({filter:/.*/,namespace:'fixture'},()=>({loader:'js',contents:`export const studioCompilerResourcesPath=${JSON.stringify(studioCompilerResourcesPath)};
+    export const createBrowserCompiler=()=>({compile:async()=>globalThis.__agentBuildReply,dispose(){}});`}));
 }}]});
 const {transpileAgentTsTool}=await import('data:text/javascript;base64,'+Buffer.from(bundled.outputFiles[0].text).toString('base64'));
 const root='/user/studio-project',encoder=new TextEncoder(),source='export function normalize(value: number) {\n  if (value) return 1;\n  return 0;\n}';
@@ -18,7 +20,7 @@ function fixtureFS(){
 const request={operation:'transpile-ts',file:root+'/main.ts',projectRoot:root,content:source};
 const originalFetch=globalThis.fetch;
 const originalLocation=globalThis.location;
-globalThis.fetch=async()=>({ok:true,text:async()=>''});
+globalThis.fetch=async()=>({ok:true,json:async()=>[]});
 globalThis.location={href:'http://studio.test/'};
 
 test.after(()=>{
